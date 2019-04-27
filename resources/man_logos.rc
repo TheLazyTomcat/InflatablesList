@@ -1,0 +1,7 @@
+man_logo_others       RCDATA "..\pics\manufacturer_logo\man_logo_others.bmp"
+man_logo_intex        RCDATA "..\pics\manufacturer_logo\man_logo_intex.bmp"
+man_logo_bestway      RCDATA "..\pics\manufacturer_logo\man_logo_bestway.bmp"
+man_logo_wiky         RCDATA "..\pics\manufacturer_logo\man_logo_wiky.bmp"
+man_logo_happypeople  RCDATA "..\pics\manufacturer_logo\man_logo_happypeople.bmp"
+man_logo_swimline     RCDATA "..\pics\manufacturer_logo\man_logo_swimline.bmp"
+man_logo_mondo        RCDATA "..\pics\manufacturer_logo\man_logo_mondo.bmp"

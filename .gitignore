@@ -1,0 +1,7 @@
+Thumbs.db
+*.dcu
+*.~*
+*.exe
+*.dll
+!.gitkeep
+*.inl

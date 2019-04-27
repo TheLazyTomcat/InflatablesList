@@ -313,6 +313,9 @@ var
         end;
       end
     else Pic := nil;
+
+    {$message 'remove'}
+    FreeAndNil(Pic);
   end;
 
 begin

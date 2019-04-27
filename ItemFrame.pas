@@ -923,7 +923,7 @@ If Assigned(fCurrentItemPtr) then
         SetLength(Temp,Length(fCurrentItemPtr^.Shops));
         For i := Low(Temp) to High(Temp) do
           begin
-            Temp[i].ItemName := Format('[#%d] %s',[fCurrentItemPtr^.Index,fILManager.ItemTitleStr(fCurrentItemPtr^)]);
+            Temp[i].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fCurrentItemPtr^)]);
             Temp[i].ItemShopPtr := Addr(fCurrentItemPtr^.Shops[i]);
           end;
         fUpdateForm.ShowUpdate(Temp);

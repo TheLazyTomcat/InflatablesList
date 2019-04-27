@@ -30,6 +30,7 @@ type
     // main list
     fList:              array of TILItem;
     // sorting
+    fSorting:           Boolean;
     fUsedSortSett:      TILSortingSettings;    
     fDefaultSortSett:   TILSortingSettings;
     fActualSortSett:    TILSortingSettings;
@@ -101,8 +102,8 @@ type
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
     procedure SortingProfileExchange(Idx1,Idx2: Integer); virtual;
     procedure SortingProfileDelete(Index: Integer); virtual;
-    procedure ItemSort(SortingProfile: Integer); overload; virtual;
-    procedure ItemSort; overload; virtual;
+    procedure ItemSort(SortingProfile: Integer; Reversed: Boolean = False); overload; virtual;
+    procedure ItemSort(Reversed: Boolean = False); overload; virtual;
     // shop templates
     Function ShopTemplateAdd(const Name: String; ShopData: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
@@ -141,7 +142,6 @@ uses
   SysUtils, IniFiles, TypInfo, StrUtils,
   BitOps, ListSorters, BinaryStreaming,
   InflatablesList_Utils, InflatablesList_ShopUpdate;
-
 
 Function TILManager_Base.GetItemCount: Integer;
 begin
@@ -226,6 +226,7 @@ end;
 
 procedure TILManager_Base.InitializeSortingSettings;
 begin
+fSorting := False;
 FillChar(fDefaultSortSett,SizeOf(fDefaultSortSett),0);
 fDefaultSortSett.Count := 2;
 fDefaultSortSett.Items[0].ItemValueTag := ilivtManufacturer;
@@ -304,13 +305,12 @@ var
       ilivtFlagNotAvailable:  Result := IL_CompareBool(ilifNotAvailable in fList[Idx1].Flags,ilifNotAvailable in fList[Idx2].Flags);
       ilivtTextTag:           Result := IL_CompareText(fList[Idx1].TextTag,fList[Idx2].TextTag);
       // extended specs
-      ilivtWantedLevel:       {$message 'non-reversed returns bulshits' }
-                              If (ilifWanted in fList[Idx1].Flags) and (ilifWanted in fList[Idx2].Flags) then
+      ilivtWantedLevel:       If (ilifWanted in fList[Idx1].Flags) and (ilifWanted in fList[Idx2].Flags) then
                                Result := IL_CompareUInt32(fList[Idx1].WantedLevel,fList[Idx2].WantedLevel)
                               else If ilifWanted in fList[Idx1].Flags then
-                                Result := +1
+                                Result := IL_NegateValue(+1,Reversed)
                               else If ilifWanted in fList[Idx2].Flags then
-                                Result := -1  // those without the flag set goes at the end
+                                Result := IL_NegateValue(-1,Reversed) // those without the flag set goes at the end
                               else
                                 Result := 0;
       ilivtVariant:           Result := IL_CompareText(fList[Idx1].Variant,fList[Idx2].Variant);
@@ -335,7 +335,6 @@ var
       ilivtTotalPriceSel:     Result := IL_CompareUInt32(ItemTotalPriceSelected(fList[Idx1]),ItemTotalPriceSelected(fList[Idx2]));
       ilivtTotalPrice:        Result := IL_CompareUInt32(ItemTotalPrice(fList[Idx1]),ItemTotalPrice(fList[Idx2]));
       ilivtAvailable:         begin
-      {$message 'problems' }
                                 Result := IL_CompareInt32(Abs(fList[Idx1].AvailablePieces),Abs(fList[Idx2].AvailablePieces));
                                 If Result = 0 then
                                   begin
@@ -349,9 +348,9 @@ var
       ilivtSelectedShop:      If ItemSelectedShop(fList[Idx1],SelShop1) and ItemSelectedShop(fList[Idx2],SelShop2) then
                                 Result := IL_CompareText(SelShop1.Name,SelShop2.Name)
                               else If ItemSelectedShop(fList[Idx1],SelShop1) then
-                                Result := +1
+                                Result := IL_NegateValue(+1,Reversed)
                               else If ItemSelectedShop(fList[Idx2],SelShop2) then
-                                Result := -1  // push items with no shop selected at the end
+                                Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
                               else
                                 Result := 0;
     else
@@ -363,19 +362,15 @@ var
   end;
 
 begin
-{$message 'revisit, returns bulshits'}
 Result := 0;
-For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
-  Result := (Result shl 1) +
-    CompareValues(fUsedSortSett.Items[i].ItemValueTag,fUsedSortSett.Items[i].Reversed);
-// stabilize sorting using indices
-Result := Result shl 1;
-If fList[Idx1].Index <> fList[Idx2].Index then
+If Idx1 <> Idx2 then
   begin
-    If fList[Idx1].Index > fList[Idx2].Index then
-      Result := Result - 1
-    else
-      Result := Result + 1;
+    For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
+      Result := (Result shl 1) +
+        CompareValues(fUsedSortSett.Items[i].ItemValueTag,fUsedSortSett.Items[i].Reversed);
+    // stabilize sorting using indices
+    If Result = 0 then
+      Result := (Result shl 1) + IL_CompareInt32(fList[Idx1].Index,fList[Idx2].Index);
   end;
 end;
 
@@ -913,7 +908,12 @@ If Idx1 <> Idx2 then
     Temp := fList[Idx1];
     fList[Idx1] := fList[Idx2];
     fList[Idx2] := Temp;
-    ReIndex;
+    If not fSorting then
+      begin
+        // full reindex not needed
+        fList[Idx1].Index := Idx1;
+        fList[Idx2].Index := Idx2;
+      end;
   end;
 end;
 
@@ -1272,8 +1272,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ItemSort(SortingProfile: Integer);
+procedure TILManager_Base.ItemSort(SortingProfile: Integer; Reversed: Boolean = False);
 var
+  i:      Integer;
   Sorter: TListSorter;
 begin
 ReIndex;  // to be sure
@@ -1286,11 +1287,19 @@ else
   else
     raise Exception.CreateFmt('TILManager_Base.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
 end;
+If Reversed then
+  For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
+    fUsedSortSett.Items[i].Reversed := not fUsedSortSett.Items[i].Reversed;
 If Length(fList) > 1 then
   begin
     Sorter := TListQuickSorter.Create(ItemCompare,ItemExchange);
     try
-      Sorter.Sort(Low(fList),High(fList));
+      fSorting := True;
+      try
+        Sorter.Sort(Low(fList),High(fList));
+      finally
+        fSorting := False;
+      end;
     finally
       Sorter.Free;
     end;
@@ -1300,9 +1309,9 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TILManager_Base.ItemSort;
+procedure TILManager_Base.ItemSort(Reversed: Boolean = False);
 begin
-ItemSort(-1);
+ItemSort(-1,Reversed);
 end;
 
 //------------------------------------------------------------------------------

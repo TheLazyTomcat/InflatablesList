@@ -30,6 +30,7 @@ type
     mniLM_SortSett: TMenuItem;
     mniLM_SortBy: TMenuItem;
     mniLM_Sort: TMenuItem;
+    mniLM_SortRev: TMenuItem;    
     N4: TMenuItem;
     mniLN_UpdateAll: TMenuItem;
     mniLN_UpdateWanted: TMenuItem;
@@ -63,8 +64,10 @@ type
     procedure mniLM_FindPrevClick(Sender: TObject);
     procedure mniLM_FindNextClick(Sender: TObject);
     procedure mniLM_SortSettClick(Sender: TObject);
+    procedure mniLM_SortCommon(Profile: Integer; Reversed: Boolean);
     procedure mniLM_SortByClick(Sender: TObject);
     procedure mniLM_SortClick(Sender: TObject);
+    procedure mniLM_SortRevClick(Sender: TObject);    
     procedure mniLN_UpdateCommon(OnlyWanted: Boolean);
     procedure mniLN_UpdateAllClick(Sender: TObject);
     procedure mniLN_UpdateWantedClick(Sender: TObject);
@@ -217,7 +220,8 @@ sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
 mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
-mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
+mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 fSaveOnExit := True;
 fILManager := TILManager.Create(lbList);
@@ -450,37 +454,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortByClick(Sender: TObject);
-begin
-If Sender is TMenuItem then
-  begin
-    frmItemFrame.SaveItem;
-    frmItemFrame.SetItem(nil,False);
-    Screen.Cursor := crHourGlass;
-    try
-      fILManager.ItemSort(TMenuItem(Sender).Tag);
-    finally
-      Screen.Cursor := crDefault;
-    end;
-    If lbList.ItemIndex >= 0 then
-      begin
-        frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
-        frmItemFrame.LoadItem;
-      end;
-    lbList.Invalidate;
-    ShowIndexAndCount;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_SortClick(Sender: TObject);
+procedure TfMainForm.mniLM_SortCommon(Profile: Integer; Reversed: Boolean);
 begin
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 Screen.Cursor := crHourGlass;
 try
-  fILManager.ItemSort;
+  fILManager.ItemSort(Profile,Reversed);
 finally
   Screen.Cursor := crDefault;
 end;
@@ -491,6 +471,28 @@ If lbList.ItemIndex >= 0 then
   end;
 lbList.Invalidate;
 ShowIndexAndCount;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_SortByClick(Sender: TObject);
+begin
+If Sender is TMenuItem then
+  mniLM_SortCommon(TMenuItem(Sender).Tag,False);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_SortClick(Sender: TObject);
+begin
+mniLM_SortCommon(-1,False);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
+begin
+mniLM_SortCommon(-1,True);
 end;
 
 //------------------------------------------------------------------------------

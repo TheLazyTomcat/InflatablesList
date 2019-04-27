@@ -34,6 +34,7 @@ Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean):
 Function IL_CharInSet(C: Char; CharSet: TSysCharSet): Boolean;
 
 Function IL_IndexWrap(Index,Low,High: Integer): Integer;
+Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer;
 
 implementation
 
@@ -224,6 +225,16 @@ else If Index > High then
   Result := Low
 else
   Result := Index;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer;
+begin
+If Negate then
+  Result := -Value
+else
+  Result := Value;
 end;
 
 end.

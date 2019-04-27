@@ -194,6 +194,10 @@ object fMainForm: TfMainForm
       ShortCut = 16463
       OnClick = mniLM_SortClick
     end
+    object mniLM_SortRev: TMenuItem
+      Caption = 'Sort reversed'
+      OnClick = mniLM_SortRevClick
+    end
     object N4: TMenuItem
       Caption = '-'
     end

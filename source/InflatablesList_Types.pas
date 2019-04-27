@@ -52,7 +52,7 @@ type
   TILItemShopParsingStages = array of TILItemShopParsingStage;
   PILItemShopParsingStages = ^TILItemShopParsingStages;
 
-  {$message 'add more option (eg. combinations'}
+  {$message 'add more option (eg. combinations)'}
   TILItemShopParsAvailExtrMethod = (ilpaemFirstInteger,ilpaemFirstIntegerTag,
                                     ilpaemMoreThanTagIsOne,ilpaemFIorMTTIO);
   TILItemShopParsPriceExtrMethod = (ilppemFirstInteger);

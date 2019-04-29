@@ -4,9 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls,
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin,
   ConcurrentTasks,
-  InflatablesList_Types, InflatablesList, Spin;
+  InflatablesList_Types, InflatablesList;
 
 type
   TfUpdateForm = class(TForm)
@@ -139,7 +139,6 @@ with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
     fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg := ItemShop.LastUpdateMsg;
     UniqueString(fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg);
     fShopsToUpdate[ProcessingIndex].Done := True;
-    fUpdater.ClearCompletedTasks;
   end;
 // log
 while fLoggedIndex <= High(fShopsToUpdate) do
@@ -151,7 +150,7 @@ while fLoggedIndex <= High(fShopsToUpdate) do
     end
   else Break{while...};
   end;
-// advance
+//progress
 If fProcessedIndex <= High(fShopsToUpdate) then
   begin
     // show progress
@@ -160,9 +159,6 @@ If fProcessedIndex <= High(fShopsToUpdate) then
     else
       pbProgress.Position := pbProgress.Max;
     pnlInfo.Caption := Format('%d item shops ready for update',[Length(fShopsToUpdate) - fProcessedIndex]);
-    // start new processing
-    If fCanContinue then
-      ContinueProcessing
   end
 else
   begin
@@ -216,7 +212,7 @@ If Length(ShopsToUpdate) > 0 then
     try
       fUpdater.MaxConcurrentTasks := seNumberOfThreads.Value;
       fUpdater.OnTaskCompleted := TaskFinishHandler;
-      fCanContinue := True;
+      fCanContinue := False;
       ShowModal;
       fUpdater.WaitForRunningTasksToComplete;
     finally
@@ -282,7 +278,12 @@ end;
 procedure TfUpdateForm.tmrUpdateTimer(Sender: TObject);
 begin
 if Assigned(fUpdater) then
-  fUpdater.Update;
+  begin
+    fUpdater.Update;
+    fUpdater.ClearCompletedTasks;
+    If fCanContinue then
+      ContinueProcessing;
+  end;
 end;
 
 end.

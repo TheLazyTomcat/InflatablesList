@@ -24,6 +24,7 @@ uses
   InflatablesList_HTML_UnicodeTagAttributeArray in 'source\InflatablesList_HTML_UnicodeTagAttributeArray.pas',
   InflatablesList_HTML_TagAttributeArray in 'source\InflatablesList_HTML_TagAttributeArray.pas',
   InflatablesList_HTML_Document in 'source\InflatablesList_HTML_Document.pas',
+  InflatablesList_HTML_ElementFinder in 'source\InflatablesList_HTML_ElementFinder.pas',
   InflatablesList_HTML_Preprocessor in 'source\InflatablesList_HTML_Preprocessor.pas',
   InflatablesList_HTML_Tokenizer in 'source\InflatablesList_HTML_Tokenizer.pas',
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
@@ -31,8 +32,7 @@ uses
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
   InflatablesList_Manager_VER00000000 in 'source\InflatablesList_Manager_VER00000000.pas',
   InflatablesList_Manager_VER00000001 in 'source\InflatablesList_Manager_VER00000001.pas',
-  InflatablesList in 'source\InflatablesList.pas',
-  InflatablesList_HTML_ElementFinder in 'source\InflatablesList_HTML_ElementFinder.pas';
+  InflatablesList in 'source\InflatablesList.pas';
 
 {$R *.res}
 

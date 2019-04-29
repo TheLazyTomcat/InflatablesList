@@ -3,6 +3,7 @@ unit InflatablesList;
 {$IFDEF DevelMsgs}
   {$message 'export/import (ini)'}
 {$ENDIF}
+{$message 'limit backup depth'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

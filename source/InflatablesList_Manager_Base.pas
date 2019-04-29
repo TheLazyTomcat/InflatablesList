@@ -1021,11 +1021,8 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
     // variant/color
     TextOut(WL_STRIP_WIDTH + 5,50,Item.Variant);
 
-    // Flag icons
-    If Length(Item.ReviewURL) > 0 then
-      TempInt := WL_STRIP_WIDTH + fDataProvider.ItemReviewIcon.Width + 8
-    else
-      TempInt := WL_STRIP_WIDTH + 5;
+    // flag icons
+    TempInt := WL_STRIP_WIDTH + 5;
     For ItemFlag := Low(TILItemFlag) to High(TILItemFlag) do
       If ItemFlag in Item.Flags then
         begin
@@ -1034,7 +1031,14 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           Inc(TempInt,fDataProvider.ItemFlagIcons[ItemFlag].Width + 5);
         end;
 
-    // text Flag
+    // review icon
+    If Length(Item.ReviewURL) > 0 then
+      begin
+        Draw(TempInt,fRenderHeight - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
+        Inc(TempInt,fDataProvider.ItemReviewIcon.Width + 5);
+      end;
+
+    // text tag
     If Length(Item.TextTag) > 0 then
       begin
         Font.Size := 8;
@@ -1064,10 +1068,6 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%d Kè',[ItemTotalPriceLowest(Item)]);
         TextOut(fRenderWidth - (TextWidth(TempStr) + 118),25,TempStr);
       end;
-
-    // review icon
-    If Length(Item.ReviewURL) > 0 then
-      Draw(WL_STRIP_WIDTH + 5,fRenderHeight - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
 
     // main picture
     If Assigned(Item.MainPicture) then

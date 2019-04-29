@@ -57,6 +57,60 @@ type
                                     ilpaemMoreThanTagIsOne,ilpaemFIorMTTIO);
   TILItemShopParsPriceExtrMethod = (ilppemFirstInteger);
 
+//-- <new_shit> ----------------------------------------------------------------
+(*
+type
+  TILGroupOperator = (ilsoAND,ilsoOR,ilsoXOR);
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  TILSearchedString = record
+    Str:            String;
+    CaseSensitive:  Boolean;
+    AllowPartial:   Boolean;
+    Negate:         Boolean;
+  end;
+
+  TILSearchedStringGroup = record
+    Operator: TILGroupOperator;
+    Items:    array of TILSearchedString;
+  end;
+
+  TILSearchedStringGroups = array of TILSearchedStringGroup;
+
+  TILSearchedStringGroupTree = record
+    Groups:  TILSearchedStringGroups
+  end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  TILSearchedAttribute = record
+    Name:   TILSearchedStringGroup;
+    Value:  TILSearchedStringGroup;
+  end;
+
+  TILSearchedAttributeItem = record
+    Attr:   TILSearchedAttribute;
+    Negate: Boolean;
+  end;
+
+  TILSearchedAttributeGroup = record
+    Operator: TILGroupOperator;
+    Items:    array of TILSearchedAttributeItem;
+  end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  TILSearchedElement = record
+    Name:       TILSearchedString;
+    Attributes: array of TILSearchedAttribute;
+  end;
+
+  //TIL_ItemShopParsingStage
+*)
+//-- </new_shit> ---------------------------------------------------------------
+
+type
   TILItemShopParsingSetting = record
     MoreThanTag:      String;
     AvailExtrMethod:  TILItemShopParsAvailExtrMethod;
@@ -102,6 +156,7 @@ type
   TILItemShopUpdate = record
     ItemName:     String;
     ItemShopPtr:  PILItemShop;
+    Done:         Boolean;
   end;
 
   TILItemShopUpdates = array of TILItemShopUpdate;

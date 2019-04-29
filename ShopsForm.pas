@@ -373,6 +373,7 @@ If Length(fCurrentItem.Shops) > 0 then
       begin
         Temp[i].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fCurrentItem)]);
         Temp[i].ItemShopPtr := Addr(fCurrentItem.Shops[i]);
+        Temp[i].Done := False;
       end;
     fUpdateForm.ShowUpdate(Temp);
     For i := 0 to Pred(lvShops.Items.Count) do

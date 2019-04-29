@@ -1,7 +1,7 @@
 program InflatablesListApp;
 
 uses
-  //FastMM4,
+  FastMM4,
   Forms,
   MainForm in 'MainForm.pas' {fMainForm},
   SortForm in 'SortForm.pas' {fSortForm},
@@ -28,11 +28,11 @@ uses
   InflatablesList_HTML_Tokenizer in 'source\InflatablesList_HTML_Tokenizer.pas',
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
   InflatablesList_ShopUpdate in 'source\InflatablesList_ShopUpdate.pas',
-  InflatablesList_ThreadedUpdater in 'source\InflatablesList_ThreadedUpdater.pas',
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
   InflatablesList_Manager_VER00000000 in 'source\InflatablesList_Manager_VER00000000.pas',
   InflatablesList_Manager_VER00000001 in 'source\InflatablesList_Manager_VER00000001.pas',
-  InflatablesList in 'source\InflatablesList.pas';
+  InflatablesList in 'source\InflatablesList.pas',
+  InflatablesList_HTML_ElementFinder in 'source\InflatablesList_HTML_ElementFinder.pas';
 
 {$R *.res}
 

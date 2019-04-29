@@ -74,4 +74,9 @@ object fUpdateForm: TfUpdateForm
     WordWrap = False
     OnKeyPress = meLogKeyPress
   end
+  object tmrUpdate: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = tmrUpdateTimer
+  end
 end

@@ -18,6 +18,7 @@ type
     fAttributes:  TILTagAttributeCountedDynArray;
     fTextArr:     TILUnicodeCharCountedDynArray;
     fText:        String;
+    fNestedText:  String;
     fElements:    TObjectCountedDynArray;
     Function GetAttributeCount: Integer;
     Function GetAttribute(Index: Integer): TILTagAttribute;
@@ -25,6 +26,7 @@ type
     Function GetElement(Index: Integer): TILHTMLElementNode;
   protected
     Function Corresponds(SearchSettings: TILItemShopParsingStage): Boolean; virtual;
+    procedure TextFinalize; virtual;    
   public
     constructor Create(Parent: TILHTMLElementNode; const Name: String);
     constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
@@ -37,7 +39,6 @@ type
     procedure AttributeDelete(Index: Integer); virtual;
     procedure TextAppend(const Str: UnicodeString); overload; virtual;
     procedure TextAppend(const Chr: UnicodeChar); overload; virtual;
-    procedure TextFinalize; virtual;
     Function ElementIndexOf(const Name: String): Integer; virtual;
     Function ElementAdd(Element: TILHTMLElementNode): Integer; virtual;
     procedure ElementDelete(Index: Integer); virtual;
@@ -52,6 +53,7 @@ type
     property AttributeCount: Integer read GetAttributeCount;
     property Attributes[Index: Integer]: TILTagAttribute read GetAttribute;
     property Text: String read fText;
+    property NestedText: String read fNestedText;
     property ElementCount: Integer read GetElementCount;
     property Elements[Index: Integer]: TILHTMLElementNode read GetElement; default;
   end;
@@ -115,6 +117,22 @@ If Length(SearchSettings.ElementName) > 0 then
 else Result := False;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILHTMLElementNode.TextFinalize;
+var
+  Temp: UnicodeString;
+  i:    Integer;
+begin
+SetLength(Temp,CDA_Count(fTextArr));
+For i := CDA_Low(fTextArr) to CDA_High(fTextArr) do
+  Temp[i + 1] := CDA_GetItem(fTextArr,i);
+fText := UnicodeToStr(Temp);
+fNestedText := '';
+For i := CDA_Low(fElements) to CDA_High(fElements) do
+  fNestedText := fNestedText + TILHTMLElementNode(CDA_GetItem(fElements,i)).Text;
+end;
+
 //==============================================================================
 
 constructor TILHTMLElementNode.Create(Parent: TILHTMLElementNode; const Name: String);
@@ -137,12 +155,16 @@ var
   i:    Integer;
 begin
 Create(Parent,Source.Name);
+UniqueString(fName);
 fOpen := Source.Open;
 Source.TextFinalize;
 // copy attributes
 For i := 0 to Pred(Source.AttributeCount) do
   CDA_Add(fAttributes,Source.Attributes[i]);
 fText := Source.Text;
+fNestedText := Source.NestedText;
+UniqueString(fText);
+UniqueString(fNestedText);
 CDA_Clear(fTextArr);
 Temp := StrToUnicode(fText);
 For i := 1 to Length(Temp) do
@@ -256,19 +278,6 @@ end;
 procedure TILHTMLElementNode.TextAppend(const Chr: UnicodeChar);
 begin
 CDA_Add(fTextArr,Chr);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILHTMLElementNode.TextFinalize;
-var
-  Temp: UnicodeString;
-  i:    Integer;
-begin
-SetLength(Temp,CDA_Count(fTextArr));
-For i := CDA_Low(fTextArr) to CDA_High(fTextArr) do
-  Temp[i + 1] := CDA_GetItem(fTextArr,i);
-fText := UnicodeToStr(Temp);
 end;
 
 //------------------------------------------------------------------------------

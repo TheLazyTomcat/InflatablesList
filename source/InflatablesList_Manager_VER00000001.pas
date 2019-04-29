@@ -15,7 +15,6 @@ type
     procedure SaveData(Stream: TStream; Struct: UInt32); override;
     procedure SaveToStream_VER00000001(Stream: TStream); virtual;
     procedure SaveSortingSettings_VER00000001(Stream: TStream); virtual;
-
     procedure LoadData(Stream: TStream; Struct: UInt32); override;
     procedure LoadFromStream_VER00000001(Stream: TStream); virtual;
     procedure LoadSortingSettings_VER00000001(Stream: TStream); virtual;

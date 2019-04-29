@@ -519,6 +519,7 @@ For i := 0 to Pred(fILManager.ItemCount) do
       begin
         Temp[k].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fILManager[i])]);
         Temp[k].ItemShopPtr := Addr(fILManager.ItemPtrs[i]^.Shops[j]);
+        Temp[k].Done := False;
         Inc(k);
       end;
 If Length(Temp) > 0 then

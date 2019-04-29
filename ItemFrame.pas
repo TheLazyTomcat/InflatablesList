@@ -925,6 +925,7 @@ If Assigned(fCurrentItemPtr) then
           begin
             Temp[i].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fCurrentItemPtr^)]);
             Temp[i].ItemShopPtr := Addr(fCurrentItemPtr^.Shops[i]);
+            Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
         OldAvail := fCurrentItemPtr^.AvailablePieces;

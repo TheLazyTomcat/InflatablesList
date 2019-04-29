@@ -50,7 +50,7 @@ implementation
 {$R *.dfm}
 
 const
-  NR_OF_THREADS_COEF = 2;
+  NR_OF_THREADS_COEF = 3;
 
 //==============================================================================  
 

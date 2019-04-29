@@ -30,6 +30,14 @@ object fUpdateForm: TfUpdateForm
     Height = 13
     Caption = 'Processing log:'
   end
+  object lblNumberOfThreads: TLabel
+    Left = 515
+    Top = 60
+    Width = 94
+    Height = 13
+    Alignment = taRightJustify
+    Caption = 'Number of threads:'
+  end
   object pnlInfo: TPanel
     Left = 8
     Top = 8
@@ -51,7 +59,7 @@ object fUpdateForm: TfUpdateForm
   object pbProgress: TProgressBar
     Left = 120
     Top = 60
-    Width = 553
+    Width = 385
     Height = 17
     Max = 1000
     Step = 1
@@ -73,6 +81,17 @@ object fUpdateForm: TfUpdateForm
     TabOrder = 3
     WordWrap = False
     OnKeyPress = meLogKeyPress
+  end
+  object seNumberOfThreads: TSpinEdit
+    Left = 616
+    Top = 56
+    Width = 57
+    Height = 22
+    MaxValue = 1024
+    MinValue = 1
+    TabOrder = 4
+    Value = 0
+    OnChange = seNumberOfThreadsChange
   end
   object tmrUpdate: TTimer
     Enabled = False

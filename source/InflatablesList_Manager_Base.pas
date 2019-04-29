@@ -653,7 +653,12 @@ If (ilifWanted in Item.Flags) and (Length(Item.Shops) > 0) then
         If Item.UnitPriceSelected <> OldPrice then
           Include(Item.Flags,ilifPriceChange);
       end
-    else Include(Item.Flags,ilifNotAvailable);
+    else
+      begin
+        Include(Item.Flags,ilifNotAvailable);
+        If (Item.AvailablePieces <> OldAvail) then
+          Include(Item.Flags,ilifAvailChange);
+      end;
   end;
 end;
 

@@ -6,19 +6,22 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls,
   ConcurrentTasks,
-  InflatablesList_Types, InflatablesList;
+  InflatablesList_Types, InflatablesList, Spin;
 
 type
   TfUpdateForm = class(TForm)
     pnlInfo: TPanel;
     btnAction: TButton;
     pbProgress: TProgressBar;
+    seNumberOfThreads: TSpinEdit;
+    lblNumberOfThreads: TLabel;    
     bvlSplit: TBevel;
     lblLog: TLabel;
     meLog: TMemo;
     tmrUpdate: TTimer;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnActionClick(Sender: TObject);
+    procedure seNumberOfThreadsChange(Sender: TObject);
     procedure meLogKeyPress(Sender: TObject; var Key: Char);
     procedure tmrUpdateTimer(Sender: TObject);
   private
@@ -33,7 +36,6 @@ type
   protected
     procedure MakeLog(Index: Integer);
     procedure ContinueProcessing;
-    procedure ItemFinishHandler(Sender: TObject);
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
@@ -48,7 +50,7 @@ implementation
 {$R *.dfm}
 
 const
-  NR_OF_THREADS_COEF = 2; // later replace by spin edit on the form
+  NR_OF_THREADS_COEF = 2;
 
 //==============================================================================  
 
@@ -127,51 +129,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfUpdateForm.ItemFinishHandler(Sender: TObject);
-begin
-(*
-//log
-If not AnsiSameText(fLastItemName,fShopsToUpdate[fProcessedIndex].ItemName) then
-  begin
-    If meLog.Lines.Count > 0 then
-      meLog.Lines.Add('');
-    meLog.Lines.Add(fShopsToUpdate[fProcessedIndex].ItemName + sLineBreak);
-    fLastItemName := fShopsToUpdate[fProcessedIndex].ItemName;
-  end;
-If fShopsToUpdate[fProcessedIndex].ItemShopPtr^.Selected then
-  meLog.Lines.Add(Format('  * %s %s... %s',[fShopsToUpdate[fProcessedIndex].ItemShopPtr^.Name,
-    StringOfChar('.',fMaxShopNameLen - Length(fShopsToUpdate[fProcessedIndex].ItemShopPtr^.Name)),
-    fShopsToUpdate[fProcessedIndex].ItemShopPtr^.LastUpdateMsg]))
-else
-  meLog.Lines.Add(Format('    %s %s... %s',[fShopsToUpdate[fProcessedIndex].ItemShopPtr^.Name,
-    StringOfChar('.',fMaxShopNameLen - Length(fShopsToUpdate[fProcessedIndex].ItemShopPtr^.Name)),
-    fShopsToUpdate[fProcessedIndex].ItemShopPtr^.LastUpdateMsg]));
-// advance
-Inc(fProcessedIndex);
-If fProcessedIndex <= High(fShopsToUpdate) then
-  begin
-    // show progress
-    If Length(fShopsToUpdate) > 0 then
-      pbProgress.Position := Trunc((fProcessedIndex / Length(fShopsToUpdate)) * pbProgress.Max)
-    else
-      pbProgress.Position := pbProgress.Max;
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fShopsToUpdate) - fProcessedIndex]);
-    // start new processing
-    If fCanContinue then
-      fUpdater.Process(fShopsToUpdate[fProcessedIndex].ItemShopPtr);
-  end
-else
-  begin
-    pnlInfo.Caption := 'All shops updated, see log for details';
-    pbProgress.Position := pbProgress.Max;
-    btnAction.Tag := 2;
-    btnAction.Caption := 'Done';
-  end;
-*)
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
 begin
 // retrieve results from the task
@@ -222,6 +179,7 @@ procedure TfUpdateForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 fUpdater := nil;
+seNumberOfThreads.Value := TCNTSManager.GetProcessorCount * NR_OF_THREADS_COEF;
 end;
 
 //------------------------------------------------------------------------------
@@ -256,7 +214,7 @@ If Length(ShopsToUpdate) > 0 then
     tmrUpdate.Enabled := True;
     fUpdater := TCNTSManager.Create(True);
     try
-      fUpdater.MaxConcurrentTasks := fUpdater.GetProcessorCount * NR_OF_THREADS_COEF;
+      fUpdater.MaxConcurrentTasks := seNumberOfThreads.Value;
       fUpdater.OnTaskCompleted := TaskFinishHandler;
       fCanContinue := True;
       ShowModal;
@@ -298,6 +256,14 @@ else
   // finished, do nothing
   Close;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfUpdateForm.seNumberOfThreadsChange(Sender: TObject);
+begin
+If Assigned(fUpdater) then
+  fUpdater.MaxConcurrentTasks := seNumberOfThreads.Value;
 end;
 
 //------------------------------------------------------------------------------

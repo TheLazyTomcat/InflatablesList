@@ -972,7 +972,8 @@ var
   const
     WL_STRIP_COLORS: array[0..7] of TColor =
     //(clWhite,$00D917F6,$00DE37F7,$00E355F9,$00E874FA,$00EE95FB,$00F3B4FD,$00F8D4FE);
-      (clWhite,$00F67A15,$00F78C34,$00F99D52,$00FAAF71,$00FBBF8E,$00FDD1AD,$00FEE3CC);
+    //(clWhite,$00F67A15,$00F78C34,$00F99D52,$00FAAF71,$00FBBF8E,$00FDD1AD,$00FEE3CC);
+      (clWhite,$00FEE3CC,$00FDD1AD,$00FBBF8E,$00FAAF71,$00F99D52,$00F78C34,$00F67A15);
   var
     ii: UInt32;
   begin
@@ -1003,7 +1004,18 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
     Brush.Color := $00F7F7F7;
     Rectangle(0,0,WL_STRIP_WIDTH,fRenderHeight);
     If ilifWanted in Item.Flags then
-      DrawWantedLevelStrip(Item.ItemListRender.Canvas);
+      begin
+        If Assigned(fDataProvider.GradientImage) then
+          begin
+            TempInt := fRenderHeight - Trunc((fRenderHeight / 7) * Item.WantedLevel);
+            If Item.WantedLevel > 0 then
+              CopyRect(
+                Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fRenderHeight),
+                fDataProvider.GradientImage.Canvas,
+                Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fRenderHeight));
+          end
+        else DrawWantedLevelStrip(Item.ItemListRender.Canvas);
+      end;
 
     // title + count
     Brush.Style := bsClear;

@@ -62,6 +62,16 @@
        x2="463.57144"
        y2="139.1479"
        gradientTransform="translate(0,202.85714)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4169"
+       id="linearGradient4160"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.23764706,0,0,0.22764228,-489.38576,509.75259)"
+       x1="38.57143"
+       y1="139.1479"
+       x2="463.57144"
+       y2="139.1479" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -71,8 +81,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="243.92499"
-     inkscape:cy="645.12215"
+     inkscape:cx="471.52155"
+     inkscape:cy="501.55072"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -209,5 +219,15 @@
        width="56.42857"
        id="rect4159"
        style="opacity:1;fill:#cce3fe;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:url(#linearGradient4160);fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4158"
+       width="101"
+       height="20"
+       x="-480.21939"
+       y="531.42853"
+       transform="matrix(0,-1,1,0,0,0)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>

@@ -22,6 +22,7 @@ type
     fItemReviewIcon:    TBitmap;
     fItemFlagIcons:     array[TILItemFlag] of TBitmap;
     fItemDefaultPics:   array[TILITemType] of TBitmap;
+    fGradientImage:     TBitmap;
     Function GetItemManufacturerCount: Integer;
     Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
     Function GetItemFlagIconCount: Integer;
@@ -37,6 +38,8 @@ type
     procedure FinalizeItemFlagIcons; virtual;
     procedure InitializeDefaultPictures; virtual;
     procedure FinalizeDefaultPictures; virtual;
+    procedure InitializeGradientImage; virtual;
+    procedure FinalieGradientImage; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -53,6 +56,7 @@ type
     property ItemFlagIcons[ItemFlag: TILItemFlag]: TBitmap read GetItemFlagIcon;
     property ItemDefaultPictureCount: Integer read GetItemDefaultPictureCount;
     property ItemDefaultPictures[ItemType: TILITemType]: TBitmap read GetItemDefaultPicture;
+    property GradientImage: TBitmap read fGradientImage;    
   end;
 
 implementation
@@ -65,6 +69,7 @@ uses
 {$R '..\resources\icon_review.res'}
 {$R '..\resources\flag_icons.res'}
 {$R '..\resources\default_pics.res'}
+{$R '..\resources\gradient.res'}
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
@@ -301,18 +306,48 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILDataProvider.InitializeGradientImage;
+var
+  ResStream:  TResourceStream;
+begin
+try
+  ResStream := TResourceStream.Create(hinstance,'gradient',PChar(10));
+  try
+    fGradientImage := TBitmap.Create;
+    ResStream.Seek(0,soBeginning);
+    fGradientImage.LoadFromStream(ResStream);
+  finally
+    ResStream.Free;
+  end;
+except
+  fItemReviewIcon := nil;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILDataProvider.FinalieGradientImage;
+begin
+If Assigned(fGradientImage) then
+  FreeAndNil(fGradientImage);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.Initialize;
 begin
 InitializeItemManufacurers;
 InitializeItemReviewIcon;
 InitializeItemFlagIcons;
 InitializeDefaultPictures;
+InitializeGradientImage;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILDataProvider.Finalize;
 begin
+FinalieGradientImage;
 FinalizeDefaultPictures;
 FinalizeItemFlagIcons;
 FinalizeItemReviewIcon;

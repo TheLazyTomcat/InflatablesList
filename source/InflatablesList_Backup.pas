@@ -4,16 +4,17 @@ unit InflatablesList_Backup;
 
 interface
 
+const
+  BACKUP_MAX_DEPTH_DEFAULT  = 25;
+  BACKUP_UTILFILENAME       = 'backups.ini';
+  BACKUP_BACKUP_DIR_DEFAULT = 'list_backup';
+
 procedure DoBackup(const FileName,BackupPath: String);
 
 implementation
 
 uses
-  SysUtils, IniFiles;
-
-const
-  BACKUP_MAX_DEPTH_DEFAULT = 25;
-  BACKUP_UTILFILENAME      = 'backups.ini';
+  Windows, SysUtils, IniFiles;
 
 type
   TILBackupManager = class(TObject)
@@ -54,20 +55,23 @@ end;
 
 procedure TILBackupManager.Initialize;
 var
-  Ini:    TIniFile;
-  Cnt,i:  Integer;
-  Temp:   String;
+  Ini:  TIniFile;
+  i:    Integer;
+  Temp: String;
 begin
 SetLength(fBackups,0);
 Ini := TIniFile.Create(fBackupPath + BACKUP_UTILFILENAME);
 try
-  Cnt := Ini.ReadInteger('Backups','Count',0);
-  For i := 0 to Pred(Cnt) do
+  For i := 0 to Pred(Ini.ReadInteger('Backups','Count',0)) do
     If Ini.ValueExists('Backups',Format('Backup[%d]',[i])) then
       begin
         Temp := Ini.ReadString('Backups',Format('Backup[%d]',[i]),'');
         If FileExists(fBackupPath + Temp) then
-          Add(Temp);
+          begin
+            // do not use Add here!
+            SetLength(fBackups,Length(fBackups) + 1);
+            fBackups[High(fBackups)] := Temp;
+          end;
       end;
 finally
   Ini.Free;
@@ -85,6 +89,7 @@ begin
 For i := BACKUP_MAX_DEPTH_DEFAULT to High(fBackups) do
   If FileExists(fBackupPath + fBackups[i]) then
     DeleteFile(fBackupPath + fBackups[i]);
+// truncate the list
 If Length(fBackups) > BACKUP_MAX_DEPTH_DEFAULT then
   SetLength(fBackups,BACKUP_MAX_DEPTH_DEFAULT);
 // save the list
@@ -130,7 +135,16 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILBackupManager.BackupFile(const FileName: String);
+var
+  BackupFileName: String;
 begin
+BackupFileName := FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now) + '.inl';
+If not DirectoryExists(ExtractFileDir(fBackupPath + BackupFileName)) then
+  ForceDirectories(ExtractFileDir(fBackupPath + BackupFileName));
+If FileExists(fBackupPath + BackupFileName) then
+  DeleteFile(fBackupPath + BackupFileName);
+CopyFile(PChar(FileName),PChar(fBackupPath + BackupFileName),False);
+Add(BackupFileName);
 end;
 
 //==============================================================================
@@ -139,6 +153,12 @@ end;
 
 procedure DoBackup(const FileName,BackupPath: String);
 begin
+with TILBackupManager.Create(BackupPath) do
+try
+  BackupFile(FileName);
+finally
+  Free;
+end;
 end;
 
 end.

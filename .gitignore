@@ -5,3 +5,4 @@ Thumbs.db
 *.dll
 !.gitkeep
 *.inl
+list_backup

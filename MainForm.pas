@@ -109,15 +109,13 @@ implementation
 
 uses
   AuxTypes,
-  InflatablesList_Types,
+  InflatablesList_Types, InflatablesList_Backup,
   SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm;
 
 {$R *.dfm}
 
 const
   DEFAULT_LIST_FILENAME = 'list.inl';
-  BACKUP_DIRECTORY      = 'list_backup';
-  BACKUP_MAXDEPTH       = 10;
 
 //==============================================================================
 
@@ -183,20 +181,10 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.SaveList;
-var
-  BackupFileName: String;
 begin
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
-  begin
-    // backup
-    BackupFileName := FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now) + '.inl';
-    If not DirectoryExists(ExtractFilePath(ParamStr(0)) + BACKUP_DIRECTORY) then
-      ForceDirectories(ExtractFilePath(ParamStr(0)) + BACKUP_DIRECTORY);
-    BackupFileName := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_DIRECTORY) + BackupFileName;
-    If FileExists(BackupFileName) then
-      DeleteFile(BackupFileName);
-    CopyFile(PChar(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME),PChar(BackupFileName),False);
-  end;
+  DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
+    IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
 fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
 end;
 

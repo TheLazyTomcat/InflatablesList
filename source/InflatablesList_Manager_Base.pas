@@ -15,6 +15,7 @@ const
 
   IL_LISTFILE_FILESTRUCTURE_00000000 = UInt32($00000000);
   IL_LISTFILE_FILESTRUCTURE_00000001 = UInt32($00000001);
+  IL_LISTFILE_FILESTRUCTURE_00000002 = UInt32($00000002);
 
   IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000001;
 
@@ -95,6 +96,11 @@ type
     procedure ItemRedraw; overload; virtual;
     Function ItemFilter(var Item: TILItem): Boolean; overload; virtual;
     procedure ItemFilter; overload; virtual;
+    // item shops
+    Function ItemShopAdd(ItemIndex: Integer): Integer; virtual;
+    procedure ItemShopExchange(ItemIndex: Integer; Idx1,Idx2: Integer); virtual;
+    procedure ItemShopDelete(ItemIndex: Integer; Index: Integer); virtual;
+    procedure ItemShopClear(ItemIndex: Integer); virtual;
     // searching
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
@@ -143,7 +149,8 @@ implementation
 uses
   SysUtils, IniFiles, TypInfo, StrUtils,
   BitOps, ListSorters, BinaryStreaming,
-  InflatablesList_Utils, InflatablesList_ShopUpdate;
+  InflatablesList_Utils, InflatablesList_ShopUpdate,
+  InflatablesList_HTML_ElementFinder;
 
 Function TILManager_Base.GetItemCount: Integer;
 begin
@@ -456,6 +463,8 @@ UniqueString(Dest.ShopURL);
 UniqueString(Dest.ItemURL);
 SetLength(Dest.AvailHistory,Length(Dest.AvailHistory));
 SetLength(Dest.PriceHistory,Length(Dest.PriceHistory));
+UniqueString(Dest.Notes);
+
 UniqueString(Dest.ParsingSettings.MoreThanTag);
 SetLength(Dest.ParsingSettings.AvailStages,Length(Dest.ParsingSettings.AvailStages));
 For i := Low(Dest.ParsingSettings.AvailStages) to High(Dest.ParsingSettings.AvailStages) do
@@ -473,6 +482,22 @@ For i := Low(Dest.ParsingSettings.PriceStages) to High(Dest.ParsingSettings.Pric
     UniqueString(Dest.ParsingSettings.PriceStages[i].AttributeValue);
     UniqueString(Dest.ParsingSettings.PriceStages[i].Text);
   end;
+
+// new stuff
+with Dest.ParsingSettings_New do
+  begin
+    For i := Low(Variables.Vars) to High(Variables.Vars) do
+      UniqueString(Variables.Vars[i]);
+    UniqueString(Available.Extraction.ExtractionData);
+    UniqueString(Available.Extraction.NegativeTag);
+    Available.Finder := TILElementFinder.CreateAsCopy(
+      TILElementFinder(Src.ParsingSettings_New.Available.Finder));
+    UniqueString(Price.Extraction.ExtractionData);
+    UniqueString(Price.Extraction.NegativeTag);
+    Price.Finder := TILElementFinder.CreateAsCopy(
+      TILElementFinder(Src.ParsingSettings_New.Price.Finder));
+  end;
+
 UniqueString(Dest.LastUpdateMsg);
 end;
 
@@ -934,7 +959,7 @@ If (Index >= Low(fList)) and (Index <= High(fList)) then
   begin
     FreeAndNil(fList[Index].MainPicture);
     FreeAndNil(fList[Index].PackagePicture);
-    SetLength(fList[Index].Shops,0);
+    ItemShopClear(Index);
     FreeAndNil(fList[Index].ItemListRender);
     For i := Index to Pred(High(fList)) do
       fList[i] := fList[i + 1];
@@ -954,7 +979,7 @@ For i := Low(fList) to High(fList) do
   begin
     FreeAndNil(fList[i].MainPicture);
     FreeAndNil(fList[i].PackagePicture);
-    SetLength(fList[i].Shops,0);
+    ItemShopClear(i);
     FreeAndNil(fList[i].ItemListRender);
   end;
 SetLength(fList,0);
@@ -1184,6 +1209,83 @@ If FlagsMask <> 0 then
 else State := True;
 Item.FilteredOut := not State;
 Result := Item.FilteredOut;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.ItemShopAdd(ItemIndex: Integer): Integer;
+begin
+If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+  begin
+    SetLength(fList[ItemIndex].Shops,Length(fList[ItemIndex].Shops) + 1);
+    Result := High(fList[ItemIndex].Shops);
+    FillChar(fList[ItemIndex].Shops[Result],SizeOf(TILItemShop),0);
+    fList[ItemIndex].Shops[Result].ParsingSettings_New.Available.Finder := TILElementFinder.Create;
+    fList[ItemIndex].Shops[Result].ParsingSettings_New.Price.Finder := TILElementFinder.Create;
+  end
+else raise Exception.CreateFmt('TILManager_Base.ItemShopAdd: Item index (%d) out of bounds.',[ItemIndex]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemShopExchange(ItemIndex: Integer; Idx1,Idx2: Integer);
+var
+  Temp: TILItemShop;
+begin
+If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+  begin
+    If Idx1 <> Idx2 then
+      begin
+        // sanity checks
+        If (Idx1 < Low(fList[ItemIndex].Shops)) or (Idx1 > High(fList[ItemIndex].Shops)) then
+          raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
+        If (Idx2 < Low(fList[ItemIndex].Shops)) or (Idx2 > High(fList[ItemIndex].Shops)) then
+          raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
+        Temp := fList[ItemIndex].Shops[Idx1];
+        fList[ItemIndex].Shops[Idx1] := fList[ItemIndex].Shops[Idx2];
+        fList[ItemIndex].Shops[Idx2] := Temp;
+      end;
+  end
+else raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Item index (%d) out of bounds.',[ItemIndex]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemShopDelete(ItemIndex: Integer; Index: Integer);
+var
+  i:  Integer;
+begin
+If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+  begin
+    If (Index >= Low(fList[ItemIndex].Shops)) and (Index <= High(fList[ItemIndex].Shops)) then
+      begin
+        FreeAndNil(fList[ItemIndex].Shops[Index].ParsingSettings_New.Available.Finder);
+        FreeAndNil(fList[ItemIndex].Shops[Index].ParsingSettings_New.Price.Finder);
+        For i := Index to Pred(High(fList[ItemIndex].Shops)) do
+          fList[ItemIndex].Shops[i] := fList[ItemIndex].Shops[i + 1];
+        SetLength(fList,Length(fList) - 1);
+      end
+    else raise Exception.CreateFmt('TILManager_Base.ItemShopDelete: Index (%d) out of bounds.',[Index]);
+  end
+else raise Exception.CreateFmt('TILManager_Base.ItemShopDelete: Item index (%d) out of bounds.',[ItemIndex]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemShopClear(ItemIndex: Integer);
+var
+  i:  Integer;
+begin
+If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+  begin
+    For i := Low(fList[ItemIndex].Shops) to High(fList[ItemIndex].Shops) do
+      begin
+        FreeAndNil(fList[ItemIndex].Shops[i].ParsingSettings_New.Available.Finder);
+        FreeAndNil(fList[ItemIndex].Shops[i].ParsingSettings_New.Price.Finder);
+      end;
+    SetLength(fList[ItemIndex].Shops,0);
+  end
+else raise Exception.CreateFmt('TILManager_Base.ItemShopClear: Item index (%d) out of bounds.',[ItemIndex]);
 end;
 
 //------------------------------------------------------------------------------

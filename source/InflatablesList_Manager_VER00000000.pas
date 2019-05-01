@@ -33,7 +33,8 @@ implementation
 
 uses
   SysUtils, Graphics,
-  BinaryStreaming;
+  BinaryStreaming,
+  InflatablesList_HTML_ElementFinder;
 
 procedure TILManager_VER00000000.SaveData(Stream: TStream; Struct: UInt32);
 begin
@@ -365,8 +366,11 @@ var
 
   procedure LoadParsingSettings(out ParsingSettings: TILItemShopParsingSetting);
   var
-    ii:  Integer;
+    ii:   Integer;
   begin
+    Shop.ParsingSettings_New.Available.Finder := TILElementFinder.Create;
+    Shop.ParsingSettings_New.Price.Finder := TILElementFinder.Create;
+    (*
     ParsingSettings.MoreThanTag := Stream_ReadString(Stream);
     ParsingSettings.AvailExtrMethod := IL_NumToAvailExtrMethod(Stream_ReadInt32(Stream));
     ParsingSettings.PriceExtrMethod := IL_NumToPriceExtrMethod(Stream_ReadInt32(Stream));
@@ -392,6 +396,7 @@ var
         ParsingSettings.PriceStages[ii].RecursiveSearch := Stream_ReadBool(Stream);
         ParsingSettings.PriceStages[ii].Text := Stream_ReadString(Stream);
       end;
+    *)
   end;
 
 begin
@@ -415,6 +420,7 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
     Shop.PriceHistory[i].Value := Stream_ReadInt32(Stream);
     Shop.PriceHistory[i].Time := Stream_ReadFloat64(Stream);
   end;
+Shop.Notes := '';
 // parsing settings
 LoadParsingSettings(Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);

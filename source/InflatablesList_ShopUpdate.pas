@@ -58,9 +58,10 @@ type
 implementation
 
 uses
-  SysUtils, StrUtils,
+  SysUtils, StrUtils, Dialogs,
   InflatablesList, CountedDynArrayObject,
-  InflatablesList_Utils ,InflatablesList_HTML_Download,
+  InflatablesList_Utils,
+  InflatablesList_HTML_Download, InflatablesList_HTML_ElementFinder,
   InflatablesList_HTML_Parser;
 
 procedure TILShopUpdater.InitializeResults;
@@ -79,6 +80,10 @@ var
   FoundNodesL1: TObjectCountedDynArray;
   FoundNodesL2: TObjectCountedDynArray;
   i,j:          Integer;
+
+  Test:     TILElementFinder;
+  Stage:    TILElementComparatorGroup;
+  OutNode:  TILHTMLElementNode;
 begin
 Result := nil;
 CDA_Init(FoundNodesL1);
@@ -94,6 +99,29 @@ For i := Low(SearchStages) to High(SearchStages) do
   end;
 If CDA_Count(FoundNodesL1) = 1 then
   Result := TILHTMLElementNode(CDA_GetItem(FoundNodesL1,0));
+
+// test
+Test := TILElementFinder.Create;
+try
+  CDA_Clear(FoundNodesL1);
+  Stage := Test.StageAdd;
+  with Stage.AddComparator do
+    begin
+      TagName.AddComparator.Str := 'div';
+      //(*
+      with Attributes.AddComparator do
+        begin
+          Name.AddComparator.Str := 'class';
+          Value.AddComparator.Str := 'well well-sm';
+        end;
+      //*)
+    end;
+  Test.FindElement(TILHTMLDocument(BaseNode),OutNode);
+  showmessage(booltostr(assigned(OutNode)));
+finally
+  Test.Free;
+end;
+{$message 'test new shit'}
 end;
 
 //------------------------------------------------------------------------------
@@ -216,6 +244,7 @@ If Length(fShopData.ItemURL) > 0 then
         fDownStream.Clear;
         If IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode) then
           begin
+            fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'test.out');
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
             Parser := TILHTMLParser.Create(fDownStream);

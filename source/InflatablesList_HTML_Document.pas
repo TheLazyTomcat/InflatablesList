@@ -45,7 +45,8 @@ type
     Function GetSubElementsCount: Integer; virtual;
     Function GetLevel: Integer; virtual;
     Function TextMatch(SearchSettings: TILItemShopParsingStage): Boolean; virtual;
-    Function Find(SearchSettings: TILItemShopParsingStage; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; virtual;
+    Function Find(SearchSettings: TILItemShopParsingStage; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; overload; virtual;
+    Function Find(Comparator: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; overload; virtual;
     procedure List(Strs: TStrings); virtual;
     property Parent: TILHTMLElementNode read fParent;
     property Open: Boolean read fOpen;
@@ -64,7 +65,8 @@ implementation
 
 uses
   SysUtils, StrUtils,
-  StrRect;
+  StrRect,
+  InflatablesList_HTML_ElementFinder;
 
 Function TILHTMLElementNode.GetAttributeCount: Integer;
 begin
@@ -378,6 +380,34 @@ For i := CDA_Low(fElements) to CDA_High(fElements) do
       end;
     // recurse
     Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).Find(SearchSettings,False,Storage));
+  end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function TILHTMLElementNode.Find(Comparator: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer;
+var
+  ElementComparator:  TILElementComparatorGroup;
+  i:                  Integer;
+begin
+ElementComparator := Comparator as TILElementComparatorGroup;
+ElementComparator.ReInit;
+If IncludeSelf then
+  If ElementComparator.Compare(Self) then
+    begin
+      CDA_Add(Storage,Self);
+      Inc(Result);
+    end;
+For i := CDA_Low(fElements) to CDA_High(fElements) do
+  begin
+    ElementComparator.ReInit;
+    If ElementComparator.Compare(TILHTMLElementNode(CDA_GetItem(fElements,i))) then
+      begin
+        CDA_Add(Storage,CDA_GetItem(fElements,i));
+        Inc(Result);
+      end;
+    // recurse
+    Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).Find(Comparator,False,Storage));
   end;
 end;
 

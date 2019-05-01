@@ -5,7 +5,7 @@ unit InflatablesList_Types;
 interface
 
 uses
-  Graphics,
+  Classes, Graphics,
   AuxTypes;
 
 //- basic item specs -----------------------------------------------------------
@@ -57,59 +57,6 @@ type
                                     ilpaemMoreThanTagIsOne,ilpaemFIorMTTIO);
   TILItemShopParsPriceExtrMethod = (ilppemFirstInteger);
 
-//-- <new_shit> ----------------------------------------------------------------
-(*
-type
-  TILGroupOperator = (ilsoAND,ilsoOR,ilsoXOR);
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  TILSearchedString = record
-    Str:            String;
-    CaseSensitive:  Boolean;
-    AllowPartial:   Boolean;
-    Negate:         Boolean;
-  end;
-
-  TILSearchedStringGroup = record
-    Operator: TILGroupOperator;
-    Items:    array of TILSearchedString;
-  end;
-
-  TILSearchedStringGroups = array of TILSearchedStringGroup;
-
-  TILSearchedStringGroupTree = record
-    Groups:  TILSearchedStringGroups
-  end;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  TILSearchedAttribute = record
-    Name:   TILSearchedStringGroup;
-    Value:  TILSearchedStringGroup;
-  end;
-
-  TILSearchedAttributeItem = record
-    Attr:   TILSearchedAttribute;
-    Negate: Boolean;
-  end;
-
-  TILSearchedAttributeGroup = record
-    Operator: TILGroupOperator;
-    Items:    array of TILSearchedAttributeItem;
-  end;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  TILSearchedElement = record
-    Name:       TILSearchedString;
-    Attributes: array of TILSearchedAttribute;
-  end;
-
-  //TIL_ItemShopParsingStage
-*)
-//-- </new_shit> ---------------------------------------------------------------
-
 type
   TILItemShopParsingSetting = record
     MoreThanTag:      String;
@@ -126,6 +73,42 @@ Function IL_NumToAvailExtrMethod(Num: Int32): TILItemShopParsAvailExtrMethod;
 Function IL_PriceExtrMethodToNum(ExtrMethod: TILItemShopParsPriceExtrMethod): Int32;
 Function IL_NumToPriceExtrMethod(Num: Int32): TILItemShopParsPriceExtrMethod;
 
+//- new item shop parsing types ------------------------------------------------
+
+type
+  TILItemShopParsingVariables = record
+    Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
+  end;
+  PILItemShopParsingVariables = ^TILItemShopParsingVariables;  
+
+  TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
+
+  TILItemShopParsingExtrMethod = (ilpemFirstInteger,ilpemTagIsCount);
+
+  TILItemShopParsingExtrSett = record
+    ExtractFrom:      TILItemShopParsingExtrFrom;
+    ExtractionData:   String;
+    NegativeTag:      String;
+    ExtractionMethod: TILItemShopParsingExtrMethod;
+  end;
+
+  TILItemShopParsingEntry = record
+    Extraction: TILItemShopParsingExtrSett;
+    Finder:     TObject;  // TILElementFinder, defined as TObject to prevent circular references
+  end;
+  PILItemShopParsingEntry = ^TILItemShopParsingEntry;
+
+  TILItemShopParsingSetting_New = record
+    Variables:  TILItemShopParsingVariables;
+    Available:  TILItemShopParsingEntry;
+    Price:      TILItemShopParsingEntry;
+  end;
+
+Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
+Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
+
+Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
+Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
 
 //- item shop info -------------------------------------------------------------
 
@@ -146,9 +129,13 @@ type
     Price:            UInt32;
     AvailHistory:     TILItemShopHistory;
     PriceHistory:     TILItemShopHistory;
+    Notes:            String;
     // parsing stuff
     ParsingSettings:  TILItemShopParsingSetting;
+    ParsingSettings_New:  TILItemShopParsingSetting_New;
     LastUpdateMsg:    String;
+    // internals
+    RequiredCount:    UInt32;   // used internally in updates, ignored otherwise
   end;
   PILItemShop = ^TILItemShop;
 
@@ -485,6 +472,54 @@ case Num of
   0:  Result := ilppemFirstInteger;
 else
   Result := ilppemFirstInteger;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
+begin
+case ExtractFrom of
+  ilpefNestedText:  Result := 1;
+  ilpefAttrValue:   Result := 2;
+else
+  {ilpefText}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
+begin
+case Num of
+  1:  Result := ilpefNestedText;
+  2:  Result := ilpefAttrValue;
+else
+  Result := ilpefText;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
+begin
+case ExtrMethod of
+  ilpemTagIsCount:  Result := 1;
+else
+  {ilpemFirstInteger}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
+begin
+case Num of
+  1:  Result := ilpemTagIsCount;
+else
+  Result := ilpemFirstInteger;
 end;
 end;
 

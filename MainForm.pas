@@ -64,7 +64,7 @@ type
     procedure mniLM_FindPrevClick(Sender: TObject);
     procedure mniLM_FindNextClick(Sender: TObject);
     procedure mniLM_SortSettClick(Sender: TObject);
-    procedure mniLM_SortCommon(Profile: Integer; Reversed: Boolean);
+    procedure mniLM_SortCommon(Profile: Integer);
     procedure mniLM_SortByClick(Sender: TObject);
     procedure mniLM_SortClick(Sender: TObject);
     procedure mniLM_SortRevClick(Sender: TObject);    
@@ -140,6 +140,8 @@ For i := 0 to Pred(fILManager.SortingProfileCount) do
     Temp.Caption := fILManager.SortingProfiles[i].Name;
     Temp.OnClick := mniLM_SortByClick;
     Temp.Tag := i;
+    If i <= 9 then
+      Temp.ShortCut := ShortCut(Ord('0') + i,[ssCtrl]);
     mniLM_SortBy.Add(Temp);
   end;
 end;
@@ -249,6 +251,7 @@ If fILManager.ItemCount > 0 then
     lbList.OnClick(nil);
   end
 else frmItemFrame.SetItem(nil,True);
+mniLM_SortRev.Checked := fILManager.ReversedSort;
 CreateSortBySubmenu;
 eSearchFor.OnExit(nil);
 end;
@@ -449,18 +452,19 @@ else
     If lbList.ItemIndex >= 0 then
       frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
   end;
+mniLM_SortRev.Checked := fILManager.ReversedSort;
 CreateSortBySubmenu;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortCommon(Profile: Integer; Reversed: Boolean);
+procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
 begin
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 Screen.Cursor := crHourGlass;
 try
-  fILManager.ItemSort(Profile,Reversed);
+  fILManager.ItemSort(Profile);
 finally
   Screen.Cursor := crDefault;
 end;
@@ -478,21 +482,22 @@ end;
 procedure TfMainForm.mniLM_SortByClick(Sender: TObject);
 begin
 If Sender is TMenuItem then
-  mniLM_SortCommon(TMenuItem(Sender).Tag,False);
+  mniLM_SortCommon(TMenuItem(Sender).Tag);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SortClick(Sender: TObject);
 begin
-mniLM_SortCommon(-1,False);
+mniLM_SortCommon(-1);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
-mniLM_SortCommon(-1,True);
+mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
+fILManager.ReversedSort := mniLM_SortRev.Checked;
 end;
 
 //------------------------------------------------------------------------------

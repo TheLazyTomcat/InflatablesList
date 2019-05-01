@@ -176,6 +176,15 @@ object fSortForm: TfSortForm
     TabOrder = 2
     OnClick = btnLoadDefaultClick
   end
+  object cbSortRev: TCheckBox
+    Left = 672
+    Top = 300
+    Width = 89
+    Height = 17
+    Alignment = taLeftJustify
+    Caption = 'Reversed sort'
+    TabOrder = 13
+  end
   object pmnProfiles: TPopupMenu
     OnPopup = pmnProfilesPopup
     Left = 160

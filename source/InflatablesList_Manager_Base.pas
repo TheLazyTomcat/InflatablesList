@@ -31,6 +31,7 @@ type
     fList:              array of TILItem;
     // sorting
     fSorting:           Boolean;
+    fReversedSort:      Boolean;
     fUsedSortSett:      TILSortingSettings;    
     fDefaultSortSett:   TILSortingSettings;
     fActualSortSett:    TILSortingSettings;
@@ -102,8 +103,8 @@ type
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
     procedure SortingProfileExchange(Idx1,Idx2: Integer); virtual;
     procedure SortingProfileDelete(Index: Integer); virtual;
-    procedure ItemSort(SortingProfile: Integer; Reversed: Boolean = False); overload; virtual;
-    procedure ItemSort(Reversed: Boolean = False); overload; virtual;
+    procedure ItemSort(SortingProfile: Integer); overload; virtual;
+    procedure ItemSort; overload; virtual;
     // shop templates
     Function ShopTemplateAdd(const Name: String; ShopData: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
@@ -125,11 +126,12 @@ type
     property ItemCount: Integer read GetItemCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property ItemPtrs[Index: Integer]: PILItem read GetItemPtr;
+    property ReversedSort: Boolean read fReversedSort write fReversedSort;
+    property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
+    property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
     property SortingProfiles[Index: Integer]: TILSortingProfile read GetSortProfile;
     property SortingProfilePtrs[Index: Integer]: PILSortingProfile read GetSortProfilePtr;
-    property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
-    property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property FilterSettings: TILFilterSettings read fFilterSettings write fFilterSettings;
     property ShopTemplateCount: Integer read GetShopTemplateCount;
     property ShopTemplates[Index: Integer]: TILShopTemplate read GetShopTemplate;
@@ -1009,8 +1011,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           begin
             TempInt := fRenderHeight - Trunc((fRenderHeight / 7) * Item.WantedLevel);
             If Item.WantedLevel > 0 then
-              CopyRect(
-                Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fRenderHeight),
+              CopyRect(Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fRenderHeight),
                 fDataProvider.GradientImage.Canvas,
                 Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fRenderHeight));
           end
@@ -1289,7 +1290,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ItemSort(SortingProfile: Integer; Reversed: Boolean = False);
+procedure TILManager_Base.ItemSort(SortingProfile: Integer);
 var
   i:      Integer;
   Sorter: TListSorter;
@@ -1304,7 +1305,7 @@ else
   else
     raise Exception.CreateFmt('TILManager_Base.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
 end;
-If Reversed then
+If fReversedSort then
   For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
     fUsedSortSett.Items[i].Reversed := not fUsedSortSett.Items[i].Reversed;
 If Length(fList) > 1 then
@@ -1326,9 +1327,9 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TILManager_Base.ItemSort(Reversed: Boolean = False);
+procedure TILManager_Base.ItemSort;
 begin
-ItemSort(-1,Reversed);
+ItemSort(-1);
 end;
 
 //------------------------------------------------------------------------------

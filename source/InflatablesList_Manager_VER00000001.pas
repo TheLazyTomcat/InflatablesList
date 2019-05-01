@@ -56,6 +56,8 @@ procedure TILManager_VER00000001.SaveSortingSettings_VER00000001(Stream: TStream
 var
   i,j:  Integer;
 begin
+// save reversed flag
+Stream_WriteBool(Stream,fReversedSort);
 // save actual sort settings
 SaveSortingSettings_VER00000000(Stream);
 // now save profiles
@@ -107,6 +109,8 @@ procedure TILManager_VER00000001.LoadSortingSettings_VER00000001(Stream: TStream
 var
   i,j:  Integer;
 begin
+// load reversed flag
+fReversedSort := Stream_ReadBool(Stream);
 // load actual sort settings
 LoadSortingSettings_VER00000000(Stream);
 // now load profiles

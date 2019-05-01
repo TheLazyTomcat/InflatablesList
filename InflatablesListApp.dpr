@@ -32,7 +32,8 @@ uses
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
   InflatablesList_Manager_VER00000000 in 'source\InflatablesList_Manager_VER00000000.pas',
   InflatablesList_Manager_VER00000001 in 'source\InflatablesList_Manager_VER00000001.pas',
-  InflatablesList in 'source\InflatablesList.pas';
+  InflatablesList in 'source\InflatablesList.pas',
+  InflatablesList_Backup in 'source\InflatablesList_Backup.pas';
 
 {$R *.res}
 

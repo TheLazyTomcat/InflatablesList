@@ -31,6 +31,7 @@ type
     btnRemove: TButton;
     btnMoveDown: TButton;
     bvlSplitter: TBevel;
+    cbSortRev: TCheckBox;
     btnSort: TButton;
     btnClose: TButton;
     procedure FormCreate(Sender: TObject);
@@ -149,9 +150,11 @@ If lbProfiles.Count > 0 then
 lbProfiles.OnClick(nil);
 // fill list of used
 FillSortByList(True);
+cbSortRev.Checked := fILManager.ReversedSort;
 // show the window
 ShowModal;
 fILManager.ActualSortingSettings := fLocalSortSett;
+fILManager.ReversedSort := cbSortRev.Checked;
 Result := fSorted;
 end;
 
@@ -445,6 +448,7 @@ Screen.Cursor := crHourGlass;
 try
   fSorted := True;
   fILManager.ActualSortingSettings := fLocalSortSett;
+  fILManager.ReversedSort := cbSortRev.Checked;
   fILManager.ItemSort;
 finally
   Screen.Cursor := crDefault;

@@ -195,7 +195,7 @@ object fMainForm: TfMainForm
       OnClick = mniLM_SortClick
     end
     object mniLM_SortRev: TMenuItem
-      Caption = 'Sort reversed'
+      Caption = 'Reversed sort'
       OnClick = mniLM_SortRevClick
     end
     object N4: TMenuItem

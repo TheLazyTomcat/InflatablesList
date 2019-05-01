@@ -371,7 +371,7 @@ If Length(fCurrentItem.Shops) > 0 then
     SetLength(Temp,Length(fCurrentItem.Shops));
     For i := Low(Temp) to High(Temp) do
       begin
-        Temp[i].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fCurrentItem)]);
+        Temp[i].ItemName := Format('[#%d] %s',[fCurrentItem.Index,fILManager.ItemTitleStr(fCurrentItem)]);
         Temp[i].ItemShopPtr := Addr(fCurrentItem.Shops[i]);
         Temp[i].Done := False;
       end;

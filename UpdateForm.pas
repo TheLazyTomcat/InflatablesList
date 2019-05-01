@@ -31,6 +31,7 @@ type
     fCanContinue:     Boolean;
     fProcessedIndex:  Integer;  // index of next item to be processed
     fLoggedIndex:     Integer;  // index of next item to be logged
+    fDoneCount:       Integer;
     fLastItemName:    String;
     fMaxShopNameLen:  Integer;
   protected
@@ -131,6 +132,7 @@ end;
 
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
 begin
+Inc(fDoneCount);
 // retrieve results from the task
 with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
   begin
@@ -151,14 +153,14 @@ while fLoggedIndex <= High(fShopsToUpdate) do
   else Break{while...};
   end;
 //progress
-If fProcessedIndex <= High(fShopsToUpdate) then
+If fDoneCount < Length(fShopsToUpdate) then
   begin
     // show progress
     If Length(fShopsToUpdate) > 0 then
-      pbProgress.Position := Trunc((Succ(fProcessedIndex) / Length(fShopsToUpdate)) * pbProgress.Max)
+      pbProgress.Position := Trunc((fDoneCount / Length(fShopsToUpdate)) * pbProgress.Max)
     else
       pbProgress.Position := pbProgress.Max;
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fShopsToUpdate) - fProcessedIndex]);
+    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fShopsToUpdate) - fDoneCount]);
   end
 else
   begin
@@ -200,6 +202,7 @@ If Length(ShopsToUpdate) > 0 then
     // init processing vars
     fProcessedIndex := 0;
     fLoggedIndex := 0;
+    fDoneCount := 0;
     fLastItemName := '';
     // calculate indentation correction
     fMaxShopNameLen := 0;

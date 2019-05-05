@@ -110,7 +110,8 @@ implementation
 uses
   AuxTypes,
   InflatablesList_Types, InflatablesList_Backup,
-  SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm;
+  SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
+  ParsingForm;
 
 {$R *.dfm}
 
@@ -139,7 +140,7 @@ For i := 0 to Pred(fILManager.SortingProfileCount) do
     Temp.OnClick := mniLM_SortByClick;
     Temp.Tag := i;
     If i <= 9 then
-      Temp.ShortCut := ShortCut(Ord('0') + i,[ssCtrl]);
+      Temp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
     mniLM_SortBy.Add(Temp);
   end;
 end;
@@ -198,6 +199,7 @@ fShopsForm.Initialize(fILManager);
 fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
 fUpdateForm.Initialize(fILManager);
+fParsingForm.Initialize(fILManager);
 end;
 
 //==============================================================================
@@ -512,6 +514,7 @@ For i := 0 to Pred(fILManager.ItemCount) do
       begin
         Temp[k].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fILManager[i])]);
         Temp[k].ItemShopPtr := Addr(fILManager.ItemPtrs[i]^.Shops[j]);
+        Temp[k].ItemShopPtr^.RequiredCount := fILManager.ItemPtrs[i]^.Count;
         Temp[k].Done := False;
         Inc(k);
       end;

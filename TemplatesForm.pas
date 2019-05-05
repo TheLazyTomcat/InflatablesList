@@ -57,6 +57,9 @@ implementation
 
 {$R *.dfm}
 
+uses
+  InflatablesList_HTML_ElementFinder;
+
 procedure TfTemplatesForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
@@ -284,12 +287,14 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
         begin
           fCurrentShopPtr^.Name := ShopData.Name;
           fCurrentShopPtr^.ShopURL := ShopData.ShopURL;
+          // parsing settings, free old objects and replace them with copies
+          FreeAndNil(fCurrentShopPtr^.ParsingSettings.Available.Finder);
+          FreeAndNil(fCurrentShopPtr^.ParsingSettings.Price.Finder);
           fCurrentShopPtr^.ParsingSettings := ShopData.ParsingSettings;
-          with fCurrentShopPtr^.ParsingSettings do
-            begin
-              SetLength(AvailStages,Length(AvailStages));
-              SetLength(PriceStages,Length(PriceStages));
-            end;
+          fCurrentShopPtr^.ParsingSettings.Available.Finder :=
+            TILElementFinder.CreateAsCopy(TILElementFinder(ShopData.ParsingSettings.Available.Finder));
+          fCurrentShopPtr^.ParsingSettings.Price.Finder :=
+            TILElementFinder.CreateAsCopy(TILElementFinder(ShopData.ParsingSettings.Price.Finder));
           Close;
         end;
   end;

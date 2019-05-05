@@ -62,6 +62,7 @@ type
     fItemShop:        TILItemShop;
   public
     constructor Create(ItemShop: TILItemShop; ProcessingIndex: Integer);
+    destructor Destroy; override;
     Function Main: Boolean; override;
     property ProcessingIndex: Integer read fProcessingIndex;
     property ItemShop: TILItemShop read fItemShop;
@@ -74,6 +75,14 @@ begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
 TILManager.ItemShopCopy(ItemShop,fItemShop);
+end;
+
+//------------------------------------------------------------------------------
+
+destructor TILUpdateTask.Destroy;
+begin
+TILManager.ItemShopFinalize(fItemShop);
+inherited;
 end;
 
 //------------------------------------------------------------------------------

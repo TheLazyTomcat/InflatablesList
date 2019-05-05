@@ -54,6 +54,13 @@ object frmShopFrame: TfrmShopFrame
       Height = 9
       Shape = bsTopLine
     end
+    object lblNotes: TLabel
+      Left = 368
+      Top = 0
+      Width = 32
+      Height = 13
+      Caption = 'Notes:'
+    end
     object leShopName: TLabeledEdit
       Left = 0
       Top = 16
@@ -135,88 +142,13 @@ object frmShopFrame: TfrmShopFrame
       Value = 0
       OnChange = sePriceChange
     end
-    object bgParsing: TGroupBox
-      Left = 368
-      Top = 0
-      Width = 361
-      Height = 329
-      Caption = 'Parsing'
-      TabOrder = 12
-      object lblParsingAvailExtractMethod: TLabel
-        Left = 104
-        Top = 16
-        Width = 108
-        Height = 13
-        Caption = 'Avail. extract method:'
-      end
-      object lblParsingPriceExtractMethod: TLabel
-        Left = 232
-        Top = 16
-        Width = 104
-        Height = 13
-        Caption = 'Price extract method:'
-      end
-      object leParsingMoreThanTag: TLabeledEdit
-        Left = 8
-        Top = 32
-        Width = 89
-        Height = 21
-        EditLabel.Width = 80
-        EditLabel.Height = 13
-        EditLabel.Caption = '"More than" tag:'
-        TabOrder = 0
-      end
-      object cmbParsingAvailExtractMethod: TComboBox
-        Left = 104
-        Top = 32
-        Width = 121
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 1
-      end
-      object cmbParsingPriceExtractMethod: TComboBox
-        Left = 232
-        Top = 32
-        Width = 121
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 2
-      end
-      object tcParsingStages: TTabControl
-        Left = 8
-        Top = 56
-        Width = 345
-        Height = 265
-        TabOrder = 3
-        Tabs.Strings = (
-          'Available'
-          'Price')
-        TabIndex = 0
-        OnChange = tcParsingStagesChange
-        inline frmParsingFrame: TfrmParsingFrame
-          Left = 8
-          Top = 24
-          Width = 329
-          Height = 233
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-        end
-      end
-    end
     object btnUpdate: TButton
       Left = 496
       Top = 384
       Width = 113
       Height = 25
       Caption = 'Update this shop'
-      TabOrder = 14
+      TabOrder = 15
       OnClick = btnUpdateClick
     end
     object lvAvailHistory: TListView
@@ -272,7 +204,7 @@ object frmShopFrame: TfrmShopFrame
       EditLabel.Height = 13
       EditLabel.Caption = 'Last update message:'
       ReadOnly = True
-      TabOrder = 13
+      TabOrder = 14
     end
     object btnTemplates: TButton
       Left = 616
@@ -280,7 +212,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 113
       Height = 25
       Caption = 'Shop templates...'
-      TabOrder = 15
+      TabOrder = 16
       OnClick = btnTemplatesClick
     end
     object btnAvailToHistory: TButton
@@ -313,6 +245,130 @@ object frmShopFrame: TfrmShopFrame
       TabOrder = 10
       OnClick = btnPriceToHistoryClick
     end
+    object meNotes: TMemo
+      Left = 368
+      Top = 16
+      Width = 361
+      Height = 81
+      ScrollBars = ssBoth
+      TabOrder = 12
+      WordWrap = False
+      OnDblClick = meNotesDblClick
+      OnKeyPress = meNotesKeyPress
+    end
+    object gbParsing: TGroupBox
+      Left = 368
+      Top = 104
+      Width = 361
+      Height = 225
+      Caption = 'Parsing'
+      TabOrder = 13
+      object bvlVarsSep: TBevel
+        Left = 8
+        Top = 180
+        Width = 345
+        Height = 9
+        Shape = bsTopLine
+      end
+      object leParsVar_1: TLabeledEdit
+        Left = 8
+        Top = 32
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #1:'
+        TabOrder = 0
+      end
+      object leParsVar_2: TLabeledEdit
+        Left = 184
+        Top = 32
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #2:'
+        TabOrder = 1
+      end
+      object leParsVar_3: TLabeledEdit
+        Left = 8
+        Top = 72
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #3:'
+        TabOrder = 2
+      end
+      object leParsVar_4: TLabeledEdit
+        Left = 184
+        Top = 72
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #4:'
+        TabOrder = 3
+      end
+      object leParsVar_5: TLabeledEdit
+        Left = 8
+        Top = 112
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #5:'
+        TabOrder = 4
+      end
+      object leParsVar_6: TLabeledEdit
+        Left = 184
+        Top = 112
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #6:'
+        TabOrder = 5
+      end
+      object leParsVar_7: TLabeledEdit
+        Left = 8
+        Top = 152
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #7:'
+        TabOrder = 6
+      end
+      object leParsVar_8: TLabeledEdit
+        Left = 184
+        Top = 152
+        Width = 169
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #8:'
+        TabOrder = 7
+      end
+      object btnParsAvail: TButton
+        Left = 8
+        Top = 188
+        Width = 169
+        Height = 25
+        Caption = 'Available count parsing'
+        TabOrder = 8
+        OnClick = btnParsAvailClick
+      end
+      object btnParsPrice: TButton
+        Left = 184
+        Top = 188
+        Width = 169
+        Height = 25
+        Caption = 'Price parsing'
+        TabOrder = 9
+        OnClick = btnParsPriceClick
+      end
+    end
   end
   object pmnHistory: TPopupMenu
     OnPopup = pmnHistoryPopup
@@ -320,12 +376,10 @@ object frmShopFrame: TfrmShopFrame
     Top = 344
     object mniHI_Remove: TMenuItem
       Caption = 'Remove selected entry'
-      ShortCut = 46
       OnClick = mniHI_RemoveClick
     end
     object mniHI_Clear: TMenuItem
       Caption = 'Clear the history'
-      ShortCut = 16430
       OnClick = mniHI_ClearClick
     end
   end

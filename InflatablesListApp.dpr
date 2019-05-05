@@ -12,7 +12,6 @@ uses
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
-  ParsingFrame in 'ParsingFrame.pas' {frmParsingFrame: TFrame},
   InflatablesList_Types in 'source\InflatablesList_Types.pas',
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
@@ -34,7 +33,9 @@ uses
   InflatablesList_Manager_VER00000001 in 'source\InflatablesList_Manager_VER00000001.pas',
   InflatablesList in 'source\InflatablesList.pas',
   InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
-  InflatablesList_Manager_VER00000002 in 'source\InflatablesList_Manager_VER00000002.pas';
+  InflatablesList_Manager_VER00000002 in 'source\InflatablesList_Manager_VER00000002.pas',
+  ParsingForm in 'ParsingForm.pas' {fParsingForm},
+  ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame};
 
 {$R *.res}
 
@@ -48,6 +49,7 @@ begin
   Application.CreateForm(TfTemplatesForm, fTemplatesForm);
   Application.CreateForm(TfTextEditForm, fTextEditForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
+  Application.CreateForm(TfParsingForm, fParsingForm);
   fMainForm.DoOtherFormsInit;
   Application.Run;
 end.

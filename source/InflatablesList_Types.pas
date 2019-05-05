@@ -39,43 +39,6 @@ Function IL_DecodeItemFlags(Flags: UInt32): TILItemFlags;
 //- item shop parsing types ----------------------------------------------------
 
 type
-  TILItemShopParsingStage = record
-    ElementName:      String;   // if empty, return nil
-    AttributeName:    String;   // if empty, ignore
-    AttributeValue:   String;   // if empty, ignore
-    FullTextMatch:    Boolean;  // search for occurence when false
-    RecursiveSearch:  Boolean;  // search for text in subnodes
-    Text:             String;   // if empty, ignore
-  end;
-  PILItemShopParsingStage = ^TILItemShopParsingStage;
-
-  TILItemShopParsingStages = array of TILItemShopParsingStage;
-  PILItemShopParsingStages = ^TILItemShopParsingStages;
-
-  {$message 'add more option (eg. combinations)'}
-  TILItemShopParsAvailExtrMethod = (ilpaemFirstInteger,ilpaemFirstIntegerTag,
-                                    ilpaemMoreThanTagIsOne,ilpaemFIorMTTIO);
-  TILItemShopParsPriceExtrMethod = (ilppemFirstInteger);
-
-type
-  TILItemShopParsingSetting = record
-    MoreThanTag:      String;
-    AvailExtrMethod:  TILItemShopParsAvailExtrMethod;
-    PriceExtrMethod:  TILItemShopParsPriceExtrMethod;
-    AvailStages:      TILItemShopParsingStages;
-    PriceStages:      TILItemShopParsingStages;
-    // maybe some other options?
-  end;
-
-Function IL_AvailExtrMethodToNum(ExtrMethod: TILItemShopParsAvailExtrMethod): Int32;
-Function IL_NumToAvailExtrMethod(Num: Int32): TILItemShopParsAvailExtrMethod;
-
-Function IL_PriceExtrMethodToNum(ExtrMethod: TILItemShopParsPriceExtrMethod): Int32;
-Function IL_NumToPriceExtrMethod(Num: Int32): TILItemShopParsPriceExtrMethod;
-
-//- new item shop parsing types ------------------------------------------------
-
-type
   TILItemShopParsingVariables = record
     Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
   end;
@@ -83,13 +46,14 @@ type
 
   TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
 
-  TILItemShopParsingExtrMethod = (ilpemFirstInteger,ilpemTagIsCount);
+  TILItemShopParsingExtrMethod = (ilpemFirstInteger,ilpemFirstIntegerTag,
+                                  ilpemNegTagIsCount);
 
   TILItemShopParsingExtrSett = record
     ExtractFrom:      TILItemShopParsingExtrFrom;
+    ExtractionMethod: TILItemShopParsingExtrMethod;    
     ExtractionData:   String;
     NegativeTag:      String;
-    ExtractionMethod: TILItemShopParsingExtrMethod;
   end;
 
   TILItemShopParsingEntry = record
@@ -98,7 +62,7 @@ type
   end;
   PILItemShopParsingEntry = ^TILItemShopParsingEntry;
 
-  TILItemShopParsingSetting_New = record
+  TILItemShopParsingSetting = record
     Variables:  TILItemShopParsingVariables;
     Available:  TILItemShopParsingEntry;
     Price:      TILItemShopParsingEntry;
@@ -132,7 +96,6 @@ type
     Notes:            String;
     // parsing stuff
     ParsingSettings:  TILItemShopParsingSetting;
-    ParsingSettings_New:  TILItemShopParsingSetting_New;
     LastUpdateMsg:    String;
     // internals
     RequiredCount:    UInt32;   // used internally in updates, ignored otherwise
@@ -430,53 +393,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_AvailExtrMethodToNum(ExtrMethod: TILItemShopParsAvailExtrMethod): Int32;
-begin
-case ExtrMethod of
-  ilpaemFirstIntegerTag:  Result := 1;
-  ilpaemMoreThanTagIsOne: Result := 2;
-else
-  {ilpemaFirstInteger}
-  Result := 0;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_NumToAvailExtrMethod(Num: Int32): TILItemShopParsAvailExtrMethod;
-begin
-case Num of
-  1:  Result := ilpaemFirstIntegerTag;
-  2:  Result := ilpaemMoreThanTagIsOne;
-else
-  Result := ilpaemFirstInteger;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_PriceExtrMethodToNum(ExtrMethod: TILItemShopParsPriceExtrMethod): Int32;
-begin
-case ExtrMethod of
-  ilppemFirstInteger:  Result := 0;
-else
-  Result := 0;  // nothing else is implemented atm.
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_NumToPriceExtrMethod(Num: Int32): TILItemShopParsPriceExtrMethod;
-begin
-case Num of
-  0:  Result := ilppemFirstInteger;
-else
-  Result := ilppemFirstInteger;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
 begin
 case ExtractFrom of
@@ -505,7 +421,8 @@ end;
 Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
 begin
 case ExtrMethod of
-  ilpemTagIsCount:  Result := 1;
+  ilpemFirstIntegerTag: Result := 1;
+  ilpemNegTagIsCount:   Result := 2;
 else
   {ilpemFirstInteger}
   Result := 0;
@@ -517,7 +434,8 @@ end;
 Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
 begin
 case Num of
-  1:  Result := ilpemTagIsCount;
+  1:  Result := ilpemFirstIntegerTag;
+  2:  Result := ilpemNegTagIsCount;
 else
   Result := ilpemFirstInteger;
 end;

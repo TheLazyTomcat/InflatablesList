@@ -36,6 +36,84 @@ uses
   BinaryStreaming,
   InflatablesList_HTML_ElementFinder;
 
+//- old item shop parsing types ------------------------------------------------
+
+type
+  TILItemShopParsingStage_old = record
+    ElementName:      String;   // if empty, return nil
+    AttributeName:    String;   // if empty, ignore
+    AttributeValue:   String;   // if empty, ignore
+    FullTextMatch:    Boolean;  // search for occurence when false
+    RecursiveSearch:  Boolean;  // search for text in subnodes
+    Text:             String;   // if empty, ignore
+  end;
+  PILItemShopParsingStage_old = ^TILItemShopParsingStage_old;
+
+  TILItemShopParsingStages_old = array of TILItemShopParsingStage_old;
+  PILItemShopParsingStages_old = ^TILItemShopParsingStages_old;
+
+  TILItemShopParsAvailExtrMethod_old = (ilpaemFirstInteger,ilpaemFirstIntegerTag,
+                                        ilpaemMoreThanTagIsOne,ilpaemFIorMTTIO);
+  TILItemShopParsPriceExtrMethod_old = (ilppemFirstInteger);
+
+type
+  TILItemShopParsingSetting_old = record
+    MoreThanTag:      String;
+    AvailExtrMethod:  TILItemShopParsAvailExtrMethod_old;
+    PriceExtrMethod:  TILItemShopParsPriceExtrMethod_old;
+    AvailStages:      TILItemShopParsingStages_old;
+    PriceStages:      TILItemShopParsingStages_old;
+  end;
+
+//------------------------------------------------------------------------------
+
+Function IL_AvailExtrMethodToNum_old(ExtrMethod: TILItemShopParsAvailExtrMethod_old): Int32;
+begin
+case ExtrMethod of
+  ilpaemFirstIntegerTag:  Result := 1;
+  ilpaemMoreThanTagIsOne: Result := 2;
+else
+  {ilpemaFirstInteger}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToAvailExtrMethod_old(Num: Int32): TILItemShopParsAvailExtrMethod_old;
+begin
+case Num of
+  1:  Result := ilpaemFirstIntegerTag;
+  2:  Result := ilpaemMoreThanTagIsOne;
+else
+  Result := ilpaemFirstInteger;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_PriceExtrMethodToNum_old(ExtrMethod: TILItemShopParsPriceExtrMethod_old): Int32;
+begin
+case ExtrMethod of
+  ilppemFirstInteger:  Result := 0;
+else
+  Result := 0;  // nothing else is implemented atm.
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToPriceExtrMethod_old(Num: Int32): TILItemShopParsPriceExtrMethod_old;
+begin
+case Num of
+  0:  Result := ilppemFirstInteger;
+else
+  Result := ilppemFirstInteger;
+end;
+end;
+
+//==============================================================================
+
 procedure TILManager_VER00000000.SaveData(Stream: TStream; Struct: UInt32);
 begin
 case Struct of
@@ -164,34 +242,13 @@ var
   i:  Integer;
 
   procedure SaveParsingSettings(ParsingSettings: TILItemShopParsingSetting);
-  var
-    ii:  Integer;
   begin
-    Stream_WriteString(Stream,ParsingSettings.MoreThanTag);
-    Stream_WriteInt32(Stream,IL_AvailExtrMethodToNum(ParsingSettings.AvailExtrMethod));
-    Stream_WriteInt32(Stream,IL_PriceExtrMethodToNum(ParsingSettings.PriceExtrMethod));
-    // parsing stages for available pieces
-    Stream_WriteUInt32(Stream,Length(ParsingSettings.AvailStages));
-    For ii := Low(ParsingSettings.AvailStages) to High(ParsingSettings.AvailStages) do
-      begin
-        Stream_WriteString(Stream,ParsingSettings.AvailStages[ii].ElementName);
-        Stream_WriteString(Stream,ParsingSettings.AvailStages[ii].AttributeName);
-        Stream_WriteString(Stream,ParsingSettings.AvailStages[ii].AttributeValue);
-        Stream_WriteBool(Stream,ParsingSettings.AvailStages[ii].FullTextMatch);
-        Stream_WriteBool(Stream,ParsingSettings.AvailStages[ii].RecursiveSearch);
-        Stream_WriteString(Stream,ParsingSettings.AvailStages[ii].Text);
-      end;
-    // parsing stages for price
-    Stream_WriteUInt32(Stream,Length(ParsingSettings.PriceStages));
-    For ii := Low(ParsingSettings.PriceStages) to High(ParsingSettings.PriceStages) do
-      begin
-        Stream_WriteString(Stream,ParsingSettings.PriceStages[ii].ElementName);
-        Stream_WriteString(Stream,ParsingSettings.PriceStages[ii].AttributeName);
-        Stream_WriteString(Stream,ParsingSettings.PriceStages[ii].AttributeValue);
-        Stream_WriteBool(Stream,ParsingSettings.PriceStages[ii].FullTextMatch);
-        Stream_WriteBool(Stream,ParsingSettings.PriceStages[ii].RecursiveSearch);
-        Stream_WriteString(Stream,ParsingSettings.PriceStages[ii].Text);
-      end;
+    // save empty settings
+    Stream_WriteString(Stream,'');
+    Stream_WriteInt32(Stream,IL_AvailExtrMethodToNum_old(ilpaemFirstInteger));
+    Stream_WriteInt32(Stream,IL_PriceExtrMethodToNum_old(ilppemFirstInteger));
+    Stream_WriteUInt32(Stream,0);
+    Stream_WriteUInt32(Stream,0);
   end;
 
 begin
@@ -366,37 +423,79 @@ var
 
   procedure LoadParsingSettings(out ParsingSettings: TILItemShopParsingSetting);
   var
-    ii:   Integer;
+    ii:     Integer;
+    Temp:   TILItemShopParsingSetting_old;
+
+    procedure ConvertStages(ElementFinder: TILElementFinder; Stages: TILItemShopParsingStages_old);
+    var
+      iii:          Integer;
+      TempElemComp: TILElementComparator;
+    begin
+      For iii := Low(Stages) to High(Stages) do
+        begin
+          TempElemComp := ElementFinder.StageAdd.AddComparator;
+          TempElemComp.NestedText := Stages[iii].RecursiveSearch;
+          // name
+          TempElemComp.TagName.AddComparator.Str := Stages[iii].ElementName;
+          // attributes
+          If (Length(Stages[iii].AttributeName) > 0) or (Length(Stages[iii].AttributeValue) > 0) then
+            with TempElemComp.Attributes.AddComparator do
+              begin
+                If Length(Stages[iii].AttributeName) > 0 then
+                  Name.AddComparator.Str := Stages[iii].AttributeName;
+                If Length(Stages[iii].AttributeValue) > 0 then
+                  Value.AddComparator.Str := Stages[iii].AttributeValue;
+              end;
+          // text
+          If Length(Stages[iii].Text) > 0 then
+            with TempElemComp.Text.AddComparator do
+              begin
+                Str := Stages[iii].Text;
+                AllowPartial := not Stages[iii].FullTextMatch;
+              end;
+        end;
+    end;
+    
   begin
-    Shop.ParsingSettings_New.Available.Finder := TILElementFinder.Create;
-    Shop.ParsingSettings_New.Price.Finder := TILElementFinder.Create;
-    (*
-    ParsingSettings.MoreThanTag := Stream_ReadString(Stream);
-    ParsingSettings.AvailExtrMethod := IL_NumToAvailExtrMethod(Stream_ReadInt32(Stream));
-    ParsingSettings.PriceExtrMethod := IL_NumToPriceExtrMethod(Stream_ReadInt32(Stream));
+    // load old structures to temp
+    Temp.MoreThanTag := Stream_ReadString(Stream);
+    Temp.AvailExtrMethod := IL_NumToAvailExtrMethod_old(Stream_ReadInt32(Stream));
+    Temp.PriceExtrMethod := IL_NumToPriceExtrMethod_old(Stream_ReadInt32(Stream));
     // parsing stages for available pieces
-    SetLength(ParsingSettings.AvailStages,Stream_ReadUInt32(Stream));
-    For ii := Low(ParsingSettings.AvailStages) to High(ParsingSettings.AvailStages) do
+    SetLength(Temp.AvailStages,Stream_ReadUInt32(Stream));
+    For ii := Low(Temp.AvailStages) to High(Temp.AvailStages) do
       begin
-        ParsingSettings.AvailStages[ii].ElementName := Stream_ReadString(Stream);
-        ParsingSettings.AvailStages[ii].AttributeName := Stream_ReadString(Stream);
-        ParsingSettings.AvailStages[ii].AttributeValue := Stream_ReadString(Stream);
-        ParsingSettings.AvailStages[ii].FullTextMatch := Stream_ReadBool(Stream);
-        ParsingSettings.AvailStages[ii].RecursiveSearch := Stream_ReadBool(Stream);
-        ParsingSettings.AvailStages[ii].Text := Stream_ReadString(Stream);
+        Temp.AvailStages[ii].ElementName := Stream_ReadString(Stream);
+        Temp.AvailStages[ii].AttributeName := Stream_ReadString(Stream);
+        Temp.AvailStages[ii].AttributeValue := Stream_ReadString(Stream);
+        Temp.AvailStages[ii].FullTextMatch := Stream_ReadBool(Stream);
+        Temp.AvailStages[ii].RecursiveSearch := Stream_ReadBool(Stream);
+        Temp.AvailStages[ii].Text := Stream_ReadString(Stream);
       end;
     // parsing stages for price
-    SetLength(ParsingSettings.PriceStages,Stream_ReadUInt32(Stream));
-    For ii := Low(ParsingSettings.PriceStages) to High(ParsingSettings.PriceStages) do
+    SetLength(Temp.PriceStages,Stream_ReadUInt32(Stream));
+    For ii := Low(Temp.PriceStages) to High(Temp.PriceStages) do
       begin
-        ParsingSettings.PriceStages[ii].ElementName := Stream_ReadString(Stream);
-        ParsingSettings.PriceStages[ii].AttributeName := Stream_ReadString(Stream);
-        ParsingSettings.PriceStages[ii].AttributeValue := Stream_ReadString(Stream);
-        ParsingSettings.PriceStages[ii].FullTextMatch := Stream_ReadBool(Stream);
-        ParsingSettings.PriceStages[ii].RecursiveSearch := Stream_ReadBool(Stream);
-        ParsingSettings.PriceStages[ii].Text := Stream_ReadString(Stream);
+        Temp.PriceStages[ii].ElementName := Stream_ReadString(Stream);
+        Temp.PriceStages[ii].AttributeName := Stream_ReadString(Stream);
+        Temp.PriceStages[ii].AttributeValue := Stream_ReadString(Stream);
+        Temp.PriceStages[ii].FullTextMatch := Stream_ReadBool(Stream);
+        Temp.PriceStages[ii].RecursiveSearch := Stream_ReadBool(Stream);
+        Temp.PriceStages[ii].Text := Stream_ReadString(Stream);
       end;
-    *)
+    // construct new structures from old ones
+    FillChar(ParsingSettings,SizeOf(TILItemShopParsingSetting),0);
+    // available count
+    ParsingSettings.Available.Extraction.ExtractFrom := ilpefText;
+    ParsingSettings.Available.Extraction.ExtractionMethod := ilpemFirstIntegerTag;    
+    ParsingSettings.Available.Extraction.NegativeTag := Temp.MoreThanTag;
+    ParsingSettings.Available.Finder := TILElementFinder.Create;
+    ConvertStages(Shop.ParsingSettings.Available.Finder as TILElementFinder,Temp.AvailStages);
+    // price
+    ParsingSettings.Price.Extraction.ExtractFrom := ilpefText;
+    ParsingSettings.Price.Extraction.ExtractionMethod := ilpemFirstInteger;
+    ParsingSettings.Price.Finder := TILElementFinder.Create;
+    ConvertStages(Shop.ParsingSettings.Price.Finder as TILElementFinder,Temp.PriceStages);
   end;
 
 begin

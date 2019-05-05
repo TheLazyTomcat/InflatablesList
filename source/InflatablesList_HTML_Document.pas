@@ -25,8 +25,7 @@ type
     Function GetElementCount: Integer;
     Function GetElement(Index: Integer): TILHTMLElementNode;
   protected
-    Function Corresponds(SearchSettings: TILItemShopParsingStage): Boolean; virtual;
-    procedure TextFinalize; virtual;    
+    procedure TextFinalize; virtual;
   public
     constructor Create(Parent: TILHTMLElementNode; const Name: String);
     constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
@@ -44,9 +43,7 @@ type
     procedure ElementDelete(Index: Integer); virtual;
     Function GetSubElementsCount: Integer; virtual;
     Function GetLevel: Integer; virtual;
-    Function TextMatch(SearchSettings: TILItemShopParsingStage): Boolean; virtual;
-    Function Find(SearchSettings: TILItemShopParsingStage; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; overload; virtual;
-    Function Find(Comparator: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; overload; virtual;
+    Function Find(Stage: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer; virtual;
     procedure List(Strs: TStrings); virtual;
     property Parent: TILHTMLElementNode read fParent;
     property Open: Boolean read fOpen;
@@ -101,25 +98,6 @@ else
 end;
 
 //==============================================================================
-
-Function TILHTMLElementNode.Corresponds(SearchSettings: TILItemShopParsingStage): Boolean;
-begin
-If Length(SearchSettings.ElementName) > 0 then
-  begin
-    Result := AnsiSameText(fName,SearchSettings.ElementName);
-    If (Length(SearchSettings.AttributeName) > 0) and (Length(SearchSettings.AttributeValue) > 0) then
-      Result := Result and (AttributeIndexOf(SearchSettings.AttributeName,SearchSettings.AttributeValue) >= 0)
-    else If Length(SearchSettings.AttributeName) > 0 then
-      Result := Result and (AttributeIndexOfName(SearchSettings.AttributeName) >= 0)
-    else If Length(SearchSettings.AttributeValue) > 0 then
-      Result := Result and (AttributeIndexOfValue(SearchSettings.AttributeValue) >= 0);
-    If Result and (Length(SearchSettings.Text) > 0) then
-      Result := TextMatch(SearchSettings);
-  end
-else Result := False;
-end;
-
-//------------------------------------------------------------------------------
 
 procedure TILHTMLElementNode.TextFinalize;
 var
@@ -339,75 +317,30 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILHTMLElementNode.TextMatch(SearchSettings: TILItemShopParsingStage): Boolean;
+Function TILHTMLElementNode.Find(Stage: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer;
 var
-  i:  Integer;
-begin
-If SearchSettings.FullTextMatch then
-  Result := AnsiSameText(fText,SearchSettings.Text)
-else
-  Result := AnsiContainsText(fText,SearchSettings.Text);
-If not Result and SearchSettings.RecursiveSearch then
-  begin
-    For i := CDA_Low(fElements) to CDA_High(fElements) do
-      If TILHTMLElementNode(CDA_GetItem(fElements,i)).TextMatch(SearchSettings) then
-        begin
-          Result := True;
-          Break{For i};
-        end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILHTMLElementNode.Find(SearchSettings: TILItemShopParsingStage; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer;
-var
-  i:  Integer;
+  FinderStage:  TILElementFinderStage;
+  i:            Integer;
 begin
 Result := 0;
+FinderStage := Stage as TILElementFinderStage;
+FinderStage.ReInit;
 If IncludeSelf then
-  If Corresponds(SearchSettings) then
+  If FinderStage.Compare(Self) then
     begin
       CDA_Add(Storage,Self);
       Inc(Result);
     end;
 For i := CDA_Low(fElements) to CDA_High(fElements) do
   begin
-    If TILHTMLElementNode(CDA_GetItem(fElements,i)).Corresponds(SearchSettings) then
+    FinderStage.ReInit;
+    If FinderStage.Compare(TILHTMLElementNode(CDA_GetItem(fElements,i))) then
       begin
         CDA_Add(Storage,CDA_GetItem(fElements,i));
         Inc(Result);
       end;
     // recurse
-    Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).Find(SearchSettings,False,Storage));
-  end;
-end;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Function TILHTMLElementNode.Find(Comparator: TObject; IncludeSelf: Boolean; var Storage: TObjectCountedDynArray): Integer;
-var
-  ElementComparator:  TILElementComparatorGroup;
-  i:                  Integer;
-begin
-ElementComparator := Comparator as TILElementComparatorGroup;
-ElementComparator.ReInit;
-If IncludeSelf then
-  If ElementComparator.Compare(Self) then
-    begin
-      CDA_Add(Storage,Self);
-      Inc(Result);
-    end;
-For i := CDA_Low(fElements) to CDA_High(fElements) do
-  begin
-    ElementComparator.ReInit;
-    If ElementComparator.Compare(TILHTMLElementNode(CDA_GetItem(fElements,i))) then
-      begin
-        CDA_Add(Storage,CDA_GetItem(fElements,i));
-        Inc(Result);
-      end;
-    // recurse
-    Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).Find(Comparator,False,Storage));
+    Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).Find(Stage,False,Storage));
   end;
 end;
 

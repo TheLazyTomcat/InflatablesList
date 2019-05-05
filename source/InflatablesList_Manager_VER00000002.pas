@@ -121,7 +121,7 @@ procedure TILManager_VER00000002.SaveItemShop_VER00000002(Stream: TStream; Shop:
 var
   i:  Integer;
 
-  procedure SaveParsingSettings(ParsingSettings: TILItemShopParsingSetting_New);
+  procedure SaveParsingSettings(ParsingSettings: TILItemShopParsingSetting);
   var
     ii: Integer;
   begin
@@ -130,15 +130,15 @@ var
       Stream_WriteString(Stream,ParsingSettings.Variables.Vars[ii]);
     // available
     Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsingSettings.Available.Extraction.ExtractFrom));
+    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Available.Extraction.ExtractionMethod));
     Stream_WriteString(Stream,ParsingSettings.Available.Extraction.ExtractionData);
     Stream_WriteString(Stream,ParsingSettings.Available.Extraction.NegativeTag);
-    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Available.Extraction.ExtractionMethod));
     TILElementFinder(ParsingSettings.Available.Finder).SaveToStream(Stream);
     // price
     Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsingSettings.Price.Extraction.ExtractFrom));
+    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Price.Extraction.ExtractionMethod));
     Stream_WriteString(Stream,ParsingSettings.Price.Extraction.ExtractionData);
     Stream_WriteString(Stream,ParsingSettings.Price.Extraction.NegativeTag);
-    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Price.Extraction.ExtractionMethod));
     TILElementFinder(ParsingSettings.Price.Finder).SaveToStream(Stream);
   end;
 
@@ -165,7 +165,7 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
   end;
 // parsing settings
 Stream_WriteString(Stream,Shop.Notes);
-SaveParsingSettings(Shop.ParsingSettings_New);
+SaveParsingSettings(Shop.ParsingSettings);
 Stream_WriteString(Stream,Shop.LastUpdateMsg);
 end;
 
@@ -277,7 +277,7 @@ procedure TILManager_VER00000002.LoadItemShop_VER00000002(Stream: TStream; out S
 var
   i: Integer;
 
-  procedure LoadParsingSettings(out ParsingSettings: TILItemShopParsingSetting_New);
+  procedure LoadParsingSettings(out ParsingSettings: TILItemShopParsingSetting);
   var
     ii: Integer;
   begin
@@ -286,16 +286,16 @@ var
       ParsingSettings.Variables.Vars[ii] := Stream_ReadString(Stream);
     // available
     ParsingSettings.Available.Extraction.ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
+    ParsingSettings.Available.Extraction.ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
     ParsingSettings.Available.Extraction.ExtractionData := Stream_ReadString(Stream);
     ParsingSettings.Available.Extraction.NegativeTag := Stream_ReadString(Stream);
-    ParsingSettings.Available.Extraction.ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
     ParsingSettings.Available.Finder := TILElementFinder.Create;
     TILElementFinder(ParsingSettings.Available.Finder).LoadFromStream(Stream);
     // price
     ParsingSettings.Price.Extraction.ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
+    ParsingSettings.Price.Extraction.ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));    
     ParsingSettings.Price.Extraction.ExtractionData := Stream_ReadString(Stream);
     ParsingSettings.Price.Extraction.NegativeTag := Stream_ReadString(Stream);
-    ParsingSettings.Price.Extraction.ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
     ParsingSettings.Price.Finder := TILElementFinder.Create;
     TILElementFinder(ParsingSettings.Price.Finder).LoadFromStream(Stream);
   end;
@@ -323,7 +323,7 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
   end;
 Shop.Notes := Stream_ReadString(Stream);
 // parsing settings
-LoadParsingSettings(Shop.ParsingSettings_New);
+LoadParsingSettings(Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);
 end;
 

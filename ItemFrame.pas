@@ -925,6 +925,7 @@ If Assigned(fCurrentItemPtr) then
           begin
             Temp[i].ItemName := Format('[#%d] %s',[fCurrentItemPtr^.Index,fILManager.ItemTitleStr(fCurrentItemPtr^)]);
             Temp[i].ItemShopPtr := Addr(fCurrentItemPtr^.Shops[i]);
+            Temp[i].ItemShopPtr^.RequiredCount := fCurrentItemPtr^.Count;
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
@@ -942,10 +943,14 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
+var
+  i:  Integer;
 begin
 If Assigned(fCurrentItemPtr) then
   begin
     SaveItem;
+    For i := Low(fCurrentItemPtr^.Shops) to High(fCurrentItemPtr^.Shops) do
+      fCurrentItemPtr^.Shops[i].RequiredCount := fCurrentItemPtr^.Count;
     fShopsForm.ShowShops(fCurrentItemPtr^);
     // flags are set in shops form
     LoadItem;

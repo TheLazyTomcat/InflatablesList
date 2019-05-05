@@ -45,8 +45,8 @@ type
   public
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
     class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
-    class Function GetItemShopParsAvailExtrMethodString(ExtractionMethod: TILItemShopParsAvailExtrMethod): String; virtual;
-    class Function GetItemShopParsPriceExtrMethodString(ExtractionMethod: TILItemShopParsPriceExtrMethod): String; virtual;
+    class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
+    class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
     constructor Create;
     destructor Destroy; override;
     property ItemManufacturerCount: Integer read GetItemManufacturerCount;
@@ -113,11 +113,11 @@ const
     'def_pic_seat','def_pic_mattress','def_pic_island','def_pic_bed',
     'def_pic_boat','def_pic_toy','def_pic_wings','def_pic_others');
 
-  IL_DATA_AVAILEXTRMETHOD_STRS: array[TILItemShopParsAvailExtrMethod] of String = (
-    'First integer','First integer tagged','Contains tag','First Int or Tag');
+  IL_DATA_SHOPPARSING_EXTRACTFROM: array[TILItemShopParsingExtrFrom] of String = (
+    'Text','Nested text','Attribute value');
 
-  IL_DATA_PRICEEXTRMETHOD_STRS: array[TILItemShopParsPriceExtrMethod] of String = (
-    'First integer');
+  IL_DATA_SHOPPARSING_EXTRACTMETHOD: array[TILItemShopParsingExtrMethod] of String = (
+    'First integer','First integer, tagged','Negative tag is count');
 
 //==============================================================================
 
@@ -376,22 +376,22 @@ end;
 
 //------------------------------------------------------------------------------
 
-class Function TILDataProvider.GetItemShopParsAvailExtrMethodString(ExtractionMethod: TILItemShopParsAvailExtrMethod): String;
+class Function TILDataProvider.GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String;
 begin
-If (ExtractionMethod >= Low(TILItemShopParsAvailExtrMethod)) and (ExtractionMethod <= High(TILItemShopParsAvailExtrMethod)) then
-  Result := IL_DATA_AVAILEXTRMETHOD_STRS[ExtractionMethod]
+If (ExtractFrom >= Low(TILItemShopParsingExtrFrom)) and (ExtractFrom <= High(TILItemShopParsingExtrFrom)) then
+  Result := IL_DATA_SHOPPARSING_EXTRACTFROM[ExtractFrom]
 else
-  raise Exception.CreateFmt('TILDataProvider.GetItemShopParsAvailExtrMethodString: Invalid extraction method (%d).',[Ord(ExtractionMethod)]);
+  raise Exception.CreateFmt('TILDataProvider.GetShopParsingEtractFromString: Invalid extract from value (%d).',[Ord(ExtractFrom)]);
 end;
 
 //------------------------------------------------------------------------------
 
-class Function TILDataProvider.GetItemShopParsPriceExtrMethodString(ExtractionMethod: TILItemShopParsPriceExtrMethod): String;
+class Function TILDataProvider.GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String;
 begin
-If (ExtractionMethod >= Low(TILItemShopParsPriceExtrMethod)) and (ExtractionMethod <= High(TILItemShopParsPriceExtrMethod)) then
-  Result := IL_DATA_PRICEEXTRMETHOD_STRS[ExtractionMethod]
+If (ExtractMethod >= Low(TILItemShopParsingExtrMethod)) and (ExtractMethod <= High(TILItemShopParsingExtrMethod)) then
+  Result := IL_DATA_SHOPPARSING_EXTRACTMETHOD[ExtractMethod]
 else
-  raise Exception.CreateFmt('TILDataProvider.GetItemShopParsPriceExtrMethodString: Invalid extraction method (%d).',[Ord(ExtractionMethod)]);
+  raise Exception.CreateFmt('TILDataProvider.GetShopParsingExtractMethodString: Invalid extraction method (%d).',[Ord(ExtractMethod)]);
 end;
 
 //------------------------------------------------------------------------------

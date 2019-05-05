@@ -5,7 +5,6 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, StdCtrls, Spin, ComCtrls, Menus,
-  ParsingFrame,
   InflatablesList_Types, InflatablesList;
 
 type
@@ -29,19 +28,25 @@ type
     lvPriceHistory: TListView;
     pmnHistory: TPopupMenu;
     mniHI_Remove: TMenuItem;
-    mniHI_Clear: TMenuItem;
-    bgParsing: TGroupBox;
-    leParsingMoreThanTag: TLabeledEdit;
-    lblParsingAvailExtractMethod: TLabel;
-    cmbParsingAvailExtractMethod: TComboBox;
-    lblParsingPriceExtractMethod: TLabel;
-    cmbParsingPriceExtractMethod: TComboBox;
-    tcParsingStages: TTabControl;
-    frmParsingFrame: TfrmParsingFrame;    
+    mniHI_Clear: TMenuItem;    
     leLastUpdateMsg: TLabeledEdit;
     bvlSplit: TBevel;
     btnUpdate: TButton;
     btnTemplates: TButton;
+    lblNotes: TLabel;
+    meNotes: TMemo;
+    gbParsing: TGroupBox;
+    leParsVar_1: TLabeledEdit;
+    leParsVar_2: TLabeledEdit;
+    leParsVar_3: TLabeledEdit;
+    leParsVar_4: TLabeledEdit;
+    leParsVar_5: TLabeledEdit;
+    leParsVar_6: TLabeledEdit;
+    leParsVar_7: TLabeledEdit;
+    leParsVar_8: TLabeledEdit;
+    btnParsAvail: TButton;
+    bvlVarsSep: TBevel;
+    btnParsPrice: TButton;
     procedure leShopNameChange(Sender: TObject);
     procedure cbShopSelectedClick(Sender: TObject);
     procedure btnShopURLOpenClick(Sender: TObject);
@@ -54,7 +59,10 @@ type
     procedure pmnHistoryPopup(Sender: TObject);
     procedure mniHI_RemoveClick(Sender: TObject);
     procedure mniHI_ClearClick(Sender: TObject);
-    procedure tcParsingStagesChange(Sender: TObject);
+    procedure meNotesDblClick(Sender: TObject);
+    procedure meNotesKeyPress(Sender: TObject; var Key: Char);
+    procedure btnParsAvailClick(Sender: TObject);
+    procedure btnParsPriceClick(Sender: TObject);      
     procedure btnUpdateClick(Sender: TObject);
     procedure btnTemplatesClick(Sender: TObject);
   private
@@ -82,7 +90,7 @@ implementation
 
 uses
   ShellAPI,
-  TemplatesForm;
+  TemplatesForm, TextEditForm, ParsingForm;
 
 procedure TfrmShopFrame.DoListItemChange;
 begin
@@ -110,18 +118,16 @@ seAvailable.Value := 0;
 sePrice.Value := 0;
 lvAvailHistory.Clear;
 lvPriceHistory.Clear;
+meNotes.Text := '';
 // parsing
-leParsingMoreThanTag.Text := '';
-If cmbParsingAvailExtractMethod.Items.Count > 0 then
-  cmbParsingAvailExtractMethod.ItemIndex := 0
-else
-  cmbParsingAvailExtractMethod.ItemIndex := -1;
-If cmbParsingPriceExtractMethod.Items.Count > 0 then
-  cmbParsingPriceExtractMethod.ItemIndex := 0
-else
-  cmbParsingPriceExtractMethod.ItemIndex := -1;
-// do not touch tabs
-frmParsingFrame.SetStages(nil,True);
+leParsVar_1.Text := '';
+leParsVar_2.Text := '';
+leParsVar_3.Text := '';
+leParsVar_4.Text := '';
+leParsVar_5.Text := '';
+leParsVar_6.Text := '';
+leParsVar_7.Text := '';
+leParsVar_8.Text := '';
 leLastUpdateMsg.Text := '';
 end;
 
@@ -188,13 +194,16 @@ If Assigned(fCurrentItemShopPtr) then
     fCurrentItemShopPtr^.ItemURL := leShopItemURL.Text;
     fCurrentItemShopPtr^.Available := seAvailable.Value;
     fCurrentItemShopPtr^.Price := sePrice.Value;
+    fCurrentItemShopPtr^.Notes := meNotes.Text;
     // parsing
-    fCurrentItemShopPtr^.ParsingSettings.MoreThanTag := leParsingMoreThanTag.Text;
-    fCurrentItemShopPtr^.ParsingSettings.AvailExtrMethod :=
-      TILItemShopParsAvailExtrMethod(cmbParsingAvailExtractMethod.ItemIndex);
-    fCurrentItemShopPtr^.ParsingSettings.PriceExtrMethod :=
-      TILItemShopParsPriceExtrMethod(cmbParsingPriceExtractMethod.ItemIndex);
-    frmParsingFrame.SaveStages;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[0] := leParsVar_1.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[1] := leParsVar_2.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[2] := leParsVar_3.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[3] := leParsVar_4.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[4] := leParsVar_5.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5] := leParsVar_6.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6] := leParsVar_7.Text;
+    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7] := leParsVar_8.Text;
   end;
 end;
 
@@ -214,16 +223,16 @@ If Assigned(fCurrentItemShopPtr) then
       sePrice.Value := fCurrentItemShopPtr^.Price;
       FillHistoryLists(0);
       FillHistoryLists(1);
+      meNotes.Text := fCurrentItemShopPtr^.Notes;
       // parsing
-      leParsingMoreThanTag.Text := fCurrentItemShopPtr^.ParsingSettings.MoreThanTag;
-      cmbParsingAvailExtractMethod.ItemIndex := Ord(fCurrentItemShopPtr^.ParsingSettings.AvailExtrMethod);
-      cmbParsingPriceExtractMethod.ItemIndex := Ord(fCurrentItemShopPtr^.ParsingSettings.PriceExtrMethod);
-      case tcParsingStages.TabIndex of
-        0:  frmParsingFrame.SetStages(Addr(fCurrentItemShopPtr^.ParsingSettings.AvailStages),True);
-        1:  frmParsingFrame.SetStages(Addr(fCurrentItemShopPtr^.ParsingSettings.PriceStages),True);
-      else
-        frmParsingFrame.SetStages(nil,True);
-      end;
+      leParsVar_1.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[0];
+      leParsVar_2.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[1];
+      leParsVar_3.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[2];
+      leParsVar_4.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[3];
+      leParsVar_5.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[4];
+      leParsVar_6.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5];
+      leParsVar_7.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6];
+      leParsVar_8.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7];
       leLastUpdateMsg.Text := fCurrentItemShopPtr^.LastUpdateMsg;
     finally
       fInitializing := False;
@@ -234,34 +243,8 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.Initialize(ILManager: TILManager);
-var
-  i:  Integer;
 begin
 fILManager := ILManager;
-// fill drop boxes
-cmbParsingAvailExtractMethod.Items.BeginUpdate;
-try
-  cmbParsingAvailExtractMethod.Clear;
-  For i := Ord(Low(TILItemShopParsAvailExtrMethod)) to Ord(High(TILItemShopParsAvailExtrMethod)) do
-    cmbParsingAvailExtractMethod.Items.Add(
-      fILManager.DataProvider.GetItemShopParsAvailExtrMethodString(TILItemShopParsAvailExtrMethod(i)));
-finally
-  cmbParsingAvailExtractMethod.Items.EndUpdate;
-end;
-cmbParsingPriceExtractMethod.Items.BeginUpdate;
-try
-  cmbParsingPriceExtractMethod.Clear;
-  For i := Ord(Low(TILItemShopParsPriceExtrMethod)) to Ord(High(TILItemShopParsPriceExtrMethod)) do
-    cmbParsingPriceExtractMethod.Items.Add(
-      fILManager.DataProvider.GetItemShopParsPriceExtrMethodString(TILItemShopParsPriceExtrMethod(i)));
-finally
-  cmbParsingPriceExtractMethod.Items.EndUpdate;
-end; 
-If cmbParsingAvailExtractMethod.Items.Count > 0 then
-  cmbParsingAvailExtractMethod.ItemIndex := 0;
-If cmbParsingPriceExtractMethod.Items.Count > 0 then
-  cmbParsingPriceExtractMethod.ItemIndex := 0;
-frmParsingFrame.Initialize(fILManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -484,16 +467,45 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.tcParsingStagesChange(Sender: TObject);
+procedure TfrmShopFrame.meNotesDblClick(Sender: TObject);
+var
+  Temp: String;
 begin
 If Assigned(fCurrentItemShopPtr) then
   begin
-    case tcParsingStages.TabIndex of
-      0:  frmParsingFrame.SetStages(Addr(fCurrentItemShopPtr^.ParsingSettings.AvailStages),True);
-      1:  frmParsingFrame.SetStages(Addr(fCurrentItemShopPtr^.ParsingSettings.PriceStages),True);
-    end;
-  end
-else frmParsingFrame.SetStages(nil,True);
+    Temp := meNotes.Text;
+    fTextEditForm.ShowTextEditor('Edit item notes',Temp,False);
+    meNotes.Text := Temp;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.meNotesKeyPress(Sender: TObject; var Key: Char);
+begin
+If Key = ^A then
+  begin
+    meNotes.SelectAll;
+    Key := #0;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.btnParsAvailClick(Sender: TObject);
+begin
+If Assigned(fCurrentItemShopPtr) then
+  fParsingForm.ShowParsingSettings('Available count parsing settings',
+    Addr(fCurrentItemShopPtr^.ParsingSettings.Available));
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.btnParsPriceClick(Sender: TObject);
+begin
+If Assigned(fCurrentItemShopPtr) then
+  fParsingForm.ShowParsingSettings('Price parsing settings',
+    Addr(fCurrentItemShopPtr^.ParsingSettings.Price));
 end;
 
 //------------------------------------------------------------------------------

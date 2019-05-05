@@ -17,7 +17,7 @@ const
   IL_LISTFILE_FILESTRUCTURE_00000001 = UInt32($00000001);
   IL_LISTFILE_FILESTRUCTURE_00000002 = UInt32($00000002);
 
-  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000001;
+  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000002;
 
 type
   TILManager_Base = class(TObject)
@@ -65,6 +65,7 @@ type
     procedure ReIndex; virtual;
   public
     // utility functions
+    class procedure ItemFinalize(var Item: TILItem; FreePics: Boolean = False); virtual;
     class procedure ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False); virtual;
     class procedure ItemShopCopy(const Src: TILItemShop; out Dest: TILItemShop); virtual;
     Function ItemTitleStr(const Item: TILItem): String; virtual;
@@ -81,7 +82,6 @@ type
     class Function ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
     class procedure ItemUpdateShopsHistory(var Item: TILItem); virtual;
     class Function ItemShopUpdate(var Shop: TILItemShop): Boolean; virtual;
-    class Function ItemShopParsingStageStr(const Stage: TILItemShopParsingStage): String; virtual;
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // constructors/destructors
     constructor Create(ListComponent: TListBox);
@@ -96,11 +96,12 @@ type
     procedure ItemRedraw; overload; virtual;
     Function ItemFilter(var Item: TILItem): Boolean; overload; virtual;
     procedure ItemFilter; overload; virtual;
-    // item shops
-    Function ItemShopAdd(ItemIndex: Integer): Integer; virtual;
-    procedure ItemShopExchange(ItemIndex: Integer; Idx1,Idx2: Integer); virtual;
-    procedure ItemShopDelete(ItemIndex: Integer; Index: Integer); virtual;
-    procedure ItemShopClear(ItemIndex: Integer); virtual;
+    // item shop list manipulation
+    class procedure ItemShopFinalize(var ItemShop: TILItemShop); virtual;
+    class Function ItemShopAdd(var Item: TILItem): Integer; virtual;
+    class procedure ItemShopExchange(var Item: TILItem; Idx1,Idx2: Integer); virtual;
+    class procedure ItemShopDelete(var Item: TILItem; Index: Integer); virtual;
+    class procedure ItemShopClear(var Item: TILItem); virtual;
     // searching
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
@@ -269,6 +270,7 @@ end;
 procedure TILManager_Base.Finalize;
 begin
 ItemClear;
+ShopTemplateClear;
 FinalizeSortingSettings;
 FreeAndNil(fDataProvider);
 end;
@@ -387,20 +389,21 @@ end;
 
 Function TILManager_Base.ItemContains(const Item: TILItem; const Text: String): Boolean;
 begin
-Result := AnsiContainsText(ItemTypeStr(Item),Text) or
-          AnsiContainsText(Item.ItemTypeSpec,Text) or
-          AnsiContainsText(IntToStr(Item.Count),Text) or
-          AnsiContainsText(fDataProvider.ItemManufacturers[Item.Manufacturer].Str,Text) or
-          AnsiContainsText(Item.ManufacturerStr,Text) or
-          AnsiContainsText(IntToStr(Item.ID),Text) or
-          AnsiContainsText(Item.TextTag,Text) or
-          AnsiContainsText(IntToStr(Item.WantedLevel),Text) or
-          AnsiContainsText(Item.Variant,Text) or
-          AnsiContainsText(IntToStr(Item.SizeX),Text) or
-          AnsiContainsText(IntToStr(Item.SizeY),Text) or
-          AnsiContainsText(IntToStr(Item.SizeZ),Text) or
-          AnsiContainsText(IntToStr(Item.UnitWeight),Text) or
-          AnsiContainsText(Item.Notes,Text);
+Result :=
+  AnsiContainsText(ItemTypeStr(Item),Text) or
+  AnsiContainsText(Item.ItemTypeSpec,Text) or
+  AnsiContainsText(IntToStr(Item.Count),Text) or
+  AnsiContainsText(fDataProvider.ItemManufacturers[Item.Manufacturer].Str,Text) or
+  AnsiContainsText(Item.ManufacturerStr,Text) or
+  AnsiContainsText(IntToStr(Item.ID),Text) or
+  AnsiContainsText(Item.TextTag,Text) or
+  AnsiContainsText(IntToStr(Item.WantedLevel),Text) or
+  AnsiContainsText(Item.Variant,Text) or
+  AnsiContainsText(IntToStr(Item.SizeX),Text) or
+  AnsiContainsText(IntToStr(Item.SizeY),Text) or
+  AnsiContainsText(IntToStr(Item.SizeZ),Text) or
+  AnsiContainsText(IntToStr(Item.UnitWeight),Text) or
+  AnsiContainsText(Item.Notes,Text);
 end;
 
 //------------------------------------------------------------------------------
@@ -414,6 +417,25 @@ For i := Low(fList) to High(fList) do
 end;
 
 //==============================================================================
+
+class procedure TILManager_Base.ItemFinalize(var Item: TILItem; FreePics: Boolean = False);
+var
+  i:  Integer;
+begin
+If FreePics then
+  begin
+    If Assigned(Item.MainPicture) then
+      FreeAndNil(Item.MainPicture);
+    If Assigned(Item.PackagePicture) then
+      FreeAndNil(Item.PackagePicture);
+    If Assigned(Item.ItemListRender) then
+      FreeAndNil(Item.ItemListRender);
+  end;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  ItemShopFinalize(Item.Shops[i]);
+end;
+
+//------------------------------------------------------------------------------
 
 class procedure TILManager_Base.ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False);
 var
@@ -464,40 +486,20 @@ UniqueString(Dest.ItemURL);
 SetLength(Dest.AvailHistory,Length(Dest.AvailHistory));
 SetLength(Dest.PriceHistory,Length(Dest.PriceHistory));
 UniqueString(Dest.Notes);
-
-UniqueString(Dest.ParsingSettings.MoreThanTag);
-SetLength(Dest.ParsingSettings.AvailStages,Length(Dest.ParsingSettings.AvailStages));
-For i := Low(Dest.ParsingSettings.AvailStages) to High(Dest.ParsingSettings.AvailStages) do
-  begin
-    UniqueString(Dest.ParsingSettings.AvailStages[i].ElementName);
-    UniqueString(Dest.ParsingSettings.AvailStages[i].AttributeName);
-    UniqueString(Dest.ParsingSettings.AvailStages[i].AttributeValue);
-    UniqueString(Dest.ParsingSettings.AvailStages[i].Text);
-  end;
-SetLength(Dest.ParsingSettings.PriceStages,Length(Dest.ParsingSettings.PriceStages));
-For i := Low(Dest.ParsingSettings.PriceStages) to High(Dest.ParsingSettings.PriceStages) do
-  begin
-    UniqueString(Dest.ParsingSettings.PriceStages[i].ElementName);
-    UniqueString(Dest.ParsingSettings.PriceStages[i].AttributeName);
-    UniqueString(Dest.ParsingSettings.PriceStages[i].AttributeValue);
-    UniqueString(Dest.ParsingSettings.PriceStages[i].Text);
-  end;
-
 // new stuff
-with Dest.ParsingSettings_New do
+with Dest.ParsingSettings do
   begin
     For i := Low(Variables.Vars) to High(Variables.Vars) do
       UniqueString(Variables.Vars[i]);
     UniqueString(Available.Extraction.ExtractionData);
     UniqueString(Available.Extraction.NegativeTag);
     Available.Finder := TILElementFinder.CreateAsCopy(
-      TILElementFinder(Src.ParsingSettings_New.Available.Finder));
+      TILElementFinder(Src.ParsingSettings.Available.Finder));
     UniqueString(Price.Extraction.ExtractionData);
     UniqueString(Price.Extraction.NegativeTag);
     Price.Finder := TILElementFinder.CreateAsCopy(
-      TILElementFinder(Src.ParsingSettings_New.Price.Finder));
+      TILElementFinder(Src.ParsingSettings.Price.Finder));
   end;
-
 UniqueString(Dest.LastUpdateMsg);
 end;
 
@@ -800,37 +802,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-class Function TILManager_Base.ItemShopParsingStageStr(const Stage: TILItemShopParsingStage): String;
-var
-  TempStr:  String;
-begin
-If Length(Stage.ElementName) > 0 then
-  begin
-    If (Length(Stage.AttributeName) > 0) and (Length(Stage.AttributeValue) > 0) then
-      Result := Format('<%s %s="%s">',[Stage.ElementName,Stage.AttributeName,Stage.AttributeValue])
-    else If Length(Stage.AttributeName) > 0 then
-      Result := Format('<%s %s=*>',[Stage.ElementName,Stage.AttributeName])
-    else If Length(Stage.AttributeValue) > 0 then
-      Result := Format('<%s *="%s">',[Stage.ElementName,Stage.AttributeValue])
-    else
-      Result := Format('<%s>',[Stage.ElementName]);
-    If Length(Stage.Text) > 0 then
-      begin
-        If Stage.FullTextMatch then
-          TempStr := '...'
-        else
-          TempStr := '*.*';
-        If Stage.RecursiveSearch then
-          Result := Format('%s<*>%s</*>',[Result,TempStr])
-        else
-          Result := Result + TempStr;
-      end;
-  end
-else Result := 'nil';
-end;
-
-//------------------------------------------------------------------------------
-
 Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): String;
 begin
 If SortingItem.Reversed then
@@ -959,7 +930,7 @@ If (Index >= Low(fList)) and (Index <= High(fList)) then
   begin
     FreeAndNil(fList[Index].MainPicture);
     FreeAndNil(fList[Index].PackagePicture);
-    ItemShopClear(Index);
+    ItemShopClear(fList[Index]);
     FreeAndNil(fList[Index].ItemListRender);
     For i := Index to Pred(High(fList)) do
       fList[i] := fList[i + 1];
@@ -979,7 +950,7 @@ For i := Low(fList) to High(fList) do
   begin
     FreeAndNil(fList[i].MainPicture);
     FreeAndNil(fList[i].PackagePicture);
-    ItemShopClear(i);
+    ItemShopClear(fList[i]);
     FreeAndNil(fList[i].ItemListRender);
   end;
 SetLength(fList,0);
@@ -1213,79 +1184,67 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Base.ItemShopAdd(ItemIndex: Integer): Integer;
+class procedure TILManager_Base.ItemShopFinalize(var ItemShop: TILITemShop);
 begin
-If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
-  begin
-    SetLength(fList[ItemIndex].Shops,Length(fList[ItemIndex].Shops) + 1);
-    Result := High(fList[ItemIndex].Shops);
-    FillChar(fList[ItemIndex].Shops[Result],SizeOf(TILItemShop),0);
-    fList[ItemIndex].Shops[Result].ParsingSettings_New.Available.Finder := TILElementFinder.Create;
-    fList[ItemIndex].Shops[Result].ParsingSettings_New.Price.Finder := TILElementFinder.Create;
-  end
-else raise Exception.CreateFmt('TILManager_Base.ItemShopAdd: Item index (%d) out of bounds.',[ItemIndex]);
+FreeAndNil(ItemShop.ParsingSettings.Available.Finder);
+FreeAndNil(ItemShop.ParsingSettings.Price.Finder);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ItemShopExchange(ItemIndex: Integer; Idx1,Idx2: Integer);
+class Function TILManager_Base.ItemShopAdd(var Item: TILItem): Integer;
+begin
+SetLength(Item.Shops,Length(Item.Shops) + 1);
+Result := High(Item.Shops);
+FillChar(Item.Shops[Result],SizeOf(TILItemShop),0);
+Item.Shops[Result].ParsingSettings.Available.Finder := TILElementFinder.Create;
+Item.Shops[Result].ParsingSettings.Price.Finder := TILElementFinder.Create;
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_Base.ItemShopExchange(var Item: TILItem; Idx1,Idx2: Integer);
 var
   Temp: TILItemShop;
 begin
-If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+If Idx1 <> Idx2 then
   begin
-    If Idx1 <> Idx2 then
-      begin
-        // sanity checks
-        If (Idx1 < Low(fList[ItemIndex].Shops)) or (Idx1 > High(fList[ItemIndex].Shops)) then
-          raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
-        If (Idx2 < Low(fList[ItemIndex].Shops)) or (Idx2 > High(fList[ItemIndex].Shops)) then
-          raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
-        Temp := fList[ItemIndex].Shops[Idx1];
-        fList[ItemIndex].Shops[Idx1] := fList[ItemIndex].Shops[Idx2];
-        fList[ItemIndex].Shops[Idx2] := Temp;
-      end;
-  end
-else raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Item index (%d) out of bounds.',[ItemIndex]);
+    // sanity checks
+    If (Idx1 < Low(Item.Shops)) or (Idx1 > High(Item.Shops)) then
+      raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
+    If (Idx2 < Low(Item.Shops)) or (Idx2 > High(Item.Shops)) then
+      raise Exception.CreateFmt('TILManager_Base.ItemShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
+    Temp := Item.Shops[Idx1];
+    Item.Shops[Idx1] := Item.Shops[Idx2];
+    Item.Shops[Idx2] := Temp;
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ItemShopDelete(ItemIndex: Integer; Index: Integer);
+class procedure TILManager_Base.ItemShopDelete(var Item: TILItem; Index: Integer);
 var
   i:  Integer;
 begin
-If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
+If (Index >= Low(Item.Shops)) and (Index <= High(Item.Shops)) then
   begin
-    If (Index >= Low(fList[ItemIndex].Shops)) and (Index <= High(fList[ItemIndex].Shops)) then
-      begin
-        FreeAndNil(fList[ItemIndex].Shops[Index].ParsingSettings_New.Available.Finder);
-        FreeAndNil(fList[ItemIndex].Shops[Index].ParsingSettings_New.Price.Finder);
-        For i := Index to Pred(High(fList[ItemIndex].Shops)) do
-          fList[ItemIndex].Shops[i] := fList[ItemIndex].Shops[i + 1];
-        SetLength(fList,Length(fList) - 1);
-      end
-    else raise Exception.CreateFmt('TILManager_Base.ItemShopDelete: Index (%d) out of bounds.',[Index]);
+    ItemShopFinalize(Item.Shops[Index]);
+    For i := Index to Pred(High(Item.Shops)) do
+      Item.Shops[i] := Item.Shops[i + 1];
+    SetLength(Item.Shops,Length(Item.Shops) - 1);
   end
-else raise Exception.CreateFmt('TILManager_Base.ItemShopDelete: Item index (%d) out of bounds.',[ItemIndex]);
+else raise Exception.CreateFmt('TILManager_Base.ItemShopDelete: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ItemShopClear(ItemIndex: Integer);
+class procedure TILManager_Base.ItemShopClear(var Item: TILItem);
 var
   i:  Integer;
 begin
-If (ItemIndex >= Low(fList)) and (ItemIndex <= High(fList)) then
-  begin
-    For i := Low(fList[ItemIndex].Shops) to High(fList[ItemIndex].Shops) do
-      begin
-        FreeAndNil(fList[ItemIndex].Shops[i].ParsingSettings_New.Available.Finder);
-        FreeAndNil(fList[ItemIndex].Shops[i].ParsingSettings_New.Price.Finder);
-      end;
-    SetLength(fList[ItemIndex].Shops,0);
-  end
-else raise Exception.CreateFmt('TILManager_Base.ItemShopClear: Item index (%d) out of bounds.',[ItemIndex]);
+For i := Low(Item.Shops) to High(Item.Shops) do
+  ItemShopFinalize(Item.Shops[i]);
+SetLength(Item.Shops,0);
 end;
 
 //------------------------------------------------------------------------------
@@ -1488,6 +1447,7 @@ var
 begin
 If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
   begin
+    ItemShopFinalize(fShopTemplates[Index].ShopData);
     For i := Index to Pred(High(fShopTemplates)) do
       fShopTemplates[i] := fShopTemplates[i + 1];
     SetLength(fShopTemplates,Length(fShopTemplates) - 1);
@@ -1498,17 +1458,22 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_Base.ShopTemplateClear;
+var
+  i:  Integer;
 begin
+For i := Low(fShopTemplates) to High(fShopTemplates) do
+  ItemShopFinalize(fShopTemplates[i].ShopData);
 SetLength(fShopTemplates,0);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILManager_Base.ShopTemplateExport(const FileName: String; Index: Integer);
-var
-  Ini:  TIniFile;
-  i:    Integer;
+//var
+  //Ini:  TIniFile;
+  //i:    Integer;
 begin
+(*
 If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
   begin
     Ini := TIniFile.Create(FileName);
@@ -1549,15 +1514,17 @@ If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
     end;
   end
 else raise Exception.CreateFmt('TILManager_Base.ShopTemplateExport: Index (%d) out of bounds.',[Index]);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 Function TILManager_Base.ShopTemplateImport(const FileName: String): Integer;
-var
-  Ini:  TIniFile;
-  i:    Integer;
+//var
+  //Ini:  TIniFile;
+  //i:    Integer;
 begin
+(*
 Ini := TIniFile.Create(FileName);
 try
   SetLength(fShopTemplates,Length(fShopTemplates) + 1);
@@ -1596,6 +1563,7 @@ try
 finally
   Ini.Free;
 end;
+*)
 end;
 
 //------------------------------------------------------------------------------

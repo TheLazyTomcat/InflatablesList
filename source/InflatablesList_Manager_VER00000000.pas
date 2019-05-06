@@ -486,14 +486,19 @@ var
     // construct new structures from old ones
     FillChar(ParsingSettings,SizeOf(TILItemShopParsingSetting),0);
     // available count
-    ParsingSettings.Available.Extraction.ExtractFrom := ilpefText;
-    ParsingSettings.Available.Extraction.ExtractionMethod := ilpemFirstIntegerTag;    
-    ParsingSettings.Available.Extraction.NegativeTag := Temp.MoreThanTag;
+    SetLength(ParsingSettings.Available.Extraction,1);
+    ParsingSettings.Available.Extraction[0].ExtractFrom := ilpefText;
+    ParsingSettings.Available.Extraction[0].ExtractionMethod := ilpemFirstIntegerTag;
+    ParsingSettings.Available.Extraction[0].ExtractionData := '';
+    ParsingSettings.Available.Extraction[0].NegativeTag := Temp.MoreThanTag;
     ParsingSettings.Available.Finder := TILElementFinder.Create;
     ConvertStages(Shop.ParsingSettings.Available.Finder as TILElementFinder,Temp.AvailStages);
     // price
-    ParsingSettings.Price.Extraction.ExtractFrom := ilpefText;
-    ParsingSettings.Price.Extraction.ExtractionMethod := ilpemFirstInteger;
+    SetLength(ParsingSettings.Price.Extraction,1);
+    ParsingSettings.Price.Extraction[0].ExtractFrom := ilpefText;
+    ParsingSettings.Price.Extraction[0].ExtractionMethod := ilpemFirstInteger;
+    ParsingSettings.Price.Extraction[0].ExtractionData := '';
+    ParsingSettings.Price.Extraction[0].NegativeTag := '';
     ParsingSettings.Price.Finder := TILElementFinder.Create;
     ConvertStages(Shop.ParsingSettings.Price.Finder as TILElementFinder,Temp.PriceStages);
   end;

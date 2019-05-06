@@ -98,5 +98,14 @@ object frmComparatorFrame: TfrmComparatorFrame
       TabOrder = 5
       OnClick = cbNegateClick
     end
+    object cbNestedText: TCheckBox
+      Left = 0
+      Top = 16
+      Width = 129
+      Height = 17
+      Caption = 'Search full nested text'
+      TabOrder = 6
+      OnClick = cbNestedTextClick
+    end
   end
 end

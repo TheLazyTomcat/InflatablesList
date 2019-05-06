@@ -10,9 +10,6 @@ uses
   InflatablesList_Types,
   InflatablesList_HTML_TagAttributeArray, InflatablesList_HTML_Document;
 
-{$message 'implement total counts (subnodes), text of groups can be soemthing sensible when containing only one subnode'}
-{$message 'combined extraction methods'}
-
 type
   TILSearchOperator = (ilsoAND,ilsoOR,ilsoXOR);
 
@@ -20,16 +17,24 @@ type
   TILFinderBaseClass = class(TObject)
   protected
     fVariablesPtr:  PILItemShopParsingVariables;
-    fStringPrefix:  String;
-    fStringSuffix:  String;
+    fStringPrefix:  String; // not saved
+    fStringSuffix:  String; // not saved
+    fIndex:         Integer;
+    fEmptyStrAllow: Boolean;
+    Function GetTotalItemCount: Integer; virtual;
+    Function GetIsSimple: Boolean; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILFinderBaseClass);
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); virtual;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; virtual;
+    Function AsString(Decorate: Boolean = True): String; virtual;
     property VariablesPtr: PILItemShopParsingVariables read fVariablesPtr;
     property StringPrefix: String read fStringPrefix write fStringPrefix;
-    property StringSuffix: String read fStringPrefix write fStringPrefix;
+    property StringSuffix: String read fStringSuffix write fStringSuffix;
+    property Index: Integer read fIndex write fIndex;
+    property EmptyStringAllowed: Boolean read fEmptyStrAllow write fEmptyStrAllow;
+    property TotalItemCount: Integer read GetTotalItemCount;
+    property IsSimple: Boolean read GetIsSimple;
   end;
 
   TILComparatorBase = class(TILFinderBaseClass)
@@ -67,7 +72,7 @@ type
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILTextComparator);
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Compare(const Text: String); override;
     procedure SaveToStream(Stream: TStream); override;
     procedure LoadFromStream(Stream: TStream); override;
@@ -83,18 +88,21 @@ type
     fItems: array of TILTextComparatorBase;
     Function GetItemCount: Integer;
     Function GetItem(Index: Integer): TILTextComparatorBase;
+    Function GetTotalItemCount: Integer; override;
+    Function GetIsSimple: Boolean; override;
+    procedure ReIndex; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILTextComparatorGroup);
     destructor Destroy; override;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
     Function AddComparator(Negate: Boolean = False; Operator: TILSearchOperator = ilsoAND): TILTextComparator; virtual;
     Function AddGroup(Negate: Boolean = False; Operator: TILSearchOperator = ilsoAND): TILTextComparatorGroup; virtual;
     Function Remove(Item: TObject): Integer; virtual;
-    procedure Delete(Index: Integer); virtual;
+    procedure Delete(Index: Integer); virtual;                       
     procedure Clear; virtual;
     procedure Compare(const Text: String); override;
     procedure SaveToStream(Stream: TStream); override;
@@ -116,11 +124,13 @@ type
   protected
     fName:  TILTextComparatorGroup;
     fValue: TILTextComparatorGroup;
+    Function GetTotalItemCount: Integer; override;
+    Function GetIsSimple: Boolean; override;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILAttributeComparator);
     destructor Destroy; override;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
     procedure ReInit; override;
     procedure Compare(TagAttribute: TILTagAttribute); override;
@@ -137,11 +147,14 @@ type
     fItems: array of TILAttributeComparatorBase;
     Function GetItemCount: Integer;
     Function GetItem(Index: Integer): TILAttributeComparatorBase;
+    Function GetTotalItemCount: Integer; override;
+    Function GetIsSimple: Boolean; override;
+    procedure ReIndex; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILAttributeComparatorGroup);
     destructor Destroy; override;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
@@ -166,11 +179,13 @@ type
     fText:        TILTextComparatorGroup;
     fNestedText:  Boolean;
     fResult:      Boolean;
+    Function GetTotalItemCount: Integer; override;
+    Function GetIsSimple: Boolean; override;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILElementComparator);
     destructor Destroy; override;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     procedure Compare(Element: TILHTMLElementNode); virtual;
@@ -190,11 +205,13 @@ type
     fItems: array of TILElementComparator;
     Function GetItemCount: Integer;
     Function GetItem(Index: Integer): TILElementComparator;
+    Function GetTotalItemCount: Integer; override;
+    procedure ReIndex; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILElementFinderStage);
     destructor Destroy; override;
-    Function AsString(Operator: Boolean = False; Index: Integer = -1): String; override;
+    Function AsString(Decorate: Boolean = True): String; override;
     procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     Function IndexOf(Item: TObject): Integer; virtual;
@@ -216,6 +233,9 @@ type
     fStages: array of TILElementFinderStage;
     Function GetStageCount: Integer;
     Function GetStage(Index: Integer): TILElementFinderStage;
+  protected
+    Function GetTotalItemCount: Integer; override;
+    procedure ReIndex; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILElementFinder);
@@ -298,9 +318,9 @@ end;
 
 Function IL_NegateValue(Value,Negate: Boolean): Boolean;
 begin
-//If Negate then
-//  Result := not Value
-//else
+If Negate then
+  Result := not Value
+else
   Result := Value;
 end;
 
@@ -320,12 +340,21 @@ end;
 //******************************************************************************
 //******************************************************************************
 
+Function TILFinderBaseClass.GetTotalItemCount: Integer;
+begin
+Result := 1;
+end;
+
+//==============================================================================
+
 constructor TILFinderBaseClass.Create;
 begin
 inherited Create;
 fVariablesPtr := nil;
 fStringPrefix := '';
-fStringPrefix := '';
+fStringSuffix := '';
+fIndex := -1;
+fEmptyStrAllow := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -334,6 +363,10 @@ constructor TILFinderBaseClass.CreateAsCopy(Source: TILFinderBaseClass);
 begin
 Create;
 fVariablesPtr := Source.VariablesPtr;
+fStringPrefix := Source.StringPrefix;
+fStringSuffix := Source.StringSuffix;
+fIndex := Source.Index;
+fEmptyStrAllow := Source.EmptyStringAllowed;
 end;
 
 //------------------------------------------------------------------------------
@@ -345,9 +378,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILFinderBaseClass.AsString(Operator: Boolean = False; Index: Integer = -1): String;
+Function TILFinderBaseClass.AsString(Decorate: Boolean = True): String;
 begin
 Result := Format('%s%s(%p)%s',[fStringPrefix,Self.ClassName,Pointer(Self),fStringSuffix]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILFinderBaseClass.GetIsSimple: Boolean;
+begin
+Result := True;
 end;
 
 //******************************************************************************
@@ -384,6 +424,7 @@ end;
 
 procedure TILComparatorBase.SaveToStream(Stream: TStream);
 begin
+Stream_WriteInt32(Stream,fVariableIdx);
 Stream_WriteBool(Stream,fNegate);
 Stream_WriteInt32(Stream,IL_SearchOperatorToNum(fOperator));
 end;
@@ -392,6 +433,7 @@ end;
 
 procedure TILComparatorBase.LoadFromStream(Stream: TStream);
 begin
+fVariableIdx := Stream_ReadInt32(Stream);
 fNegate := Stream_ReadBool(Stream);
 fOperator := IL_NumToSearchOperator(Stream_ReadInt32(Stream));
 end;
@@ -420,28 +462,38 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILTextComparator.AsString(Operator: Boolean = False; Index: Integer = -1): String;
-var
-  Template: String;
+Function TILTextComparator.AsString(Decorate: Boolean = True): String;
 begin
-If fCaseSensitive or fAllowPartial or fNegate or Operator then
-  Template := '"%s"'
+If fCaseSensitive or fAllowPartial or fNegate or (fIndex > 0) then
+  Result := '"%s"'
 else
-  Template := '%s';
+  Result := '%s';
 If fCaseSensitive then
-  Template := Format('?^%s',[Template]);
+  Result := Format('?^%s',[Result]);
 If fAllowPartial then
-  Template := Format('*.%s.*',[Template]);
+  Result := Format('*.%s.*',[Result]);
 If fNegate then
-  Template := Format('not(%s)',[Template]);
-If Operator then
-  Template := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Template,fStringSuffix])
+  Result := Format('not(%s)',[Result]);
+If Decorate then
+  begin
+    If fIndex > 0 then
+      Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+    else
+      Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]);
+  end
 else
-  Template := Format('%s%s%s',[fStringPrefix,Template,fStringSuffix]);
-If Length(Template) + Length(fStr) > 25 then
-  Result := Format(Template,['...'])
-else
-  Result := Format(Template,[fStr]);
+  begin
+    If fIndex > 0 then
+      Result := Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result]);
+  end;
+If fVariableIdx < 0 then
+  begin
+    If Length(Result) + Length(fStr) > 25 then
+      Result := Format(Result,['...'])
+    else
+      Result := Format(Result,[fStr]);
+  end
+else Result := Format(Result,[Format('#VAR%d#',[fVariableIdx + 1])]);
 // index is ignored
 end;
 
@@ -456,20 +508,20 @@ If Assigned(fVariablesPtr) then
     If (fVariableIdx >= Low(fVariablesPtr^.Vars)) and (fVariableIdx <= High(fVariablesPtr^.Vars)) then
       Temp := fVariablesPtr^.Vars[fVariableIdx]
     else
-      Temp := Text;
+      Temp := fStr;
     If fCaseSensitive then
       begin
         If fAllowPartial then
-          fResult := AnsiContainsStr(Temp,fStr)
+          fResult := AnsiContainsStr(Text,Temp)
         else
-          fResult := AnsiSameStr(Temp,fStr);
+          fResult := AnsiSameStr(Text,Temp);
       end
     else
       begin
         If fAllowPartial then
-          fResult := AnsiContainsText(Temp,fStr)
+          fResult := AnsiContainsText(Text,Temp)
         else
-          fResult := AnsiSameText(Temp,fStr);
+          fResult := AnsiSameText(Text,Temp);
       end;
   end
 else fResult := False;
@@ -516,33 +568,43 @@ else
   raise Exception.CreateFmt('TILTextComparatorGroup.GetItem: Index (%d) out of bounds.',[Index]);
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILTextComparatorGroup.GetTotalItemCount: Integer;
+var
+  i:  Integer;
+begin
+Result := inherited GetTotalItemCount;
+For i := Low(fItems) to High(fItems) do
+  Inc(Result,fItems[i].TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILTextComparatorGroup.GetIsSimple: Boolean;
+begin
+If Length(fItems) = 1 then
+  Result := fItems[Low(fItems)] is TILTextComparator
+else
+  Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILTextComparatorGroup.ReIndex;
+var
+  i:  Integer;
+begin
+For i := Low(fItems) to High(fItems) do
+  fItems[i].Index := i;
+end;
+
 //==============================================================================
 
 constructor TILTextComparatorGroup.Create;
 begin
 inherited Create;
 SetLength(fItems,0);
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILTextComparatorGroup.AsString(Operator: Boolean = False; Index: Integer = -1): String;
-var
-  Template: String;
-begin
-If Length(fItems) > 1 then
-  Template := Format('...(%d)',[Length(fItems)])
-else If Length(fItems) = 1 then
-  Template := '...'
-else
-  Template := '';
-If fNegate then
-  Template := Format('not(%s)',[Template]);
-If Operator then
-  Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Template,fStringSuffix])
-else
-  Result := Format('%s%s%s',[fStringPrefix,Template,fStringSuffix]);
-// index is ignored
 end;
 
 //------------------------------------------------------------------------------
@@ -566,6 +628,45 @@ destructor TILTextComparatorGroup.Destroy;
 begin
 Clear;
 inherited;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILTextComparatorGroup.AsString(Decorate: Boolean = True): String;
+begin
+If GetIsSimple then
+  begin
+    // there is exactly one subnode and that is a plain text comparator
+    Result := fItems[Low(fItems)].AsString(False);
+    If (Length(Result) <= 0) and not fEmptyStrAllow then
+      Result := '(...)';
+  end
+else
+  begin
+    If Length(fItems) > 1 then
+      Result := Format('(...x%d)',[Length(fItems)])
+    else If Length(fItems) = 1 then
+      Result := '(...)'
+    else If not fEmptyStrAllow then
+      Result := '()'
+    else
+      Result := '';
+  end;
+If fNegate then
+  Result := Format('not(%s)',[Result]);
+If Decorate then
+  begin
+    If fIndex > 0 then
+      Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+    else
+      Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]);
+  end
+else
+  begin
+    If fIndex > 0 then
+      Result := Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result]);
+  end;
+// index is ignored
 end;
 
 //------------------------------------------------------------------------------
@@ -612,6 +713,7 @@ begin
 SetLength(fItems,Length(fItems) + 1);
 fItems[High(fItems)] := TILTextComparator.Create;
 Result := TILTextComparator(fItems[High(fItems)]);
+Result.Index := High(fItems);
 Result.Negate := Negate;
 Result.Operator := Operator;
 end;
@@ -623,6 +725,8 @@ begin
 SetLength(fItems,Length(fItems) + 1);
 fItems[High(fItems)] := TILTextComparatorGroup.Create;
 Result := TILTextComparatorGroup(fItems[High(fItems)]);
+Result.Index := High(fItems);
+Result.EmptyStringAllowed := False;
 Result.Negate := Negate;
 Result.Operator := Operator;
 end;
@@ -642,12 +746,13 @@ procedure TILTextComparatorGroup.Delete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index <= Low(fItems)) and (Index >= High(fItems)) then
+If (Index >= Low(fItems)) and (Index <= High(fItems)) then
   begin
     fItems[Index].Free;
     For i := Index to Pred(High(fItems)) do
       fItems[i] := fItems[i + 1];
     SetLength(fItems,Length(fItems) - 1);
+    ReIndex;
   end
 else raise Exception.CreateFmt('TILTextComparatorGroup.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -716,11 +821,30 @@ For i := Low(fItems) to High(fItems) do
       raise Exception.Create('TILTextComparatorGroup.LoadFromStream: Invalid subitem.');
     end;
     fItems[i].LoadFromStream(Stream);
+    fItems[i].Index := i;
+    If fItems[i] is TILTextComparatorGroup then
+      fItems[i].EmptyStringAllowed := False;
   end;
 end;
 
 //******************************************************************************
 //******************************************************************************
+
+Function TILAttributeComparator.GetTotalItemCount: Integer;
+begin
+Result := inherited GetTotalItemCount;
+Inc(Result,fName.TotalItemCount);
+Inc(Result,fValue.TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILAttributeComparator.GetIsSimple: Boolean;
+begin
+Result := fName.IsSimple and fValue.IsSimple;
+end;
+
+//==============================================================================
 
 constructor TILAttributeComparator.Create;
 begin
@@ -753,22 +877,38 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILAttributeComparator.AsString(Operator: Boolean = False; Index: Integer = -1): String;
+Function TILAttributeComparator.AsString(Decorate: Boolean = True): String;
 begin
-If (fName.Count > 0) and (fValue.Count > 0) then
-  Result := 'attribute name="value"'
-else If fName.Count > 0 then
-  Result := 'attribute name'
-else If fValue.Count > 0 then
-  Result := 'attribute *="value"'
+If GetIsSimple then
+  begin
+    // exactly one string comparator in both name and value
+    Result := Format('%s="%s"',[fName.AsString(False),fValue.AsString(False)]);
+  end
 else
-  Result := 'attribute';
+  begin
+    If (fName.Count > 0) and (fValue.Count > 0) then
+      Result := 'attribute name="value"'
+    else If fName.Count > 0 then
+      Result := 'attribute name'
+    else If fValue.Count > 0 then
+      Result := 'attribute *="value"'
+    else
+      Result := 'attribute';
+  end;
 If fNegate then
   Result := Format('not(%s)',[Result]);
-If Operator then
-  Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+If Decorate then
+  begin
+    If fIndex > 0 then
+      Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+    else
+      Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]);
+  end
 else
-  Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]); 
+  begin
+    If fIndex > 0 then
+      Result := Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result])
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -847,6 +987,46 @@ else
   raise Exception.CreateFmt('TILAttributeComparator.GetItem: Index (%d) out of bounds.',[Index]);
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILAttributeComparatorGroup.GetTotalItemCount: Integer;
+var
+  i:  Integer;
+begin
+Result := inherited GetTotalItemCount;
+For i := Low(fItems) to High(fItems) do
+  Inc(Result,fItems[i].TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILAttributeComparatorGroup.GetIsSimple: Boolean;
+begin
+If Length(fItems) = 1 then
+  begin
+    {
+      there is one subnode, which is of type TILAttributeComparator (+1)
+      this subnode has exactly one name and one value subnode, both of type
+      TILTextComparator (2x +2)
+    }
+    If fItems[Low(fItems)] is TILAttributeComparator then
+      Result := fItems[Low(fItems)].IsSimple
+    else
+      Result := False;
+  end
+else Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILAttributeComparatorGroup.ReIndex;
+var
+  i:  Integer;
+begin
+For i := Low(fItems) to High(fItems) do
+  fItems[i].Index := i;
+end;
+
 //==============================================================================
 
 constructor TILAttributeComparatorGroup.Create;
@@ -880,20 +1060,39 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILAttributeComparatorGroup.AsString(Operator: Boolean = False; Index: Integer = -1): String;
+Function TILAttributeComparatorGroup.AsString(Decorate: Boolean = True): String;
 begin
-If Length(fItems) > 1 then
-  Result := Format('...(%d)',[Length(fItems)])
-else If Length(fItems) = 1 then
-  Result := '...'
+If GetIsSimple then
+  begin
+    Result := fItems[Low(fItems)].AsString(False);
+    If (Length(Result) <= 0) and not fEmptyStrAllow then
+      Result := '(...)';
+  end
 else
-  Result := '';
+  begin
+    If Length(fItems) > 1 then
+      Result := Format('(...x%d)',[Length(fItems)])
+    else If Length(fItems) = 1 then
+      Result := '(...)'
+    else If not fEmptyStrAllow then
+      Result := '()'
+    else
+      Result := '';
+  end;
 If fNegate then
-  Result := Format('not(%s)',[Result]);
-If Operator then
-  Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+  Result := Format('not%s',[Result]);
+If Decorate then
+  begin
+    If fIndex > 0 then
+      Result := Format('%s%s %s%s',[fStringPrefix,IL_SearchOperatorAsStr(fOperator),Result,fStringSuffix])
+    else
+      Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]);
+  end
 else
-  Result := Format('%s%s%s',[fStringPrefix,Result,fStringSuffix]); 
+  begin
+    If fIndex > 0 then
+      Result := Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result])
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -940,6 +1139,8 @@ begin
 SetLength(fItems,Length(fItems) + 1);
 fItems[High(fItems)] := TILAttributeComparator.Create;
 Result := TILAttributeComparator(fItems[High(fItems)]);
+Result.Index := High(fItems);
+Result.EmptyStringAllowed := False;
 Result.Negate := Negate;
 Result.Operator := Operator;
 end;
@@ -951,6 +1152,7 @@ begin
 SetLength(fItems,Length(fItems) + 1);
 fItems[High(fItems)] := TILAttributeComparatorGroup.Create;
 Result := TILAttributeComparatorGroup(fItems[High(fItems)]);
+Result.Index := High(fItems);
 Result.Negate := Negate;
 Result.Operator := Operator;
 end;
@@ -970,12 +1172,13 @@ procedure TILAttributeComparatorGroup.Delete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index <= Low(fItems)) and (Index >= High(fItems)) then
+If (Index >= Low(fItems)) and (Index <= High(fItems)) then
   begin
     fItems[Index].Free;
     For i := Index to Pred(High(fItems)) do
       fItems[i] := fItems[i + 1];
     SetLength(fItems,Length(fItems) - 1);
+    ReIndex;
   end
 else raise Exception.CreateFmt('TILAttributeComparatorGroup.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -1046,11 +1249,32 @@ For i := Low(fItems) to High(fItems) do
       raise Exception.Create('TILAttributeComparatorGroup.LoadFromStream: Invalid subitem.');
     end;
     fItems[i].LoadFromStream(Stream);
+    fItems[i].Index := i;
+    If fItems[i] is TILAttributeComparatorGroup then
+      fItems[i].EmptyStringAllowed := False;
   end;
 end;
 
 //******************************************************************************
 //******************************************************************************
+
+Function TILElementComparator.GetTotalItemCount: Integer;
+begin
+Result := inherited GetTotalItemCount;
+Inc(Result,fTagName.TotalItemCount);
+Inc(Result,fAttributes.TotalItemCount);
+Inc(Result,fText.TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILElementComparator.GetIsSimple: Boolean;
+begin
+Result := fTagName.IsSimple and (fAttributes.IsSimple or (fAttributes.Count <= 0)) and
+          (fText.IsSimple or (fText.Count <= 0));
+end;
+
+//==============================================================================
 
 constructor TILElementComparator.Create;
 begin
@@ -1061,6 +1285,7 @@ fAttributes := TILAttributeComparatorGroup.Create;
 fAttributes.StringPrefix := 'Attributes: ';
 fText := TILTextComparatorGroup.Create;
 fText.StringPrefix := 'Text: ';
+fNestedText := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -1074,6 +1299,7 @@ fAttributes := TILAttributeComparatorGroup.CreateAsCopy(Source.Attributes);
 fAttributes.StringPrefix := 'Attributes: ';
 fText := TILTextComparatorGroup.CreateAsCopy(Source.Text);
 fText.StringPrefix := 'Text: ';
+fNestedText := Source.NestedText;
 end;
 
 //------------------------------------------------------------------------------
@@ -1088,14 +1314,28 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILElementComparator.AsString(Operator: Boolean = False; Index: Integer = -1): String;
+Function TILElementComparator.AsString(Decorate: Boolean = True): String;
 begin
-If Index >= 0 then
-  Result := Format('<element #%d>',[Index])
+If GetIsSimple then
+  begin
+    If fAttributes.Count > 0 then
+      Result := Format('<%s %s>%s',[fTagName.AsString(False),
+        fAttributes.AsString(False),fText.AsString(False)])
+    else
+      Result := Format('<%s>%s',[fTagName.AsString(False),
+        fText.AsString(False)]);
+  end
 else
-  Result := '<element>';
-If Operator then
+  begin
+    If fIndex >= 0 then
+      Result := Format('<element #%d>',[fIndex])
+    else
+      Result := '<element>';
+  end;
+If fIndex > 0 then
   Result := Format('or %s',[Result]);
+If fNestedText then
+  Result := Format('%s<<>>',[Result]);
 end;
 
 //------------------------------------------------------------------------------
@@ -1138,7 +1378,7 @@ If fResult then
         fResult := fResult and IL_NegateValue(fAttributes.Result,fAttributes.Negate);
       end;
     // and now for the text...
-    If fText.Count > 0 then
+    If (fText.Count > 0) and fResult then
       begin
         If fNestedText then
           fText.Compare(Element.NestedText)
@@ -1190,6 +1430,27 @@ else
   raise Exception.CreateFmt('TILElementFinderStage.GetItem: Index (%d) out of bounds.',[Index]);
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILElementFinderStage.GetTotalItemCount: Integer;
+var
+  i:  Integer;
+begin
+Result := inherited GetTotalItemCount;
+For i := Low(fItems) to High(fItems) do
+  Inc(Result,fItems[i].TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILElementFinderStage.ReIndex;
+var
+  i:  Integer;
+begin
+For i := Low(fItems) to High(fItems) do
+  fItems[i].Index := i;
+end;
+
 //==============================================================================
 
 constructor TILElementFinderStage.Create;
@@ -1220,7 +1481,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILElementFinderStage.AsString(Operator: Boolean = False; Index: Integer = -1): String;
+Function TILElementFinderStage.AsString(Decorate: Boolean = True): String;
 begin
 If Length(fItems) = 1 then
   Result := Format('Stage #%d (1 element option)',[Index])
@@ -1274,6 +1535,7 @@ begin
 SetLength(fItems,Length(fItems) + 1);
 fItems[High(fItems)] := TILElementComparator.Create;
 Result := fItems[High(fItems)];
+Result.Index := High(fITems);
 end;
 
 //------------------------------------------------------------------------------
@@ -1291,12 +1553,13 @@ procedure TILElementFinderStage.Delete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index <= Low(fItems)) and (Index >= High(fItems)) then
+If (Index >= Low(fItems)) and (Index <= High(fItems)) then
   begin
     fItems[Index].Free;
     For i := Index to Pred(High(fItems)) do
       fItems[i] := fItems[i + 1];
     SetLength(fItems,Length(fItems) - 1);
+    ReIndex;
   end
 else raise Exception.CreateFmt('TILElementFinderStage.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -1357,6 +1620,7 @@ For i := Low(fItems) to High(fItems) do
   begin
     fItems[i] := TILElementComparator.Create;
     fItems[i].LoadFromStream(Stream);
+    fItems[i].Index := i;
   end;
 end;
 
@@ -1376,6 +1640,27 @@ If (Index >= Low(fStages)) and (Index <= High(fStages)) then
   Result := fStages[Index]
 else
   raise Exception.CreateFmt('TILElementFinder.GetStage: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILElementFinder.GetTotalItemCount: Integer;
+var
+  i:  Integer;
+begin
+Result := inherited GetTotalItemCount;
+For i := Low(fStages) to High(fStages) do
+  Inc(Result,fStages[i].TotalItemCount);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILElementFinder.ReIndex;
+var
+  i:  Integer;
+begin
+For i := Low(fStages) to High(fStages) do
+  fStages[i].Index := i;
 end;
 
 //==============================================================================
@@ -1449,6 +1734,7 @@ begin
 SetLength(fStages,Length(fStages) + 1);
 fStages[High(fStages)] := TILElementFinderStage.Create;
 Result := fStages[High(fStages)];
+Result.Index := High(fStages);
 end;
 
 //------------------------------------------------------------------------------
@@ -1466,12 +1752,13 @@ procedure TILElementFinder.StageDelete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index <= Low(fStages)) and (Index >= High(fStages)) then
+If (Index >= Low(fStages)) and (Index <= High(fStages)) then
   begin
     fStages[Index].Free;
     For i := Index to Pred(High(fStages)) do
       fStages[i] := fStages[i + 1];
     SetLength(fStages,Length(fStages) - 1);
+    ReIndex;
   end
 else raise Exception.CreateFmt('TILElementFinder.StageDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -1537,6 +1824,7 @@ For i := Low(fStages) to High(fStages) do
   begin
     fStages[i] := TILElementFinderStage.Create;
     fStages[i].LoadFromStream(Stream);
+    fStages[i].Index := i;
   end;
 end;
 

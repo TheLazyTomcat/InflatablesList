@@ -130,28 +130,33 @@ end;
 Function TILShopUpdater.ExtractAvailable(Node: TILHTMLElementNode): Int32;
 var
   Text: String;
+  i:    Integer;
 begin
 Result := 0;
-with fShopData.ParsingSettings.Available do
-  begin
-    // first get the text from which the value will be extracted
-    Text := ExtractValue_GetText(Node,Extraction.ExtractFrom,Extraction.ExtractionData);
-    // parse according to selected extr. method
-    case Extraction.ExtractionMethod of
-      ilpemFirstIntegerTag:
-        begin
-          Result := Int32(ExtractValue_FirstInteger(Text));
-          If ExtractValue_ContainsTag(Text,Extraction.NegativeTag) then
-            Result := -Result;
-        end;
-      ilpemNegTagIsCount:
-        If ExtractValue_ContainsTag(Text,Extraction.NegativeTag) then
-          Result := fShopData.RequiredCount;
-    else
-      {ilpemFirstInteger}
-      Result := Int32(ExtractValue_FirstInteger(Text));
+For i := Low(fShopData.ParsingSettings.Available.Extraction) to
+        High(fShopData.ParsingSettings.Available.Extraction) do
+  with fShopData.ParsingSettings.Available.Extraction[i] do
+    begin
+      // first get the text from which the value will be extracted
+      Text := ExtractValue_GetText(Node,ExtractFrom,ExtractionData);
+      // parse according to selected extr. method
+      case ExtractionMethod of
+        ilpemFirstIntegerTag:
+          begin
+            Result := Int32(ExtractValue_FirstInteger(Text));
+            If ExtractValue_ContainsTag(Text,NegativeTag) then
+              Result := -Result;
+          end;
+        ilpemNegTagIsCount:
+          If ExtractValue_ContainsTag(Text,NegativeTag) then
+            Result := fShopData.RequiredCount;
+      else
+        {ilpemFirstInteger}
+        Result := Int32(ExtractValue_FirstInteger(Text));
+      end;
+      If Result <> 0 then
+        Break{For i};
     end;
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -159,24 +164,29 @@ end;
 Function TILShopUpdater.ExtractPrice(Node: TILHTMLElementNode): UInt32;
 var
   Text: String;
+  i:    Integer;   
 begin
 Result := 0;
-with fShopData.ParsingSettings.Price do
-  begin
-    // first get the text from which the value will be extracted
-    Text := ExtractValue_GetText(Node,Extraction.ExtractFrom,Extraction.ExtractionData);
-    // parse according to selected extr. method
-    case Extraction.ExtractionMethod of
-      ilpemNegTagIsCount:
-        If ExtractValue_ContainsTag(Text,Extraction.NegativeTag) then
-          Result := fShopData.RequiredCount;
-    else
-      {ilpemFirstInteger,
-       ilpemFirstIntegerTag}
-      // price cannot be negative, so ignore neg. tag even when requested
-      Result := ExtractValue_FirstInteger(Text);
+For i := Low(fShopData.ParsingSettings.Price.Extraction) to
+        High(fShopData.ParsingSettings.Price.Extraction) do
+  with fShopData.ParsingSettings.Price.Extraction[i] do
+    begin
+      // first get the text from which the value will be extracted
+      Text := ExtractValue_GetText(Node,ExtractFrom,ExtractionData);
+      // parse according to selected extr. method
+      case ExtractionMethod of
+        ilpemNegTagIsCount:
+          If ExtractValue_ContainsTag(Text,NegativeTag) then
+            Result := fShopData.RequiredCount;
+      else
+        {ilpemFirstInteger,
+         ilpemFirstIntegerTag}
+        // price cannot be negative, so ignore neg. tag even when requested
+        Result := ExtractValue_FirstInteger(Text);
+      end;
+      If Result <> 0 then
+        Break{For i};
     end;
-  end;
 end;
 
 //==============================================================================
@@ -217,7 +227,6 @@ If Length(fShopData.ItemURL) > 0 then
         fDownStream.Clear;
         If IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode) then
           begin
-            fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'test.out');
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
             Parser := TILHTMLParser.Create(fDownStream);

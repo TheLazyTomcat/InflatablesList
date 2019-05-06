@@ -24,13 +24,12 @@ type
     Function GetAttribute(Index: Integer): TILTagAttribute;
     Function GetElementCount: Integer;
     Function GetElement(Index: Integer): TILHTMLElementNode;
-  protected
-    procedure TextFinalize; virtual;
   public
     constructor Create(Parent: TILHTMLElementNode; const Name: String);
     constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
     destructor Destroy; override;
     procedure Close; virtual;
+    procedure TextFinalize; virtual;
     Function AttributeIndexOfName(const Name: String): Integer; virtual;
     Function AttributeIndexOfValue(const Value: String): Integer; virtual;
     Function AttributeIndexOf(const Name, Value: String): Integer; virtual;
@@ -99,22 +98,6 @@ end;
 
 //==============================================================================
 
-procedure TILHTMLElementNode.TextFinalize;
-var
-  Temp: UnicodeString;
-  i:    Integer;
-begin
-SetLength(Temp,CDA_Count(fTextArr));
-For i := CDA_Low(fTextArr) to CDA_High(fTextArr) do
-  Temp[i + 1] := CDA_GetItem(fTextArr,i);
-fText := UnicodeToStr(Temp);
-fNestedText := '';
-For i := CDA_Low(fElements) to CDA_High(fElements) do
-  fNestedText := fNestedText + TILHTMLElementNode(CDA_GetItem(fElements,i)).Text;
-end;
-
-//==============================================================================
-
 constructor TILHTMLElementNode.Create(Parent: TILHTMLElementNode; const Name: String);
 begin
 inherited Create;
@@ -171,9 +154,34 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILHTMLElementNode.Close;
+var
+  i:  Integer;
 begin
+// close all subelements
+For i := CDA_Low(fElements) to CDA_High(fElements) do
+  TILHTMLElementNode(CDA_GetItem(fElements,i)).Close;
 fOpen := False;
-TextFinalize;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILHTMLElementNode.TextFinalize;
+var
+  Temp: UnicodeString;
+  i:    Integer;
+begin
+// finalize all subnodes
+For i := CDA_Low(fElements) to CDA_High(fElements) do
+  TILHTMLElementNode(CDA_GetItem(fElements,i)).TextFinalize;
+// finalize local text
+SetLength(Temp,CDA_Count(fTextArr));
+For i := CDA_Low(fTextArr) to CDA_High(fTextArr) do
+  Temp[i + 1] := CDA_GetItem(fTextArr,i);
+fText := UnicodeToStr(Temp);
+// build nested text
+fNestedText := fText;
+For i := CDA_Low(fElements) to CDA_High(fElements) do
+  fNestedText := fNestedText + TILHTMLElementNode(CDA_GetItem(fElements,i)).NestedText;
 end;
 
 //------------------------------------------------------------------------------

@@ -4,9 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls,
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Menus,
   InflatablesList_Types, InflatablesList, InflatablesList_HTML_ElementFinder,
-  ComparatorFrame, ExtCtrls;
+  ComparatorFrame, ExtractionFrame;
 
 type
   TfParsingForm = class(TForm)
@@ -22,31 +22,69 @@ type
     gbSelectedDetails: TGroupBox;
     frmComparatorFrame: TfrmComparatorFrame;
     gbExtracSettings: TGroupBox;
-    cmbExtractFrom: TComboBox;
-    lblExtractFrom: TLabel;
-    cmbExtractMethod: TComboBox;
-    lblExtractMethod: TLabel;
-    leExtractionData: TLabeledEdit;
-    leNegativeTag: TLabeledEdit;
+    lblExtrIdx: TLabel;
+    btnExtrNext: TButton;
+    btnExtrPrev: TButton;
+    btnExtrAdd: TButton;
+    btnExtrRemove: TButton;
+    frmExtractionFrame: TfrmExtractionFrame;
+    pmnStages: TPopupMenu;
+    mniSG_Add: TMenuItem;
+    mniSG_Remove: TMenuItem;
+    pmnElements: TPopupMenu;
+    mniEL_Add: TMenuItem;
+    mniEL_Remove: TMenuItem;
+    pmnAttributes: TPopupMenu;
+    mniAT_AddComp: TMenuItem;
+    mniAT_AddGroup: TMenuItem;
+    mniAT_Remove: TMenuItem;
+    pmnTexts: TPopupMenu;
+    mniTX_AddComp: TMenuItem;
+    mniTX_AddGroup: TMenuItem;
+    mniTX_Remove: TMenuItem;
+    procedure FormCreate(Sender: TObject);    
     procedure lbStagesClick(Sender: TObject);
+    procedure lbStagesMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pmnStagesPopup(Sender: TObject);
+    procedure mniSG_AddClick(Sender: TObject);
+    procedure mniSG_RemoveClick(Sender: TObject);    
     procedure tvStageElementsClick(Sender: TObject);
     procedure tvStageElementsChange(Sender: TObject; Node: TTreeNode);
     procedure tvStageElementsEnter(Sender: TObject);
+    procedure pmnElementsPopup(Sender: TObject);    
+    procedure mniEL_AddClick(Sender: TObject);
+    procedure mniEL_RemoveClick(Sender: TObject);    
     procedure tvAttrCompsClick(Sender: TObject);
     procedure tvAttrCompsChange(Sender: TObject; Node: TTreeNode);
     procedure tvAttrCompsEnter(Sender: TObject);
+    procedure pmnAttributesPopup(Sender: TObject);
+    procedure mniAT_AddCompClick(Sender: TObject);
+    procedure mniAT_AddGroupClick(Sender: TObject);
+    procedure mniAT_RemoveClick(Sender: TObject);    
     procedure tvTextCompsClick(Sender: TObject);
     procedure tvTextCompsChange(Sender: TObject; Node: TTreeNode);
     procedure tvTextCompsEnter(Sender: TObject);
+    procedure pmnTextsPopup(Sender: TObject);
+    procedure mniTX_AddCompClick(Sender: TObject);
+    procedure mniTX_AddGroupClick(Sender: TObject);
+    procedure mniTX_RemoveClick(Sender: TObject);
+    procedure btnExtrAddClick(Sender: TObject);
+    procedure btnExtrRemoveClick(Sender: TObject);
+    procedure btnExtrPrevClick(Sender: TObject);
+    procedure btnExtrNextClick(Sender: TObject);
   private
     fILManager:           TILManager;
     fCurrentParsingEntry: PILItemShopParsingEntry;
+    fExtractionSettIndex: Integer;
   protected
     procedure FrameChangeHandler(Sender: TObject);
     procedure ListStageElements(Stage: TILElementFinderStage);
     procedure ListAttribute(Attr: TILAttributeComparatorGroup);
     procedure ListText(Text: TILTextComparatorGroup);
     procedure ListComparator(Comparator: TILComparatorBase);
+    procedure SetExtractionIndex(NewIndex: Integer);
+    procedure ShowExtractionIndex;
     procedure SaveForm;
     procedure LoadForm;
   public
@@ -55,71 +93,45 @@ type
   end;
 
 var
-  fParsingForm: TfParsingForm;
+  fParsingForm: TfParsingForm;                           
 
 implementation
 
 {$R *.dfm}
 
-{
-options:
-
-  text
-
-      string
-      case sensitive
-      allow partial
-      variable index
-      negate
-      operator
-
-  text group
-
-      negate
-      operator
-
-  attr
-
-      negate
-      operator
-
-  attr group
-
-      negate
-      operator
-
-  element
-
-      nested text
-
-  stage
-
-      -
-}
-{$message 'options for stage elements (nested text)'}
-
 procedure TfParsingForm.FrameChangeHandler(Sender: TObject);
+var
+  Node: TTreeNode;
 begin
-If Assigned(tvTextComps.Selected) then
-  If TObject(tvTextComps.Selected.Data) is TILTextComparatorBase then
-    tvTextComps.Selected.Text := TILTextComparatorBase(tvTextComps.Selected.Data).
-      AsString(tvTextComps.Selected.Index <> 0,tvTextComps.Selected.Index);
-If Assigned(tvAttrComps.Selected) then
-  If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorBase then
-    tvAttrComps.Selected.Text := TILAttributeComparatorBase(tvAttrComps.Selected.Data).
-      AsString(tvAttrComps.Selected.Index <> 0,tvAttrComps.Selected.Index);
-If Assigned(tvStageElements.Selected) then
-  If TObject(tvStageElements.Selected.Data) is TILFinderBaseClass then
-    tvStageElements.Selected.Text := TILFinderBaseClass(tvStageElements.Selected.Data).
-      AsString(
-        (tvStageElements.Selected.Index <> 0) and
-        (TObject(tvStageElements.Selected.Data) is TILElementComparator),
-        tvStageElements.Selected.Index);
+// texts
+Node := tvTextComps.Selected;
+while Assigned(Node) do
+  begin
+    If TObject(Node.Data) is TILFinderBaseClass then
+      Node.Text := TILFinderBaseClass(Node.Data).AsString;
+    Node := Node.Parent;
+  end;
+// attributes
+Node := tvAttrComps.Selected;
+while Assigned(Node) do
+  begin
+    If TObject(Node.Data) is TILFinderBaseClass then
+      Node.Text := TILFinderBaseClass(Node.Data).AsString;
+    Node := Node.Parent;
+  end;
+// stage elements
+Node := tvStageElements.Selected;
+while Assigned(Node) do
+  begin
+    If TObject(Node.Data) is TILFinderBaseClass then
+      Node.Text := TILFinderBaseClass(Node.Data).AsString;
+    Node := Node.Parent;
+  end;
+// stages
 If lbStages.ItemIndex >= 0 then
-  If lbStages.Items.Objects[lbStages.ItemIndex] is TILElementFinderStage then
-    lbStages.Items[lbStages.ItemIndex] :=
-      TILElementFinderStage(lbStages.Items.Objects[lbStages.ItemIndex]).
-        AsString(lbStages.ItemIndex <> 0,lbStages.ItemIndex);
+  If lbStages.Items.Objects[lbStages.ItemIndex] is TILFinderBaseClass then
+    lbStages.Items[lbStages.ItemIndex] := TILFinderBaseClass(
+      lbStages.Items.Objects[lbStages.ItemIndex]).AsString;
 end;
 
 //------------------------------------------------------------------------------
@@ -137,11 +149,10 @@ try
     begin
       For i := 0 to Pred(Stage.Count) do
         begin
-          Node := tvStageElements.Items.AddChildObject(nil,
-            Stage[i].AsString(tvStageElements.Items.Count <> 0,tvStageElements.Items.Count),Stage[i]);
-          tvStageElements.Items.AddChildObject(Node,Stage[i].TagName.AsString(False,-1),Stage[i].TagName);
-          tvStageElements.Items.AddChildObject(Node,Stage[i].Attributes.AsString(False,-1),Stage[i].Attributes);
-          tvStageElements.Items.AddChildObject(Node,Stage[i].Text.AsString(False,-1),Stage[i].Text);
+          Node := tvStageElements.Items.AddChildObject(nil,Stage[i].AsString,Stage[i]);
+          tvStageElements.Items.AddChildObject(Node,Stage[i].TagName.AsString,Stage[i].TagName);
+          tvStageElements.Items.AddChildObject(Node,Stage[i].Attributes.AsString,Stage[i].Attributes);
+          tvStageElements.Items.AddChildObject(Node,Stage[i].Text.AsString,Stage[i].Text);
           Node.Expand(True);
         end;
       If tvStageElements.Items.Count > 0 then
@@ -166,22 +177,18 @@ var
   begin
     If Comparator is TILAttributeComparatorGroup then
       begin
-        Node := tvAttrComps.Items.AddChildObject(ParentNode,
-          Comparator.AsString(tvAttrComps.Items.Count <> 0,tvAttrComps.Items.Count),Comparator);
+        Node := tvAttrComps.Items.AddChildObject(ParentNode,Comparator.AsString,Comparator);
         For ii := 0 to Pred(TILAttributeComparatorGroup(Comparator).Count) do
           ListComparator(TILAttributeComparatorGroup(Comparator)[ii],Node);
         Node.Expand(True);
       end
     else If Comparator is TILAttributeComparator then
       begin
-        Node := tvAttrComps.Items.AddChildObject(ParentNode,
-          Comparator.AsString(tvAttrComps.Items.Count <> 0,tvAttrComps.Items.Count),Comparator);
+        Node := tvAttrComps.Items.AddChildObject(ParentNode,Comparator.AsString,Comparator);
         tvAttrComps.Items.AddChildObject(Node,
-          TILAttributeComparator(Comparator).Name.AsString(False,-1),
-          TILAttributeComparator(Comparator).Name);
+          TILAttributeComparator(Comparator).Name.AsString,TILAttributeComparator(Comparator).Name);
         tvAttrComps.Items.AddChildObject(Node,
-          TILAttributeComparator(Comparator).Value.AsString(False,-1),
-          TILAttributeComparator(Comparator).Value);
+          TILAttributeComparator(Comparator).Value.AsString,TILAttributeComparator(Comparator).Value);
         Node.Expand(True);
       end;
   end;  
@@ -200,7 +207,7 @@ try
       If tvAttrComps.Items.Count > 0 then
         tvAttrComps.Select(tvAttrComps.Items[0]);
     end
-  else tvTextComps.Color := clBtnFace;
+  else tvTextComps.Color := $00F8F8F8;
 finally
   tvAttrComps.Items.EndUpdate;
 end;
@@ -220,16 +227,14 @@ var
   begin
     If Comparator is TILTextComparatorGroup then
       begin
-        Node := tvTextComps.Items.AddChildObject(
-          ParentNode,Comparator.AsString(tvTextComps.Items.Count <> 0),Comparator);
+        Node := tvTextComps.Items.AddChildObject(ParentNode,Comparator.AsString,Comparator);
         For ii := 0 to Pred(TILTextComparatorGroup(Comparator).Count) do
           ListComparator(TILTextComparatorGroup(Comparator)[ii],Node);
         Node.Expand(True);
       end
     else If Comparator is TILTextComparator then
       begin
-        tvTextComps.Items.AddChildObject(
-          ParentNode,Comparator.AsString(tvTextComps.Items.Count <> 0),Comparator);
+        tvTextComps.Items.AddChildObject(ParentNode,Comparator.AsString,Comparator);
       end;
   end;
 
@@ -247,7 +252,7 @@ try
       If tvTextComps.Items.Count > 0 then
         tvTextComps.Select(tvTextComps.Items[0]);
     end
-  else tvTextComps.Color := clBtnFace;
+  else tvTextComps.Color := $00F8F8F8;
 finally
   tvTextComps.Items.EndUpdate;
 end;
@@ -275,82 +280,86 @@ else If Comparator is TILTextComparatorGroup then
     ListText(TILTextComparatorGroup(Comparator));
     tvAttrComps.Items.Clear;
     tvAttrComps.Enabled := False;
-    tvAttrComps.Color := clBtnFace;
+    tvAttrComps.Color := $00F8F8F8;
   end
 else
   begin
     // any other (eg. element comparator), clear and disable treeviews
     tvAttrComps.Items.Clear;
     tvAttrComps.Enabled := False;
-    tvAttrComps.Color := clBtnFace;
+    tvAttrComps.Color := $00F8F8F8;
     tvTextComps.Items.Clear;
     tvTextComps.Enabled := False;
-    tvTextComps.Color := clBtnFace;
+    tvTextComps.Color := $00F8F8F8;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.SetExtractionIndex(NewIndex: Integer);
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    If (NewIndex >= Low(fCurrentParsingEntry^.Extraction)) and
+       (NewIndex <= High(fCurrentParsingEntry^.Extraction)) then
+      begin
+        fExtractionSettIndex := NewIndex;
+        frmExtractionFrame.SetExtractSett(
+          Addr(fCurrentParsingEntry^.Extraction[fExtractionSettIndex]),True);
+        ShowExtractionIndex
+      end
+    else
+      begin
+        fExtractionSettIndex := -1;
+        frmExtractionFrame.SetExtractSett(nil,True);
+        ShowExtractionIndex
+      end;
+  end
+else
+  begin
+    fExtractionSettIndex := -1;
+    frmExtractionFrame.SetExtractSett(nil,True);
+    ShowExtractionIndex
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.ShowExtractionIndex;
+begin
+If (fExtractionSettIndex >= 0) and (Length(fCurrentParsingEntry^.Extraction) > 0) then
+  lblExtrIdx.Caption := Format('%d/%d',[fExtractionSettIndex + 1,Length(fCurrentParsingEntry^.Extraction)])
+else
+  lblExtrIdx.Caption := '-';
+btnExtrRemove.Enabled := fExtractionSettIndex >= 0;
+btnExtrPrev.Enabled := (fExtractionSettIndex >= 0) and
+  (fExtractionSettIndex > Low(fCurrentParsingEntry^.Extraction));
+btnExtrNext.Enabled := (fExtractionSettIndex >= 0) and
+  (fExtractionSettIndex < High(fCurrentParsingEntry^.Extraction)); 
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfParsingForm.SaveForm;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    fCurrentParsingEntry^.Extraction.ExtractFrom :=
-      TILItemShopParsingExtrFrom(cmbExtractFrom.ItemIndex);
-    fCurrentParsingEntry^.Extraction.ExtractionMethod :=
-      TILItemShopParsingExtrMethod(cmbExtractMethod.ItemIndex);
-    fCurrentParsingEntry^.Extraction.ExtractionData := leExtractionData.Text;
-    fCurrentParsingEntry^.Extraction.NegativeTag := leNegativeTag.Text;
-  end;
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfParsingForm.LoadForm;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    cmbExtractFrom.ItemIndex := Ord(fCurrentParsingEntry^.Extraction.ExtractFrom);
-    cmbExtractMethod.ItemIndex := Ord(fCurrentParsingEntry^.Extraction.ExtractionMethod);
-    leExtractionData.Text := fCurrentParsingEntry^.Extraction.ExtractionData;
-    leNegativeTag.Text := fCurrentParsingEntry^.Extraction.NegativeTag;
-  end;
+// nothing to do
 end;
 
 //==============================================================================
 
 procedure TfParsingForm.Initialize(ILManager: TILManager);
-var
-  i:  Integer;
 begin
 fILManager := ILManager;
 frmComparatorFrame.Initialize(fIlManager);
 frmComparatorFrame.OnChange := FrameChangeHandler;
-// fill drop lists...
-// extract from
-cmbExtractFrom.Items.BeginUpdate;
-try
-  cmbExtractFrom.Items.Clear;
-  For i := Ord(Low(TILItemShopParsingExtrFrom)) to Ord(High(TILItemShopParsingExtrFrom)) do
-    cmbExtractFrom.Items.Add(fILManager.DataProvider.
-      GetShopParsingExtractFromString(TILItemShopParsingExtrFrom(i)));
-finally
-  cmbExtractFrom.Items.EndUpdate;
-end;
-If cmbExtractFrom.Items.Count > 0 then
-  cmbExtractFrom.ItemIndex := 0;
-// extraction method
-cmbExtractMethod.Items.BeginUpdate;
-try
-  cmbExtractMethod.Items.Clear;
-  For i := Ord(Low(TILItemShopParsingExtrMethod)) to Ord(High(TILItemShopParsingExtrMethod)) do
-    cmbExtractMethod.Items.Add(fILManager.DataProvider.
-      GetShopParsingExtractMethodString(TILItemShopParsingExtrMethod(i)));
-finally
-  cmbExtractMethod.Items.EndUpdate;
-end;
-If cmbExtractMethod.Items.Count > 0 then
-  cmbExtractMethod.ItemIndex := 0;
+frmExtractionFrame.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -367,7 +376,7 @@ try
   lbStages.Clear;
   For i := 0 to Pred(TILElementFinder(fCurrentParsingEntry^.Finder).StageCount) do
     lbStages.Items.AddObject(
-      TILElementFinder(fCurrentParsingEntry^.Finder).Stages[i].AsString(i <> 0,i),
+      TILElementFinder(fCurrentParsingEntry^.Finder).Stages[i].AsString,
       TILElementFinder(fCurrentParsingEntry^.Finder).Stages[i])
 finally
   lbStages.Items.EndUpdate;
@@ -375,13 +384,33 @@ end;
 If lbStages.Count > 0 then
   lbStages.ItemIndex := 0;
 lbStages.OnClick(nil);
+// set extraction frame
+fExtractionSettIndex := -1;
+If Assigned(fCurrentParsingEntry) then
+  begin
+    If Length(fCurrentParsingEntry^.Extraction) > 0 then
+      SetExtractionIndex(0)
+    else
+      SetExtractionIndex(-1);
+  end
+else SetExtractionIndex(-1);
 LoadForm;
 ShowModal;
 SaveForm;
 frmComparatorFrame.SetComparator(nil,True);
+frmExtractionFrame.SetExtractSett(nil,True);
 end;
 
 //==============================================================================
+
+procedure TfParsingForm.FormCreate(Sender: TObject);
+begin
+tvStageElements.DoubleBuffered := True;
+tvAttrComps.DoubleBuffered := True;
+tvTextComps.DoubleBuffered := True;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfParsingForm.lbStagesClick(Sender: TObject);
 begin
@@ -398,6 +427,73 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfParsingForm.lbStagesMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Index:  Integer;
+begin
+If Button = mbRight then
+  begin
+    Index := lbStages.ItemAtPos(Point(X,Y),True);
+    If Index >= 0 then
+      begin
+        lbStages.ItemIndex := Index;
+        lbStages.OnClick(nil);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.pmnStagesPopup(Sender: TObject);
+begin
+mniSG_Remove.Enabled := lbStages.ItemIndex >= 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniSG_AddClick(Sender: TObject);
+var
+  Temp: TILElementFinderStage;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    Temp := TILElementFinder(fCurrentParsingEntry^.Finder).StageAdd;
+    lbStages.Items.AddObject(Temp.AsString,Temp);
+    If lbStages.Items.Count > 0 then
+      begin
+        lbStages.ItemIndex := Pred(lbStages.Count);
+        lbStages.OnClick(nil);
+        FrameChangeHandler(nil);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniSG_RemoveClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fCurrentParsingEntry) and (lbStages.ItemIndex >= 0) then
+  If MessageDlg(Format('Are you sure you want to delete stage "%s"?',
+    [lbStages.Items[lbStages.ItemIndex]]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+    begin
+      Index := lbStages.ItemIndex;
+      If lbStages.ItemIndex < Pred(lbStages.Count) then
+        lbStages.ItemIndex := lbStages.ItemIndex + 1
+      else If lbStages.ItemIndex > 0 then
+        lbStages.ItemIndex := lbStages.ItemIndex - 1
+      else
+        lbStages.ItemIndex := -1;
+      lbStages.OnClick(nil);
+      lbStages.Items.Delete(Index);
+      TILElementFinder(fCurrentParsingEntry^.Finder).StageDelete(Index);
+      FrameChangeHandler(nil);
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfParsingForm.tvStageElementsClick(Sender: TObject);
 begin
 If Assigned(tvStageElements.Selected) then
@@ -410,11 +506,12 @@ If Assigned(tvStageElements.Selected) then
 else ListComparator(nil);
 If tvStageElements.Focused and Assigned(tvStageElements.Selected) then
   begin
-    If TObject(tvStageElements.Selected.Data) is TILComparatorBase then
+    If TObject(tvStageElements.Selected.Data) is TILFinderBaseClass then
       frmComparatorFrame.SetComparator(TILComparatorBase(tvStageElements.Selected.Data),True)
     else
       frmComparatorFrame.SetComparator(nil,True);
-  end;
+  end
+else frmComparatorFrame.SetComparator(nil,True);
 end;
 
 //------------------------------------------------------------------------------
@@ -429,6 +526,59 @@ end;
 procedure TfParsingForm.tvStageElementsEnter(Sender: TObject);
 begin
 tvStageElements.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+
+procedure TfParsingForm.pmnElementsPopup(Sender: TObject);
+begin
+If Assigned(tvStageElements.Selected) then
+  mniEL_Remove.Enabled := TObject(tvStageElements.Selected.Data) is TILElementComparator
+else
+  mniEL_Remove.Enabled := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniEL_AddClick(Sender: TObject);
+var
+  Temp: TILElementComparator;
+  Node: TTreeNode;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    Temp := TILElementFinder(fCurrentParsingEntry^.Finder)[lbStages.ItemIndex].AddComparator;
+    Node := tvStageElements.Items.AddChildObject(nil,Temp.AsString,Temp);
+    tvStageElements.Items.AddChildObject(Node,Temp.TagName.AsString,Temp.TagName);
+    tvStageElements.Items.AddChildObject(Node,Temp.Attributes.AsString,Temp.Attributes);
+    tvStageElements.Items.AddChildObject(Node,Temp.Text.AsString,Temp.Text);
+    Node.Expand(True);
+    FrameChangeHandler(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniEL_RemoveClick(Sender: TObject);
+var
+  Node:     TTreeNode;
+  Temp:     TILElementComparator;
+begin
+If Assigned(fCurrentParsingEntry) and Assigned(tvStageElements.Selected) then
+  If TObject(tvStageElements.Selected.Data) is TILElementComparator then
+    begin
+      Node := tvStageElements.Selected;
+      Temp := TILElementComparator(tvStageElements.Selected.Data);
+      If MessageDlg(Format('Are you sure you want to delete element option "%s"?',
+        [Temp.AsString]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+        begin
+          tvStageElements.Items.Delete(Node);
+          tvStageElements.OnClick(nil);
+          TILElementFinder(fCurrentParsingEntry^.Finder)[lbStages.ItemIndex].Remove(Temp);
+          FrameChangeHandler(nil);
+        end;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -449,7 +599,8 @@ If tvAttrComps.Focused and Assigned(tvAttrComps.Selected) then
       frmComparatorFrame.SetComparator(TILComparatorBase(tvAttrComps.Selected.Data),True)
     else
       frmComparatorFrame.SetComparator(nil,True);
-  end;
+  end
+else frmComparatorFrame.SetComparator(nil,True);
 end;
 
 //------------------------------------------------------------------------------
@@ -468,6 +619,95 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfParsingForm.pmnAttributesPopup(Sender: TObject);
+begin
+If Assigned(tvAttrComps.Selected) then
+  mniAT_Remove.Enabled := TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorBase
+else
+  mniAT_Remove.Enabled := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniAT_AddCompClick(Sender: TObject);
+var
+  Group:  TILAttributeComparatorGroup;
+  Temp:   TILAttributeComparator;
+  Node:   TTreeNode;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
+    Node := nil;
+    If Assigned(tvAttrComps.Selected) then
+      If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
+        begin
+          Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
+          Node := tvAttrComps.Selected;
+        end;
+    Temp := Group.AddComparator;
+    Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+    tvAttrComps.Items.AddChildObject(Node,Temp.Name.AsString,Temp.Name);
+    tvAttrComps.Items.AddChildObject(Node,Temp.Value.AsString,Temp.Value);
+    Node.Expand(True);
+    tvAttrComps.Select(Node);
+    FrameChangeHandler(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniAT_AddGroupClick(Sender: TObject);
+var
+  Group:  TILAttributeComparatorGroup;
+  Temp:   TILAttributeComparatorGroup;
+  Node:   TTreeNode;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
+    Node := nil;
+    If Assigned(tvAttrComps.Selected) then
+      If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
+        begin
+          Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
+          Node := tvAttrComps.Selected;
+        end;
+    Temp := Group.AddGroup;
+    Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+    Node.Expand(True);
+    tvAttrComps.Select(Node);
+    FrameChangeHandler(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniAT_RemoveClick(Sender: TObject);
+var
+  Group:    TILAttributeComparatorGroup;
+  ToDelete: TObject;
+begin
+If Assigned(fCurrentParsingEntry) and Assigned(tvAttrComps.Selected) then
+  begin
+    Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
+    If Assigned(tvAttrComps.Selected.Parent) then
+      If TObject(tvAttrComps.Selected.Parent.Data) is TILAttributeComparatorGroup then
+        Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Parent.Data);
+    If MessageDlg(Format('Are you sure you want to delete node "%s"?',
+      [tvAttrComps.Selected.Text]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      begin
+        ToDelete := TObject(tvAttrComps.Selected.Data);
+        tvAttrComps.Items.Delete(tvAttrComps.Selected);
+        tvAttrComps.OnClick(nil);
+        Group.Remove(ToDelete);
+        FrameChangeHandler(nil);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfParsingForm.tvTextCompsClick(Sender: TObject);
 begin
 If tvTextComps.Focused and Assigned(tvTextComps.Selected) then
@@ -476,7 +716,8 @@ If tvTextComps.Focused and Assigned(tvTextComps.Selected) then
       frmComparatorFrame.SetComparator(TILComparatorBase(tvTextComps.Selected.Data),True)
     else
       frmComparatorFrame.SetComparator(nil,True);
-  end;
+  end
+else frmComparatorFrame.SetComparator(nil,True);
 end;
 
 //------------------------------------------------------------------------------
@@ -491,6 +732,160 @@ end;
 procedure TfParsingForm.tvTextCompsEnter(Sender: TObject);
 begin
 tvTextComps.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.pmnTextsPopup(Sender: TObject);
+begin
+begin
+If Assigned(tvTextComps.Selected) then
+  mniTX_Remove.Enabled := TObject(tvTextComps.Selected.Data) is TILTextComparatorBase
+else
+  mniTX_Remove.Enabled := False;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniTX_AddCompClick(Sender: TObject);
+var
+  Group:  TILTextComparatorGroup;
+  Temp:   TILTextComparator;
+  Node:   TTreeNode;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    If Assigned(tvAttrComps.Selected) then
+      Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
+    else
+      Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
+    Node := nil;
+    If Assigned(tvTextComps.Selected) then
+      If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
+        begin
+          Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
+          Node := tvTextComps.Selected;
+        end;
+    Temp := Group.AddComparator;
+    Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+    Node.Expand(True);
+    tvTextComps.Select(Node);
+    FrameChangeHandler(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniTX_AddGroupClick(Sender: TObject);
+var
+  Group:  TILTextComparatorGroup;
+  Temp:   TILTextComparatorGroup;
+  Node:   TTreeNode;
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    If Assigned(tvAttrComps.Selected) then
+      Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
+    else
+      Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
+    Node := nil;
+    If Assigned(tvTextComps.Selected) then
+      If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
+        begin
+          Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
+          Node := tvTextComps.Selected;
+        end;
+    Temp := Group.AddGroup;
+    Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+    Node.Expand(True);
+    tvTextComps.Select(Node);
+    FrameChangeHandler(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.mniTX_RemoveClick(Sender: TObject);
+var
+  Group:    TILTextComparatorGroup;
+  ToDelete: TObject;
+begin
+If Assigned(fCurrentParsingEntry) and Assigned(tvTextComps.Selected) then
+  begin
+    If Assigned(tvAttrComps.Selected) then
+      Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
+    else
+      Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
+    If Assigned(tvTextComps.Selected.Parent) then
+      If TObject(tvTextComps.Selected.Parent.Data) is TILTextComparatorGroup then
+        Group := TILTextComparatorGroup(tvTextComps.Selected.Parent.Data);
+    If MessageDlg(Format('Are you sure you want to delete node "%s"?',
+      [tvTextComps.Selected.Text]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      begin
+        ToDelete := TObject(tvTextComps.Selected.Data);
+        tvTextComps.Items.Delete(tvTextComps.Selected);
+        tvTextComps.OnClick(nil);
+        Group.Remove(ToDelete);
+        FrameChangeHandler(nil);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.btnExtrAddClick(Sender: TObject);
+begin
+If Assigned(fCurrentParsingEntry) then
+  begin
+    frmExtractionFrame.SaveItem;
+    frmExtractionFrame.SetExtractSett(nil,False);
+    SetLength(fCurrentParsingEntry^.Extraction,Length(fCurrentParsingEntry^.Extraction) + 1);
+    SetExtractionIndex(High(fCurrentParsingEntry^.Extraction));
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.btnExtrRemoveClick(Sender: TObject);
+var
+  Index:  Integer;
+  i:      Integer;
+begin
+If Assigned(fCurrentParsingEntry) then
+  If Length(fCurrentParsingEntry^.Extraction) > 0 then
+    If MessageDlg('Are you sure you want to delete this extraction setting?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      begin
+        frmExtractionFrame.SaveItem;
+        frmExtractionFrame.SetExtractSett(nil,False);
+        Index := fExtractionSettIndex;
+        If fExtractionSettIndex < High(fCurrentParsingEntry^.Extraction) then
+          SetExtractionIndex(Index + 1)
+        else If fExtractionSettIndex > 0 then
+          SetExtractionIndex(Index - 1)
+        else
+          SetExtractionIndex(-1);
+        For i := Index to Pred(High(fCurrentParsingEntry^.Extraction)) do
+          fCurrentParsingEntry^.Extraction[i] := fCurrentParsingEntry^.Extraction[i + 1];
+        SetLength(fCurrentParsingEntry^.Extraction,Length(fCurrentParsingEntry^.Extraction) - 1);
+        If fExtractionSettIndex >= 0 then
+          frmExtractionFrame.SetExtractSett(Addr(fCurrentParsingEntry^.Extraction[fExtractionSettIndex]),False);
+        ShowExtractionIndex;
+      end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.btnExtrPrevClick(Sender: TObject);
+begin
+SetExtractionIndex(fExtractionSettIndex - 1);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfParsingForm.btnExtrNextClick(Sender: TObject);
+begin
+SetExtractionIndex(fExtractionSettIndex + 1);
 end;
 
 end.

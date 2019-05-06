@@ -35,7 +35,8 @@ uses
   InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
   InflatablesList_Manager_VER00000002 in 'source\InflatablesList_Manager_VER00000002.pas',
   ParsingForm in 'ParsingForm.pas' {fParsingForm},
-  ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame};
+  ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
+  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame};
 
 {$R *.res}
 

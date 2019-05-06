@@ -55,9 +55,10 @@ type
     ExtractionData:   String;
     NegativeTag:      String;
   end;
+  PILItemShopParsingExtrSett = ^TILItemShopParsingExtrSett;
 
   TILItemShopParsingEntry = record
-    Extraction: TILItemShopParsingExtrSett;
+    Extraction: array of TILItemShopParsingExtrSett;
     Finder:     TObject;  // TILElementFinder, defined as TObject to prevent circular references
   end;
   PILItemShopParsingEntry = ^TILItemShopParsingEntry;

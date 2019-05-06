@@ -118,8 +118,6 @@ type
     procedure ShopTemplateExchange(Idx1,Idx2: Integer); virtual;
     procedure ShopTemplateDelete(Index: Integer); virtual;
     procedure ShopTemplateClear; virtual;
-    procedure ShopTemplateExport(const FileName: String; Index: Integer); virtual;
-    Function ShopTemplateImport(const FileName: String): Integer; virtual;
     // IO
     procedure SaveToStream(Stream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
@@ -491,12 +489,20 @@ with Dest.ParsingSettings do
   begin
     For i := Low(Variables.Vars) to High(Variables.Vars) do
       UniqueString(Variables.Vars[i]);
-    UniqueString(Available.Extraction.ExtractionData);
-    UniqueString(Available.Extraction.NegativeTag);
+    SetLength(Available.Extraction,Length(Available.Extraction));
+    For i := Low(Available.Extraction) to High(Available.Extraction) do
+      begin
+        UniqueString(Available.Extraction[i].ExtractionData);
+        UniqueString(Available.Extraction[i].NegativeTag);
+      end;
     Available.Finder := TILElementFinder.CreateAsCopy(
       TILElementFinder(Src.ParsingSettings.Available.Finder));
-    UniqueString(Price.Extraction.ExtractionData);
-    UniqueString(Price.Extraction.NegativeTag);
+    SetLength(Price.Extraction,Length(Price.Extraction));
+    For i := Low(Price.Extraction) to High(Price.Extraction) do
+      begin
+        UniqueString(Price.Extraction[i].ExtractionData);
+        UniqueString(Price.Extraction[i].NegativeTag);
+      end;
     Price.Finder := TILElementFinder.CreateAsCopy(
       TILElementFinder(Src.ParsingSettings.Price.Finder));
   end;
@@ -1464,106 +1470,6 @@ begin
 For i := Low(fShopTemplates) to High(fShopTemplates) do
   ItemShopFinalize(fShopTemplates[i].ShopData);
 SetLength(fShopTemplates,0);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_Base.ShopTemplateExport(const FileName: String; Index: Integer);
-//var
-  //Ini:  TIniFile;
-  //i:    Integer;
-begin
-(*
-If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
-  begin
-    Ini := TIniFile.Create(FileName);
-    try
-      Ini.WriteString('Template','Name',fShopTemplates[Index].Name);
-      Ini.WriteString('Template','ShopName',fShopTemplates[Index].ShopData.Name);
-      Ini.WriteString('Template','ShopURL',fShopTemplates[Index].ShopData.ShopURL);
-      with fShopTemplates[Index].ShopData.ParsingSettings do
-        begin
-          Ini.WriteString('Template','MoreThanTag',MoreThanTag);
-          Ini.WriteString('Template','AvailExtrMethod',
-            GetEnumName(TypeInfo(TILItemShopParsAvailExtrMethod),Ord(AvailExtrMethod)));
-          Ini.WriteString('Template','PriceExtrMethod',
-            GetEnumName(TypeInfo(TILItemShopParsPriceExtrMethod),Ord(PriceExtrMethod)));
-          Ini.WriteInteger('Template','AvailStageCount',Length(AvailStages));
-          For i := Low(AvailStages) to High(AvailStages) do
-            begin
-              Ini.WriteString('Template',Format('AvailStage[%d].ElementName',[i]),AvailStages[i].ElementName);
-              Ini.WriteString('Template',Format('AvailStage[%d].AttributeName',[i]),AvailStages[i].AttributeName);
-              Ini.WriteString('Template',Format('AvailStage[%d].AttributeValue',[i]),AvailStages[i].AttributeValue);
-              Ini.WriteBool('Template',Format('AvailStage[%d].FullTextMatch',[i]),AvailStages[i].FullTextMatch);
-              Ini.WriteBool('Template',Format('AvailStage[%d].RecursiveSearch',[i]),AvailStages[i].RecursiveSearch);
-              Ini.WriteString('Template',Format('AvailStage[%d].Text',[i]),AvailStages[i].Text);
-            end;
-          Ini.WriteInteger('Template','PriceStageCount',Length(PriceStages));
-          For i := Low(PriceStages) to High(PriceStages) do
-            begin
-              Ini.WriteString('Template',Format('PriceStage[%d].ElementName',[i]),PriceStages[i].ElementName);
-              Ini.WriteString('Template',Format('PriceStage[%d].AttributeName',[i]),PriceStages[i].AttributeName);
-              Ini.WriteString('Template',Format('PriceStage[%d].AttributeValue',[i]),PriceStages[i].AttributeValue);
-              Ini.WriteBool('Template',Format('PriceStage[%d].FullTextMatch',[i]),PriceStages[i].FullTextMatch);
-              Ini.WriteBool('Template',Format('PriceStage[%d].RecursiveSearch',[i]),PriceStages[i].RecursiveSearch);
-              Ini.WriteString('Template',Format('PriceStage[%d].Text',[i]),PriceStages[i].Text);
-            end;
-        end;
-    finally
-      Ini.Free;
-    end;
-  end
-else raise Exception.CreateFmt('TILManager_Base.ShopTemplateExport: Index (%d) out of bounds.',[Index]);
-*)
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Base.ShopTemplateImport(const FileName: String): Integer;
-//var
-  //Ini:  TIniFile;
-  //i:    Integer;
-begin
-(*
-Ini := TIniFile.Create(FileName);
-try
-  SetLength(fShopTemplates,Length(fShopTemplates) + 1);
-  Result := High(fShopTemplates);
-  fShopTemplates[Result].Name := Ini.ReadString('Template','Name','');
-  fShopTemplates[Result].ShopData.Name := Ini.ReadString('Template','ShopName','');
-  fShopTemplates[Result].ShopData.ShopURL := Ini.ReadString('Template','ShopURL','');
-  with fShopTemplates[Result].ShopData.ParsingSettings do
-    begin
-      MoreThanTag := Ini.ReadString('Template','MoreThanTag','');
-      AvailExtrMethod := TILItemShopParsAvailExtrMethod(
-        GetEnumValue(TypeInfo(TILItemShopParsAvailExtrMethod),Ini.ReadString('Template','AvailExtrMethod','')));
-      PriceExtrMethod := TILItemShopParsPriceExtrMethod(
-        GetEnumValue(TypeInfo(TILItemShopParsPriceExtrMethod),Ini.ReadString('Template','PriceExtrMethod','')));
-      SetLength(AvailStages,Ini.ReadInteger('Template','AvailStageCount',0));
-      For i := Low(AvailStages) to High(AvailStages) do
-        begin
-          AvailStages[i].ElementName := Ini.ReadString('Template',Format('AvailStage[%d].ElementName',[i]),'');
-          AvailStages[i].AttributeName := Ini.ReadString('Template',Format('AvailStage[%d].AttributeName',[i]),'');
-          AvailStages[i].AttributeValue := Ini.ReadString('Template',Format('AvailStage[%d].AttributeValue',[i]),'');
-          AvailStages[i].FullTextMatch := Ini.ReadBool('Template',Format('AvailStage[%d].FullTextMatch',[i]),False);
-          AvailStages[i].RecursiveSearch := Ini.ReadBool('Template',Format('AvailStage[%d].RecursiveSearch',[i]),False);
-          AvailStages[i].Text := Ini.ReadString('Template',Format('AvailStage[%d].Text',[i]),'');
-        end;
-      SetLength(PriceStages,Ini.ReadInteger('Template','PriceStageCount',0));
-      For i := Low(PriceStages) to High(PriceStages) do
-        begin
-          PriceStages[i].ElementName := Ini.ReadString('Template',Format('PriceStage[%d].ElementName',[i]),'');
-          PriceStages[i].AttributeName := Ini.ReadString('Template',Format('PriceStage[%d].AttributeName',[i]),'');
-          PriceStages[i].AttributeValue := Ini.ReadString('Template',Format('PriceStage[%d].AttributeValue',[i]),'');
-          PriceStages[i].FullTextMatch := Ini.ReadBool('Template',Format('PriceStage[%d].FullTextMatch',[i]),False);
-          PriceStages[i].RecursiveSearch := Ini.ReadBool('Template',Format('PriceStage[%d].RecursiveSearch',[i]),False);
-          PriceStages[i].Text := Ini.ReadString('Template',Format('PriceStage[%d].Text',[i]),'');
-        end;
-    end;
-finally
-  Ini.Free;
-end;
-*)
 end;
 
 //------------------------------------------------------------------------------

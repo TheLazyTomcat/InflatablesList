@@ -4,30 +4,6 @@ unit InflatablesList_HTML_Parser;
 
 interface
 
-(*
-There are six different kinds of elements: void elements, the template elements, raw text elements, escapable raw text elements, foreign elements, and normal elements.
-
-Void elements
-
-    area, base, br, col, embed, hr, img, input, link, meta, param, source, track, wbr
-The template elements
-
-    template
-Raw text elements
-
-    script, style
-escapable raw text elements
-
-    textarea, title
-Foreign elements
-
-    Elements from the MathML namespace and the SVG namespace.
-Normal elements
-
-    All other allowed HTML elements are normal elements.
-
-*)
-
 uses
   Classes,
   AuxTypes, CountedDynArrayObject,
@@ -222,6 +198,8 @@ fCurrentElement := nil;
 CDA_Clear(fOpenElements);
 Preprocess;
 Parse;
+fRootElement.TextFinalize;
+fRootElement.Close;
 end;
 
 //------------------------------------------------------------------------------

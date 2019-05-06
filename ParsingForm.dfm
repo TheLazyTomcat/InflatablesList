@@ -1,6 +1,6 @@
 object fParsingForm: TfParsingForm
-  Left = 614
-  Top = 129
+  Left = 621
+  Top = 115
   BorderStyle = bsDialog
   Caption = 'fParsingForm'
   ClientHeight = 448
@@ -13,6 +13,7 @@ object fParsingForm: TfParsingForm
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object gbFinderSettings: TGroupBox
@@ -38,7 +39,7 @@ object fParsingForm: TfParsingForm
     end
     object lblStageElements: TLabel
       Left = 8
-      Top = 152
+      Top = 120
       Width = 125
       Height = 13
       Caption = 'Searched stage elements:'
@@ -54,18 +55,22 @@ object fParsingForm: TfParsingForm
       Left = 8
       Top = 32
       Width = 201
-      Height = 113
+      Height = 82
+      IntegralHeight = True
       ItemHeight = 13
+      PopupMenu = pmnStages
       TabOrder = 0
       OnClick = lbStagesClick
+      OnMouseDown = lbStagesMouseDown
     end
     object tvStageElements: TTreeView
       Left = 8
-      Top = 168
+      Top = 136
       Width = 201
-      Height = 113
+      Height = 145
       HideSelection = False
       Indent = 19
+      PopupMenu = pmnElements
       ReadOnly = True
       TabOrder = 1
       OnChange = tvStageElementsChange
@@ -100,6 +105,7 @@ object fParsingForm: TfParsingForm
       Height = 249
       HideSelection = False
       Indent = 19
+      PopupMenu = pmnAttributes
       ReadOnly = True
       TabOrder = 2
       OnChange = tvAttrCompsChange
@@ -113,6 +119,7 @@ object fParsingForm: TfParsingForm
       Height = 249
       HideSelection = False
       Indent = 19
+      PopupMenu = pmnTexts
       ReadOnly = True
       TabOrder = 3
       OnChange = tvTextCompsChange
@@ -127,57 +134,123 @@ object fParsingForm: TfParsingForm
     Height = 65
     Caption = 'Extraction settings'
     TabOrder = 1
-    object lblExtractFrom: TLabel
-      Left = 8
-      Top = 16
-      Width = 64
+    object lblExtrIdx: TLabel
+      Left = 59
+      Top = 30
+      Width = 28
       Height = 13
-      Caption = 'Extract from:'
+      Alignment = taCenter
+      AutoSize = False
+      Caption = '-'
     end
-    object lblExtractMethod: TLabel
-      Left = 176
-      Top = 16
-      Width = 92
-      Height = 13
-      Caption = 'Extraction method:'
-    end
-    object cmbExtractFrom: TComboBox
-      Left = 8
-      Top = 32
-      Width = 161
-      Height = 21
-      Style = csDropDownList
-      ItemHeight = 13
-      TabOrder = 0
-    end
-    object cmbExtractMethod: TComboBox
-      Left = 176
-      Top = 32
-      Width = 161
-      Height = 21
-      Style = csDropDownList
-      ItemHeight = 13
-      TabOrder = 1
-    end
-    object leExtractionData: TLabeledEdit
-      Left = 344
-      Top = 32
-      Width = 137
-      Height = 21
-      EditLabel.Width = 78
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Extraction data:'
-      TabOrder = 2
-    end
-    object leNegativeTag: TLabeledEdit
-      Left = 488
-      Top = 32
-      Width = 137
-      Height = 21
-      EditLabel.Width = 66
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Negative tag:'
+    object btnExtrNext: TButton
+      Left = 88
+      Top = 24
+      Width = 17
+      Height = 25
+      Caption = '>'
       TabOrder = 3
+      OnClick = btnExtrNextClick
+    end
+    object btnExtrPrev: TButton
+      Left = 42
+      Top = 24
+      Width = 17
+      Height = 25
+      Caption = '<'
+      TabOrder = 2
+      OnClick = btnExtrPrevClick
+    end
+    object btnExtrAdd: TButton
+      Left = 8
+      Top = 24
+      Width = 17
+      Height = 25
+      Caption = '+'
+      TabOrder = 0
+      OnClick = btnExtrAddClick
+    end
+    object btnExtrRemove: TButton
+      Left = 25
+      Top = 24
+      Width = 17
+      Height = 25
+      Caption = '-'
+      TabOrder = 1
+      OnClick = btnExtrRemoveClick
+    end
+    inline frmExtractionFrame: TfrmExtractionFrame
+      Left = 120
+      Top = 16
+      Width = 505
+      Height = 41
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+    end
+  end
+  object pmnStages: TPopupMenu
+    OnPopup = pmnStagesPopup
+    Left = 192
+    Top = 96
+    object mniSG_Add: TMenuItem
+      Caption = 'Add new stage'
+      OnClick = mniSG_AddClick
+    end
+    object mniSG_Remove: TMenuItem
+      Caption = 'Remove selected stage'
+      OnClick = mniSG_RemoveClick
+    end
+  end
+  object pmnElements: TPopupMenu
+    OnPopup = pmnElementsPopup
+    Left = 192
+    Top = 264
+    object mniEL_Add: TMenuItem
+      Caption = 'Add new element option'
+      OnClick = mniEL_AddClick
+    end
+    object mniEL_Remove: TMenuItem
+      Caption = 'Remove selected element option'
+      OnClick = mniEL_RemoveClick
+    end
+  end
+  object pmnAttributes: TPopupMenu
+    OnPopup = pmnAttributesPopup
+    Left = 400
+    Top = 264
+    object mniAT_AddComp: TMenuItem
+      Caption = 'Add new comparator'
+      OnClick = mniAT_AddCompClick
+    end
+    object mniAT_AddGroup: TMenuItem
+      Caption = 'Add new group'
+      OnClick = mniAT_AddGroupClick
+    end
+    object mniAT_Remove: TMenuItem
+      Caption = 'Remove selected object'
+      OnClick = mniAT_RemoveClick
+    end
+  end
+  object pmnTexts: TPopupMenu
+    OnPopup = pmnTextsPopup
+    Left = 608
+    Top = 264
+    object mniTX_AddComp: TMenuItem
+      Caption = 'Add new comparator'
+      OnClick = mniTX_AddCompClick
+    end
+    object mniTX_AddGroup: TMenuItem
+      Caption = 'Add new group'
+      OnClick = mniTX_AddGroupClick
+    end
+    object mniTX_Remove: TMenuItem
+      Caption = 'Remove selected object'
+      OnClick = mniTX_RemoveClick
     end
   end
 end

@@ -57,6 +57,8 @@ type
 
   TILHTMLDocument = class(TILHTMLElementNode);
 
+  TILHTMLElements = array of TILHTMLElementNode;
+
 implementation
 
 uses
@@ -359,6 +361,9 @@ var
   i:  Integer;
 begin
 Strs.Add(StringOfChar(' ',GetLevel * 2) + '<' + fName + '>');
+For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
+  Strs.Add(StringOfChar(' ',GetLevel * 2) + Format('  %s="%s"',
+    [CDA_GetItem(fAttributes,i).Name,CDA_GetItem(fAttributes,i).Value]));
 For i := CDA_Low(fElements) to CDA_High(fElements) do
   TILHTMLElementNode(CDA_GetItem(fElements,i)).List(Strs);
 If CDA_Count(fElements) > 0 then

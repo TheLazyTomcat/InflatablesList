@@ -170,11 +170,14 @@ var
   NewName:  String;
 begin
 If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
-  If Dialogs.InputQuery('New template name','Enter new template name:',NewName) then
-    begin
-      fILManager.ShopTemplateRename(lbTemplates.ItemIndex,NewName);
-      lbTemplates.Items[lbTemplates.ItemIndex] := NewName;
-    end;
+  begin
+    NewName := lbTemplates.Items[lbTemplates.ItemIndex];
+    If Dialogs.InputQuery('New template name','Enter new template name:',NewName) then
+      begin
+        fILManager.ShopTemplateRename(lbTemplates.ItemIndex,NewName);
+        lbTemplates.Items[lbTemplates.ItemIndex] := NewName;
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -280,6 +283,7 @@ end;
 procedure TfTemplatesForm.btnLoadClick(Sender: TObject);
 var
   CanProceed: Boolean;
+  i:          Integer;
 begin
 If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
   begin
@@ -296,11 +300,20 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
           // parsing settings, free old objects and replace them with copies
           FreeAndNil(fCurrentShopPtr^.ParsingSettings.Available.Finder);
           FreeAndNil(fCurrentShopPtr^.ParsingSettings.Price.Finder);
-          fCurrentShopPtr^.ParsingSettings := ShopData.ParsingSettings;
+          // variables (copy only when destination is empty)
+          For i := Low(fCurrentShopPtr^.ParsingSettings.Variables.Vars) to
+                   High(fCurrentShopPtr^.ParsingSettings.Variables.Vars) do
+            If Length(fCurrentShopPtr^.ParsingSettings.Variables.Vars[I]) <= 0 then
+              fCurrentShopPtr^.ParsingSettings.Variables.Vars[i] :=
+                ShopData.ParsingSettings.Variables.Vars[i];
+          // available
+          fCurrentShopPtr^.ParsingSettings.Available.Extraction := ShopData.ParsingSettings.Available.Extraction;
           SetLength(fCurrentShopPtr^.ParsingSettings.Available.Extraction,
             Length(fCurrentShopPtr^.ParsingSettings.Available.Extraction));
           fCurrentShopPtr^.ParsingSettings.Available.Finder :=
             TILElementFinder.CreateAsCopy(TILElementFinder(ShopData.ParsingSettings.Available.Finder));
+          //price
+          fCurrentShopPtr^.ParsingSettings.Price.Extraction := ShopData.ParsingSettings.Price.Extraction;
           SetLength(fCurrentShopPtr^.ParsingSettings.Price.Extraction,
             Length(fCurrentShopPtr^.ParsingSettings.Price.Extraction));
           fCurrentShopPtr^.ParsingSettings.Price.Finder :=

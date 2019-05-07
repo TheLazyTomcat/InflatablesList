@@ -586,6 +586,7 @@ end;
 
 Function IL_SetFilterSettingsFlagValue(var FilterFlags: TILFilterFlags; FilterFlag: TILFilterFlag; NewValue: Boolean): Boolean;
 begin
+Result := FilterFlag in FilterFlags;
 If NewValue then
   Include(FilterFlags,FilterFlag)
 else

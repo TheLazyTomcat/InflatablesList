@@ -247,8 +247,9 @@ procedure TfShopsForm.mniSH_AddCommon;
 var
   Index:  Integer;
 begin
+Index := fILManager.ItemShopAdd(fCurrentItem);
+fCurrentItem.Shops[Index].RequiredCount := fCurrentItem.Count;
 Index := lvShops.ItemIndex;
-fILManager.ItemShopAdd(fCurrentItem);
 with lvShops.Items.Add do
   begin
     Caption := '';

@@ -247,7 +247,7 @@ type
     Function StageRemove(Stage: TObject): Integer; virtual;
     procedure StageDelete(Index: Integer); virtual;
     procedure StageClear; virtual;
-    Function FindElement(Document: TILHTMLDocument; out Element: TILHTMLElementNode): Boolean; virtual;
+    Function FindElements(Document: TILHTMLDocument; out Elements: TILHTMLElements): Boolean; virtual;
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;
     property StageCount: Integer read GetStageCount;
@@ -1776,13 +1776,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILElementFinder.FindElement(Document: TILHTMLDocument; out Element: TILHTMLElementNode): Boolean;
+Function TILElementFinder.FindElements(Document: TILHTMLDocument; out Elements: TILHTMLElements): Boolean;
 var
   FoundNodesL1: TObjectCountedDynArray;
   FoundNodesL2: TObjectCountedDynArray;
   i,j:          Integer;
 begin
-Element := nil;
+SetLength(Elements,0);
 CDA_Init(FoundNodesL1);
 CDA_Init(FoundNodesL2);
 CDA_Add(FoundNodesL1,Document);
@@ -1796,9 +1796,13 @@ For i := Low(fStages) to High(fStages) do
     CDA_Clear(FoundNodesL1);
     FoundNodesL1 := CDA_Copy(FoundNodesL2);
   end;
-If (CDA_Count(FoundNodesL1) = 1) and (Length(fStages) > 0) then
-  Element := TILHTMLElementNode(CDA_GetItem(FoundNodesL1,CDA_Low(FoundNodesL1)));
-Result := Assigned(Element);
+If (CDA_Count(FoundNodesL1) >= 1) and (Length(fStages) > 0) then
+  begin
+    SetLength(Elements,CDA_Count(FoundNodesL1));
+    For i := Low(Elements) to High(Elements) do
+      Elements[i] := TILHTMLElementNode(CDA_GetItem(FoundNodesL1,i));
+  end;
+Result := Length(Elements) > 0;
 end;
 
 //------------------------------------------------------------------------------

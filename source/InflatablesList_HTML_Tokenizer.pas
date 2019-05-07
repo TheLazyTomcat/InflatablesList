@@ -2482,7 +2482,9 @@ end;
 
 procedure TILHTMLTokenizer.State_CharacterReference_ResolveNamedReference;
 var
-  Index: Integer;
+  EntryPos: Integer;
+  Index:    Integer;
+  AttrProc: Boolean;
 
   Function IndexOfNamedRef(const Ref: UnicodeString): Integer;
   var
@@ -2507,7 +2509,7 @@ var
         end;
   end;
 
-  Function CheckTempBuffForCharRef: Boolean;
+  Function CheckTempBuffForValidCharRef: Boolean;
   var
     i:  Integer;
   begin
@@ -2526,6 +2528,8 @@ var
   end;
 
 begin
+// store position in input upon entry (which is position just after ampersand)
+EntryPos := fPosition;
 Index := -1;
 while not EndOfFile and not fParserPause do
   begin
@@ -2541,10 +2545,16 @@ while not EndOfFile and not fParserPause do
 If Index >= 0 then
   begin
     // reference was successfuly resolved
-    If not((fReturnState in [iltsAttributeValue_DoubleQuoted,iltsAttributeValue_SingleQuoted,iltsAttributeValue_Unquoted]) and
-      (CDA_Last(fTemporaryBuffer) <> UnicodeChar(';')) and IL_UTF16CharInSet(NextInputChar,['=','0'..'9','a'..'Z','A'..'Z'])) then
+    // check if it should be processed normally or as an attribute value special
+    AttrProc := (fReturnState in [iltsAttributeValue_DoubleQuoted,iltsAttributeValue_SingleQuoted,
+      iltsAttributeValue_Unquoted]) and (CDA_Last(fTemporaryBuffer) <> UnicodeChar(';'));
+    If AttrProc and (CDA_Count(fTemporaryBuffer) > 1) then
+      AttrProc := IL_UTF16CharInSet(CDA_GetItem(fTemporaryBuffer,CDA_Low(fTemporaryBuffer) + 1),['=','0'..'9','a'..'Z','A'..'Z'])
+    else
+      AttrProc := False;
+    If not AttrProc then
       begin
-        // not in attribute value
+        // process normally
         If CDA_Last(fTemporaryBuffer) <> UnicodeChar(';') then
           ParseError('Invalid character reference "%s".',[UnicodeToStr(TemporaryBufferAsStr)]);
         // put resolved chars to temp. buffer
@@ -2566,18 +2576,34 @@ If Index >= 0 then
           end;
         fState := iltsCharacterReferenceEnd;
       end
-    else fState := iltsCharacterReferenceEnd;  // in attribute value
+    else
+      begin
+        {
+          reference is in attribute value, last matched character is NOT an
+          ampersand and character just after the amp. is equal sign or an
+          alphanumeric character...
+
+          ...ignore the reference and pass the characters as they are
+        }
+        CDA_Clear(fTemporaryBuffer);
+        CDA_Add(fTemporaryBuffer,UnicodeChar('&'));
+        fPosition := EntryPos;  // return to position just after the amp
+        fState := iltsCharacterReferenceEnd;
+      end
   end
 else
   begin
     // reference could not be resolved, temp. buffer by now contains rest of the file
-    If CheckTempBuffForCharRef then
+    If CheckTempBuffForValidCharRef then
       begin
         If CDA_Count(fTemporaryBuffer) <= IL_TOKENIZER_CHAR_NAMEDREF_MAXLEN then
           ParseError('Invalid character reference "%s".',[UnicodeToStr(TemporaryBufferAsStr)])
         else
           ParseError('Invalid character reference.')
       end;
+    CDA_Clear(fTemporaryBuffer);
+    CDA_Add(fTemporaryBuffer,UnicodeChar('&'));
+    fPosition := EntryPos;  // return to position just after the amp
     fState := iltsCharacterReferenceEnd;
   end;
 end;

@@ -36,12 +36,12 @@ type
     fPrice:       UInt32;
   protected
     procedure InitializeResults; virtual;
-    Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElementNode; virtual;
+    Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements; virtual;
     Function ExtractValue_FirstInteger(const Text: String): UInt32; virtual;
     Function ExtractValue_ContainsTag(const Text,Tag: String): Boolean; virtual;
     Function ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): String; virtual;
-    Function ExtractAvailable(Node: TILHTMLElementNode): Int32; virtual;
-    Function ExtractPrice(Node: TILHTMLElementNode): UInt32; virtual;
+    Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
+    Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
   public
     constructor Create(ShopData: TILItemShop);
     destructor Destroy; override;
@@ -72,9 +72,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILShopUpdater.FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElementNode;
+Function TILShopUpdater.FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements;
 begin
-If not Finder.FindElement(Document,Result) then
+If not Finder.FindElements(Document,Result) then
   Result := nil;
 end;
 
@@ -127,66 +127,76 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILShopUpdater.ExtractAvailable(Node: TILHTMLElementNode): Int32;
+Function TILShopUpdater.ExtractAvailable(Nodes: TILHTMLElements): Int32;
 var
   Text: String;
-  i:    Integer;
+  i,j:  Integer;
 begin
 Result := 0;
-For i := Low(fShopData.ParsingSettings.Available.Extraction) to
-        High(fShopData.ParsingSettings.Available.Extraction) do
-  with fShopData.ParsingSettings.Available.Extraction[i] do
-    begin
-      // first get the text from which the value will be extracted
-      Text := ExtractValue_GetText(Node,ExtractFrom,ExtractionData);
-      // parse according to selected extr. method
-      case ExtractionMethod of
-        ilpemFirstIntegerTag:
-          begin
+For i := Low(Nodes) to High(Nodes) do
+  begin
+    For j := Low(fShopData.ParsingSettings.Available.Extraction) to
+            High(fShopData.ParsingSettings.Available.Extraction) do
+      with fShopData.ParsingSettings.Available.Extraction[j] do
+        begin
+          // first get the text from which the value will be extracted
+          Text := ExtractValue_GetText(Nodes[i],ExtractFrom,ExtractionData);
+          // parse according to selected extr. method
+          case ExtractionMethod of
+            ilpemFirstIntegerTag:
+              begin
+                Result := Int32(ExtractValue_FirstInteger(Text));
+                If ExtractValue_ContainsTag(Text,NegativeTag) then
+                  Result := -Result;
+              end;
+            ilpemNegTagIsCount:
+              If ExtractValue_ContainsTag(Text,NegativeTag) then
+                Result := fShopData.RequiredCount;
+          else
+            {ilpemFirstInteger}
             Result := Int32(ExtractValue_FirstInteger(Text));
-            If ExtractValue_ContainsTag(Text,NegativeTag) then
-              Result := -Result;
           end;
-        ilpemNegTagIsCount:
-          If ExtractValue_ContainsTag(Text,NegativeTag) then
-            Result := fShopData.RequiredCount;
-      else
-        {ilpemFirstInteger}
-        Result := Int32(ExtractValue_FirstInteger(Text));
-      end;
-      If Result <> 0 then
-        Break{For i};
-    end;
+          If Result <> 0 then
+            Break{For j};
+        end;
+    If Result <> 0 then
+      Break{For i};
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILShopUpdater.ExtractPrice(Node: TILHTMLElementNode): UInt32;
+Function TILShopUpdater.ExtractPrice(Nodes: TILHTMLElements): UInt32;
 var
   Text: String;
-  i:    Integer;   
+  i,j:  Integer;
 begin
 Result := 0;
-For i := Low(fShopData.ParsingSettings.Price.Extraction) to
-        High(fShopData.ParsingSettings.Price.Extraction) do
-  with fShopData.ParsingSettings.Price.Extraction[i] do
-    begin
-      // first get the text from which the value will be extracted
-      Text := ExtractValue_GetText(Node,ExtractFrom,ExtractionData);
-      // parse according to selected extr. method
-      case ExtractionMethod of
-        ilpemNegTagIsCount:
-          If ExtractValue_ContainsTag(Text,NegativeTag) then
-            Result := fShopData.RequiredCount;
-      else
-        {ilpemFirstInteger,
-         ilpemFirstIntegerTag}
-        // price cannot be negative, so ignore neg. tag even when requested
-        Result := ExtractValue_FirstInteger(Text);
-      end;
-      If Result <> 0 then
-        Break{For i};
-    end;
+For i := Low(Nodes) to High(Nodes) do
+  begin
+    For j := Low(fShopData.ParsingSettings.Price.Extraction) to
+            High(fShopData.ParsingSettings.Price.Extraction) do
+      with fShopData.ParsingSettings.Price.Extraction[j] do
+        begin
+          // first get the text from which the value will be extracted
+          Text := ExtractValue_GetText(Nodes[i],ExtractFrom,ExtractionData);
+          // parse according to selected extr. method
+          case ExtractionMethod of
+            ilpemNegTagIsCount:
+              If ExtractValue_ContainsTag(Text,NegativeTag) then
+                Result := fShopData.RequiredCount;
+          else
+            {ilpemFirstInteger,
+             ilpemFirstIntegerTag}
+            // price cannot be negative, so ignore neg. tag even when requested
+            Result := ExtractValue_FirstInteger(Text);
+          end;
+          If Result <> 0 then
+            Break{For j};
+        end;
+    If Result <> 0 then
+      Break{For i};
+  end;
 end;
 
 //==============================================================================
@@ -214,8 +224,11 @@ Function TILShopUpdater.Run: TILShopUpdaterResult;
 var
   Parser:       TILHTMLParser;
   Document:     TILHTMLDocument;
-  AvailNode:    TILHTMLElementNode;
-  PriceNode:    TILHTMLElementNode;
+  AvailNodes:   TILHTMLElements;
+  PriceNodes:   TILHTMLElements;
+{$IFDEF TestCode}
+  ElementList:  TStringList;
+{$ENDIF}
 begin
 If Length(fShopData.ItemURL) > 0 then
   begin
@@ -227,6 +240,9 @@ If Length(fShopData.ItemURL) > 0 then
         fDownStream.Clear;
         If IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode) then
           begin
+          {$IFDEF TestCode}
+            fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'test.txt');
+          {$ENDIF}
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
             Parser := TILHTMLParser.Create(fDownStream);
@@ -236,22 +252,31 @@ If Length(fShopData.ItemURL) > 0 then
                 Parser.Run;
                 Document := Parser.GetDocument;
                 try
+                {$IFDEF TestCode}
+                  ElementList := TStringList.Create;
+                  try
+                    Document.List(ElementList);
+                    ElementList.SaveToFile(ExtractFilePath(ParamStr(0)) + 'elements.txt');
+                  finally
+                    ElementList.Free;
+                  end;
+                {$ENDIF}
                   // prepare finders
                   TILElementFinder(fShopData.ParsingSettings.Available.Finder).
                     Prepare(Addr(fShopData.ParsingSettings.Variables));
                   TILElementFinder(fShopData.ParsingSettings.Price.Finder).
                     Prepare(Addr(fShopData.ParsingSettings.Variables));
                   // search
-                  AvailNode := FindElementNode(Document,
+                  AvailNodes := FindElementNode(Document,
                     TILElementFinder(fShopData.ParsingSettings.Available.Finder));
-                  PriceNode := FindElementNode(Document,
+                  PriceNodes := FindElementNode(Document,
                     TILElementFinder(fShopData.ParsingSettings.Price.Finder));
                   // process found nodes
-                  If Assigned(AvailNode) and Assigned(PriceNode) then
+                  If (Length(AvailNodes) > 0) and (Length(PriceNodes) > 0) then
                     begin
                       // both avail and price found
-                      fAvailable := ExtractAvailable(AvailNode);
-                      fPrice := ExtractPrice(PriceNode);
+                      fAvailable := ExtractAvailable(AvailNodes);
+                      fPrice := ExtractPrice(PriceNodes);
                       If fPrice > 0 then
                         begin
                           // price obtained
@@ -262,9 +287,9 @@ If Length(fShopData.ItemURL) > 0 then
                         end
                       else Result := ilurFailValGet;
                     end
-                  else If Assigned(PriceNode) then
+                  else If Length(PriceNodes) > 0 then
                     begin
-                      fPrice := ExtractPrice(PriceNode);
+                      fPrice := ExtractPrice(PriceNodes);
                       If fPrice > 0 then
                         Result := ilurFailAvailSearch
                       else

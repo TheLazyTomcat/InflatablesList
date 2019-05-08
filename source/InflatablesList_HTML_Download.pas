@@ -25,7 +25,7 @@ HTTPClient := THTTPSend.Create;
 try
   // user agent must be set to something sensible, otherwise some webs refuse to send anything
   HTTPClient.UserAgent := 'Mozilla/5.0 (Windows NT 5.1; rv:62.0) Gecko/20100101 Firefox/62.0';
-  HTTPClient.Timeout := 5000; 
+  HTTPClient.Timeout := 10000; 
   If HTTPClient.HTTPMethod('GET',URL) then
     begin
       HTTPClient.Document.SaveToStream(Stream);

@@ -36,6 +36,7 @@ Function IL_CharInSet(C: Char; CharSet: TSysCharSet): Boolean;
 Function IL_IndexWrap(Index,Low,High: Integer): Integer;
 Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer; overload;
 
+
 implementation
 
 uses

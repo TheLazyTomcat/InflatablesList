@@ -35,7 +35,7 @@ implementation
 uses
   SysUtils,
   StrRect,
-  InflatablesList_HTML_UnicodeTagAttributeArray,
+  InflatablesList_Types, InflatablesList_HTML_UnicodeTagAttributeArray,
   InflatablesList_HTML_Preprocessor;
 
 class Function TILHTMLParser.IsVoidElement(const Name: String): Boolean;
@@ -63,12 +63,12 @@ var
 begin
 case Token.TokenType of
   ilttStartTag:   begin
-                    NewElement := TILHTMLElementNode.Create(fCurrentElement,UnicodeToStr(Token.TagName));
+                    NewElement := TILHTMLElementNode.Create(fCurrentElement,IL_ReconvString(UnicodeToStr(Token.TagName)));
                     // add attributes
                     For i := CDA_Low(Token.Attributes) to CDA_High(Token.Attributes) do
                       NewElement.AttributeAdd(UnicodeToStr(CDA_GetItem(Token.Attributes,i).Name),
                                               UnicodeToStr(CDA_GetItem(Token.Attributes,i).Value));
-                    If Token.SelfClosing or IsVoidElement(NewElement.Name) then
+                    If Token.SelfClosing or IsVoidElement(NewElement.Name.Str) then
                       NewElement.Close;
                     If not Assigned(fRootElement) then
                       begin
@@ -101,7 +101,7 @@ case Token.TokenType of
                   end;
   ilttEndTag:     If Assigned(fCurrentElement) then
                     begin
-                      If AnsiSameText(fCurrentElement.Name,UnicodeToStr(Token.TagName)) then
+                      If AnsiSameText(fCurrentElement.Name.Str,UnicodeToStr(Token.TagName)) then
                         begin
                           fCurrentElement.Close;
                           fCurrentElement := fCurrentElement.Parent;
@@ -111,7 +111,7 @@ case Token.TokenType of
                         begin
                           // misnested
                           For i := CDA_High(fOpenElements) downto CDA_Low(fOpenElements) do
-                            If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Name,UnicodeToStr(Token.TagName)) then
+                            If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Name.Str,UnicodeToStr(Token.TagName)) then
                               begin
                                 fCurrentElement := TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Parent;
                                 TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Close;
@@ -142,7 +142,13 @@ var
 begin
 Preprocessor := TILHTMLPreprocessor.Create;
 try
+  fSource.Seek(0,soBeginning);
   fText := Preprocessor.Process(fSource,True);
+  If (Length(fText) <= 0) and (fSource.Size > 0) then
+    begin
+      fSource.Seek(0,soBeginning);
+      fText := Preprocessor.Process(fSource,False);
+    end;
 finally
   Preprocessor.Free;
 end;
@@ -198,6 +204,8 @@ fCurrentElement := nil;
 CDA_Clear(fOpenElements);
 Preprocess;
 Parse;
+If not Assigned(fRootElement) then
+  raise Exception.Create('Empty document.');
 fRootElement.TextFinalize;
 fRootElement.Close;
 end;
@@ -206,7 +214,7 @@ end;
 
 Function TILHTMLParser.GetDocument: TILHTMLDocument;
 begin
-Result := TILHTMLDocument.CreateAsCopy(nil,fRootElement);
+Result := TILHTMLDocument.CreateAsCopy(nil,fRootElement)
 end;
 
 end.

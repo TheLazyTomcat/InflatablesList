@@ -3,7 +3,7 @@ object fTemplatesForm: TfTemplatesForm
   Top = 203
   BorderStyle = bsDialog
   Caption = 'Shop templates'
-  ClientHeight = 328
+  ClientHeight = 408
   ClientWidth = 272
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -45,7 +45,7 @@ object fTemplatesForm: TfTemplatesForm
     Left = 8
     Top = 104
     Width = 257
-    Height = 186
+    Height = 264
     IntegralHeight = True
     ItemHeight = 13
     PopupMenu = pmnTemplates
@@ -56,7 +56,7 @@ object fTemplatesForm: TfTemplatesForm
   end
   object btnLoad: TButton
     Left = 8
-    Top = 296
+    Top = 376
     Width = 257
     Height = 25
     Caption = 'Load selected template'
@@ -109,13 +109,13 @@ object fTemplatesForm: TfTemplatesForm
     end
   end
   object diaImport: TOpenDialog
-    Filter = 'INI files (*.ini)|*.ini|All files|*.*'
+    Filter = 'Template files (*.tpl)|*.tpl|All files|*.*'
     Title = 'Import template'
     Left = 32
   end
   object diaExport: TSaveDialog
-    DefaultExt = 'ini'
-    Filter = 'INI files (*.ini)|*.ini|All files|*.*'
+    DefaultExt = '.tpl'
+    Filter = 'Template files (*.tpl)|*.tpl|All files|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Title = 'Export template'
   end

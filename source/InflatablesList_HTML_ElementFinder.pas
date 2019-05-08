@@ -59,7 +59,8 @@ type
 
   TILTextComparatorBase = class(TILComparatorBase)
   public
-    procedure Compare(const Text: String); virtual; abstract;
+    procedure Compare(const Text: String); overload; virtual; abstract;
+    procedure Compare(const Text: TILReconvString); overload; virtual; abstract;
   end;
 
 //------------------------------------------------------------------------------
@@ -74,6 +75,7 @@ type
     constructor CreateAsCopy(Source: TILTextComparator);
     Function AsString(Decorate: Boolean = True): String; override;
     procedure Compare(const Text: String); override;
+    procedure Compare(const Text: TILReconvString); override;
     procedure SaveToStream(Stream: TStream); override;
     procedure LoadFromStream(Stream: TStream); override;
     property Str: String read fStr write fStr;
@@ -105,6 +107,7 @@ type
     procedure Delete(Index: Integer); virtual;                       
     procedure Clear; virtual;
     procedure Compare(const Text: String); override;
+    procedure Compare(const Text: TILReconvString); override;
     procedure SaveToStream(Stream: TStream); override;
     procedure LoadFromStream(Stream: TStream); override;
     property Count: Integer read GetItemCount;
@@ -267,7 +270,7 @@ Function IL_CombineUsingOperator(A,B: Boolean; Operator: TILSearchOperator): Boo
 implementation
 
 uses
-  SysUtils, StrUtils,
+  SysUtils, StrUtils, 
   BinaryStreaming, CountedDynArrayObject;
 
 const
@@ -497,7 +500,7 @@ else Result := Format(Result,[Format('#VAR%d#',[fVariableIdx + 1])]);
 // index is ignored
 end;
 
-//------------------------------------------------------------------------------
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 procedure TILTextComparator.Compare(const Text: String);
 var
@@ -525,6 +528,20 @@ If Assigned(fVariablesPtr) then
       end;
   end
 else fResult := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILTextComparator.Compare(const Text: TILReconvString);
+begin
+fResult := False;
+Compare(Text.Str);
+If not Result then
+  begin
+    Compare(Text.UTF8Reconv);
+    If not Result then
+      Compare(Text.AnsiReconv);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -786,6 +803,20 @@ If Length(fItems) > 0 then
         fResult,IL_NegateValue(fItems[i].Result,fItems[i].Negate),fItems[i].Operator)
   end
 else fResult := False;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILTextComparatorGroup.Compare(const Text: TILReconvString); 
+begin
+fResult := False;
+Compare(Text.Str);
+If not Result then
+  begin
+    Compare(Text.UTF8Reconv);
+    If not Result then
+      Compare(Text.AnsiReconv);
+  end;
 end;
 
 //------------------------------------------------------------------------------

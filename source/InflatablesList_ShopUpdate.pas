@@ -37,9 +37,11 @@ type
   protected
     procedure InitializeResults; virtual;
     Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements; virtual;
-    Function ExtractValue_FirstInteger(const Text: String): UInt32; virtual;
-    Function ExtractValue_ContainsTag(const Text,Tag: String): Boolean; virtual;
-    Function ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): String; virtual;
+    Function ExtractValue_FirstInteger(const Text: String): UInt32; overload; virtual;
+    Function ExtractValue_FirstInteger(const Text: TILReconvString): UInt32; overload; virtual;
+    Function ExtractValue_ContainsTag(const Text,Tag: String): Boolean; overload; virtual;
+    Function ExtractValue_ContainsTag(const Text: TILReconvString; const Tag: String): Boolean; overload; virtual;
+    Function ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): TILReconvString; virtual;
     Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
     Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
   public
@@ -98,6 +100,19 @@ For i := 1 to Length(Text) do
 Result := StrToIntDef(Buff,0);
 end;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function TILShopUpdater.ExtractValue_FirstInteger(const Text: TILReconvString): UInt32;
+begin
+Result := ExtractValue_FirstInteger(Text.Str);
+If Result = 0 then
+  begin
+    Result := ExtractValue_FirstInteger(Text.UTF8Reconv);
+    If Result = 0 then
+      Result := ExtractValue_FirstInteger(Text.AnsiReconv);
+  end;
+end;
+
 //------------------------------------------------------------------------------
 
 Function TILShopUpdater.ExtractValue_ContainsTag(const Text,Tag: String): Boolean;
@@ -105,13 +120,26 @@ begin
 Result := AnsiContainsText(Text,Tag);
 end;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function TILShopUpdater.ExtractValue_ContainsTag(const Text: TILReconvString; const Tag: String): Boolean;
+begin
+Result := ExtractValue_ContainsTag(Text.Str,Tag);
+If not Result then
+  begin
+    Result := ExtractValue_ContainsTag(Text.UTF8Reconv,Tag);
+    If not Result then
+      Result := ExtractValue_ContainsTag(Text.AnsiReconv,Tag);
+  end;
+end;
+
 //------------------------------------------------------------------------------
 
-Function TILShopUpdater.ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): String;
+Function TILShopUpdater.ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): TILReconvString;
 var
   Index:  Integer;
 begin
-Result := '';
+Result := IL_ReconvString('');
 case ExtractFrom of
   ilpefNestedText:  Result := Node.NestedText;
   ilpefAttrValue:   begin
@@ -129,7 +157,7 @@ end;
 
 Function TILShopUpdater.ExtractAvailable(Nodes: TILHTMLElements): Int32;
 var
-  Text: String;
+  Text: TILReconvString;
   i,j:  Integer;
 begin
 Result := 0;
@@ -168,7 +196,7 @@ end;
 
 Function TILShopUpdater.ExtractPrice(Nodes: TILHTMLElements): UInt32;
 var
-  Text: String;
+  Text: TILReconvString;
   i,j:  Integer;
 begin
 Result := 0;
@@ -230,6 +258,8 @@ var
   ElementList:  TStringList;
 {$ENDIF}
 begin
+SetLength(AvailNodes,0);
+SetLength(PriceNodes,0);
 If Length(fShopData.ItemURL) > 0 then
   begin
     If (TILElementFinder(fShopData.ParsingSettings.Available.Finder).StageCount > 0) and

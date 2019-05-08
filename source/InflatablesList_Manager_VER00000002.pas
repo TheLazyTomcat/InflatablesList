@@ -22,6 +22,8 @@ type
     procedure LoadShopTemplates_VER00000002(Stream: TStream); virtual;
     procedure LoadItem_VER00000002(Stream: TStream; out Item: TILItem); virtual;
     procedure LoadItemShop_VER00000002(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate); override;
+    procedure LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate); override;
   end;
 
 implementation
@@ -375,5 +377,22 @@ Shop.Notes := Stream_ReadString(Stream);
 LoadParsingSettings(Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);
 end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_VER00000002.SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate);
+begin
+Stream_WriteString(Stream,ShopTemplate.Name);
+SaveItemShop_VER00000002(Stream,ShopTemplate.ShopData);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_VER00000002.LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate);
+begin
+ShopTemplate.Name := Stream_ReadString(Stream);
+LoadItemShop_VER00000002(Stream,ShopTemplate.ShopData);
+end;
+
 
 end.

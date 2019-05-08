@@ -158,9 +158,7 @@ mniTL_Remove.Enabled := lbTemplates.ItemIndex >= 0;
 mniTL_Clear.Enabled := lbTemplates.Count > 0;
 mniTL_MoveUp.Enabled := lbTemplates.ItemIndex > 0;
 mniTL_MoveDown.Enabled := (lbTemplates.Count > 0) and (lbTemplates.ItemIndex < Pred(lbTemplates.Count));
-//mniTL_Export.Enabled := lbTemplates.ItemIndex >= 0;
-mniTL_Export.Enabled := False;
-mniTL_Import.Enabled := False;
+mniTL_Export.Enabled := lbTemplates.ItemIndex >= 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -251,20 +249,20 @@ end;
 
 procedure TfTemplatesForm.mniTL_ExportClick(Sender: TObject);
 begin
-(*
 If lbTemplates.ItemIndex >= 0 then
-  If diaExport.Execute then
-    fILManager.ShopTemplateExport(diaExport.FileName,lbTemplates.ItemIndex);
-*)
+  begin
+    diaExport.FileName := lbTemplates.Items[lbTemplates.ItemIndex] + '.tpl';
+    If diaExport.Execute then
+      fILManager.ShopTemplateExport(diaExport.FileName,lbTemplates.ItemIndex);
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfTemplatesForm.mniTL_ImportClick(Sender: TObject);
-//var
-  //Index:  Integer;
+var
+  Index:  Integer;
 begin
-(*
 If diaImport.Execute then
   begin
     Index := fILManager.ShopTemplateImport(diaImport.FileName);
@@ -275,7 +273,6 @@ If diaImport.Execute then
         lbTemplates.OnClick(nil);
       end;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------

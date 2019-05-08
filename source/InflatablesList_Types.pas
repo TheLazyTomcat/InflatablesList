@@ -8,6 +8,25 @@ uses
   Classes, Graphics,
   AuxTypes;
 
+type
+  TILReconvString = record
+    Str:        String;
+    UTF8Reconv: String;
+    AnsiReconv: String;
+  end;
+
+Function IL_UTF8Reconvert(const Str: String): String;
+Function IL_ANSIReconvert(const Str: String): String;
+
+Function IL_ReconvString(const Str: String): TILReconvString;
+
+Function IL_ReconvCompareStr(const A,B: TILReconvString): Integer;
+Function IL_ReconvCompareText(const A,B: TILReconvString): Integer;
+Function IL_ReconvSameStr(const A,B: TILReconvString): Boolean;
+Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
+
+procedure IL_ReconvUnique(var Str: TILReconvString);
+
 //- basic item specs -----------------------------------------------------------
 
 type
@@ -257,7 +276,90 @@ type
 implementation
 
 uses
-  BitOps;
+  SysUtils,
+  BitOps, StrRect;
+
+Function IL_UTF8Reconvert(const Str: String): String;
+var
+  UTF8Temp: UTF8String;
+  AnsiTemp: AnsiString;
+begin
+If Length(Str) > 0 then
+  begin
+    AnsiTemp := AnsiString(StrToUnicode(Str));
+    SetLength(UTF8Temp,Length(AnsiTemp));
+    Move(PAnsiChar(AnsiTemp)^,PUTF8Char(UTF8Temp)^,Length(UTF8Temp));
+    Result := UnicodeToStr(UTF8Decode(UTF8Temp))
+  end
+else
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ANSIReconvert(const Str: String): String;
+var
+  UTF8Temp: UTF8String;
+  AnsiTemp: AnsiString;
+begin
+If Length(Str) > 0 then
+  begin
+    UTF8Temp := UTF8Encode(StrToUnicode(Str));
+    SetLength(AnsiTemp,Length(UTF8Temp));
+    Move(PUTF8Char(UTF8Temp)^,PAnsiChar(AnsiTemp)^,Length(AnsiTemp));
+    Result := UnicodeToStr(UnicodeString(AnsiTemp))
+  end
+else
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReconvString(const Str: String): TILReconvString;
+begin
+Result.Str := Str;
+Result.UTF8Reconv := IL_UTF8Reconvert(Str);
+Result.AnsiReconv := IL_ANSIReconvert(Str);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReconvCompareStr(const A,B: TILReconvString): Integer;
+begin
+Result := AnsiCompareStr(A.Str,B.Str);
+end;
+ 
+//------------------------------------------------------------------------------
+
+Function IL_ReconvCompareText(const A,B: TILReconvString): Integer;
+begin
+Result := AnsiCompareText(A.Str,B.Str);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReconvSameStr(const A,B: TILReconvString): Boolean;
+begin
+Result := AnsiSameStr(A.Str,B.Str);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
+begin
+Result := AnsiSameText(A.Str,B.Str);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_ReconvUnique(var Str: TILReconvString);
+begin
+UniqueString(Str.Str);
+UniqueString(Str.UTF8Reconv);
+UniqueString(Str.AnsiReconv);
+end;
+
+//------------------------------------------------------------------------------
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 begin

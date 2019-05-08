@@ -6,12 +6,13 @@ unit InflatablesList_HTML_TagAttributeArray;
 interface
 
 uses
-  AuxTypes, CountedDynArrays;
+  AuxTypes, CountedDynArrays,
+  InflatablesList_Types;
 
 type
   TILTagAttribute = record
-    Name:   String;
-    Value:  String;
+    Name:   TILReconvString;
+    Value:  TILReconvString;
   end;
   PILTagAttribute = ^TILTagAttribute;
 
@@ -45,15 +46,15 @@ uses
 
 Function CDA_CompareFunc(const A,B: TCDABaseType): Integer;
 begin
-Result := -AnsiCompareText(A.Name,B.Name);
+Result := -IL_ReconvCompareText(A.Name,B.Name);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
 begin
-UniqueString(Item.Name);
-UniqueString(Item.Value);
+IL_ReconvUnique(Item.Name);
+IL_ReconvUnique(Item.Value);
 end;
 
 //------------------------------------------------------------------------------

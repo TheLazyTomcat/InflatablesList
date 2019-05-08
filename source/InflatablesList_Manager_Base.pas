@@ -59,6 +59,8 @@ type
     // saving/loading of data (excluding header)
     procedure SaveData(Stream: TStream; Struct: UInt32); virtual; abstract;
     procedure LoadData(Stream: TStream; Struct: UInt32); virtual; abstract;
+    procedure SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate); virtual; abstract;
+    procedure LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate); virtual; abstract;
     // other methods
     Function ItemCompare(Idx1,Idx2: Integer): Integer; virtual;
     Function ItemContains(const Item: TILItem; const Text: String): Boolean; virtual;
@@ -118,6 +120,8 @@ type
     procedure ShopTemplateExchange(Idx1,Idx2: Integer); virtual;
     procedure ShopTemplateDelete(Index: Integer); virtual;
     procedure ShopTemplateClear; virtual;
+    procedure ShopTemplateExport(const FileName: String; ShopTemplateIndex: Integer); virtual;
+    Function ShopTemplateImport(const FileName: String): Integer; virtual;
     // IO
     procedure SaveToStream(Stream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
@@ -1470,6 +1474,40 @@ begin
 For i := Low(fShopTemplates) to High(fShopTemplates) do
   ItemShopFinalize(fShopTemplates[i].ShopData);
 SetLength(fShopTemplates,0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ShopTemplateExport(const FileName: String; ShopTemplateIndex: Integer);
+var
+  FileStream: TFileStream;
+begin
+If (ShopTemplateIndex >= Low(fShopTemplates)) and (ShopTemplateIndex <= High(fShopTemplates)) then
+  begin
+    FileStream := TFileStream.Create(FileName,fmCreate or fmShareDenyWrite);
+    try
+      SaveShopTemplate(FileStream,fShopTemplates[ShopTemplateIndex]);
+    finally
+      FileStream.Free;
+    end;
+  end
+else raise Exception.CreateFmt('TILManager_Base.ShopTemplateExport: Index (%d) out of bounds.',[ShopTemplateIndex]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.ShopTemplateImport(const FileName: String): Integer;
+var
+  FileStream: TFileStream;
+begin
+FileStream := TFileStream.Create(FileName,fmOpenRead or fmShareDenyWrite);
+try
+  SetLength(fShopTemplates,Length(fShopTemplates) + 1);
+  Result := High(fShopTemplates);
+  LoadShopTemplate(FileStream,fShopTemplates[Result]);
+finally
+  FileStream.Free;
+end;
 end;
 
 //------------------------------------------------------------------------------

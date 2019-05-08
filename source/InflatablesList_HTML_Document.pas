@@ -14,18 +14,18 @@ type
   private
     fParent:      TILHTMLElementNode;
     fOpen:        Boolean;
-    fName:        String;
+    fName:        TILReconvString;
     fAttributes:  TILTagAttributeCountedDynArray;
     fTextArr:     TILUnicodeCharCountedDynArray;
-    fText:        String;
-    fNestedText:  String;
+    fText:        TILReconvString;
+    fNestedText:  TILReconvString;
     fElements:    TObjectCountedDynArray;
     Function GetAttributeCount: Integer;
     Function GetAttribute(Index: Integer): TILTagAttribute;
     Function GetElementCount: Integer;
     Function GetElement(Index: Integer): TILHTMLElementNode;
   public
-    constructor Create(Parent: TILHTMLElementNode; const Name: String);
+    constructor Create(Parent: TILHTMLElementNode; const Name: TILReconvString);
     constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
     destructor Destroy; override;
     procedure Close; virtual;
@@ -46,11 +46,11 @@ type
     procedure List(Strs: TStrings); virtual;
     property Parent: TILHTMLElementNode read fParent;
     property Open: Boolean read fOpen;
-    property Name: String read fName;
+    property Name: TILReconvString read fName;
     property AttributeCount: Integer read GetAttributeCount;
     property Attributes[Index: Integer]: TILTagAttribute read GetAttribute;
-    property Text: String read fText;
-    property NestedText: String read fNestedText;
+    property Text: TILReconvString read fText;
+    property NestedText: TILReconvString read fNestedText;
     property ElementCount: Integer read GetElementCount;
     property Elements[Index: Integer]: TILHTMLElementNode read GetElement; default;
   end;
@@ -100,7 +100,7 @@ end;
 
 //==============================================================================
 
-constructor TILHTMLElementNode.Create(Parent: TILHTMLElementNode; const Name: String);
+constructor TILHTMLElementNode.Create(Parent: TILHTMLElementNode; const Name: TILReconvString);
 begin
 inherited Create;
 fParent := Parent;
@@ -108,7 +108,7 @@ fOpen := True;
 fName := Name;
 CDA_Init(fAttributes);
 CDA_Init(fTextArr);
-fText := '';
+fText := IL_ReconvString('');
 CDA_Init(fElements);
 end;
 
@@ -120,7 +120,7 @@ var
   i:    Integer;
 begin
 Create(Parent,Source.Name);
-UniqueString(fName);
+IL_ReconvUnique(fName);
 fOpen := Source.Open;
 Source.TextFinalize;
 // copy attributes
@@ -128,10 +128,10 @@ For i := 0 to Pred(Source.AttributeCount) do
   CDA_Add(fAttributes,Source.Attributes[i]);
 fText := Source.Text;
 fNestedText := Source.NestedText;
-UniqueString(fText);
-UniqueString(fNestedText);
+IL_ReconvUnique(fText);
+IL_ReconvUnique(fNestedText);
 CDA_Clear(fTextArr);
-Temp := StrToUnicode(fText);
+Temp := StrToUnicode(fText.Str);
 For i := 1 to Length(Temp) do
   CDA_Add(fTextArr,Temp[i]);
 // copy elements
@@ -169,8 +169,9 @@ end;
 
 procedure TILHTMLElementNode.TextFinalize;
 var
-  Temp: UnicodeString;
-  i:    Integer;
+  Temp:   UnicodeString;
+  i:      Integer;
+  Nested: String;
 begin
 // finalize all subnodes
 For i := CDA_Low(fElements) to CDA_High(fElements) do
@@ -179,11 +180,12 @@ For i := CDA_Low(fElements) to CDA_High(fElements) do
 SetLength(Temp,CDA_Count(fTextArr));
 For i := CDA_Low(fTextArr) to CDA_High(fTextArr) do
   Temp[i + 1] := CDA_GetItem(fTextArr,i);
-fText := UnicodeToStr(Temp);
+fText := IL_ReconvString(UnicodeToStr(Temp));
 // build nested text
-fNestedText := fText;
+Nested := fText.Str;
 For i := CDA_Low(fElements) to CDA_High(fElements) do
-  fNestedText := fNestedText + TILHTMLElementNode(CDA_GetItem(fElements,i)).NestedText;
+  Nested := Nested + TILHTMLElementNode(CDA_GetItem(fElements,i)).NestedText.Str;
+fNestedText := IL_ReconvString(Nested);
 end;
 
 //------------------------------------------------------------------------------
@@ -194,7 +196,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Name,Name) then
+  If AnsiSameText(CDA_GetItem(fAttributes,i).Name.Str,Name) then
     begin
       Result := i;
       Break{For i};
@@ -209,7 +211,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Value,Value) then
+  If AnsiSameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
     begin
       Result := i;
       Break{For i};
@@ -224,8 +226,8 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Name,Name) and
-     AnsiSameText(CDA_GetItem(fAttributes,i).Value,Value) then
+  If AnsiSameText(CDA_GetItem(fAttributes,i).Name.Str,Name) and
+     AnsiSameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
     begin
       Result := i;
       Break{For i};
@@ -238,8 +240,8 @@ Function TILHTMLElementNode.AttributeAdd(const Name,Value: String): Integer;
 var
   Temp: TILTagAttribute;
 begin
-Temp.Name := Name;
-Temp.Value := Value;
+Temp.Name := IL_ReconvString(Name);
+Temp.Value := IL_ReconvString(Value);
 Result := CDA_Add(fAttributes,Temp);
 end;
 
@@ -278,7 +280,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fElements) to CDA_High(fElements) do
-  If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fElements,i)).Name,Name) then
+  If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fElements,i)).Name.Str,Name) then
     begin
       Result := i;
       Break{For i};
@@ -360,14 +362,14 @@ procedure TILHTMLElementNode.List(Strs: TStrings);
 var
   i:  Integer;
 begin
-Strs.Add(StringOfChar(' ',GetLevel * 2) + '<' + fName + '>');
+Strs.Add(StringOfChar(' ',GetLevel * 2) + '<' + fName.Str + '>');
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
   Strs.Add(StringOfChar(' ',GetLevel * 2) + Format('  %s="%s"',
-    [CDA_GetItem(fAttributes,i).Name,CDA_GetItem(fAttributes,i).Value]));
+    [CDA_GetItem(fAttributes,i).Name.Str,CDA_GetItem(fAttributes,i).Value.Str]));
 For i := CDA_Low(fElements) to CDA_High(fElements) do
   TILHTMLElementNode(CDA_GetItem(fElements,i)).List(Strs);
 If CDA_Count(fElements) > 0 then
-  Strs.Add(StringOfChar(' ',GetLevel * 2) + '</' + fName + '>');
+  Strs.Add(StringOfChar(' ',GetLevel * 2) + '</' + fName.Str + '>');
 end;
 
 end.

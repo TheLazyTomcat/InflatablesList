@@ -36,7 +36,8 @@ uses
   InflatablesList_Manager_VER00000002 in 'source\InflatablesList_Manager_VER00000002.pas',
   ParsingForm in 'ParsingForm.pas' {fParsingForm},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
-  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame};
+  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
+  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm};
 
 {$R *.res}
 
@@ -51,6 +52,7 @@ begin
   Application.CreateForm(TfTextEditForm, fTextEditForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfParsingForm, fParsingForm);
+  Application.CreateForm(TfSpecialsForm, fSpecialsForm);
   fMainForm.DoOtherFormsInit;
   Application.Run;
 end.

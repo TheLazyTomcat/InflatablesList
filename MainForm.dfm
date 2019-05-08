@@ -231,6 +231,10 @@ object fMainForm: TfMainForm
       ShortCut = 16467
       OnClick = mniLM_SaveClick
     end
+    object mniLM_Specials: TMenuItem
+      Caption = 'Special functions...'
+      OnClick = mniLM_SpecialsClick
+    end
     object N7: TMenuItem
       Caption = '-'
     end

@@ -162,7 +162,11 @@ var
 begin
 Tokenizer := TILHTMLTokenizer.Create;
 try
+{$IFDEF TestCode}
   Tokenizer.RaiseParseErrors := True;
+{$ELSE}
+  Tokenizer.RaiseParseErrors := False;
+{$ENDIF}
   Tokenizer.OnTokenEmit := TokenHandler;
   Tokenizer.Initialize(fText);
   Tokenizer.Run;

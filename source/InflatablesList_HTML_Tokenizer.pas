@@ -284,7 +284,7 @@ end;
 
 Function TILHTMLTokenizer.ParseErrorInvalidChar(Char: UnicodeChar): Boolean;
 begin
-Result := ParseError('Invalid character (#%.4x) for this state (%d @ %d).',[Ord(Char),Ord(fState),Pred(fPosition)]);
+Result := ParseError('Invalid character (#0x%.4x) for this state (%d @ %d).',[Ord(Char),Ord(fState),Pred(fPosition)]);
 end;
 
 //------------------------------------------------------------------------------
@@ -2057,18 +2057,16 @@ If not EndOfFile then
     #$000A,
     #$000C,
     #$0020:;// ignore the character
-    UnicodeChar('"'):   If not ParseErrorInvalidChar(CurrentInputchar) then
-                          begin
-                            fCurrentToken.PublicIdentifier := '';
-                            Include(fCurrentToken.PresentFields,iltfPublicIdent);
-                            fState := iltsDOCTYPEPublicIdentifier_DoubleQuoted;
-                          end;
-    UnicodeChar(''''):  If not ParseErrorInvalidChar(CurrentInputchar) then
-                          begin
-                            fCurrentToken.PublicIdentifier := '';
-                            Include(fCurrentToken.PresentFields,iltfPublicIdent);
-                            fState := iltsDOCTYPEPublicIdentifier_SingleQuoted;
-                          end;
+    UnicodeChar('"'):   begin
+                          fCurrentToken.PublicIdentifier := '';
+                          Include(fCurrentToken.PresentFields,iltfPublicIdent);
+                          fState := iltsDOCTYPEPublicIdentifier_DoubleQuoted;
+                        end;
+    UnicodeChar(''''):  begin
+                          fCurrentToken.PublicIdentifier := '';
+                          Include(fCurrentToken.PresentFields,iltfPublicIdent);
+                          fState := iltsDOCTYPEPublicIdentifier_SingleQuoted;
+                        end;
     UnicodeChar('>'):   If not ParseErrorInvalidChar(CurrentInputchar) then
                           begin
                             fCurrentToken.ForceQuirks := True;
@@ -2159,11 +2157,10 @@ If not EndOfFile then
     #$000A,
     #$000C,
     #$0020:             fState := iltsBetweenDOCTYPEPublicAndSystemIdentifiers;
-    UnicodeChar('>'):   If not ParseErrorInvalidChar(CurrentInputchar) then
-                          begin
-                            fState := iltsData;
-                            EmitCurrentDOCTYPEToken;
-                          end;
+    UnicodeChar('>'):   begin
+                          fState := iltsData;
+                          EmitCurrentDOCTYPEToken;
+                        end;
     UnicodeChar('"'):   If not ParseErrorInvalidChar(CurrentInputchar) then
                           begin
                             fCurrentToken.SystemIdentifier := '';

@@ -12,11 +12,9 @@ uses
 type
   TILManager_VER00000001 = class(TILManager_VER00000000)
   protected
-    procedure SaveData(Stream: TStream; Struct: UInt32); override;
-    procedure SaveToStream_VER00000001(Stream: TStream); virtual;
+    procedure InitSaveFunctions(Struct: UInt32); override;
+    procedure InitLoadFunctions(Struct: UInt32); override;
     procedure SaveSortingSettings_VER00000001(Stream: TStream); virtual;
-    procedure LoadData(Stream: TStream; Struct: UInt32); override;
-    procedure LoadFromStream_VER00000001(Stream: TStream); virtual;
     procedure LoadSortingSettings_VER00000001(Stream: TStream); virtual;
   end;
 
@@ -26,28 +24,44 @@ uses
   BinaryStreaming,
   InflatablesList_Types, InflatablesList_Manager_Base;
 
-procedure TILManager_VER00000001.SaveData(Stream: TStream; Struct: UInt32);
+procedure TILManager_VER00000001.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000001: SaveToStream_VER00000001(Stream);
+  IL_LISTFILE_FILESTRUCTURE_00000001:
+    begin
+      fFNSaveToStream := SaveToStream_VER00000000;
+      fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
+      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
+      fFNSaveItem := SaveItem_VER00000000;
+      fFNSaveItemShop := SaveItemShop_VER00000000;
+      fFNSaveParsingSettings := SaveParsingSettings_VER00000000;
+      fFNExportShopTemplate := nil;
+    end;
 else
-  inherited SaveData(Stream,Struct);
+  inherited InitSaveFunctions(Struct);
 end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000001.SaveToStream_VER00000001(Stream: TStream);
-var
-  i:  Integer;
+procedure TILManager_VER00000001.InitLoadFunctions(Struct: UInt32);
 begin
-SaveSortingSettings_VER00000001(Stream);
-SaveShopTemplates_VER00000000(Stream);
-SaveFilterSettings_VER00000000(Stream);
-// items
-Stream_WriteUInt32(Stream,Length(fList));
-For i := Low(fList) to High(fList) do
-  SaveItem_VER00000000(Stream,fList[i]);
+case Struct of
+  IL_LISTFILE_FILESTRUCTURE_00000001:
+    begin
+      fFNLoadFromStream := LoadFromStream_VER00000000;
+      fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
+      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
+      fFNLoadItem := LoadItem_VER00000000;
+      fFNLoadItemShop := LoadItemShop_VER00000000;
+      fFNLoadParsingSettings := LoadParsingSettings_VER00000000;
+      fFNImportShopTemplate := nil;
+    end;
+else
+  inherited InitLoadFunctions(Struct);
+end;
 end;
 
 //------------------------------------------------------------------------------
@@ -74,35 +88,6 @@ For i := Low(fSortingProfiles) to High(fSortingProfiles) do
   end;
 end;
  
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000001.LoadData(Stream: TStream; Struct: UInt32);
-begin
-case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000001: LoadFromStream_VER00000001(Stream);
-else
-  inherited LoadData(Stream,Struct);
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000001.LoadFromStream_VER00000001(Stream: TStream);
-var
-  i:  Integer;
-begin
-LoadSortingSettings_VER00000001(Stream);
-LoadShopTemplates_VER00000000(Stream);
-LoadFilterSettings_VER00000000(Stream);
-// items
-ItemClear;
-SetLength(fList,Stream_ReadUInt32(Stream));
-For i := Low(fList) to High(fList) do
-  LoadItem_VER00000000(Stream,fList[i]);
-ReIndex;
-ItemRedraw;
-end;
-
 //------------------------------------------------------------------------------
 
 procedure TILManager_VER00000001.LoadSortingSettings_VER00000001(Stream: TStream);

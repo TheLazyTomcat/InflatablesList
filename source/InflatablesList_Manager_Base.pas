@@ -18,32 +18,51 @@ const
   IL_LISTFILE_FILESTRUCTURE_00000002 = UInt32($00000002);
   IL_LISTFILE_FILESTRUCTURE_00000003 = UInt32($00000003);
 
-  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000002;
+  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000003;
 
   IL_LISTFILE_UPDATE_TRYCOUNT = 5;  // how many times to repeat update when it fails in certain way
+
+  IL_SHOPTEMPLATE_SIGNATURE = UInt32($4C505453);  // signature of the exported shop template
 
 type
   TILManager_Base = class(TObject)
   protected
-    fDataProvider:      TILDataProvider;
+    fDataProvider:          TILDataProvider;
     // rendering variables
-    fFileName:          String;
-    fRenderWidth:       Integer;
-    fRenderHeight:      Integer;
-    fFontSettings:      TFont;
+    fFileName:              String;
+    fRenderWidth:           Integer;
+    fRenderHeight:          Integer;
+    fFontSettings:          TFont;
     // main list
-    fList:              array of TILItem;
+    fList:                  array of TILItem;
     // sorting
-    fSorting:           Boolean;
-    fReversedSort:      Boolean;
-    fUsedSortSett:      TILSortingSettings;    
-    fDefaultSortSett:   TILSortingSettings;
-    fActualSortSett:    TILSortingSettings;
-    fSortingProfiles:   TILSortingProfiles;
+    fSorting:               Boolean;
+    fReversedSort:          Boolean;
+    fUsedSortSett:          TILSortingSettings;
+    fDefaultSortSett:       TILSortingSettings;
+    fActualSortSett:        TILSortingSettings;
+    fSortingProfiles:       TILSortingProfiles;
     // filer settings (for sums)
-    fFilterSettings:    TILFilterSettings;
+    fFilterSettings:        TILFilterSettings;
     // shop templates
-    fShopTemplates:     TILShopTemplates;
+    fShopTemplates:         TILShopTemplates;
+    // IO functions
+    fFNSaveToStream:        procedure(Stream: TStream) of object;
+    fFNLoadFromStream:      procedure(Stream: TStream) of object;
+    fFNSaveSortingSettings: procedure(Stream: TStream) of object;
+    fFNLoadSortingSettings: procedure(Stream: TStream) of object;
+    fFNSaveShopTemplates:   procedure(Stream: TStream) of object;
+    fFNLoadShopTemplates:   procedure(Stream: TStream) of object;
+    fFNSaveFilterSettings:  procedure(Stream: TStream) of object;
+    fFNLoadFilterSettings:  procedure(Stream: TStream) of object;
+    fFNSaveItem:            procedure(Stream: TStream; const Item: TILItem) of object;
+    fFNLoadItem:            procedure(Stream: TStream; out Item: TILItem) of object;
+    fFNSaveItemShop:        procedure(Stream: TStream; const Shop: TILItemShop) of object;
+    fFNLoadItemShop:        procedure(Stream: TStream; out Shop: TILItemShop) of object;
+    fFNSaveParsingSettings: procedure(Stream: TStream; const ParsSett: TILItemShopParsingSetting) of object;
+    fFNLoadParsingSettings: procedure(Stream: TStream; out ParsSett: TILItemShopParsingSetting) of object;
+    fFNExportShopTemplate:  procedure(Stream: TStream; const ShopTemplate: TILShopTemplate) of object;
+    fFNImportShopTemplate:  procedure(Stream: TStream; out ShopTemplate: TILShopTemplate) of object;
     // getters, setters
     Function GetItemCount: Integer;
     Function GetItem(Index: Integer): TILItem;
@@ -60,10 +79,12 @@ type
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // saving/loading of data (excluding header)
-    procedure SaveData(Stream: TStream; Struct: UInt32); virtual; abstract;
-    procedure LoadData(Stream: TStream; Struct: UInt32); virtual; abstract;
-    procedure SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate); virtual; abstract;
-    procedure LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate); virtual; abstract;
+    procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
+    procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
+    procedure SaveData(Stream: TStream; Struct: UInt32); virtual;
+    procedure LoadData(Stream: TStream; Struct: UInt32); virtual;
+    procedure ExportShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate; Struct: UInt32); virtual;
+    procedure ImportShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate; Struct: UInt32); virtual;
     // other methods
     Function ItemCompare(Idx1,Idx2: Integer): Integer; virtual;
     Function ItemContains(const Item: TILItem; const Text: String): Boolean; virtual;
@@ -73,6 +94,7 @@ type
     class procedure ItemFinalize(var Item: TILItem; FreePics: Boolean = False); virtual;
     class procedure ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False); virtual;
     class procedure ItemShopCopy(const Src: TILItemShop; out Dest: TILItemShop); virtual;
+    procedure ItemShopCopyForUpdate(const Src: TILItemShop; out Dest: TILItemShop); virtual;
     Function ItemTitleStr(const Item: TILItem): String; virtual;
     Function ItemTypeStr(const Item: TILItem): String; virtual;
     class Function ItemSize(const Item: TILItem): UInt32; virtual;
@@ -118,6 +140,7 @@ type
     procedure ItemSort(SortingProfile: Integer); overload; virtual;
     procedure ItemSort; overload; virtual;
     // shop templates
+    Function ShopTemplateIndexOf(const Name: String): Integer; virtual;
     Function ShopTemplateAdd(const Name: String; ShopData: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
     procedure ShopTemplateExchange(Idx1,Idx2: Integer); virtual;
@@ -278,6 +301,38 @@ ItemClear;
 ShopTemplateClear;
 FinalizeSortingSettings;
 FreeAndNil(fDataProvider);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SaveData(Stream: TStream; Struct: UInt32);
+begin
+InitSaveFunctions(Struct);
+fFNSaveToStream(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.LoadData(Stream: TStream; Struct: UInt32);
+begin
+InitLoadFunctions(Struct);
+fFNLoadFromStream(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ExportShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate; Struct: UInt32);
+begin
+InitSaveFunctions(Struct);
+fFNExportShopTemplate(Stream,ShopTemplate);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ImportShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate; Struct: UInt32);
+begin
+InitLoadFunctions(Struct);
+fFNImportShopTemplate(Stream,ShopTemplate);
 end;
 
 //------------------------------------------------------------------------------
@@ -514,6 +569,28 @@ with Dest.ParsingSettings do
       TILElementFinder(Src.ParsingSettings.Price.Finder));
   end;
 UniqueString(Dest.LastUpdateMsg);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemShopCopyForUpdate(const Src: TILItemShop; out Dest: TILItemShop);
+var
+  Index:  Integer;
+begin
+// make normal copy
+ItemShopCopy(Src,Dest);
+// resolve references
+Index := ShopTemplateIndexOf(Dest.ParsingSettings.TemplateRef);
+If Index >= 0 then
+  begin
+    // reference found, free current objects and copy the referenced
+    FreeAndNil(Dest.ParsingSettings.Available.Finder);
+    FreeAndNil(Dest.ParsingSettings.Price.Finder);
+    Dest.ParsingSettings.Available.Finder := TILElementFinder.CreateAsCopy(
+      TILElementFinder(fShopTemplates[Index].ShopData.ParsingSettings.Available.Finder));
+    Dest.ParsingSettings.Price.Finder := TILElementFinder.CreateAsCopy(
+      TILElementFinder(fShopTemplates[Index].ShopData.ParsingSettings.Price.Finder));
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1413,6 +1490,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILManager_Base.ShopTemplateIndexOf(const Name: String): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := Low(fShopTemplates) to High(fShopTemplates) do
+  If AnsiSameText(fShopTemplates[i].Name,Name) then
+    begin
+      Result := i;
+      Break{For i};
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
 Function TILManager_Base.ShopTemplateAdd(const Name: String; ShopData: TILItemShop): Integer;
 begin
 SetLength(fShopTemplates,Length(fShopTemplates) + 1);
@@ -1425,6 +1517,7 @@ fShopTemplates[Result].ShopData.Available := 0;
 fShopTemplates[Result].ShopData.Price := 0;
 SetLength(fShopTemplates[Result].ShopData.AvailHistory,0);
 SetLength(fShopTemplates[Result].ShopData.PriceHistory,0);
+fShopTemplates[Result].ShopData.ParsingSettings.TemplateRef := '';
 fShopTemplates[Result].ShopData.LastUpdateMsg := '';
 end;
 
@@ -1494,7 +1587,9 @@ If (ShopTemplateIndex >= Low(fShopTemplates)) and (ShopTemplateIndex <= High(fSh
   begin
     FileStream := TFileStream.Create(FileName,fmCreate or fmShareDenyWrite);
     try
-      SaveShopTemplate(FileStream,fShopTemplates[ShopTemplateIndex]);
+      Stream_WriteUInt32(FileStream,IL_SHOPTEMPLATE_SIGNATURE);
+      Stream_WriteUInt32(FileStream,IL_LISTFILE_FILESTRUCTURE_SAVE);
+      ExportShopTemplate(FileStream,fShopTemplates[ShopTemplateIndex],IL_LISTFILE_FILESTRUCTURE_SAVE);
     finally
       FileStream.Free;
     end;
@@ -1512,7 +1607,9 @@ FileStream := TFileStream.Create(FileName,fmOpenRead or fmShareDenyWrite);
 try
   SetLength(fShopTemplates,Length(fShopTemplates) + 1);
   Result := High(fShopTemplates);
-  LoadShopTemplate(FileStream,fShopTemplates[Result]);
+  If Stream_ReadUInt32(FileStream) <> UInt32(IL_SHOPTEMPLATE_SIGNATURE) then
+    raise Exception.Create('TILManager_Base.ShopTemplateImport: Unknown file format.');
+  ImportShopTemplate(FileStream,fShopTemplates[Result],Stream_ReadUInt32(FileStream));
 finally
   FileStream.Free;
 end;
@@ -1537,7 +1634,7 @@ FileStream := TFileStream.Create(FileName,fmCreate or fmShareDenyWrite);
 try
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
-  fFileName := FileName;  
+  fFileName := FileName;
 finally
   FileStream.Free;
 end;

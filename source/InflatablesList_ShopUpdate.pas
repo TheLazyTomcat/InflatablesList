@@ -278,6 +278,7 @@ If Length(fShopData.ItemURL) > 0 then
             Parser := TILHTMLParser.Create(fDownStream);
             try
               try
+                Parser.RaiseParseErrors := not fShopData.ParsingSettings.DisableParsErrs;
                 // parse
                 Parser.Run;
                 Document := Parser.GetDocument;

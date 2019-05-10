@@ -12,6 +12,7 @@ uses
 type
   TILHTMLParser = class(TObject)
   private
+    fRaiseParseErrs:  Boolean;
     fSource:          TStream;
     fText:            UnicodeString;
     fRootAssigned:    Boolean;
@@ -28,6 +29,7 @@ type
     destructor Destroy; override;
     procedure Run; virtual;
     Function GetDocument: TILHTMLDocument; virtual;
+    property RaiseParseErrors: Boolean read fRaiseParseErrs write fRaiseParseErrs;
   end;
 
 implementation
@@ -162,11 +164,7 @@ var
 begin
 Tokenizer := TILHTMLTokenizer.Create;
 try
-{$IFDEF TestCode}
-  Tokenizer.RaiseParseErrors := True;
-{$ELSE}
-  Tokenizer.RaiseParseErrors := False;
-{$ENDIF}
+  Tokenizer.RaiseParseErrors := fRaiseParseErrs;
   Tokenizer.OnTokenEmit := TokenHandler;
   Tokenizer.Initialize(fText);
   Tokenizer.Run;
@@ -180,6 +178,7 @@ end;
 constructor TILHTMLParser.Create(Source: TStream);
 begin
 inherited Create;
+fRaiseParseErrs := True;
 fSource := Source;
 fText := '';
 fRootAssigned := False;

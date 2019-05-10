@@ -294,27 +294,24 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
         begin
           fCurrentShopPtr^.Name := ShopData.Name;
           fCurrentShopPtr^.ShopURL := ShopData.ShopURL;
-          // parsing settings, free old objects and replace them with copies
-          FreeAndNil(fCurrentShopPtr^.ParsingSettings.Available.Finder);
-          FreeAndNil(fCurrentShopPtr^.ParsingSettings.Price.Finder);
           // variables (copy only when destination is empty)
           For i := Low(fCurrentShopPtr^.ParsingSettings.Variables.Vars) to
                    High(fCurrentShopPtr^.ParsingSettings.Variables.Vars) do
             If Length(fCurrentShopPtr^.ParsingSettings.Variables.Vars[I]) <= 0 then
               fCurrentShopPtr^.ParsingSettings.Variables.Vars[i] :=
                 ShopData.ParsingSettings.Variables.Vars[i];
+          // other options
+          fCurrentShopPtr^.ParsingSettings.DisableParsErrs := ShopData.ParsingSettings.DisableParsErrs;
+          fCurrentShopPtr^.ParsingSettings.TemplateRef := fILManager.ShopTemplates[lbTemplates.ItemIndex].Name;
           // available
           fCurrentShopPtr^.ParsingSettings.Available.Extraction := ShopData.ParsingSettings.Available.Extraction;
           SetLength(fCurrentShopPtr^.ParsingSettings.Available.Extraction,
             Length(fCurrentShopPtr^.ParsingSettings.Available.Extraction));
-          fCurrentShopPtr^.ParsingSettings.Available.Finder :=
-            TILElementFinder.CreateAsCopy(TILElementFinder(ShopData.ParsingSettings.Available.Finder));
           //price
           fCurrentShopPtr^.ParsingSettings.Price.Extraction := ShopData.ParsingSettings.Price.Extraction;
           SetLength(fCurrentShopPtr^.ParsingSettings.Price.Extraction,
             Length(fCurrentShopPtr^.ParsingSettings.Price.Extraction));
-          fCurrentShopPtr^.ParsingSettings.Price.Finder :=
-            TILElementFinder.CreateAsCopy(TILElementFinder(ShopData.ParsingSettings.Price.Finder));
+          // leave finder objects untouched, reference will be used instead
           Close;
         end;
   end;

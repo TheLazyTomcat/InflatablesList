@@ -61,7 +61,7 @@ type
     fProcessingIndex: Integer;
     fItemShop:        TILItemShop;
   public
-    constructor Create(ItemShop: TILItemShop; ProcessingIndex: Integer);
+    constructor Create(ILManager: TILManager; ItemShop: TILItemShop; ProcessingIndex: Integer);
     destructor Destroy; override;
     Function Main: Boolean; override;
     property ProcessingIndex: Integer read fProcessingIndex;
@@ -70,11 +70,11 @@ type
 
 //==============================================================================
 
-constructor TILUpdateTask.Create(ItemShop: TILItemShop; ProcessingIndex: Integer);
+constructor TILUpdateTask.Create(ILManager: TILManager; ItemShop: TILItemShop; ProcessingIndex: Integer);
 begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
-TILManager.ItemShopCopy(ItemShop,fItemShop);
+ILManager.ItemShopCopyForUpdate(ItemShop,fItemShop);
 end;
 
 //------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ If Assigned(fUpdater) and fCanContinue then
     (fUpdater.GetActiveTaskCount < fUpdater.MaxConcurrentTasks) do
     begin
       Index := fUpdater.AddTask(
-        TILUpdateTask.Create(fShopsToUpdate[fProcessedIndex].ItemShopPtr^,fProcessedIndex));
+        TILUpdateTask.Create(fILManager,fShopsToUpdate[fProcessedIndex].ItemShopPtr^,fProcessedIndex));
       fUpdater.StartTask(Index);
       Inc(fProcessedIndex);
     end;

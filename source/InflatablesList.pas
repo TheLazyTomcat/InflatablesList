@@ -2,10 +2,8 @@ unit InflatablesList;
 
 {$IFDEF DevelMsgs}
   {$message 'export/import (ini)'}
+  {$message 'export/import of templates to/from ini'}
 {$ENDIF}
-{$message 'add per-shop parsing error raise disable'}
-{.$message 'retry failde downloads'}
-{$message 'search trees - allow reference to templates (select local or reference - dropdown list)'}
 
 {
   when program or list settings are added...
@@ -19,10 +17,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_VER00000002;
+  InflatablesList_Manager_VER00000003;
 
 type
-  TILManager = TILManager_VER00000002;
+  TILManager = TILManager_VER00000003;
 
 implementation
 

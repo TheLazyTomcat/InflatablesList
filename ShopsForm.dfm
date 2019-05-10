@@ -1,10 +1,10 @@
 object fShopsForm: TfShopsForm
-  Left = 506
-  Top = 67
+  Left = 340
+  Top = 87
   BorderStyle = bsDialog
   Caption = 'Shops'
-  ClientHeight = 660
-  ClientWidth = 760
+  ClientHeight = 625
+  ClientWidth = 921
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,7 +26,7 @@ object fShopsForm: TfShopsForm
   object lvShops: TListView
     Left = 8
     Top = 24
-    Width = 745
+    Width = 905
     Height = 150
     Columns = <
       item
@@ -34,11 +34,11 @@ object fShopsForm: TfShopsForm
       end
       item
         Caption = 'Shop name'
-        Width = 150
+        Width = 200
       end
       item
         Caption = 'Item URL'
-        Width = 380
+        Width = 490
       end
       item
         Alignment = taRightJustify
@@ -63,15 +63,15 @@ object fShopsForm: TfShopsForm
   object gbShopDetails: TGroupBox
     Left = 8
     Top = 176
-    Width = 745
-    Height = 433
+    Width = 905
+    Height = 401
     Caption = 'Shop details'
     TabOrder = 1
     inline frmShopFrame: TfrmShopFrame
       Left = 8
       Top = 16
-      Width = 729
-      Height = 410
+      Width = 889
+      Height = 378
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -82,8 +82,8 @@ object fShopsForm: TfShopsForm
     end
   end
   object btnClose: TButton
-    Left = 624
-    Top = 624
+    Left = 784
+    Top = 592
     Width = 129
     Height = 25
     Caption = 'Close'
@@ -91,8 +91,8 @@ object fShopsForm: TfShopsForm
     OnClick = btnCloseClick
   end
   object btnUpdateAll: TButton
-    Left = 352
-    Top = 624
+    Left = 512
+    Top = 592
     Width = 129
     Height = 25
     Caption = 'Update all shops...'
@@ -101,7 +101,7 @@ object fShopsForm: TfShopsForm
   end
   object lePriceLowest: TLabeledEdit
     Left = 8
-    Top = 632
+    Top = 600
     Width = 105
     Height = 21
     EditLabel.Width = 64
@@ -112,7 +112,7 @@ object fShopsForm: TfShopsForm
   end
   object lePriceSelected: TLabeledEdit
     Left = 120
-    Top = 632
+    Top = 600
     Width = 105
     Height = 21
     EditLabel.Width = 71
@@ -128,8 +128,8 @@ object fShopsForm: TfShopsForm
     TabOrder = 3
   end
   object btnUpdateHistory: TButton
-    Left = 488
-    Top = 624
+    Left = 648
+    Top = 592
     Width = 129
     Height = 25
     Caption = 'Update all shops history'

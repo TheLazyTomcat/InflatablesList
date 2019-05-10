@@ -44,9 +44,14 @@ type
     leParsVar_6: TLabeledEdit;
     leParsVar_7: TLabeledEdit;
     leParsVar_8: TLabeledEdit;
-    btnParsAvail: TButton;
     bvlVarsSep: TBevel;
+    lblParsTemplRef: TLabel;
+    cmbParsTemplRef: TComboBox;
+    btnParsCopyToLocal: TButton;
+    btnParsAvail: TButton;
     btnParsPrice: TButton;
+    bvlParsSep: TBevel;
+    cbParsDisableErrs: TCheckBox;
     procedure leShopNameChange(Sender: TObject);
     procedure cbShopSelectedClick(Sender: TObject);
     procedure btnShopURLOpenClick(Sender: TObject);
@@ -61,8 +66,9 @@ type
     procedure mniHI_ClearClick(Sender: TObject);
     procedure meNotesDblClick(Sender: TObject);
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
+    procedure btnParsCopyToLocalClick(Sender: TObject);    
     procedure btnParsAvailClick(Sender: TObject);
-    procedure btnParsPriceClick(Sender: TObject);      
+    procedure btnParsPriceClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
     procedure btnTemplatesClick(Sender: TObject);
   private
@@ -74,6 +80,7 @@ type
     procedure DoPriceChange;
     procedure FrameClear;
     procedure FillHistoryLists(Selector: Integer);
+    procedure FillTemplatesList;
   public
     OnListUpdate:     TNotifyEvent;
     OnPriceChange:    TNotifyEvent;
@@ -90,6 +97,7 @@ implementation
 
 uses
   ShellAPI,
+  InflatablesList_HTML_ElementFinder,
   TemplatesForm, TextEditForm, ParsingForm;
 
 procedure TfrmShopFrame.DoListItemChange;
@@ -128,6 +136,11 @@ leParsVar_5.Text := '';
 leParsVar_6.Text := '';
 leParsVar_7.Text := '';
 leParsVar_8.Text := '';
+If cmbParsTemplRef.Items.Count > 0 then
+  cmbParsTemplRef.ItemIndex := 0
+else
+  cmbParsTemplRef.ItemIndex := -1;
+cbParsDisableErrs.Checked := False;
 leLastUpdateMsg.Text := '';
 end;
 
@@ -182,6 +195,27 @@ If Assigned(fCurrentItemShopPtr) then
   end;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.FillTemplatesList;
+var
+  i:  Integer;
+begin
+cmbParsTemplRef.Items.BeginUpdate;
+try
+  cmbParsTemplRef.Clear;
+  cmbParsTemplRef.Items.Add('<none - use local objects>');
+  For i := 0 to Pred(fILManager.ShopTemplateCount) do
+    begin
+      cmbParsTemplRef.Items.Add(fILManager.ShopTemplates[i].Name);
+    end;
+finally
+  cmbParsTemplRef.Items.EndUpdate;
+end;
+If cmbParsTemplRef.Items.Count > 0 then
+  cmbParsTemplRef.ItemIndex := 0;
+end;
+
 //==============================================================================
 
 procedure TfrmShopFrame.SaveItemShop;
@@ -204,12 +238,19 @@ If Assigned(fCurrentItemShopPtr) then
     fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5] := leParsVar_6.Text;
     fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6] := leParsVar_7.Text;
     fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7] := leParsVar_8.Text;
+    If (cmbParsTemplRef.ItemIndex > 0) and (cmbParsTemplRef.ItemIndex <= fILManager.ShopTemplateCount) then
+      fCurrentItemShopPtr^.ParsingSettings.TemplateRef := fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].Name
+    else
+      fCurrentItemShopPtr^.ParsingSettings.TemplateRef := '';
+    fCurrentItemShopPtr^.ParsingSettings.DisableParsErrs := cbParsDisableErrs.Checked;
   end;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.LoadItemShop;
+var
+  Index:  Integer;
 begin
 If Assigned(fCurrentItemShopPtr) then
   begin
@@ -233,6 +274,12 @@ If Assigned(fCurrentItemShopPtr) then
       leParsVar_6.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5];
       leParsVar_7.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6];
       leParsVar_8.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7];
+      Index := fILManager.ShopTemplateIndexOf(fCurrentItemShopPtr^.ParsingSettings.TemplateRef);
+      If Index >= 0 then
+        cmbParsTemplRef.ItemIndex := Index + 1
+      else
+        cmbParsTemplRef.ItemIndex := 0;
+      cbParsDisableErrs.Checked := fCurrentItemShopPtr^.ParsingSettings.DisableParsErrs;
       leLastUpdateMsg.Text := fCurrentItemShopPtr^.LastUpdateMsg;
     finally
       fInitializing := False;
@@ -245,6 +292,7 @@ end;
 procedure TfrmShopFrame.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+FillTemplatesList;
 end;
 
 //------------------------------------------------------------------------------
@@ -492,6 +540,26 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmShopFrame.btnParsCopyToLocalClick(Sender: TObject);
+begin
+If Assigned(fCurrentItemShopPtr) then
+  If MessageDlg('Are you sure you want to replace existing finder objects with the ones from selected template?',
+    mtConfirmation,[mbYes,mbNo],0) = mrYes then
+    begin
+      FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Available.Finder);
+      FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Price.Finder);
+      with fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ShopData.ParsingSettings do
+        begin
+          fCurrentItemShopPtr^.ParsingSettings.Available.Finder :=
+            TILElementFinder.CreateAsCopy(TILElementFinder(Available.Finder));
+          fCurrentItemShopPtr^.ParsingSettings.Price.Finder :=
+            TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
+        end;
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmShopFrame.btnParsAvailClick(Sender: TObject);
 begin
 If Assigned(fCurrentItemShopPtr) then
@@ -512,6 +580,7 @@ end;
 
 procedure TfrmShopFrame.btnUpdateClick(Sender: TObject);
 var
+  Temp:   TILItemShop;
   Result: Boolean;
 begin
 If Assigned(fCurrentItemShopPtr) then
@@ -519,17 +588,26 @@ If Assigned(fCurrentItemShopPtr) then
     SaveItemShop;
     Screen.Cursor := crHourGlass;
     try
-      Result := fILManager.ItemShopUpdate(fCurrentItemShopPtr^);
+      fILManager.ItemShopCopyForUpdate(fCurrentItemShopPtr^,Temp);
+      try
+        Result := fILManager.ItemShopUpdate(Temp);
+        // retrieve results
+        fCurrentItemShopPtr^.Available := Temp.Available;
+        fCurrentItemShopPtr^.Price := Temp.Price;
+        fCurrentItemShopPtr^.LastUpdateMsg := Temp.LastUpdateMsg;
+      finally
+        fILManager.ItemShopFinalize(Temp);
+      end;
     finally
       Screen.Cursor := crDefault;
     end;
-    seAvailable.Value := fCurrentItemShopPtr^.Available;
-    sePrice.Value := fCurrentItemShopPtr^.Price;
-    leLastUpdateMsg.Text := fCurrentItemShopPtr^.LastUpdateMsg;
     If Result then
       MessageDlg('Update finished successfuly.',mtInformation,[mbOK],0)
     else
       MessageDlg('Update failed - see last update message for details.',mtInformation,[mbOK],0);
+    LoadItemShop;
+    DoListItemChange;
+    DoPriceChange;    
   end;
 end;
 
@@ -541,6 +619,8 @@ If Assigned(fCurrentItemShopPtr) then
   begin
     SaveItemShop;
     fTemplatesForm.ShowTemplates(fCurrentItemShopPtr,False);
+    // in case a template was deleted or added (must be before load, so proper item is selected]
+    FillTemplatesList;
     LoadItemShop;
     DoListItemChange;
     leShopItemURL.SetFocus;

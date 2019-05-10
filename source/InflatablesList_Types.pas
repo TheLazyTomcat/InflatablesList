@@ -83,9 +83,11 @@ type
   PILItemShopParsingEntry = ^TILItemShopParsingEntry;
 
   TILItemShopParsingSetting = record
-    Variables:  TILItemShopParsingVariables;
-    Available:  TILItemShopParsingEntry;
-    Price:      TILItemShopParsingEntry;
+    Variables:        TILItemShopParsingVariables;
+    TemplateRef:      String;
+    DisableParsErrs:  Boolean;
+    Available:        TILItemShopParsingEntry;
+    Price:            TILItemShopParsingEntry;
   end;
 
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;

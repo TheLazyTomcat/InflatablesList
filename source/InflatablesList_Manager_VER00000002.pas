@@ -12,34 +12,63 @@ uses
 type
   TILManager_VER00000002 = class(TILManager_VER00000001)
   protected
-    procedure SaveData(Stream: TStream; Struct: UInt32); override;
+    procedure InitSaveFunctions(Struct: UInt32); override;
+    procedure InitLoadFunctions(Struct: UInt32); override;
     procedure SaveToStream_VER00000002(Stream: TStream); virtual;
-    procedure SaveShopTemplates_VER00000002(Stream: TStream); virtual;
-    procedure SaveItem_VER00000002(Stream: TStream; Item: TILItem); virtual;
-    procedure SaveItemShop_VER00000002(Stream: TStream; Shop: TILItemShop); virtual;
-    procedure LoadData(Stream: TStream; Struct: UInt32); override;
     procedure LoadFromStream_VER00000002(Stream: TStream); virtual;
-    procedure LoadShopTemplates_VER00000002(Stream: TStream); virtual;
-    procedure LoadItem_VER00000002(Stream: TStream; out Item: TILItem); virtual;
+    procedure SaveItemShop_VER00000002(Stream: TStream; const Shop: TILItemShop); virtual;
     procedure LoadItemShop_VER00000002(Stream: TStream; out Shop: TILItemShop); virtual;
-    procedure SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate); override;
-    procedure LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate); override;
+    procedure SaveParsingSettings_VER00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting); virtual;
+    procedure LoadParsingSettings_VER00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting); virtual;
+    procedure SaveShopTemplate_VER00000002(Stream: TStream; const ShopTemplate: TILShopTemplate); virtual;
+    procedure LoadShopTemplate_VER00000002(Stream: TStream; out ShopTemplate: TILShopTemplate); virtual;
   end;
 
 implementation
 
 uses
-  SysUtils, Graphics,
+  SysUtils,
   BinaryStreaming,
   InflatablesList_Manager_Base,
   InflatablesList_HTML_ElementFinder;
 
-procedure TILManager_VER00000002.SaveData(Stream: TStream; Struct: UInt32);
+procedure TILManager_VER00000002.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000002: SaveToStream_VER00000002(Stream);
+  IL_LISTFILE_FILESTRUCTURE_00000002:
+    begin
+      fFNSaveToStream := SaveToStream_VER00000002;
+      fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
+      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
+      fFNSaveItem := SaveItem_VER00000000;
+      fFNSaveItemShop := SaveItemShop_VER00000002;
+      fFNSaveParsingSettings := SaveParsingSettings_VER00000002;
+      fFNExportShopTemplate := SaveShopTemplate_VER00000002;
+    end;
 else
-  inherited SaveData(Stream,Struct);
+  inherited InitSaveFunctions(Struct);
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_VER00000002.InitLoadFunctions(Struct: UInt32);
+begin
+case Struct of
+  IL_LISTFILE_FILESTRUCTURE_00000002:
+    begin
+      fFNLoadFromStream := LoadFromStream_VER00000002;
+      fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
+      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
+      fFNLoadItem := LoadItem_VER00000000;
+      fFNLoadItemShop := LoadItemShop_VER00000002;
+      fFNLoadParsingSettings := LoadParsingSettings_VER00000002;
+      fFNImportShopTemplate := LoadShopTemplate_VER00000002;
+    end;
+else
+  inherited InitLoadFunctions(Struct);
 end;
 end;
 
@@ -49,127 +78,41 @@ procedure TILManager_VER00000002.SaveToStream_VER00000002(Stream: TStream);
 var
   i:  Integer;
 begin
-// save some technical info
+// only add some technical info
 Stream_WriteString(Stream,FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now));
-SaveSortingSettings_VER00000001(Stream);
-SaveShopTemplates_VER00000002(Stream);
-SaveFilterSettings_VER00000000(Stream);
+fFNSaveSortingSettings(Stream);
+fFNSaveShopTemplates(Stream);
+fFNSaveFilterSettings(Stream);
 // items
 Stream_WriteUInt32(Stream,Length(fList));
 For i := Low(fList) to High(fList) do
-  SaveItem_VER00000002(Stream,fList[i]);
+  fFNSaveItem(Stream,fList[i]);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveShopTemplates_VER00000002(Stream: TStream);
+procedure TILManager_VER00000002.LoadFromStream_VER00000002(Stream: TStream);
 var
   i:  Integer;
 begin
-Stream_WriteUInt32(Stream,Length(fShopTemplates));
-For i := Low(fShopTemplates) to High(fShopTemplates) do
-  begin
-    Stream_WriteString(Stream,fShopTemplates[i].Name);
-    SaveItemShop_VER00000002(Stream,fShopTemplates[i].ShopData);
-  end;
+Stream_ReadString(Stream);
+fFNLoadSortingSettings(Stream);
+fFNLoadShopTemplates(Stream);
+fFNLoadFilterSettings(Stream);
+// items
+ItemClear;
+SetLength(fList,Stream_ReadUInt32(Stream));
+For i := Low(fList) to High(fList) do
+  fFNLoadItem(Stream,fList[i]);
+ReIndex;
+ItemRedraw;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveItem_VER00000002(Stream: TStream; Item: TILItem);
+procedure TILManager_VER00000002.SaveItemShop_VER00000002(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
-
-  procedure WritePicture(Pic: TBitmap);
-  var
-    TempStream: TMemoryStream;
-  begin
-    If Assigned(Pic) then
-      begin
-        TempStream := TMemoryStream.Create;
-        try
-          Pic.SaveToStream(TempStream);
-          Stream_WriteUInt32(Stream,TempStream.Size);
-          Stream.CopyFrom(TempStream,0);
-        finally
-          TempStream.Free;
-        end;
-      end
-    else Stream_WriteUInt32(Stream,0);
-  end;
-
-begin
-Stream_WriteFloat64(Stream,Item.TimeOfAddition);
-// pictures
-WritePicture(Item.MainPicture);
-WritePicture(Item.PackagePicture);
-// basic specs
-Stream_WriteInt32(Stream,IL_ItemTypeToNum(Item.ItemType));
-Stream_WriteString(Stream,Item.ItemTypeSpec);
-Stream_WriteUInt32(Stream,Item.Count);
-Stream_WriteInt32(Stream,IL_ItemManufacturerToNum(Item.Manufacturer));
-Stream_WriteString(Stream,Item.ManufacturerStr);
-Stream_WriteInt32(Stream,Item.ID);
-// flags
-Stream_WriteUInt32(Stream,IL_EncodeItemFlags(Item.Flags));
-Stream_WriteString(Stream,Item.TextTag);
-// extended specs
-Stream_WriteUInt32(Stream,Item.WantedLevel);
-Stream_WriteString(Stream,Item.Variant);
-Stream_WriteUInt32(Stream,Item.SizeX);
-Stream_WriteUInt32(Stream,Item.SizeY);
-Stream_WriteUInt32(Stream,Item.SizeZ);
-Stream_WriteUInt32(Stream,Item.UnitWeight);
-// others
-Stream_WriteString(Stream,Item.Notes);
-Stream_WriteString(Stream,Item.ReviewURL);
-Stream_WriteString(Stream,Item.MainPictureFile);
-Stream_WriteString(Stream,Item.PackagePictureFile);
-Stream_WriteUInt32(Stream,Item.UnitPriceDefault);
-Stream_WriteUInt32(Stream,Item.UnitPriceLowest);
-Stream_WriteUInt32(Stream,Item.UnitPriceSelected);
-Stream_WriteInt32(Stream,Item.AvailablePieces);
-// shops
-Stream_WriteUInt32(Stream,Length(Item.Shops));
-For i := Low(Item.Shops) to High(Item.Shops) do
-  SaveItemShop_VER00000002(Stream,Item.Shops[i]);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000002.SaveItemShop_VER00000002(Stream: TStream; Shop: TILItemShop);
-var
-  i:  Integer;
-
-  procedure SaveParsingSettings(ParsingSettings: TILItemShopParsingSetting);
-  var
-    ii: Integer;
-  begin
-    // variables
-    For ii := Low(ParsingSettings.Variables.Vars) to High(ParsingSettings.Variables.Vars) do
-      Stream_WriteString(Stream,ParsingSettings.Variables.Vars[ii]);
-    // available
-    Stream_WriteUInt32(Stream,Length(ParsingSettings.Available.Extraction));
-    For ii := Low(ParsingSettings.Available.Extraction) to High(ParsingSettings.Available.Extraction) do
-      begin
-        Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsingSettings.Available.Extraction[ii].ExtractFrom));
-        Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Available.Extraction[ii].ExtractionMethod));
-        Stream_WriteString(Stream,ParsingSettings.Available.Extraction[ii].ExtractionData);
-        Stream_WriteString(Stream,ParsingSettings.Available.Extraction[ii].NegativeTag);
-      end;
-    TILElementFinder(ParsingSettings.Available.Finder).SaveToStream(Stream);
-    // price
-    Stream_WriteUInt32(Stream,Length(ParsingSettings.Price.Extraction));
-    For ii := Low(ParsingSettings.Price.Extraction) to High(ParsingSettings.Price.Extraction) do
-      begin
-        Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsingSettings.Price.Extraction[ii].ExtractFrom));
-        Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsingSettings.Price.Extraction[ii].ExtractionMethod));
-        Stream_WriteString(Stream,ParsingSettings.Price.Extraction[ii].ExtractionData);
-        Stream_WriteString(Stream,ParsingSettings.Price.Extraction[ii].NegativeTag);
-      end;
-    TILElementFinder(ParsingSettings.Price.Finder).SaveToStream(Stream);
-  end;
-
 begin
 Stream_WriteBool(Stream,Shop.Selected);
 Stream_WriteString(Stream,Shop.Name);
@@ -193,125 +136,8 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
   end;
 // parsing settings
 Stream_WriteString(Stream,Shop.Notes);
-SaveParsingSettings(Shop.ParsingSettings);
+fFNSaveParsingSettings(Stream,Shop.ParsingSettings);
 Stream_WriteString(Stream,Shop.LastUpdateMsg);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000002.LoadData(Stream: TStream; Struct: UInt32);
-begin
-case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000002: LoadFromStream_VER00000002(Stream);
-else
-  inherited LoadData(Stream,Struct);
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000002.LoadFromStream_VER00000002(Stream: TStream);
-var
-  i:  Integer;
-begin
-Stream_ReadString(Stream);
-LoadSortingSettings_VER00000001(Stream);
-LoadShopTemplates_VER00000002(Stream);
-LoadFilterSettings_VER00000000(Stream);
-// items
-ItemClear;
-SetLength(fList,Stream_ReadUInt32(Stream));
-For i := Low(fList) to High(fList) do
-  LoadItem_VER00000002(Stream,fList[i]);
-ReIndex;
-ItemRedraw;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000002.LoadShopTemplates_VER00000002(Stream: TStream);
-var
-  i:  Integer;
-begin
-SetLength(fShopTemplates,Stream_ReadUInt32(Stream));
-For i := Low(fShopTemplates) to High(fShopTemplates) do
-  begin
-    fShopTemplates[i].Name := Stream_ReadString(Stream);
-    LoadItemShop_VER00000002(Stream,fShopTemplates[i].ShopData);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_VER00000002.LoadItem_VER00000002(Stream: TStream; out Item: TILItem);
-var
-  i:  Integer;
-
-  procedure ReadPicture(var Pic: TBitmap);
-  var
-    Size:       UInt32;
-    TempStream: TMemoryStream;
-  begin
-    Size := Stream_ReadUInt32(Stream);
-    If Size > 0 then
-      begin
-        TempStream := TMemoryStream.Create;
-        try
-          TempStream.CopyFrom(Stream,Size);
-          TempStream.Seek(0,soBeginning);
-          Pic := TBitmap.Create;
-          try
-            Pic.LoadFromStream(TempStream);
-          except
-            FreeAndNil(Pic);
-          end;
-        finally
-          TempStream.Free;
-        end;
-      end
-    else Pic := nil;
-  end;
-
-begin
-Item.TimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
-// pictures
-ReadPicture(Item.MainPicture);
-ReadPicture(Item.PackagePicture);
-// basic specs
-Item.ItemType := IL_NumToItemType(Stream_ReadInt32(Stream));
-Item.ItemTypeSpec := Stream_ReadString(Stream);
-Item.Count := Stream_ReadUInt32(Stream);
-Item.Manufacturer := IL_NumToItemManufacturer(Stream_ReadInt32(Stream));
-Item.ManufacturerStr := Stream_ReadString(Stream);
-Item.ID := Stream_ReadInt32(Stream);
-// flags
-Item.Flags := IL_DecodeItemFlags(Stream_ReadUInt32(Stream));
-Item.TextTag := Stream_ReadString(Stream);
-// extended specs
-Item.WantedLevel := Stream_ReadUInt32(Stream);
-Item.Variant := Stream_ReadString(Stream);
-Item.SizeX := Stream_ReadUInt32(Stream);
-Item.SizeY := Stream_ReadUInt32(Stream);
-Item.SizeZ := Stream_ReadUInt32(Stream);
-Item.UnitWeight := Stream_ReadUInt32(Stream);
-// other info
-Item.Notes := Stream_ReadString(Stream);
-Item.ReviewURL := Stream_ReadString(Stream);
-Item.MainPictureFile := Stream_ReadString(Stream);
-Item.PackagePictureFile := Stream_ReadString(Stream);
-Item.UnitPriceDefault := Stream_ReadUInt32(Stream);
-Item.UnitPriceLowest := Stream_ReadUInt32(Stream);
-Item.UnitPriceSelected := Stream_ReadUInt32(Stream);
-Item.AvailablePieces := Stream_ReadInt32(Stream);
-// shops
-SetLength(Item.Shops,Stream_ReadUInt32(Stream));
-For i := Low(Item.Shops) to High(Item.Shops) do
-  LoadItemShop_VER00000002(Stream,Item.Shops[i]);
-// prepare render
-Item.ItemListRender := TBitmap.Create;
-Item.ItemListRender.PixelFormat := pf24bit;
-Item.ItemListRender.Width := fRenderWidth;
-Item.ItemListRender.Height := fRenderHeight;
 end;
 
 //------------------------------------------------------------------------------
@@ -319,38 +145,6 @@ end;
 procedure TILManager_VER00000002.LoadItemShop_VER00000002(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
-
-  procedure LoadParsingSettings(out ParsingSettings: TILItemShopParsingSetting);
-  var
-    ii: Integer;
-  begin
-    // variables
-    For ii := Low(ParsingSettings.Variables.Vars) to High(ParsingSettings.Variables.Vars) do
-      ParsingSettings.Variables.Vars[ii] := Stream_ReadString(Stream);
-    // available
-    SetLength(ParsingSettings.Available.Extraction,Stream_ReadUInt32(Stream));
-    For ii := Low(ParsingSettings.Available.Extraction) to High(ParsingSettings.Available.Extraction) do
-      begin
-        ParsingSettings.Available.Extraction[ii].ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
-        ParsingSettings.Available.Extraction[ii].ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
-        ParsingSettings.Available.Extraction[ii].ExtractionData := Stream_ReadString(Stream);
-        ParsingSettings.Available.Extraction[ii].NegativeTag := Stream_ReadString(Stream);
-      end;
-    ParsingSettings.Available.Finder := TILElementFinder.Create;
-    TILElementFinder(ParsingSettings.Available.Finder).LoadFromStream(Stream);
-    // price
-    SetLength(ParsingSettings.Price.Extraction,Stream_ReadUInt32(Stream));
-    For ii := Low(ParsingSettings.Price.Extraction) to High(ParsingSettings.Price.Extraction) do
-      begin
-        ParsingSettings.Price.Extraction[ii].ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
-        ParsingSettings.Price.Extraction[ii].ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
-        ParsingSettings.Price.Extraction[ii].ExtractionData := Stream_ReadString(Stream);
-        ParsingSettings.Price.Extraction[ii].NegativeTag := Stream_ReadString(Stream);
-      end;
-    ParsingSettings.Price.Finder := TILElementFinder.Create;
-    TILElementFinder(ParsingSettings.Price.Finder).LoadFromStream(Stream);
-  end;
-
 begin
 Shop.Selected := Stream_ReadBool(Stream);
 Shop.Name := Stream_ReadString(Stream);
@@ -374,25 +168,92 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
   end;
 Shop.Notes := Stream_ReadString(Stream);
 // parsing settings
-LoadParsingSettings(Shop.ParsingSettings);
+fFNLoadParsingSettings(Stream,Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveShopTemplate(Stream: TStream; const ShopTemplate: TILShopTemplate);
+procedure TILManager_VER00000002.SaveParsingSettings_VER00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting);
+var
+  i: Integer;
 begin
-Stream_WriteString(Stream,ShopTemplate.Name);
-SaveItemShop_VER00000002(Stream,ShopTemplate.ShopData);
+// no need to write empty settings, just omit TemplateRef and DisableParsErrs;
+// variables
+For i := Low(ParsSett.Variables.Vars) to High(ParsSett.Variables.Vars) do
+  Stream_WriteString(Stream,ParsSett.Variables.Vars[i]);
+// available
+Stream_WriteUInt32(Stream,Length(ParsSett.Available.Extraction));
+For i := Low(ParsSett.Available.Extraction) to High(ParsSett.Available.Extraction) do
+  begin
+    Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsSett.Available.Extraction[i].ExtractFrom));
+    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsSett.Available.Extraction[i].ExtractionMethod));
+    Stream_WriteString(Stream,ParsSett.Available.Extraction[i].ExtractionData);
+    Stream_WriteString(Stream,ParsSett.Available.Extraction[i].NegativeTag);
+  end;
+TILElementFinder(ParsSett.Available.Finder).SaveToStream(Stream);
+// price
+Stream_WriteUInt32(Stream,Length(ParsSett.Price.Extraction));
+For i := Low(ParsSett.Price.Extraction) to High(ParsSett.Price.Extraction) do
+  begin
+    Stream_WriteInt32(Stream,IL_ExtractFromToNum(ParsSett.Price.Extraction[i].ExtractFrom));
+    Stream_WriteInt32(Stream,IL_ExtrMethodToNum(ParsSett.Price.Extraction[i].ExtractionMethod));
+    Stream_WriteString(Stream,ParsSett.Price.Extraction[i].ExtractionData);
+    Stream_WriteString(Stream,ParsSett.Price.Extraction[i].NegativeTag);
+  end;
+TILElementFinder(ParsSett.Price.Finder).SaveToStream(Stream);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.LoadShopTemplate(Stream: TStream; out ShopTemplate: TILShopTemplate);
+procedure TILManager_VER00000002.LoadParsingSettings_VER00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting);
+var
+  i: Integer;
 begin
-ShopTemplate.Name := Stream_ReadString(Stream);
-LoadItemShop_VER00000002(Stream,ShopTemplate.ShopData);
+// variables
+For i := Low(ParsSett.Variables.Vars) to High(ParsSett.Variables.Vars) do
+  ParsSett.Variables.Vars[i] := Stream_ReadString(Stream);
+// others
+ParsSett.TemplateRef := '';
+ParsSett.DisableParsErrs := False;
+// available
+SetLength(ParsSett.Available.Extraction,Stream_ReadUInt32(Stream));
+For i := Low(ParsSett.Available.Extraction) to High(ParsSett.Available.Extraction) do
+  begin
+    ParsSett.Available.Extraction[i].ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
+    ParsSett.Available.Extraction[i].ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
+    ParsSett.Available.Extraction[i].ExtractionData := Stream_ReadString(Stream);
+    ParsSett.Available.Extraction[i].NegativeTag := Stream_ReadString(Stream);
+  end;
+ParsSett.Available.Finder := TILElementFinder.Create;
+TILElementFinder(ParsSett.Available.Finder).LoadFromStream(Stream);
+// price
+SetLength(ParsSett.Price.Extraction,Stream_ReadUInt32(Stream));
+For i := Low(ParsSett.Price.Extraction) to High(ParsSett.Price.Extraction) do
+  begin
+    ParsSett.Price.Extraction[i].ExtractFrom := IL_NumToExtractFrom(Stream_ReadInt32(Stream));
+    ParsSett.Price.Extraction[i].ExtractionMethod := IL_NumToExtrMethod(Stream_ReadInt32(Stream));
+    ParsSett.Price.Extraction[i].ExtractionData := Stream_ReadString(Stream);
+    ParsSett.Price.Extraction[i].NegativeTag := Stream_ReadString(Stream);
+  end;
+ParsSett.Price.Finder := TILElementFinder.Create;
+TILElementFinder(ParsSett.Price.Finder).LoadFromStream(Stream);
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILManager_VER00000002.SaveShopTemplate_VER00000002(Stream: TStream; const ShopTemplate: TILShopTemplate);
+begin
+Stream_WriteString(Stream,ShopTemplate.Name);
+fFNSaveItemShop(Stream,ShopTemplate.ShopData);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_VER00000002.LoadShopTemplate_VER00000002(Stream: TStream; out ShopTemplate: TILShopTemplate);
+begin
+ShopTemplate.Name := Stream_ReadString(Stream);
+fFNLoadItemShop(Stream,ShopTemplate.ShopData);
+end;
 
 end.

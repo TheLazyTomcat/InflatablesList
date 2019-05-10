@@ -37,7 +37,8 @@ uses
   ParsingForm in 'ParsingForm.pas' {fParsingForm},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
   ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
-  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm};
+  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
+  InflatablesList_Manager_VER00000003 in 'source\InflatablesList_Manager_VER00000003.pas';
 
 {$R *.res}
 

@@ -303,15 +303,7 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
           // other options
           fCurrentShopPtr^.ParsingSettings.DisableParsErrs := ShopData.ParsingSettings.DisableParsErrs;
           fCurrentShopPtr^.ParsingSettings.TemplateRef := fILManager.ShopTemplates[lbTemplates.ItemIndex].Name;
-          // available
-          fCurrentShopPtr^.ParsingSettings.Available.Extraction := ShopData.ParsingSettings.Available.Extraction;
-          SetLength(fCurrentShopPtr^.ParsingSettings.Available.Extraction,
-            Length(fCurrentShopPtr^.ParsingSettings.Available.Extraction));
-          //price
-          fCurrentShopPtr^.ParsingSettings.Price.Extraction := ShopData.ParsingSettings.Price.Extraction;
-          SetLength(fCurrentShopPtr^.ParsingSettings.Price.Extraction,
-            Length(fCurrentShopPtr^.ParsingSettings.Price.Extraction));
-          // leave finder objects untouched, reference will be used instead
+          // leave finder objects and extraction sett. untouched, reference will be used instead
           Close;
         end;
   end;

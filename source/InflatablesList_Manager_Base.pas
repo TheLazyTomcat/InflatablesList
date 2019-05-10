@@ -546,7 +546,6 @@ UniqueString(Dest.ItemURL);
 SetLength(Dest.AvailHistory,Length(Dest.AvailHistory));
 SetLength(Dest.PriceHistory,Length(Dest.PriceHistory));
 UniqueString(Dest.Notes);
-// new stuff
 with Dest.ParsingSettings do
   begin
     For i := Low(Variables.Vars) to High(Variables.Vars) do
@@ -582,15 +581,18 @@ ItemShopCopy(Src,Dest);
 // resolve references
 Index := ShopTemplateIndexOf(Dest.ParsingSettings.TemplateRef);
 If Index >= 0 then
-  begin
-    // reference found, free current objects and copy the referenced
-    FreeAndNil(Dest.ParsingSettings.Available.Finder);
-    FreeAndNil(Dest.ParsingSettings.Price.Finder);
-    Dest.ParsingSettings.Available.Finder := TILElementFinder.CreateAsCopy(
-      TILElementFinder(fShopTemplates[Index].ShopData.ParsingSettings.Available.Finder));
-    Dest.ParsingSettings.Price.Finder := TILElementFinder.CreateAsCopy(
-      TILElementFinder(fShopTemplates[Index].ShopData.ParsingSettings.Price.Finder));
-  end;
+  with fShopTemplates[Index].ShopData.ParsingSettings do
+    begin
+      // reference found, set extraction settings and free current objects and copy the referenced
+      Dest.ParsingSettings.Available.Extraction := Available.Extraction;
+      Dest.ParsingSettings.Price.Extraction := Price.Extraction;
+      SetLength(Dest.ParsingSettings.Available.Extraction,Length(Dest.ParsingSettings.Available.Extraction));
+      SetLength(Dest.ParsingSettings.Price.Extraction,Length(Dest.ParsingSettings.Price.Extraction));
+      FreeAndNil(Dest.ParsingSettings.Available.Finder);
+      FreeAndNil(Dest.ParsingSettings.Price.Finder);
+      Dest.ParsingSettings.Available.Finder := TILElementFinder.CreateAsCopy(TILElementFinder(Available.Finder));
+      Dest.ParsingSettings.Price.Finder := TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
+    end;
 end;
 
 //------------------------------------------------------------------------------

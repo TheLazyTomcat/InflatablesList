@@ -45,4 +45,13 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 1
     OnClick = btnClearTextTagsClick
   end
+  object btnClearParsing: TButton
+    Left = 136
+    Top = 48
+    Width = 121
+    Height = 25
+    Caption = 'Clear parsing settings'
+    TabOrder = 2
+    OnClick = btnClearParsingClick
+  end
 end

@@ -545,17 +545,21 @@ begin
 If Assigned(fCurrentItemShopPtr) then
   If MessageDlg('Are you sure you want to replace existing finder objects with the ones from selected template?',
     mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    begin
-      FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Available.Finder);
-      FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Price.Finder);
-      with fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ShopData.ParsingSettings do
-        begin
-          fCurrentItemShopPtr^.ParsingSettings.Available.Finder :=
-            TILElementFinder.CreateAsCopy(TILElementFinder(Available.Finder));
-          fCurrentItemShopPtr^.ParsingSettings.Price.Finder :=
-            TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
-        end;
-    end;
+    with fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ShopData.ParsingSettings do
+      begin
+        fCurrentItemShopPtr^.ParsingSettings.Available.Extraction := Available.Extraction;
+        fCurrentItemShopPtr^.ParsingSettings.Price.Extraction := Available.Extraction;
+        SetLength(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction,
+          Length(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction));
+        SetLength(fCurrentItemShopPtr^.ParsingSettings.Price.Extraction,
+          Length(fCurrentItemShopPtr^.ParsingSettings.Price.Extraction));
+        FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Available.Finder);
+        FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Price.Finder);
+        fCurrentItemShopPtr^.ParsingSettings.Available.Finder :=
+          TILElementFinder.CreateAsCopy(TILElementFinder(Available.Finder));
+        fCurrentItemShopPtr^.ParsingSettings.Price.Finder :=
+          TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
+      end;
 end;
 
 //------------------------------------------------------------------------------

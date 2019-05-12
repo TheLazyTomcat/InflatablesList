@@ -210,6 +210,11 @@ object fMainForm: TfMainForm
       Caption = 'Update all shops (only wanted)...'
       OnClick = mniLN_UpdateWantedClick
     end
+    object mniLN_UpdateSelected: TMenuItem
+      Caption = 'Update all shops (only selected)...'
+      ShortCut = 49237
+      OnClick = mniLN_UpdateSelectedClick
+    end
     object mniLN_UpdateShopsHistory: TMenuItem
       Caption = 'Update all shops history'
       ShortCut = 16456

@@ -14,6 +14,7 @@ const
 type
   TfShopsForm = class(TForm)
     lblShops: TLabel;
+    lblLegend: TLabel;    
     lvShops: TListView;
     gbShopDetails: TGroupBox;    
     lePriceLowest: TLabeledEdit;
@@ -62,6 +63,7 @@ var
 implementation
 
 uses
+  InflatablesList_Utils,
   UpdateForm, TemplatesForm;
 
 {$R *.dfm}
@@ -91,10 +93,9 @@ If (Index >= 0) and (Index < lvShops.Items.Count) then
     try
       with lvShops.Items[Index] do
         begin
-          If fCurrentItem.Shops[Index].Selected then
-            Caption := '*'
-          else
-            Caption := '';
+          Caption := Format('%s%s',[
+            IL_BoolToChar(fCurrentItem.Shops[Index].Selected,' ','*'),
+            IL_BoolToChar(fCurrentItem.Shops[Index].Untracked,' ','^')]);
           SubItems[0] := fCurrentItem.Shops[Index].Name;
           SubItems[1] := fCurrentItem.Shops[Index].ItemURL;
           If fCurrentItem.Shops[Index].Available < 0 then

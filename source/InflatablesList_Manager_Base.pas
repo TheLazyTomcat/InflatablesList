@@ -17,8 +17,9 @@ const
   IL_LISTFILE_FILESTRUCTURE_00000001 = UInt32($00000001);
   IL_LISTFILE_FILESTRUCTURE_00000002 = UInt32($00000002);
   IL_LISTFILE_FILESTRUCTURE_00000003 = UInt32($00000003);
+  IL_LISTFILE_FILESTRUCTURE_00000004 = UInt32($00000004);
 
-  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000003;
+  IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000004;
 
   IL_LISTFILE_UPDATE_TRYCOUNT = 5;  // how many times to repeat update when it fails in certain way
 
@@ -864,44 +865,53 @@ var
   end;
 
 begin
-TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
-Result := False;
-Updater := TILShopUpdater.Create(Shop);
-try
-  repeat
-    UpdaterResult := Updater.Run;
-    case UpdaterResult of
-      ilurSuccess:          begin
-                              SetValues(Format(
-                                'Success (%d bytes downloaded) - Avail: %d  Price: %d',
-                                [Updater.DownloadSize,Updater.Available,Updater.Price]),
-                                Updater.Available,Updater.Price);
-                              Result := True;
-                            end;
-      ilurNoLink:           SetValues('No item link',0,0);
-      ilurNoData:           SetValues('Insufficient search data',0,0);
-      // when download fails, keep old price (assumes the item vent unavailable)
-      ilurFailDown:         SetValues(Format('Download failed (code: %d)',[Updater.DownloadResultCode]),0,Shop.Price);
-      // when parsing fails, keep old values (assumes bad download or internal exception)
-      ilurFailParse:        SetValues(Format('Parsing failed (%s)',[Updater.ErrorString]),Shop.Available,Shop.Price);
-      // following assumes the item is unavailable
-      ilurFailAvailSearch:  SetValues('Search of available count failed',0,Updater.Price);
-      // following assumes the item is unavailable, keep old price
-      ilurFailSearch:       SetValues('Search failed',0,Shop.Price);
-      // following assumes the item is unavailable
-      ilurFailAvailValGet:  SetValues('Unable to obtain available count',0,Updater.Price);
-      // following assumes the item is unavailable, keep old price
-      ilurFailValGet:       SetValues('Unable to obtain values',0,Shop.Price);
-      // general fail, invalidate
-      ilurFail:             SetValues('Failed (general error)',0,0);
-    else
-      SetValues('Failed (unknown state)',0,0);
+If not Shop.Untracked then
+  begin
+    TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
+    Result := False;
+    Updater := TILShopUpdater.Create(Shop);
+    try
+      repeat
+        UpdaterResult := Updater.Run;
+        case UpdaterResult of
+          ilurSuccess:          begin
+                                  SetValues(Format(
+                                    'Success (%d bytes downloaded) - Avail: %d  Price: %d',
+                                    [Updater.DownloadSize,Updater.Available,Updater.Price]),
+                                    Updater.Available,Updater.Price);
+                                  Result := True;
+                                end;
+          ilurNoLink:           SetValues('No item link',0,0);
+          ilurNoData:           SetValues('Insufficient search data',0,0);
+          // when download fails, keep old price (assumes the item vent unavailable)
+          ilurFailDown:         SetValues(Format('Download failed (code: %d)',[Updater.DownloadResultCode]),0,Shop.Price);
+          // when parsing fails, keep old values (assumes bad download or internal exception)
+          ilurFailParse:        SetValues(Format('Parsing failed (%s)',[Updater.ErrorString]),Shop.Available,Shop.Price);
+          // following assumes the item is unavailable
+          ilurFailAvailSearch:  SetValues('Search of available count failed',0,Updater.Price);
+          // following assumes the item is unavailable, keep old price
+          ilurFailSearch:       SetValues('Search failed',0,Shop.Price);
+          // following assumes the item is unavailable
+          ilurFailAvailValGet:  SetValues('Unable to obtain available count',0,Updater.Price);
+          // following assumes the item is unavailable, keep old price
+          ilurFailValGet:       SetValues('Unable to obtain values',0,Shop.Price);
+          // general fail, invalidate
+          ilurFail:             SetValues('Failed (general error)',0,0);
+        else
+          SetValues('Failed (unknown state)',0,0);
+        end;
+        Dec(TryCounter);
+      until (TryCounter <= 0) or not(UpdaterResult in [ilurFailDown,ilurFailParse]);
+    finally
+      Updater.Free;
     end;
-    Dec(TryCounter);
-  until (TryCounter <= 0) or not(UpdaterResult in [ilurFailDown,ilurFailParse]);
-finally
-  Updater.Free;
-end;
+  end
+else
+  begin
+    SetValues(Format('Success (untracked) - Avail: %d  Price: %d',
+      [Shop.Available,Shop.Price]),Shop.Available,Shop.Price);
+    Result := True;
+  end;
 end;
 
 //------------------------------------------------------------------------------

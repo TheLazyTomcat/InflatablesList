@@ -433,6 +433,7 @@ var
   i: Integer;
 begin
 Shop.Selected := Stream_ReadBool(Stream);
+Shop.Untracked := False;
 Shop.Name := Stream_ReadString(Stream);
 Shop.ShopURL := Stream_ReadString(Stream);
 Shop.ItemURL := Stream_ReadString(Stream);

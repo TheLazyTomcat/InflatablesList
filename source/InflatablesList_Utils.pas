@@ -36,6 +36,8 @@ Function IL_CharInSet(C: Char; CharSet: TSysCharSet): Boolean;
 Function IL_IndexWrap(Index,Low,High: Integer): Integer;
 Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer; overload;
 
+Function IL_BoolToChar(Value: Boolean; FalseChar,TrueChar: Char): Char;
+
 
 implementation
 
@@ -236,6 +238,16 @@ If Negate then
   Result := -Value
 else
   Result := Value;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_BoolToChar(Value: Boolean; FalseChar,TrueChar: Char): Char;
+begin
+If Value then
+  Result := TrueChar
+else
+  Result := FalseChar;
 end;
 
 end.

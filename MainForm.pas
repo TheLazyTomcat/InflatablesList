@@ -34,6 +34,7 @@ type
     N4: TMenuItem;
     mniLN_UpdateAll: TMenuItem;
     mniLN_UpdateWanted: TMenuItem;
+    mniLN_UpdateSelected: TMenuItem;    
     mniLN_UpdateShopsHistory: TMenuItem;
     N5: TMenuItem;
     mniLM_Sums: TMenuItem;
@@ -69,9 +70,10 @@ type
     procedure mniLM_SortByClick(Sender: TObject);
     procedure mniLM_SortClick(Sender: TObject);
     procedure mniLM_SortRevClick(Sender: TObject);    
-    procedure mniLN_UpdateCommon(OnlyWanted: Boolean);
+    procedure mniLN_UpdateCommon(OnlyWanted, OnlySelected: Boolean);
     procedure mniLN_UpdateAllClick(Sender: TObject);
     procedure mniLN_UpdateWantedClick(Sender: TObject);
+    procedure mniLN_UpdateSelectedClick(Sender: TObject);
     procedure mniLN_UpdateShopsHistoryClick(Sender: TObject);
     procedure mniLM_SumsClick(Sender: TObject);
     procedure mniLM_SaveClick(Sender: TObject);
@@ -495,7 +497,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted: Boolean);
+procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted, OnlySelected: Boolean);
 var
   i,j,k:    Integer;
   Temp:     TILItemShopUpdates;
@@ -507,20 +509,23 @@ frmItemFrame.SaveItem;
 k := 0;
 For i := 0 to Pred(fILManager.ItemCount) do
   If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-    Inc(k,Length(fILManager[i].Shops));
+    For j := Low(fILManager[i].Shops) to High(fILManager[i].Shops) do
+      If fILManager[i].Shops[j].Selected or not OnlySelected then
+        Inc(k);
 SetLength(Temp,k);
 // fill the array
 k := 0;
 For i := 0 to Pred(fILManager.ItemCount) do
   If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
     For j := Low(fILManager[i].Shops) to High(fILManager[i].Shops) do
-      begin
-        Temp[k].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fILManager[i])]);
-        Temp[k].ItemShopPtr := Addr(fILManager.ItemPtrs[i]^.Shops[j]);
-        Temp[k].ItemShopPtr^.RequiredCount := fILManager.ItemPtrs[i]^.Count;
-        Temp[k].Done := False;
-        Inc(k);
-      end;
+      If fILManager[i].Shops[j].Selected or not OnlySelected then
+        begin
+          Temp[k].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fILManager[i])]);
+          Temp[k].ItemShopPtr := Addr(fILManager.ItemPtrs[i]^.Shops[j]);
+          Temp[k].ItemShopPtr^.RequiredCount := fILManager.ItemPtrs[i]^.Count;
+          Temp[k].Done := False;
+          Inc(k);
+        end;
 If Length(Temp) > 0 then
   begin
     // update
@@ -546,14 +551,21 @@ end;
 
 procedure TfMainForm.mniLN_UpdateAllClick(Sender: TObject);
 begin
-mniLN_UpdateCommon(False);
+mniLN_UpdateCommon(False,False);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateWantedClick(Sender: TObject);
 begin
-mniLN_UpdateCommon(True);
+mniLN_UpdateCommon(True,False);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLN_UpdateSelectedClick(Sender: TObject);
+begin
+mniLN_UpdateCommon(False,True);
 end;
 
 //------------------------------------------------------------------------------

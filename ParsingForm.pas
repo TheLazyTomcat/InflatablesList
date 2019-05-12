@@ -306,20 +306,20 @@ If Assigned(fCurrentParsingEntry) then
         fExtractionSettIndex := NewIndex;
         frmExtractionFrame.SetExtractSett(
           Addr(fCurrentParsingEntry^.Extraction[fExtractionSettIndex]),True);
-        ShowExtractionIndex
+        ShowExtractionIndex;
       end
     else
       begin
         fExtractionSettIndex := -1;
         frmExtractionFrame.SetExtractSett(nil,True);
-        ShowExtractionIndex
+        ShowExtractionIndex;
       end;
   end
 else
   begin
     fExtractionSettIndex := -1;
     frmExtractionFrame.SetExtractSett(nil,True);
-    ShowExtractionIndex
+    ShowExtractionIndex;
   end;
 end;
 
@@ -397,8 +397,13 @@ else SetExtractionIndex(-1);
 LoadForm;
 ShowModal;
 SaveForm;
+// do cleanup
 frmComparatorFrame.SetComparator(nil,True);
 frmExtractionFrame.SetExtractSett(nil,True);
+lbStages.Clear;
+tvStageElements.Items.Clear;
+tvAttrComps.Items.Clear;
+tvTextComps.Items.Clear;
 end;
 
 //==============================================================================
@@ -859,17 +864,14 @@ If Assigned(fCurrentParsingEntry) then
         frmExtractionFrame.SaveItem;
         frmExtractionFrame.SetExtractSett(nil,False);
         Index := fExtractionSettIndex;
-        If fExtractionSettIndex < High(fCurrentParsingEntry^.Extraction) then
-          SetExtractionIndex(Index + 1)
-        else If fExtractionSettIndex > 0 then
-          SetExtractionIndex(Index - 1)
-        else
-          SetExtractionIndex(-1);
+        If Length(fCurrentParsingEntry^.Extraction) <= 1 then
+          fExtractionSettIndex := -1
+        else If fExtractionSettIndex >= High(fCurrentParsingEntry^.Extraction) then
+          fExtractionSettIndex := fExtractionSettIndex - 1;
         For i := Index to Pred(High(fCurrentParsingEntry^.Extraction)) do
           fCurrentParsingEntry^.Extraction[i] := fCurrentParsingEntry^.Extraction[i + 1];
         SetLength(fCurrentParsingEntry^.Extraction,Length(fCurrentParsingEntry^.Extraction) - 1);
-        If fExtractionSettIndex >= 0 then
-          frmExtractionFrame.SetExtractSett(Addr(fCurrentParsingEntry^.Extraction[fExtractionSettIndex]),False);
+        SetExtractionIndex(fExtractionSettIndex); // will also call frmExtractionFrame.SetExtractSett
         ShowExtractionIndex;
       end;
 end;

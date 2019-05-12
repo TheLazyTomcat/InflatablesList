@@ -4,8 +4,6 @@ unit InflatablesList;
   {$message 'export/import (ini)'}
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
-{$message 'per shop flag untracked - prevents updates'}
-{$message 'update selected shops'}
 
 {
   when program or list settings are added...
@@ -19,10 +17,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_VER00000003;
+  InflatablesList_Manager_VER00000004;
 
 type
-  TILManager = TILManager_VER00000003;
+  TILManager = TILManager_VER00000004;
 
 implementation
 

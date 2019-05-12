@@ -12,6 +12,7 @@ type
     pnlMain: TPanel;
     leShopName: TLabeledEdit;
     cbShopSelected: TCheckBox;
+    cbShopUntracked: TCheckBox;
     leShopURL: TLabeledEdit;
     btnShopURLOpen: TButton;
     leShopItemURL: TLabeledEdit;
@@ -71,6 +72,7 @@ type
     procedure btnParsPriceClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
     procedure btnTemplatesClick(Sender: TObject);
+    procedure cbShopUntrackedClick(Sender: TObject);
   private
     fInitializing:        Boolean;
     fILManager:           TILManager;
@@ -120,6 +122,7 @@ procedure TfrmShopFrame.FrameClear;
 begin
 leShopName.Text := '';
 cbShopSelected.Checked := False;
+cbShopUntracked.Checked := False;
 leShopURL.Text := '';
 leShopItemURL.Text := '';
 seAvailable.Value := 0;
@@ -223,6 +226,7 @@ begin
 If Assigned(fCurrentItemShopPtr) then
   begin
     fCurrentItemShopPtr^.Selected := cbShopSelected.Checked;
+    fCurrentItemShopPtr^.Untracked := cbShopUntracked.Checked;
     fCurrentItemShopPtr^.Name := leShopName.Text;
     fCurrentItemShopPtr^.ShopURL := leShopURL.Text;
     fCurrentItemShopPtr^.ItemURL := leShopItemURL.Text;
@@ -257,6 +261,7 @@ If Assigned(fCurrentItemShopPtr) then
     fInitializing := True;
     try
       cbShopSelected.Checked := fCurrentItemShopPtr^.Selected;
+      cbShopUntracked.Checked := fCurrentItemShopPtr^.Untracked;
       leShopName.Text := fCurrentItemShopPtr^.Name;
       leShopURL.Text := fCurrentItemShopPtr^.ShopURL;
       leShopItemURL.Text := fCurrentItemShopPtr^.ItemURL;
@@ -345,6 +350,18 @@ If not fInitializing then
       end;
     DoListItemChange;
     DoPriceChange;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.cbShopUntrackedClick(Sender: TObject);
+begin
+If not fInitializing then
+  begin
+    If Assigned(fCurrentItemShopPtr) then
+      fCurrentItemShopPtr^.Untracked := cbShopUntracked.Checked;
+    DoListItemChange;
   end
 end;
 
@@ -630,5 +647,6 @@ If Assigned(fCurrentItemShopPtr) then
     leShopItemURL.SetFocus;
   end;
 end;
+
 
 end.

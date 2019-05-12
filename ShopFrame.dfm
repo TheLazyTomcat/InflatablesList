@@ -64,7 +64,7 @@ object frmShopFrame: TfrmShopFrame
     object leShopName: TLabeledEdit
       Left = 0
       Top = 16
-      Width = 289
+      Width = 209
       Height = 21
       EditLabel.Width = 57
       EditLabel.Height = 13
@@ -73,7 +73,7 @@ object frmShopFrame: TfrmShopFrame
       OnChange = leShopNameChange
     end
     object cbShopSelected: TCheckBox
-      Left = 296
+      Left = 216
       Top = 18
       Width = 65
       Height = 17
@@ -411,6 +411,15 @@ object frmShopFrame: TfrmShopFrame
         TabOrder = 9
         OnClick = btnParsCopyToLocalClick
       end
+    end
+    object cbShopUntracked: TCheckBox
+      Left = 288
+      Top = 18
+      Width = 73
+      Height = 17
+      Caption = 'Untracked'
+      TabOrder = 17
+      OnClick = cbShopUntrackedClick
     end
   end
   object pmnHistory: TPopupMenu

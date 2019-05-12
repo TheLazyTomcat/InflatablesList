@@ -7,7 +7,7 @@ interface
 uses
   // unit Windows must be before graphics and classes
   Windows, Classes, Graphics, StdCtrls,
-  AuxTypes,
+  AuxTypes, SimpleCmdLineParser,
   InflatablesList_Types, InflatablesList_Data;
 
 const
@@ -28,11 +28,13 @@ type
   TILManager_Base = class(TObject)
   protected
     fDataProvider:          TILDataProvider;
+    fCMDLineParser:         TCLPParser;
     // rendering variables
     fFileName:              String;
     fRenderWidth:           Integer;
     fRenderHeight:          Integer;
     fFontSettings:          TFont;
+    fNoPictures:            Boolean;
     // main list
     fList:                  array of TILItem;
     // sorting
@@ -157,7 +159,9 @@ type
     procedure LoadFromFileBuffered(const FileName: String); virtual;
     // properties
     property DataProvider: TILDataProvider read fDataProvider;
+    property CommandLineParser: TCLPParser read fCMDLineParser;
     property FileName: String read fFileName;
+    property NoPictures: Boolean read fNoPictures write fNoPictures;
     property ItemCount: Integer read GetItemCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property ItemPtrs[Index: Integer]: PILItem read GetItemPtr;
@@ -288,6 +292,8 @@ end;
 procedure TILManager_Base.Initialize;
 begin
 fDataProvider := TILDataProvider.Create;
+fCMDLineParser := TCLPParser.Create;
+fNoPictures := fCMDLineParser.CommandPresent('no_pics');
 InitializeSortingSettings;
 SetLength(fShopTemplates,0);
 SetLength(fList,0);
@@ -300,6 +306,7 @@ begin
 ItemClear;
 ShopTemplateClear;
 FinalizeSortingSettings;
+FreeAndNil(fCMDLineParser);
 FreeAndNil(fDataProvider);
 end;
 
@@ -1181,7 +1188,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
       end;
 
     // main picture
-    If Assigned(Item.MainPicture) then
+    If Assigned(Item.MainPicture) and not fNoPictures then
       Draw(fRenderWidth - 98,2,Item.MainPicture)
     else
       Draw(fRenderWidth - 98,2,fDataProvider.ItemDefaultPictures[Item.ItemType]);

@@ -47,7 +47,7 @@ type
   public
     constructor Create(ShopData: TILItemShop);
     destructor Destroy; override;
-    Function Run: TILShopUpdaterResult; virtual;
+    Function Run(AlternativeDownload: Boolean): TILShopUpdaterResult; virtual;
     property DownloadResultCode: Integer read fDownResCode;
     property DownloadSize: Int64 read fDownSize;
     property ErrorString: String read fErrorString;
@@ -248,7 +248,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILShopUpdater.Run: TILShopUpdaterResult;
+Function TILShopUpdater.Run(AlternativeDownload: Boolean): TILShopUpdaterResult;
 var
   Parser:       TILHTMLParser;
   Document:     TILHTMLDocument;
@@ -257,6 +257,15 @@ var
 {$IFDEF TestCode}
   ElementList:  TStringList;
 {$ENDIF}
+
+  Function CallDownload: Boolean;
+  begin
+    If AlternativeDownload then
+      Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
+    else
+      Result := IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode);
+  end;
+
 begin
 SetLength(AvailNodes,0);
 SetLength(PriceNodes,0);
@@ -268,7 +277,7 @@ If Length(fShopData.ItemURL) > 0 then
         InitializeResults;
         // download
         fDownStream.Clear;
-        If IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode) then
+        If CallDownload then
           begin
           {$IFDEF TestCode}
             fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'test.txt');

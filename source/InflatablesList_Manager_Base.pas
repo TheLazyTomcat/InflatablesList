@@ -21,7 +21,7 @@ const
 
   IL_LISTFILE_FILESTRUCTURE_SAVE = IL_LISTFILE_FILESTRUCTURE_00000004;
 
-  IL_LISTFILE_UPDATE_TRYCOUNT = 5;  // how many times to repeat update when it fails in certain way
+  IL_LISTFILE_UPDATE_TRYCOUNT = 6;  // how many times to repeat update when it fails in certain way
 
   IL_SHOPTEMPLATE_SIGNATURE = UInt32($4C505453);  // signature of the exported shop template
 
@@ -872,7 +872,7 @@ If not Shop.Untracked then
     Updater := TILShopUpdater.Create(Shop);
     try
       repeat
-        UpdaterResult := Updater.Run;
+        UpdaterResult := Updater.Run(TryCounter <= 1);
         case UpdaterResult of
           ilurSuccess:          begin
                                   SetValues(Format(

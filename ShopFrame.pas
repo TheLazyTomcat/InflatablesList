@@ -565,7 +565,7 @@ If Assigned(fCurrentItemShopPtr) then
     with fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ShopData.ParsingSettings do
       begin
         fCurrentItemShopPtr^.ParsingSettings.Available.Extraction := Available.Extraction;
-        fCurrentItemShopPtr^.ParsingSettings.Price.Extraction := Available.Extraction;
+        fCurrentItemShopPtr^.ParsingSettings.Price.Extraction := Price.Extraction;
         SetLength(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction,
           Length(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction));
         SetLength(fCurrentItemShopPtr^.ParsingSettings.Price.Extraction,

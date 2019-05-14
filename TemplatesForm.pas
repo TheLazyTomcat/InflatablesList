@@ -294,6 +294,7 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
       with fILManager.ShopTemplates[lbTemplates.ItemIndex] do
         begin
           fCurrentShopPtr^.Untracked := ShopData.Untracked;
+          fCurrentShopPtr^.AltDownMethod := ShopData.AltDownMethod;
           fCurrentShopPtr^.Name := ShopData.Name;
           fCurrentShopPtr^.ShopURL := ShopData.ShopURL;
           // variables (copy only when destination is empty)

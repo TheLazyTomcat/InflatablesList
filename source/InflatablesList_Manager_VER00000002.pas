@@ -146,8 +146,8 @@ procedure TILManager_VER00000002.LoadItemShop_VER00000002(Stream: TStream; out S
 var
   i: Integer;
 begin
+ItemShopInitialize(Shop);
 Shop.Selected := Stream_ReadBool(Stream);
-Shop.Untracked := False;
 Shop.Name := Stream_ReadString(Stream);
 Shop.ShopURL := Stream_ReadString(Stream);
 Shop.ItemURL := Stream_ReadString(Stream);

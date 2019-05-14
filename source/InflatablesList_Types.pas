@@ -109,6 +109,7 @@ type
   TILItemShop = record
     Selected:         Boolean;
     Untracked:        Boolean;
+    AltDownMethod:    Boolean;
     Name:             String;
     ShopURL:          String;
     ItemURL:          String;

@@ -103,6 +103,7 @@ procedure TILManager_VER00000004.LoadItemShop_VER00000004(Stream: TStream; out S
 var
   i: Integer;
 begin
+ItemShopInitialize(Shop);
 Shop.Selected := Stream_ReadBool(Stream);
 Shop.Untracked := Stream_ReadBool(Stream);;
 Shop.Name := Stream_ReadString(Stream);

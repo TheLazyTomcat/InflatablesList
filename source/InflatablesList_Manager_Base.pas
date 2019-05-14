@@ -94,6 +94,8 @@ type
     procedure ReIndex; virtual;
   public
     // utility functions
+    class procedure ItemInitialize(out Item: TILItem); virtual;
+    class procedure ItemShopInitialize(out ItemShop: TILItemShop); virtual;
     class procedure ItemFinalize(var Item: TILItem; FreePics: Boolean = False); virtual;
     class procedure ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False); virtual;
     class procedure ItemShopCopy(const Src: TILItemShop; out Dest: TILItemShop); virtual;
@@ -485,6 +487,74 @@ For i := Low(fList) to High(fList) do
 end;
 
 //==============================================================================
+
+class procedure TILManager_Base.ItemInitialize(out Item: TILItem);
+begin
+// basic specs
+Item.MainPicture := nil;
+Item.PackagePicture := nil;
+Item.ItemType := ilitUnknown;
+Item.ItemTypeSpec := '';
+Item.Count := 1;
+Item.Manufacturer := ilimOthers;
+Item.ManufacturerStr := '';
+Item.ID := 0;
+// flags
+Item.Flags := [];
+Item.TextTag := '';
+// ext. specs
+Item.WantedLevel := 0;
+Item.Variant := '';
+Item.SizeX := 0;
+Item.SizeY := 0;
+Item.SizeZ := 0;
+Item.UnitWeight := 0;
+// other info
+Item.Notes := '';
+Item.ReviewURL := '';
+Item.MainPictureFile := '';
+Item.PackagePictureFile := '';
+Item.UnitPriceDefault := 0;
+Item.UnitPriceLowest := 0;
+Item.UnitPriceSelected := 0;
+Item.AvailablePieces := 0;
+// shops
+SetLength(Item.Shops,0);
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_Base.ItemShopInitialize(out ItemShop: TILItemShop);
+var
+  i:  Integer;
+begin
+ItemShop.Selected := False;
+ItemShop.Untracked := False;
+ItemShop.AltDownMethod := False;
+ItemShop.Name := '';
+ItemShop.ShopURL := '';
+ItemShop.ItemURL := '';
+ItemShop.Available := 0;
+ItemShop.Price := 0;
+SetLength(ItemShop.AvailHistory,0);
+SetLength(ItemShop.PriceHistory,0);
+ItemShop.Notes := '';
+with ItemShop.ParsingSettings do
+  begin
+    For i := Low(Variables.Vars) to High(Variables.Vars) do
+      Variables.Vars[i] := '';
+    TemplateRef := '';
+    DisableParsErrs := False;
+    SetLength(Available.Extraction,0);
+    Available.Finder := nil;
+    SetLength(Price.Extraction,0);
+    Price.Finder := nil;
+  end;
+ItemShop.LastUpdateMsg := '';
+ItemShop.RequiredCount := 0;
+end;
+
+//------------------------------------------------------------------------------
 
 class procedure TILManager_Base.ItemFinalize(var Item: TILItem; FreePics: Boolean = False);
 var
@@ -950,40 +1020,10 @@ Function TILManager_Base.ItemAddEmpty: Integer;
 begin
 SetLength(fList,Length(fList) + 1);
 Result := High(fList);
+ItemInitialize(fList[Result]);
 // internals
 fList[Result].Index := Result;
 fList[Result].TimeOfAddition := Now;
-// basic specs
-fList[Result].MainPicture := nil;
-fList[Result].PackagePicture := nil;
-fList[Result].ItemType := ilitUnknown;
-fList[Result].ItemTypeSpec := '';
-fList[Result].Count := 1;
-fList[Result].Manufacturer := ilimOthers;
-fList[Result].ManufacturerStr := '';
-fList[Result].ID := 0;
-// flags
-fList[Result].Flags := [];
-fList[Result].TextTag := '';
-// ext. specs
-fList[Result].WantedLevel := 0;
-fList[Result].Variant := '';
-fList[Result].SizeX := 0;
-fList[Result].SizeY := 0;
-fList[Result].SizeZ := 0;
-fList[Result].UnitWeight := 0;
-// other info
-fList[Result].Notes := '';
-fList[Result].ReviewURL := '';
-fList[Result].MainPictureFile := '';
-fList[Result].PackagePictureFile := '';
-fList[Result].UnitPriceDefault := 0;
-fList[Result].UnitPriceLowest := 0;
-fList[Result].UnitPriceSelected := 0;
-fList[Result].AvailablePieces := 0;
-// shops
-SetLength(fList[Result].Shops,0);
-// internals
 fList[Result].ItemListRender := TBitmap.Create;
 fList[Result].ItemListRender.PixelFormat := pf24bit;
 fList[Result].ItemListRender.Width := fRenderWidth;
@@ -1543,11 +1583,20 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_Base.ShopTemplateRename(Index: Integer; const NewName: String);
+var
+  i,j:  Integer;
 begin
 If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
-  fShopTemplates[Index].Name := NewName
-else
-  raise Exception.CreateFmt('TILManager_Base.ShopTemplateRename: Index (%d) out of bounds.',[Index]);
+  begin
+    // change all references to this template
+    For i := Low(fList) to High(fList) do
+      For j := Low(fList[i].Shops) to High(fList[i].Shops) do
+        If AnsiSameText(fList[i].Shops[j].ParsingSettings.TemplateRef,fShopTemplates[Index].Name) then
+          fList[i].Shops[j].ParsingSettings.TemplateRef := NewName;
+    // rename
+    fShopTemplates[Index].Name := NewName
+  end
+else raise Exception.CreateFmt('TILManager_Base.ShopTemplateRename: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------

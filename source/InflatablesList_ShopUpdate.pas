@@ -161,14 +161,14 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := Low(Nodes) to High(Nodes) do
-  begin
-    For j := Low(fShopData.ParsingSettings.Available.Extraction) to
-            High(fShopData.ParsingSettings.Available.Extraction) do
-      with fShopData.ParsingSettings.Available.Extraction[j] do
+For i := Low(fShopData.ParsingSettings.Available.Extraction) to
+         High(fShopData.ParsingSettings.Available.Extraction) do
+  with fShopData.ParsingSettings.Available.Extraction[i] do
+    begin
+      For j := Low(Nodes) to High(Nodes) do
         begin
           // first get the text from which the value will be extracted
-          Text := ExtractValue_GetText(Nodes[i],ExtractFrom,ExtractionData);
+          Text := ExtractValue_GetText(Nodes[j],ExtractFrom,ExtractionData);
           // parse according to selected extr. method
           case ExtractionMethod of
             ilpemFirstIntegerTag:
@@ -187,9 +187,9 @@ For i := Low(Nodes) to High(Nodes) do
           If Result <> 0 then
             Break{For j};
         end;
-    If Result <> 0 then
-      Break{For i};
-  end;
+      If Result <> 0 then
+        Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -200,14 +200,14 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := Low(Nodes) to High(Nodes) do
-  begin
-    For j := Low(fShopData.ParsingSettings.Price.Extraction) to
-            High(fShopData.ParsingSettings.Price.Extraction) do
-      with fShopData.ParsingSettings.Price.Extraction[j] do
+For i := Low(fShopData.ParsingSettings.Price.Extraction) to
+         High(fShopData.ParsingSettings.Price.Extraction) do
+  with fShopData.ParsingSettings.Price.Extraction[i] do
+    begin
+      For j := Low(Nodes) to High(Nodes) do
         begin
           // first get the text from which the value will be extracted
-          Text := ExtractValue_GetText(Nodes[i],ExtractFrom,ExtractionData);
+          Text := ExtractValue_GetText(Nodes[j],ExtractFrom,ExtractionData);
           // parse according to selected extr. method
           case ExtractionMethod of
             ilpemNegTagIsCount:
@@ -222,9 +222,9 @@ For i := Low(Nodes) to High(Nodes) do
           If Result <> 0 then
             Break{For j};
         end;
-    If Result <> 0 then
-      Break{For i};
-  end;
+      If Result <> 0 then
+        Break{For i};
+    end;
 end;
 
 //==============================================================================

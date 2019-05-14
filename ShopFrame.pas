@@ -209,9 +209,7 @@ try
   cmbParsTemplRef.Clear;
   cmbParsTemplRef.Items.Add('<none - use local objects>');
   For i := 0 to Pred(fILManager.ShopTemplateCount) do
-    begin
-      cmbParsTemplRef.Items.Add(fILManager.ShopTemplates[i].Name);
-    end;
+    cmbParsTemplRef.Items.Add(fILManager.ShopTemplates[i].Name);
 finally
   cmbParsTemplRef.Items.EndUpdate;
 end;

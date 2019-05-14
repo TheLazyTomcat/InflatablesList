@@ -41,7 +41,7 @@ object fShopsForm: TfShopsForm
     Left = 8
     Top = 24
     Width = 905
-    Height = 177
+    Height = 178
     Columns = <
       item
         Width = 30

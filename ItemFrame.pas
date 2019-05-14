@@ -951,7 +951,7 @@ If Assigned(fCurrentItemPtr) then
     SaveItem;
     For i := Low(fCurrentItemPtr^.Shops) to High(fCurrentItemPtr^.Shops) do
       fCurrentItemPtr^.Shops[i].RequiredCount := fCurrentItemPtr^.Count;
-    fShopsForm.ShowShops(fCurrentItemPtr^);
+    fShopsForm.ShowShops(fCurrentItemPtr);
     // flags are set in shops form
     LoadItem;
     DoListItemChange;

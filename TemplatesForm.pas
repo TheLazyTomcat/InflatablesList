@@ -172,6 +172,7 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
     NewName := lbTemplates.Items[lbTemplates.ItemIndex];
     If Dialogs.InputQuery('New template name','Enter new template name:',NewName) then
       begin
+        // following will also change all references to this template
         fILManager.ShopTemplateRename(lbTemplates.ItemIndex,NewName);
         lbTemplates.Items[lbTemplates.ItemIndex] := NewName;
       end;

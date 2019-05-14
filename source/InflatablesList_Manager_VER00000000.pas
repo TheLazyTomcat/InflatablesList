@@ -354,6 +354,7 @@ var
   end;
 
 begin
+ItemInitialize(Item);
 Item.TimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
 // pictures
 ReadPicture(Item.MainPicture);
@@ -388,11 +389,12 @@ Item.AvailablePieces := Stream_ReadInt32(Stream);
 SetLength(Item.Shops,Stream_ReadUInt32(Stream));
 For i := Low(Item.Shops) to High(Item.Shops) do
   fFNLoadItemShop(Stream,Item.Shops[i]);
-// prepare render
+// internals
 Item.ItemListRender := TBitmap.Create;
 Item.ItemListRender.PixelFormat := pf24bit;
 Item.ItemListRender.Width := fRenderWidth;
 Item.ItemListRender.Height := fRenderHeight;
+Item.FilteredOut := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -432,8 +434,8 @@ procedure TILManager_VER00000000.LoadItemShop_VER00000000(Stream: TStream; out S
 var
   i: Integer;
 begin
+ItemShopInitialize(Shop);
 Shop.Selected := Stream_ReadBool(Stream);
-Shop.Untracked := False;
 Shop.Name := Stream_ReadString(Stream);
 Shop.ShopURL := Stream_ReadString(Stream);
 Shop.ItemURL := Stream_ReadString(Stream);
@@ -453,7 +455,6 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
     Shop.PriceHistory[i].Value := Stream_ReadInt32(Stream);
     Shop.PriceHistory[i].Time := Stream_ReadFloat64(Stream);
   end;
-Shop.Notes := '';
 // parsing settings
 fFNLoadParsingSettings(Stream,Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);

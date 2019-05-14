@@ -39,7 +39,8 @@ uses
   ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
   InflatablesList_Manager_VER00000003 in 'source\InflatablesList_Manager_VER00000003.pas',
-  InflatablesList_Manager_VER00000004 in 'source\InflatablesList_Manager_VER00000004.pas';
+  InflatablesList_Manager_VER00000004 in 'source\InflatablesList_Manager_VER00000004.pas',
+  InflatablesList_Manager_VER00000005 in 'source\InflatablesList_Manager_VER00000005.pas';
 
 {$R *.res}
 

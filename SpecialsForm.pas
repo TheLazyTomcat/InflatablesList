@@ -12,8 +12,10 @@ type
     pnlWarning: TPanel;
     btnClearTextTags: TButton;
     btnClearParsing: TButton;
+    btnSetAltDownMethod: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
+    procedure btnSetAltDownMethodClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -61,6 +63,18 @@ For i := 0 to Pred(fILManager.ItemCount) do
       TILElementFinder(fILManager.ItemPtrs[i].Shops[j].ParsingSettings.Price.Finder).StageClear;
     end;
 Close;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnSetAltDownMethodClick(Sender: TObject);
+var
+  i,j:  Integer;
+begin
+For i := 0 to Pred(fILManager.ItemCount) do
+  For j := Low(fILManager.ItemPtrs[i].Shops) to High(fILManager.ItemPtrs[i].Shops) do
+    If AnsiSameText(fILManager.ItemPtrs[i].Shops[j].Name,'Žijeme Sportem') then
+      fILManager.ItemPtrs[i].Shops[j].AltDownMethod := True; 
 end;
 
 end.

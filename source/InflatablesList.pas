@@ -4,9 +4,7 @@ unit InflatablesList;
   {$message 'export/import (ini)'}
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
-{.$message 'shops wnd - check the list size, move view to newly added'}
 {$message 'per shop flag - alternative download (add spec to set this flag in selected shops)'}
-{.$message 'when renaming template - rename all references to it'}
 
 {
   when program or list settings are added...
@@ -20,10 +18,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_VER00000004;
+  InflatablesList_Manager_VER00000005;
 
 type
-  TILManager = TILManager_VER00000004;
+  TILManager = TILManager_VER00000005;
 
 implementation
 

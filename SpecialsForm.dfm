@@ -39,19 +39,28 @@ object fSpecialsForm: TfSpecialsForm
   object btnClearTextTags: TButton
     Left = 8
     Top = 48
-    Width = 121
+    Width = 137
     Height = 25
     Caption = 'Clear text tags'
     TabOrder = 1
     OnClick = btnClearTextTagsClick
   end
   object btnClearParsing: TButton
-    Left = 136
+    Left = 152
     Top = 48
-    Width = 121
+    Width = 137
     Height = 25
     Caption = 'Clear parsing settings'
     TabOrder = 2
     OnClick = btnClearParsingClick
+  end
+  object btnSetAltDownMethod: TButton
+    Left = 296
+    Top = 48
+    Width = 137
+    Height = 25
+    Caption = '... => AltDownMethod+'
+    TabOrder = 3
+    OnClick = btnSetAltDownMethodClick
   end
 end

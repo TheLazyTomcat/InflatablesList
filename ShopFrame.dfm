@@ -64,7 +64,7 @@ object frmShopFrame: TfrmShopFrame
     object leShopName: TLabeledEdit
       Left = 0
       Top = 16
-      Width = 209
+      Width = 185
       Height = 21
       EditLabel.Width = 57
       EditLabel.Height = 13
@@ -73,8 +73,8 @@ object frmShopFrame: TfrmShopFrame
       OnChange = leShopNameChange
     end
     object cbShopSelected: TCheckBox
-      Left = 216
-      Top = 18
+      Left = 200
+      Top = 8
       Width = 65
       Height = 17
       Caption = 'Selected'
@@ -413,13 +413,21 @@ object frmShopFrame: TfrmShopFrame
       end
     end
     object cbShopUntracked: TCheckBox
-      Left = 288
-      Top = 18
+      Left = 272
+      Top = 8
       Width = 73
       Height = 17
       Caption = 'Untracked'
       TabOrder = 17
       OnClick = cbShopUntrackedClick
+    end
+    object cbShopAltDownMethod: TCheckBox
+      Left = 200
+      Top = 30
+      Width = 161
+      Height = 17
+      Caption = 'Alternative download method'
+      TabOrder = 18
     end
   end
   object pmnHistory: TPopupMenu

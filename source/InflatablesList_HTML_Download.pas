@@ -38,14 +38,12 @@ ResultCode := -1;
 OutFileName := ExtractFilePath(ParamStr(0)) + CRC32ToStr(StringCRC32(URL));
 // prepare command line
 {
-  wget used options:
+  used wget options:
     -q      quiet
-    -t ...  numer of tries
     -T ...  timeout [s]
-    -w ...  seconds between retries
     -O ...  output file
 }
-CommandLine := Format('"%s" -q -t 5 -T 10 -w 1 -O "%s" "%s"',[
+CommandLine := Format('"%s" -q -T 10 -O "%s" "%s"',[
   ExtractFilePath(ParamStr(0)) + 'wget.exe',OutFileName,URL]);
 // init security attributes
 FillChar(SecurityAttr,SizeOf(TSecurityAttributes),0);

@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_VER00000004;
+unit InflatablesList_Manager_VER00000005;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,15 +7,15 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Manager_VER00000003;
+  InflatablesList_Types, InflatablesList_Manager_VER00000004;
 
 type
-  TILManager_VER00000004 = class(TILManager_VER00000003)
+  TILManager_VER00000005 = class(TILManager_VER00000004)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItemShop_VER00000004(Stream: TStream; const Shop: TILItemShop); virtual;
-    procedure LoadItemShop_VER00000004(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveItemShop_VER00000005(Stream: TStream; const Shop: TILItemShop); virtual;
+    procedure LoadItemShop_VER00000005(Stream: TStream; out Shop: TILItemShop); virtual;
   end;
 
 implementation
@@ -24,17 +24,17 @@ uses
   BinaryStreaming,
   InflatablesList_Manager_Base;
 
-procedure TILManager_VER00000004.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_VER00000005.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000004:
+  IL_LISTFILE_FILESTRUCTURE_00000005:
     begin
       fFNSaveToStream := SaveToStream_VER00000002;
       fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
       fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
       fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
       fFNSaveItem := SaveItem_VER00000000;
-      fFNSaveItemShop := SaveItemShop_VER00000004;
+      fFNSaveItemShop := SaveItemShop_VER00000005;
       fFNSaveParsingSettings := SaveParsingSettings_VER00000003;
       fFNExportShopTemplate := SaveShopTemplate_VER00000002;
     end;
@@ -45,17 +45,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000004.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_VER00000005.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000004:
+  IL_LISTFILE_FILESTRUCTURE_00000005:
     begin
       fFNLoadFromStream := LoadFromStream_VER00000002;
       fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
       fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
       fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
       fFNLoadItem := LoadItem_VER00000000;
-      fFNLoadItemShop := LoadItemShop_VER00000004;
+      fFNLoadItemShop := LoadItemShop_VER00000005;
       fFNLoadParsingSettings := LoadParsingSettings_VER00000003;
       fFNImportShopTemplate := LoadShopTemplate_VER00000002;
     end;
@@ -66,12 +66,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000004.SaveItemShop_VER00000004(Stream: TStream; const Shop: TILItemShop);
+procedure TILManager_VER00000005.SaveItemShop_VER00000005(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
 begin
 Stream_WriteBool(Stream,Shop.Selected);
 Stream_WriteBool(Stream,Shop.Untracked);
+Stream_WriteBool(Stream,Shop.AltDownMethod);
 Stream_WriteString(Stream,Shop.Name);
 Stream_WriteString(Stream,Shop.ShopURL);
 Stream_WriteString(Stream,Shop.ItemURL);
@@ -99,13 +100,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000004.LoadItemShop_VER00000004(Stream: TStream; out Shop: TILItemShop);
+procedure TILManager_VER00000005.LoadItemShop_VER00000005(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
 begin
 ItemShopInitialize(Shop);
 Shop.Selected := Stream_ReadBool(Stream);
 Shop.Untracked := Stream_ReadBool(Stream);
+Shop.AltDownMethod := Stream_ReadBool(Stream);
 Shop.Name := Stream_ReadString(Stream);
 Shop.ShopURL := Stream_ReadString(Stream);
 Shop.ItemURL := Stream_ReadString(Stream);
@@ -130,5 +132,6 @@ Shop.Notes := Stream_ReadString(Stream);
 fFNLoadParsingSettings(Stream,Shop.ParsingSettings);
 Shop.LastUpdateMsg := Stream_ReadString(Stream);
 end;
+
 
 end.

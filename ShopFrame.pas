@@ -13,6 +13,7 @@ type
     leShopName: TLabeledEdit;
     cbShopSelected: TCheckBox;
     cbShopUntracked: TCheckBox;
+    cbShopAltDownMethod: TCheckBox;    
     leShopURL: TLabeledEdit;
     btnShopURLOpen: TButton;
     leShopItemURL: TLabeledEdit;
@@ -123,6 +124,7 @@ begin
 leShopName.Text := '';
 cbShopSelected.Checked := False;
 cbShopUntracked.Checked := False;
+cbShopAltDownMethod.Checked := False;
 leShopURL.Text := '';
 leShopItemURL.Text := '';
 seAvailable.Value := 0;
@@ -225,6 +227,7 @@ If Assigned(fCurrentItemShopPtr) then
   begin
     fCurrentItemShopPtr^.Selected := cbShopSelected.Checked;
     fCurrentItemShopPtr^.Untracked := cbShopUntracked.Checked;
+    fCurrentItemShopPtr^.AltDownMethod := cbShopAltDownMethod.Checked;
     fCurrentItemShopPtr^.Name := leShopName.Text;
     fCurrentItemShopPtr^.ShopURL := leShopURL.Text;
     fCurrentItemShopPtr^.ItemURL := leShopItemURL.Text;
@@ -260,6 +263,7 @@ If Assigned(fCurrentItemShopPtr) then
     try
       cbShopSelected.Checked := fCurrentItemShopPtr^.Selected;
       cbShopUntracked.Checked := fCurrentItemShopPtr^.Untracked;
+      cbShopAltDownMethod.Checked := fCurrentItemShopPtr^.AltDownMethod;
       leShopName.Text := fCurrentItemShopPtr^.Name;
       leShopURL.Text := fCurrentItemShopPtr^.ShopURL;
       leShopItemURL.Text := fCurrentItemShopPtr^.ItemURL;

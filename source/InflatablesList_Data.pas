@@ -89,7 +89,7 @@ const
     'flag_icon_elsewhere','flag_icon_untested','flag_icon_testing',
     'flag_icon_tested','flag_icon_damaged','flag_icon_repaired',
     'flag_icon_pricechange','flag_icon_availchange','flag_icon_notavailable',
-    'flag_icon_lost');{$message 'change'}
+    'flag_icon_lost');
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Main picture (is present)','Package picture (is present)',

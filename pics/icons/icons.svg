@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.48747475"
-     inkscape:cx="-186.95606"
-     inkscape:cy="524.12971"
+     inkscape:cx="-49.326556"
+     inkscape:cy="522.07832"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -539,5 +539,23 @@
          id="rect4322"
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
+    <circle
+       inkscape:export-ydpi="11.902595"
+       inkscape:export-xdpi="11.902595"
+       inkscape:export-filename=".\flag_icon_lost.png"
+       r="60.491005"
+       cy="764.46783"
+       cx="536.23663"
+       id="circle4200"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="37.806877"
+       cy="764.46783"
+       cx="536.23663"
+       id="circle4202"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename=".\flag_icon_lost.png"
+       inkscape:export-xdpi="11.902595"
+       inkscape:export-ydpi="11.902595" />
   </g>
 </svg>

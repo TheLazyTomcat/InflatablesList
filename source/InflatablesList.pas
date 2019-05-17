@@ -5,11 +5,14 @@ unit InflatablesList;
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
 
+{$message 'save last update result code - indicate worst in main listing, add sort by worst result'}
+
 {
   when program or list settings are added...
 
     - failed download repeat count
     - history depth
+    - smooth wanted strip
 }
 
 {$INCLUDE '.\InflatablesList_defs.inc'}

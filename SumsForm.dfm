@@ -356,7 +356,7 @@ object fSumsForm: TfSumsForm
       Height = 17
       TabStop = False
       Caption = 'Flag must be clear'
-      TabOrder = 16
+      TabOrder = 17
       OnClick = CommonStateCheckBoxClick
     end
     object cbStateChecked: TCheckBox
@@ -368,7 +368,7 @@ object fSumsForm: TfSumsForm
       Caption = 'Flag must be set'
       Checked = True
       State = cbChecked
-      TabOrder = 17
+      TabOrder = 18
       OnClick = CommonStateCheckBoxClick
     end
     object cbStateGrayed: TCheckBox
@@ -379,8 +379,19 @@ object fSumsForm: TfSumsForm
       TabStop = False
       Caption = 'Flag will be ignored'
       State = cbGrayed
-      TabOrder = 18
+      TabOrder = 19
       OnClick = CommonStateCheckBoxClick
+    end
+    object cbFlagLost: TCheckBox
+      Left = 496
+      Top = 48
+      Width = 49
+      Height = 17
+      AllowGrayed = True
+      Caption = 'Lost'
+      State = cbGrayed
+      TabOrder = 16
+      OnClick = CommonFilterCheckBoxClick
     end
   end
 end

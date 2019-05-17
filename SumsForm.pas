@@ -44,6 +44,7 @@ type
     lblSumsByTextTag: TLabel;
     sgSumsByTextTag: TStringGrid;
     btnClose: TButton;
+    cbFlagLost: TCheckBox;
     procedure CommonFilterCheckBoxClick(Sender: TObject);
     procedure CommonStateCheckBoxClick(Sender: TObject);
     procedure CommonDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
@@ -536,6 +537,7 @@ try
   SetFlagCheckBoxState(cbFlagPriceChange,ilffPriceChangeSet,ilffPriceChangeClr);
   SetFlagCheckBoxState(cbFlagAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
   SetFlagCheckBoxState(cbFlagNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
+  SetFlagCheckBoxState(cbFlagLost,ilffLostSet,ilffLostClr);
 finally
   fFillingFilter := False;
 end;
@@ -581,6 +583,7 @@ GetFlagCheckBoxState(cbFlagRepaired,ilffRepairedSet,ilffRepairedClr);
 GetFlagCheckBoxState(cbFlagPriceChange,ilffPriceChangeSet,ilffPriceChangeClr);
 GetFlagCheckBoxState(cbFlagAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
 GetFlagCheckBoxState(cbFlagNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
+GetFlagCheckBoxState(cbFlagLost,ilffLostSet,ilffLostClr);
 fILManager.FilterSettings := TempFilterSettings;
 end;
 

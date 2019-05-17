@@ -39,7 +39,7 @@ type
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,
-                 ilifPriceChange,ilifAvailChange,ilifNotAvailable);
+                 ilifPriceChange,ilifAvailChange,ilifNotAvailable,ilifLost);
 
   TILItemFlags = set of TILItemFlag;
 
@@ -187,9 +187,9 @@ type
     ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtID,
     ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
-    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtTextTag,
-    ilivtWantedLevel,ilivtVariant,ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtSize,
-    ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
+    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,
+    ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
+    ilivtSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
     ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
     ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtSelectedShop);
@@ -228,7 +228,7 @@ type
     ilffTestingSet,ilffTestingClr,ilffTestedSet,ilffTestedClr,
     ilffDamagedSet,ilffDamagedClr,ilffRepairedSet,ilffRepairedClr,
     ilffPriceChangeSet,ilffPriceChangeClr,ilffAvailChangeSet,ilffAvailChangeClr,
-    ilffNotAvailableSet,ilffNotAvailableClr);
+    ilffNotAvailableSet,ilffNotAvailableClr,ilffLostSet,ilffLostClr);
 
   TILFilterFlags = set of TILFilterFlag;
 
@@ -476,6 +476,7 @@ SetFlagStateValue(Result,$00000200,ilifRepaired in ItemFlags);
 SetFlagStateValue(Result,$00000400,ilifPriceChange in ItemFlags);
 SetFlagStateValue(Result,$00000800,ilifAvailChange in ItemFlags);
 SetFlagStateValue(Result,$00001000,ilifNotAvailable in ItemFlags);
+SetFlagStateValue(Result,$00002000,ilifLost in ItemFlags);
 end;
  
 //------------------------------------------------------------------------------
@@ -496,6 +497,7 @@ IL_SetItemFlagValue(Result,ilifRepaired,GetFlagState(Flags,$00000200));
 IL_SetItemFlagValue(Result,ilifPriceChange,GetFlagState(Flags,$00000400));
 IL_SetItemFlagValue(Result,ilifAvailChange,GetFlagState(Flags,$00000800));
 IL_SetItemFlagValue(Result,ilifNotAvailable,GetFlagState(Flags,$00001000));
+IL_SetItemFlagValue(Result,ilifLost,GetFlagState(Flags,$00002000));
 end;
 
 //------------------------------------------------------------------------------
@@ -600,6 +602,8 @@ case ItemValueTag of
   ilivtAvailable:         Result := 45;
   ilivtShopCount:         Result := 46;
   ilivtSelectedShop:      Result := 47;
+  // newly added
+  ilivtFlagLost:          Result := 48;
 else
   {ilivtNone}
   Result := 0;
@@ -658,6 +662,8 @@ case Num of
   45: Result := ilivtAvailable;
   46: Result := ilivtShopCount;
   47: Result := ilivtSelectedShop;
+  // newly added
+  48: Result := ilivtFlagLost;
 else
   Result := ilivtNone;
 end;
@@ -730,6 +736,8 @@ SetFlagStateValue(Result,$00400000,ilffAvailChangeSet in FilterFlags);
 SetFlagStateValue(Result,$00800000,ilffAvailChangeClr in FilterFlags);
 SetFlagStateValue(Result,$01000000,ilffNotAvailableSet in FilterFlags);
 SetFlagStateValue(Result,$02000000,ilffNotAvailableClr in FilterFlags);
+SetFlagStateValue(Result,$04000000,ilffLostSet in FilterFlags);
+SetFlagStateValue(Result,$08000000,ilffLostClr in FilterFlags);
 end;
 
 //------------------------------------------------------------------------------
@@ -763,6 +771,8 @@ IL_SetFilterSettingsFlagValue(Result,ilffAvailChangeSet,GetFlagState(Flags,$0040
 IL_SetFilterSettingsFlagValue(Result,ilffAvailChangeClr,GetFlagState(Flags,$00800000));
 IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableSet,GetFlagState(Flags,$01000000));
 IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableClr,GetFlagState(Flags,$02000000));
+IL_SetFilterSettingsFlagValue(Result,ilffLostSet,GetFlagState(Flags,$04000000));
+IL_SetFilterSettingsFlagValue(Result,ilffLostClr,GetFlagState(Flags,$08000000));
 end;
 
 end.

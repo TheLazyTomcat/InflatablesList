@@ -202,7 +202,7 @@ If Length(ShopsToUpdate) > 0 then
     btnAction.Tag := 0;
     btnAction.Caption := 'Start';
     pbProgress.Position := 0;
-    meLog.Text := '';
+    meLog.Clear;
     // init list of shops for processing
     fShopsToUpdate := ShopsToUpdate;
     SetLength(fShopsToUpdate,Length(fShopsToUpdate));
@@ -231,6 +231,8 @@ If Length(ShopsToUpdate) > 0 then
       FreeAndNil(fUpdater);
     end;
     tmrUpdate.Enabled := False;
+    If meLog.Lines.Count > 0 then
+      meLog.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'list.update.log');
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;

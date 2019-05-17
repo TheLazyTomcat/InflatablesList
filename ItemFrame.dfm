@@ -737,8 +737,18 @@ object frmItemFrame: TfrmItemFrame
         EditLabel.Height = 13
         EditLabel.Caption = 'Text tag:'
         MaxLength = 3
-        TabOrder = 13
+        TabOrder = 14
         OnChange = leTextTagChange
+      end
+      object cbFlagLost: TCheckBox
+        Tag = 14
+        Left = 296
+        Top = 48
+        Width = 49
+        Height = 17
+        Caption = 'Lost'
+        TabOrder = 13
+        OnClick = CommonFlagClick
       end
     end
     object cmbManufacturer: TComboBox

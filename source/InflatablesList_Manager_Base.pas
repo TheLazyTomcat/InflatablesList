@@ -106,6 +106,7 @@ type
     class Function ItemSize(const Item: TILItem): UInt32; virtual;
     class Function ItemSizeStr(const Item: TILItem): String; virtual;
     class Function ItemTotalWeight(const Item: TILItem): UInt32; virtual;
+    class Function ItemTotalWeightStr(const Item: TILItem): String; virtual;
     class Function ItemUnitPrice(const Item: TILItem): UInt32; virtual;
     class Function ItemTotalPriceLowest(const Item: TILItem): UInt32; virtual;
     class Function ItemTotalPriceSelected(const Item: TILItem): UInt32; virtual;
@@ -363,7 +364,9 @@ var
       // basic specs
       ilivtMainPicture:       Result := IL_CompareBool(Assigned(fList[Idx1].MainPicture),Assigned(fList[Idx2].MainPicture));
       ilivtPackagePicture:    Result := IL_CompareBool(Assigned(fList[Idx1].PackagePicture),Assigned(fList[Idx2].PackagePicture));
-      ilivtItemType:          Result := IL_CompareInt32(Int32(fList[Idx1].ItemType),Int32(fList[Idx2].ItemType));
+      ilivtItemType:          Result := IL_CompareText(
+                                fDataProvider.GetItemTypeString(fList[Idx1].ItemType),
+                                fDataProvider.GetItemTypeString(fList[Idx2].ItemType));
       ilivtItemTypeSpec:      Result := IL_CompareText(fList[Idx1].ItemTypeSpec,fList[Idx2].ItemTypeSpec);
       ilivtCount:             Result := IL_CompareUInt32(fList[Idx1].Count,fList[Idx2].Count);
       ilivtManufacturer:      Result := IL_CompareText(
@@ -385,6 +388,7 @@ var
       ilivtFlagPriceChange:   Result := IL_CompareBool(ilifPriceChange in fList[Idx1].Flags,ilifPriceChange in fList[Idx2].Flags);
       ilivtFlagAvailChange:   Result := IL_CompareBool(ilifAvailChange in fList[Idx1].Flags,ilifAvailChange in fList[Idx2].Flags);
       ilivtFlagNotAvailable:  Result := IL_CompareBool(ilifNotAvailable in fList[Idx1].Flags,ilifNotAvailable in fList[Idx2].Flags);
+      ilivtFlagLost:          Result := IL_CompareBool(ilifLost in fList[Idx1].Flags,ilifLost in fList[Idx2].Flags);
       ilivtTextTag:           Result := IL_CompareText(fList[Idx1].TextTag,fList[Idx2].TextTag);
       // extended specs
       ilivtWantedLevel:       If (ilifWanted in fList[Idx1].Flags) and (ilifWanted in fList[Idx2].Flags) then
@@ -764,6 +768,19 @@ end;
 
 //------------------------------------------------------------------------------
 
+class Function TILManager_Base.ItemTotalWeightStr(const Item: TILItem): String;
+var
+  Temp: UInt32;
+begin
+Temp := ItemTotalWeight(Item);
+If Temp > 0 then
+  Result := Format('%g kg',[ItemTotalWeight(Item) / 1000])
+else
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
 class Function TILManager_Base.ItemUnitPrice(const Item: TILItem): UInt32;
 begin
 If Item.UnitPriceSelected > 0 then
@@ -1120,12 +1137,11 @@ var
   TempStr:  String;
   TempInt:  Integer;
   ItemFlag: TILItemFlag;
+  SelShop:  TILItemShop;
 
   procedure DrawWantedLevelStrip(Canvas: TCanvas);
   const
     WL_STRIP_COLORS: array[0..7] of TColor =
-    //(clWhite,$00D917F6,$00DE37F7,$00E355F9,$00E874FA,$00EE95FB,$00F3B4FD,$00F8D4FE);
-    //(clWhite,$00F67A15,$00F78C34,$00F99D52,$00FAAF71,$00FBBF8E,$00FDD1AD,$00FEE3CC);
       (clWhite,$00FEE3CC,$00FDD1AD,$00FBBF8E,$00FAAF71,$00F99D52,$00F78C34,$00F67A15);
   var
     ii: UInt32;
@@ -1215,6 +1231,30 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
         TextOut(TempInt,fRenderHeight - 25,Item.TextTag);
       end;
 
+    // selected shop and available count
+    Font.Size := 8;
+    Font.Style := [];
+    TempInt := 5;
+    If ItemSelectedShop(Item,SelShop) then
+      begin
+        If Length(Item.Shops) > 1 then
+          TempStr := Format('%s [%d]',[SelShop.Name,Length(Item.Shops)])
+        else
+          TempStr := SelShop.Name;
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
+        Inc(TempInt,15);
+
+        If Item.AvailablePieces <> 0 then
+          begin
+            If Item.AvailablePieces < 0 then
+              TempStr := Format('more than %d pcs',[Abs(Item.AvailablePieces)])
+            else
+              TempStr := Format('%d pcs',[Item.AvailablePieces]);
+            TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
+            Inc(TempInt,15);
+          end;
+      end;
+
     // prices
     Font.Size := 12;
     Font.Style := Font.Style + [fsBold];
@@ -1224,7 +1264,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%d (%d) Kè',[ItemTotalPrice(Item),ItemUnitPrice(Item)])
         else
           TempStr := Format('%d Kè',[ItemTotalPrice(Item)]);
-        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),5,TempStr);
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
       end;
 
     Font.Size := 10;
@@ -1235,7 +1275,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%d (%d) Kè',[ItemTotalPriceLowest(Item),Item.UnitPriceLowest])
         else
           TempStr := Format('%d Kè',[ItemTotalPriceLowest(Item)]);
-        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),25,TempStr);
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt + 20,TempStr);
       end;
 
     // main picture
@@ -1303,6 +1343,7 @@ If fFilterSettings.Flags <> [] then
     CheckItemFlag($00000400,ilifPriceChange,ilffPriceChangeSet,ilffPriceChangeClr);
     CheckItemFlag($00000800,ilifAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
     CheckItemFlag($00001000,ilifNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
+    CheckItemFlag($00002000,ilifLost,ilffLostSet,ilffLostClr);
   end;
 StateSet := False;
 State := False; // will be later set to true value

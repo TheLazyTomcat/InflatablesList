@@ -98,6 +98,7 @@ type
     N2: TMenuItem;
     mniIM_Switch: TMenuItem;
     diaImgExport: TSaveDialog;
+    cbFlagLost: TCheckBox;
     procedure lblItemTitleClick(Sender: TObject);    
     procedure imgPictureClick(Sender: TObject);
     procedure cmbItemTypeChange(Sender: TObject);
@@ -208,7 +209,11 @@ begin
 If Assigned(fCurrentItemPtr) then
   begin
     // total weight
-    lblTotalWeight.Caption := Format('%g kg',[fILManager.ItemTotalWeight(fCurrentItemPtr^) / 1000]);
+    If fILManager.ItemTotalWeight(fCurrentItemPtr^) > 0 then
+      lblTotalWeight.Caption := fILManager.ItemTotalWeightStr(fCurrentItemPtr^)
+    else
+      lblTotalWeight.Caption := '-';
+    // selected shop
     If fILManager.ItemSelectedShop(fCurrentItemPtr^,SelectedShop) then
       lblSelectedShop.Caption := SelectedShop.Name
     else
@@ -344,6 +349,7 @@ If Assigned(fCurrentItemPtr) then
     IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifPriceChange,cbFlagPriceChange.Checked);
     IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifAvailChange,cbFlagAvailChange.Checked);
     IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifNotAvailable,cbFlagNotAvailable.Checked);
+    IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifLost,cbFlagLost.Checked);
     fCurrentItemPtr^.TextTag := leTextTag.Text;
     // extended specs
     fCurrentItemPtr^.WantedLevel := seWantedLevel.Value;    
@@ -393,6 +399,7 @@ If Assigned(fCurrentItemPtr) then
       cbFlagPriceChange.Checked := ilifPriceChange in fCurrentItemPtr^.Flags;
       cbFlagAvailChange.Checked := ilifAvailChange in fCurrentItemPtr^.Flags;
       cbFlagNotAvailable.Checked := ilifNotAvailable in fCurrentItemPtr^.Flags;
+      cbFlagLost.Checked := ilifLost in fCurrentItemPtr^.Flags;
       leTextTag.Text := fCurrentItemPtr^.TextTag;
       // extended specs
       seWantedLevel.Value := fCurrentItemPtr^.WantedLevel;
@@ -692,6 +699,7 @@ If Sender is TCheckBox then
           11: IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifPriceChange,cbFlagPriceChange.Checked);
           12: IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifAvailChange,cbFlagAvailChange.Checked);
           13: IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifNotAvailable,cbFlagNotAvailable.Checked);
+          14: IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifLost,cbFlagLost.Checked);
         else
           Exit;
         end;

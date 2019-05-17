@@ -1,11 +1,11 @@
 object fMainForm: TfMainForm
-  Left = 141
-  Top = 32
+  Left = 38
+  Top = 47
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 675
-  ClientWidth = 1112
+  ClientWidth = 1232
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object fMainForm: TfMainForm
   PixelsPerInch = 96
   TextHeight = 13
   object gbDetails: TGroupBox
-    Left = 520
+    Left = 640
     Top = 8
     Width = 585
     Height = 641
@@ -43,7 +43,7 @@ object fMainForm: TfMainForm
   object sbStatusBar: TStatusBar
     Left = 0
     Top = 656
-    Width = 1112
+    Width = 1232
     Height = 19
     Panels = <
       item
@@ -52,7 +52,7 @@ object fMainForm: TfMainForm
       end
       item
         Alignment = taRightJustify
-        Width = 500
+        Width = 540
       end
       item
         Width = 50
@@ -61,7 +61,7 @@ object fMainForm: TfMainForm
   object lbList: TListBox
     Left = 8
     Top = 8
-    Width = 505
+    Width = 625
     Height = 610
     Style = lbOwnerDrawFixed
     IntegralHeight = True
@@ -75,7 +75,7 @@ object fMainForm: TfMainForm
   object eSearchFor: TEdit
     Left = 8
     Top = 627
-    Width = 473
+    Width = 593
     Height = 21
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -89,7 +89,7 @@ object fMainForm: TfMainForm
     OnKeyPress = eSearchForKeyPress
   end
   object btnFindPrev: TButton
-    Left = 481
+    Left = 601
     Top = 627
     Width = 16
     Height = 21
@@ -104,7 +104,7 @@ object fMainForm: TfMainForm
     OnClick = btnFindPrevClick
   end
   object btnFindNext: TButton
-    Left = 497
+    Left = 617
     Top = 627
     Width = 16
     Height = 21

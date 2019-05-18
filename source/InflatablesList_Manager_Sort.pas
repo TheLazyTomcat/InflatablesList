@@ -201,6 +201,15 @@ var
                                 Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
                               else
                                 Result := 0;
+      ilivtWorstUpdateResult: If (Length(fList[Idx1].Shops) > 0) and (Length(fList[Idx2].Shops) > 0) then
+                                Result := IL_CompareInt32(Ord(ItemWorstUpdateResult(fList[Idx1])),Ord(ItemWorstUpdateResult(fList[Idx2])))
+                              else If Length(fList[Idx1].Shops) > 0 then
+                                Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
+                              else If Length(fList[Idx2].Shops) > 0 then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;
+                              {$message 'implement'}
     else
       {vtNone}
       Result := 0;

@@ -106,7 +106,8 @@ const
     'Main picture file','Main picture file (is present)','Package picture file',
     'Package picture file (is present)','Default unit price','Lowest unit price',
     'Lowest total price','Selected unit price','Selected total price',
-    'Total price','Available pieces','Shop count','Selected shop');
+    'Total price','Available pieces','Shop count','Selected shop',
+    'Worst update result');
 
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
     'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles','def_pic_ball',

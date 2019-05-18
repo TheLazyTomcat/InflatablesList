@@ -208,7 +208,8 @@ type
     ilivtSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
     ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
-    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtSelectedShop);
+    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtSelectedShop,
+    ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -670,6 +671,7 @@ case ItemValueTag of
   ilivtSelectedShop:      Result := 47;
   // newly added
   ilivtFlagLost:          Result := 48;
+  ilivtWorstUpdateResult: Result := 49;
 else
   {ilivtNone}
   Result := 0;
@@ -730,6 +732,7 @@ case Num of
   47: Result := ilivtSelectedShop;
   // newly added
   48: Result := ilivtFlagLost;
+  49: Result := ilivtWorstUpdateResult;
 else
   Result := ilivtNone;
 end;

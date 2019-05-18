@@ -10,6 +10,7 @@ uses
 type
   TfSpecialsForm = class(TForm)
     pnlWarning: TPanel;
+    leParam: TLabeledEdit;
     btnClearTextTags: TButton;
     btnClearParsing: TButton;
     btnSetAltDownMethod: TButton;
@@ -73,7 +74,7 @@ var
 begin
 For i := 0 to Pred(fILManager.ItemCount) do
   For j := Low(fILManager.ItemPtrs[i].Shops) to High(fILManager.ItemPtrs[i].Shops) do
-    If AnsiSameText(fILManager.ItemPtrs[i].Shops[j].Name,'Žijeme Sportem') then
+    If AnsiSameText(fILManager.ItemPtrs[i].Shops[j].Name,leParam.Text) then
       fILManager.ItemPtrs[i].Shops[j].AltDownMethod := True; 
 end;
 

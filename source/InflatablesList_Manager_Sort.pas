@@ -209,7 +209,6 @@ var
                                 Result := IL_NegateValue(-1,Reversed)
                               else
                                 Result := 0;
-                              {$message 'implement'}
     else
       {vtNone}
       Result := 0;

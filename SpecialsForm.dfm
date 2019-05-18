@@ -34,33 +34,43 @@ object fSpecialsForm: TfSpecialsForm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 1
   end
   object btnClearTextTags: TButton
     Left = 8
-    Top = 48
+    Top = 96
     Width = 137
     Height = 25
     Caption = 'Clear text tags'
-    TabOrder = 1
+    TabOrder = 2
     OnClick = btnClearTextTagsClick
   end
   object btnClearParsing: TButton
     Left = 152
-    Top = 48
+    Top = 96
     Width = 137
     Height = 25
     Caption = 'Clear parsing settings'
-    TabOrder = 2
+    TabOrder = 3
     OnClick = btnClearParsingClick
   end
   object btnSetAltDownMethod: TButton
     Left = 296
-    Top = 48
+    Top = 96
     Width = 137
     Height = 25
     Caption = '... => AltDownMethod+'
-    TabOrder = 3
+    TabOrder = 4
     OnClick = btnSetAltDownMethodClick
+  end
+  object leParam: TLabeledEdit
+    Left = 8
+    Top = 64
+    Width = 601
+    Height = 21
+    EditLabel.Width = 207
+    EditLabel.Height = 13
+    EditLabel.Caption = 'Parameter (represented as ... in captions):'
+    TabOrder = 0
   end
 end

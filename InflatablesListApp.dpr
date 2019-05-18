@@ -11,11 +11,11 @@ uses
   ParsingForm in 'ParsingForm.pas' {fParsingForm},
   TemplatesForm in 'TemplatesForm.pas' {fTemplatesForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
-  TextEditForm in 'TextEditForm.pas' {fTextEditForm},  
+  TextEditForm in 'TextEditForm.pas' {fTextEditForm},
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
-  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},  
+  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
   InflatablesList_Types in 'source\InflatablesList_Types.pas',
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
@@ -47,7 +47,8 @@ uses
   InflatablesList_HTML_Preprocessor in 'source\InflatablesList_HTML_Preprocessor.pas',
   InflatablesList_HTML_Tokenizer in 'source\InflatablesList_HTML_Tokenizer.pas',
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
-  InflatablesList in 'source\InflatablesList.pas';
+  InflatablesList in 'source\InflatablesList.pas',
+  InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas';
 
 {$R *.res}
 

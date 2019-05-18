@@ -50,6 +50,7 @@ with ItemShop.ParsingSettings do
     SetLength(Price.Extraction,0);
     Price.Finder := nil;
   end;
+ItemShop.LastUpdateRes := ilisurSuccess;
 ItemShop.LastUpdateMsg := '';
 ItemShop.RequiredCount := 0;
 end;

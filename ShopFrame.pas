@@ -617,6 +617,7 @@ If Assigned(fCurrentItemShopPtr) then
         // retrieve results
         fCurrentItemShopPtr^.Available := Temp.Available;
         fCurrentItemShopPtr^.Price := Temp.Price;
+        fCurrentItemShopPtr^.LastUpdateRes := Temp.LastUpdateRes;
         fCurrentItemShopPtr^.LastUpdateMsg := Temp.LastUpdateMsg;
       finally
         fILManager.ItemShopFinalize(Temp);

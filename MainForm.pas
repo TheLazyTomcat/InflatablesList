@@ -56,6 +56,7 @@ type
     acSave: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);    
     procedure pmnListMenuPopup(Sender: TObject);
     procedure mniLM_AddClick(Sender: TObject);
     procedure mniLM_AddCopyClick(Sender: TObject);
@@ -264,6 +265,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.FormShow(Sender: TObject);
+begin
+fILManager.ItemReinitSize(lbList);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.pmnListMenuPopup(Sender: TObject);
 begin
 mniLM_AddCopy.Enabled := lbList.ItemIndex >= 0;
@@ -285,6 +293,7 @@ lbList.ItemIndex := fILManager.ItemAddEmpty;
 If Index >= 0 then
   frmItemFrame.SetItem(fILManager.ItemPtrs[Index],False);
 lbList.OnClick(nil);
+fILManager.ItemReinitSize(lbList);
 lbList.Invalidate;
 ShowIndexAndCount;
 end;
@@ -303,6 +312,7 @@ If lbList.ItemIndex >= 0 then
     If Index >= 0 then
       frmItemFrame.SetItem(fILManager.ItemPtrs[Index],False);
     lbList.OnClick(nil);
+    fILManager.ItemReinitSize(lbList);
     lbList.Invalidate;
     ShowIndexAndCount;
   end;
@@ -331,6 +341,7 @@ If lbList.ItemIndex >= 0 then
       fILManager.ItemDelete(Index);
       If lbList.ItemIndex >= 0 then
         frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+      fILManager.ItemReinitSize(lbList);
       lbList.Invalidate;
       ShowIndexAndCount;
     end;
@@ -348,6 +359,7 @@ If lbList.Count > 0 then
       lbList.OnClick(nil);
       lbList.Items.Clear;
       fILManager.ItemClear;
+      fILManager.ItemReinitSize(lbList);
       lbList.Invalidate;
       ShowIndexAndCount;
     end;

@@ -18,8 +18,10 @@ type
     procedure ItemInitInternals(var Item: TILItem); override;
   public
     constructor Create(ListComponent: TListBox);
+    procedure ItemReinitSize(ListComponent: TListBox); virtual;
     procedure ItemRedraw(var Item: TILItem); overload; virtual;
-    procedure ItemRedraw; overload; virtual;    
+    procedure ItemRedraw; overload; virtual;
+    property RenderWidth: Integer read fRenderWidth write fRenderWidth;
   end;
 
 implementation
@@ -39,10 +41,22 @@ end;
 
 constructor TILManager_Draw.Create(ListComponent: TListBox);
 begin
-inherited Create(ListComponent);
-fRenderWidth := ListComponent.ClientWidth  - (2 * GetSystemMetrics(SM_CXEDGE)) - GetSystemMetrics(SM_CXVSCROLL);
+inherited Create;
+ItemReinitSize(ListComponent);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Draw.ItemReinitSize(ListComponent: TListBox);
+var
+  OldWidth: Integer;
+begin
+OldWidth := fRenderWidth;
+fRenderWidth := ListComponent.ClientWidth;
 fRenderHeight := ListComponent.ItemHeight;
 fFontSettings := ListComponent.Font;
+If OldWidth <> fRenderWidth then
+  ItemRedraw;
 end;
 
 //------------------------------------------------------------------------------
@@ -158,7 +172,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%s [%d]',[SelShop.Name,Length(Item.Shops)])
         else
           TempStr := SelShop.Name;
-        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
         Inc(TempInt,15);
 
         If Item.AvailablePieces <> 0 then
@@ -167,7 +181,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
               TempStr := Format('more than %d pcs',[Abs(Item.AvailablePieces)])
             else
               TempStr := Format('%d pcs',[Item.AvailablePieces]);
-            TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
+            TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
             Inc(TempInt,15);
           end;
       end;
@@ -181,7 +195,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%d (%d) Kè',[ItemTotalPrice(Item),ItemUnitPrice(Item)])
         else
           TempStr := Format('%d Kè',[ItemTotalPrice(Item)]);
-        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt,TempStr);
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
       end;
 
     Font.Size := 10;
@@ -192,14 +206,23 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
           TempStr := Format('%d (%d) Kè',[ItemTotalPriceLowest(Item),Item.UnitPriceLowest])
         else
           TempStr := Format('%d Kè',[ItemTotalPriceLowest(Item)]);
-        TextOut(fRenderWidth - (TextWidth(TempStr) + 118),TempInt + 20,TempStr);
+        TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
       end;
 
     // main picture
     If Assigned(Item.MainPicture) and not fNoPictures then
-      Draw(fRenderWidth - 98,2,Item.MainPicture)
+      Draw(fRenderWidth - 102,2,Item.MainPicture)
     else
-      Draw(fRenderWidth - 98,2,fDataProvider.ItemDefaultPictures[Item.ItemType]);
+      Draw(fRenderWidth - 102,2,fDataProvider.ItemDefaultPictures[Item.ItemType]);
+
+    // worst result bar
+    If Length(Item.Shops) > 0 then
+      begin
+        Pen.Style := psClear;
+        Brush.Style := bsSolid;
+        Brush.Color := IL_ItemShopUpdateResultToColor(ItemWorstUpdateResult(Item));
+        Polygon([Point(fRenderWidth - 15,0),Point(fRenderWidth,0),Point(fRenderWidth,15)]);
+      end;
   end;
 end;
 

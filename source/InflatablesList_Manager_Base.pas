@@ -44,7 +44,7 @@ type
     class procedure ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False); virtual;
     class procedure ItemShopCopy(const Src: TILItemShop; out Dest: TILItemShop); virtual;
     // constructors/destructors
-    constructor Create(ListComponent: TListBox);
+    constructor Create;
     destructor Destroy; override;
     // list manipulation
     Function ItemAddEmpty: Integer; virtual;
@@ -295,7 +295,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILManager_Base.Create(ListComponent: TListBox);
+constructor TILManager_Base.Create;
 begin
 inherited Create;
 fFileName := '';

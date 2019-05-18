@@ -29,7 +29,7 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
-  InflatablesList_Manager_Base, InflatablesList_Manager_IO,
+  InflatablesList_Manager_IO,
   InflatablesList_HTML_ElementFinder;
 
 procedure TILManager_00000002.InitSaveFunctions(Struct: UInt32);

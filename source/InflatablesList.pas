@@ -5,8 +5,6 @@ unit InflatablesList;
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
 
-{$message 'save last update result code - indicate worst in main listing, add sort by worst result'}
-
 {
   manager inheritance chain:
 
@@ -24,10 +22,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_00000005;
+  InflatablesList_Manager_00000006;
 
 type
-  TILManager = TILManager_00000005;
+  TILManager = TILManager_00000006;
 
 implementation
 

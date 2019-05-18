@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_00000004;
+unit InflatablesList_Manager_00000006;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,15 +7,15 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Manager_00000003;
+  InflatablesList_Types, InflatablesList_Manager_00000005;
 
 type
-  TILManager_00000004 = class(TILManager_00000003)
+  TILManager_00000006 = class(TILManager_00000005)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItemShop_00000004(Stream: TStream; const Shop: TILItemShop); virtual;
-    procedure LoadItemShop_00000004(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveItemShop_00000006(Stream: TStream; const Shop: TILItemShop); virtual;
+    procedure LoadItemShop_00000006(Stream: TStream; out Shop: TILItemShop); virtual;
   end;
 
 implementation
@@ -24,17 +24,17 @@ uses
   BinaryStreaming,
   InflatablesList_Manager_IO;
 
-procedure TILManager_00000004.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_00000006.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000004:
+  IL_LISTFILE_FILESTRUCTURE_00000006:
     begin
       fFNSaveToStream := SaveToStream_00000002;
       fFNSaveSortingSettings := SaveSortingSettings_00000001;
       fFNSaveShopTemplates := SaveShopTemplates_00000000;
       fFNSaveFilterSettings := SaveFilterSettings_00000000;
       fFNSaveItem := SaveItem_00000000;
-      fFNSaveItemShop := SaveItemShop_00000004;
+      fFNSaveItemShop := SaveItemShop_00000006;
       fFNSaveParsingSettings := SaveParsingSettings_00000003;
       fFNExportShopTemplate := SaveShopTemplate_00000002;
     end;
@@ -45,17 +45,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_00000004.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_00000006.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
-  IL_LISTFILE_FILESTRUCTURE_00000004:
+  IL_LISTFILE_FILESTRUCTURE_00000006:
     begin
       fFNLoadFromStream := LoadFromStream_00000002;
       fFNLoadSortingSettings := LoadSortingSettings_00000001;
       fFNLoadShopTemplates := LoadShopTemplates_00000000;
       fFNLoadFilterSettings := LoadFilterSettings_00000000;
       fFNLoadItem := LoadItem_00000000;
-      fFNLoadItemShop := LoadItemShop_00000004;
+      fFNLoadItemShop := LoadItemShop_00000006;
       fFNLoadParsingSettings := LoadParsingSettings_00000003;
       fFNImportShopTemplate := LoadShopTemplate_00000002;
     end;
@@ -66,12 +66,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_00000004.SaveItemShop_00000004(Stream: TStream; const Shop: TILItemShop);
+procedure TILManager_00000006.SaveItemShop_00000006(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
 begin
 Stream_WriteBool(Stream,Shop.Selected);
 Stream_WriteBool(Stream,Shop.Untracked);
+Stream_WriteBool(Stream,Shop.AltDownMethod);
 Stream_WriteString(Stream,Shop.Name);
 Stream_WriteString(Stream,Shop.ShopURL);
 Stream_WriteString(Stream,Shop.ItemURL);
@@ -94,18 +95,20 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
 // parsing settings
 Stream_WriteString(Stream,Shop.Notes);
 fFNSaveParsingSettings(Stream,Shop.ParsingSettings);
+Stream_WriteInt32(Stream,IL_ItemShopUpdateResultToNum(Shop.LastUpdateRes));
 Stream_WriteString(Stream,Shop.LastUpdateMsg);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_00000004.LoadItemShop_00000004(Stream: TStream; out Shop: TILItemShop);
+procedure TILManager_00000006.LoadItemShop_00000006(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
 begin
 ItemShopInitialize(Shop);
 Shop.Selected := Stream_ReadBool(Stream);
 Shop.Untracked := Stream_ReadBool(Stream);
+Shop.AltDownMethod := Stream_ReadBool(Stream);
 Shop.Name := Stream_ReadString(Stream);
 Shop.ShopURL := Stream_ReadString(Stream);
 Shop.ItemURL := Stream_ReadString(Stream);
@@ -128,6 +131,7 @@ For i := Low(Shop.PriceHistory) to High(Shop.PriceHistory) do
 Shop.Notes := Stream_ReadString(Stream);
 // parsing settings
 fFNLoadParsingSettings(Stream,Shop.ParsingSettings);
+Shop.LastUpdateRes := IL_NumToItemShopUpdateResult(Stream_ReadInt32(Stream));
 Shop.LastUpdateMsg := Stream_ReadString(Stream);
 end;
 

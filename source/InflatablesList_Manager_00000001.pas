@@ -22,7 +22,7 @@ implementation
 
 uses
   BinaryStreaming,
-  InflatablesList_Types, InflatablesList_Manager_Base,
+  InflatablesList_Types, 
   InflatablesList_Manager_IO;
 
 procedure TILManager_00000001.InitSaveFunctions(Struct: UInt32);

@@ -33,6 +33,7 @@ type
     Function ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
     procedure ItemUpdateShopsHistory(var Item: TILItem); virtual;
     class Function ItemShopUpdate(var Shop: TILItemShop): Boolean; virtual;
+    Function ItemWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult; virtual;
   end;
 
 implementation
@@ -370,6 +371,18 @@ else
       [Shop.Available,Shop.Price]),ilisurMildSucc,Shop.Available,Shop.Price);
     Result := True;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult;
+var
+  i:  Integer;
+begin
+Result := ilisurSuccess;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If Item.Shops[i].LastUpdateRes > Result then
+    Result := Item.Shops[i].LastUpdateRes;
 end;
 
 end.

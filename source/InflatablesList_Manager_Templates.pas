@@ -140,6 +140,7 @@ fShopTemplates[Result].ShopData.Price := 0;
 SetLength(fShopTemplates[Result].ShopData.AvailHistory,0);
 SetLength(fShopTemplates[Result].ShopData.PriceHistory,0);
 fShopTemplates[Result].ShopData.ParsingSettings.TemplateRef := '';
+fShopTemplates[Result].ShopData.LastUpdateRes := ilisurSuccess;
 fShopTemplates[Result].ShopData.LastUpdateMsg := '';
 end;
 

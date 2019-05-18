@@ -107,8 +107,8 @@ type
   TILItemShopHistory = array of TILItemShopHistoryItem;
 
   TILItemShopUpdateResult = (
-    ilisurSuccess,    // green    ilurSuccess
-    ilisurMildSucc,   // lime     ilurSuccess on untracked
+    ilisurSuccess,    // lime     ilurSuccess
+    ilisurMildSucc,   // green    ilurSuccess on untracked
     ilisurDataFail,   // blue     ilurNoLink, ilurNoData
     ilisurSoftFail,   // yellow   ilurFailAvailSearch, ilurFailAvailValGet
     ilisurHardFail,   // orange   ilurFailSearch, ilurFailValGet
@@ -145,8 +145,14 @@ type
 
   TILItemShopUpdates = array of TILItemShopUpdate;
 
+Function IL_ItemShopUpdateResultToNum(UpdateResult: TILItemShopUpdateResult): Int32;
+Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
+
+Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
+
 //- main item structure --------------------------------------------------------
 
+type
   TILItem = record
     // internals
     Index:              Integer;  // used when sorting
@@ -557,6 +563,56 @@ case Num of
   2:  Result := ilpemNegTagIsCount;
 else
   Result := ilpemFirstInteger;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ItemShopUpdateResultToNum(UpdateResult: TILItemShopUpdateResult): Int32;
+begin
+case UpdateResult of
+  ilisurMildSucc: Result := 1;
+  ilisurDataFail: Result := 2;
+  ilisurSoftFail: Result := 3;
+  ilisurHardFail: Result := 4;
+  ilisurCritical: Result := 5;
+  ilisurFatal:    Result := 6;
+else
+ {ilisurSuccess}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
+begin
+case Num of
+  1:  Result := ilisurMildSucc;
+  2:  Result := ilisurDataFail;
+  3:  Result := ilisurSoftFail;
+  4:  Result := ilisurHardFail;
+  5:  Result := ilisurCritical;
+  6:  Result := ilisurFatal;
+else
+  Result := ilisurSuccess;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
+begin
+case UpdateResult of
+  ilisurMildSucc: Result := clGreen;
+  ilisurDataFail: Result := clBlue;
+  ilisurSoftFail: Result := clYellow;
+  ilisurHardFail: Result := $00409BFF;  // orange
+  ilisurCritical: Result := clRed;
+  ilisurFatal:    Result := clBlack;
+else
+ {ilisurSuccess}
+  Result := clLime;
 end;
 end;
 

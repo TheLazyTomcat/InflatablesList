@@ -147,6 +147,7 @@ with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
   begin
     fShopsToUpdate[ProcessingIndex].ItemShopPtr^.Available := ItemShop.Available;
     fShopsToUpdate[ProcessingIndex].ItemShopPtr^.Price := ItemShop.Price;
+    fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateRes := ItemShop.LastUpdateRes;
     fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg := ItemShop.LastUpdateMsg;
     UniqueString(fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg);
     fShopsToUpdate[ProcessingIndex].Done := True;

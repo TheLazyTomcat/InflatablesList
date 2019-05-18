@@ -8,6 +8,10 @@ unit InflatablesList;
 {$message 'save last update result code - indicate worst in main listing, add sort by worst result'}
 
 {
+  manager inheritance chain:
+
+    Base - Utils - Shops - IO - Sort - Filter - Templates - Draw - VER0 ... VERn - final
+
   when program or list settings are added...
 
     - failed download repeat count
@@ -20,10 +24,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_VER00000005;
+  InflatablesList_Manager_00000005;
 
 type
-  TILManager = TILManager_VER00000005;
+  TILManager = TILManager_00000005;
 
 implementation
 

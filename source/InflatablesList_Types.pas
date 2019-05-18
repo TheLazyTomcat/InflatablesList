@@ -106,6 +106,15 @@ type
 
   TILItemShopHistory = array of TILItemShopHistoryItem;
 
+  TILItemShopUpdateResult = (
+    ilisurSuccess,    // green    ilurSuccess
+    ilisurMildSucc,   // lime     ilurSuccess on untracked
+    ilisurDataFail,   // blue     ilurNoLink, ilurNoData
+    ilisurSoftFail,   // yellow   ilurFailAvailSearch, ilurFailAvailValGet
+    ilisurHardFail,   // orange   ilurFailSearch, ilurFailValGet
+    ilisurCritical,   // red      ilurFailDown, ilurFailParse
+    ilisurFatal);     // black    ilurFail, unknown state
+
   TILItemShop = record
     Selected:         Boolean;
     Untracked:        Boolean;
@@ -120,6 +129,7 @@ type
     Notes:            String;
     // parsing stuff
     ParsingSettings:  TILItemShopParsingSetting;
+    LastUpdateRes:    TILItemShopUpdateResult;
     LastUpdateMsg:    String;
     // internals
     RequiredCount:    UInt32;   // used internally in updates, ignored otherwise

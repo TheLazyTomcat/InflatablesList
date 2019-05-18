@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_VER00000000;
+unit InflatablesList_Manager_00000000;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,28 +7,28 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Manager_Base;
+  InflatablesList_Types, InflatablesList_Manager_Draw;
 
 type
-  TILManager_VER00000000 = class(TILManager_Base)
+  TILManager_00000000 = class(TILManager_Draw)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    // saving/loading of data for version 0
-    procedure SaveToStream_VER00000000(Stream: TStream); virtual;
-    procedure LoadFromStream_VER00000000(Stream: TStream); virtual;
-    procedure SaveSortingSettings_VER00000000(Stream: TStream); virtual;
-    procedure LoadSortingSettings_VER00000000(Stream: TStream); virtual;
-    procedure SaveShopTemplates_VER00000000(Stream: TStream); virtual;
-    procedure LoadShopTemplates_VER00000000(Stream: TStream); virtual;
-    procedure SaveFilterSettings_VER00000000(Stream: TStream); virtual;
-    procedure LoadFilterSettings_VER00000000(Stream: TStream); virtual;
-    procedure SaveItem_VER00000000(Stream: TStream; const Item: TILItem); virtual;
-    procedure LoadItem_VER00000000(Stream: TStream; out Item: TILItem); virtual;
-    procedure SaveItemShop_VER00000000(Stream: TStream; const Shop: TILItemShop); virtual;
-    procedure LoadItemShop_VER00000000(Stream: TStream; out Shop: TILItemShop); virtual;
-    procedure SaveParsingSettings_VER00000000(Stream: TStream; const ParsSett: TILItemShopParsingSetting); virtual;
-    procedure LoadParsingSettings_VER00000000(Stream: TStream; out ParsSett: TILItemShopParsingSetting); virtual;
+    // saving/loading of data for sion 0
+    procedure SaveToStream_00000000(Stream: TStream); virtual;
+    procedure LoadFromStream_00000000(Stream: TStream); virtual;
+    procedure SaveSortingSettings_00000000(Stream: TStream); virtual;
+    procedure LoadSortingSettings_00000000(Stream: TStream); virtual;
+    procedure SaveShopTemplates_00000000(Stream: TStream); virtual;
+    procedure LoadShopTemplates_00000000(Stream: TStream); virtual;
+    procedure SaveFilterSettings_00000000(Stream: TStream); virtual;
+    procedure LoadFilterSettings_00000000(Stream: TStream); virtual;
+    procedure SaveItem_00000000(Stream: TStream; const Item: TILItem); virtual;
+    procedure LoadItem_00000000(Stream: TStream; out Item: TILItem); virtual;
+    procedure SaveItemShop_00000000(Stream: TStream; const Shop: TILItemShop); virtual;
+    procedure LoadItemShop_00000000(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveParsingSettings_00000000(Stream: TStream; const ParsSett: TILItemShopParsingSetting); virtual;
+    procedure LoadParsingSettings_00000000(Stream: TStream; out ParsSett: TILItemShopParsingSetting); virtual;
   end;
 
 implementation
@@ -36,6 +36,7 @@ implementation
 uses
   SysUtils, Graphics,
   BinaryStreaming,
+  InflatablesList_Manager_IO,
   InflatablesList_HTML_ElementFinder;
 
 //- old item shop parsing types ------------------------------------------------
@@ -116,49 +117,49 @@ end;
 
 //==============================================================================
 
-procedure TILManager_VER00000000.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_00000000.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000000:
     begin
-      fFNSaveToStream := SaveToStream_VER00000000;
-      fFNSaveSortingSettings := SaveSortingSettings_VER00000000;
-      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
-      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
-      fFNSaveItem := SaveItem_VER00000000;
-      fFNSaveItemShop := SaveItemShop_VER00000000;
-      fFNSaveParsingSettings := SaveParsingSettings_VER00000000;
+      fFNSaveToStream := SaveToStream_00000000;
+      fFNSaveSortingSettings := SaveSortingSettings_00000000;
+      fFNSaveShopTemplates := SaveShopTemplates_00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_00000000;
+      fFNSaveItem := SaveItem_00000000;
+      fFNSaveItemShop := SaveItemShop_00000000;
+      fFNSaveParsingSettings := SaveParsingSettings_00000000;
       fFNExportShopTemplate := nil;
     end;
 else
-  raise Exception.CreateFmt('TILManager_VER00000000.InitSaveFunctions: Unknown stream structure (%.8x).',[Struct]);
+  raise Exception.CreateFmt('TILManager_00000000.InitSaveFunctions: Unknown stream structure (%.8x).',[Struct]);
 end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_00000000.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000000:
     begin
-      fFNLoadFromStream := LoadFromStream_VER00000000;
-      fFNLoadSortingSettings := LoadSortingSettings_VER00000000;
-      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
-      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
-      fFNLoadItem := LoadItem_VER00000000;
-      fFNLoadItemShop := LoadItemShop_VER00000000;
-      fFNLoadParsingSettings := LoadParsingSettings_VER00000000;
+      fFNLoadFromStream := LoadFromStream_00000000;
+      fFNLoadSortingSettings := LoadSortingSettings_00000000;
+      fFNLoadShopTemplates := LoadShopTemplates_00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_00000000;
+      fFNLoadItem := LoadItem_00000000;
+      fFNLoadItemShop := LoadItemShop_00000000;
+      fFNLoadParsingSettings := LoadParsingSettings_00000000;
       fFNImportShopTemplate := nil;
     end;
 else
-  raise Exception.CreateFmt('TILManager_VER00000000.InitSaveFunctions: Unknown stream structure (%.8x).',[Struct]);
+  raise Exception.CreateFmt('TILManager_00000000.InitSaveFunctions: Unknown stream structure (%.8x).',[Struct]);
 end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveToStream_VER00000000(Stream: TStream);
+procedure TILManager_00000000.SaveToStream_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -173,7 +174,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadFromStream_VER00000000(Stream: TStream);
+procedure TILManager_00000000.LoadFromStream_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -191,7 +192,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveSortingSettings_VER00000000(Stream: TStream);
+procedure TILManager_00000000.SaveSortingSettings_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -205,7 +206,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadSortingSettings_VER00000000(Stream: TStream);
+procedure TILManager_00000000.LoadSortingSettings_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -219,7 +220,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveShopTemplates_VER00000000(Stream: TStream);
+procedure TILManager_00000000.SaveShopTemplates_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -233,7 +234,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadShopTemplates_VER00000000(Stream: TStream);
+procedure TILManager_00000000.LoadShopTemplates_00000000(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -247,7 +248,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveFilterSettings_VER00000000(Stream: TStream);
+procedure TILManager_00000000.SaveFilterSettings_00000000(Stream: TStream);
 begin
 Stream_WriteInt32(Stream,IL_FilterOperatorToNum(fFilterSettings.Operator));
 Stream_WriteUInt32(Stream,IL_EncodeFilterFlags(fFilterSettings.Flags));
@@ -255,7 +256,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadFilterSettings_VER00000000(Stream: TStream);
+procedure TILManager_00000000.LoadFilterSettings_00000000(Stream: TStream);
 begin
 fFilterSettings.Operator := IL_NumToFilterOperator(Stream_ReadInt32(Stream));
 fFilterSettings.Flags := IL_DecodeFilterFlags(Stream_ReadUInt32(Stream));
@@ -263,7 +264,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveItem_VER00000000(Stream: TStream; const Item: TILItem);
+procedure TILManager_00000000.SaveItem_00000000(Stream: TStream; const Item: TILItem);
 var
   i:  Integer;
 
@@ -324,7 +325,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadItem_VER00000000(Stream: TStream; out Item: TILItem);
+procedure TILManager_00000000.LoadItem_00000000(Stream: TStream; out Item: TILItem);
 var
   i:  Integer;
 
@@ -390,16 +391,12 @@ SetLength(Item.Shops,Stream_ReadUInt32(Stream));
 For i := Low(Item.Shops) to High(Item.Shops) do
   fFNLoadItemShop(Stream,Item.Shops[i]);
 // internals
-Item.ItemListRender := TBitmap.Create;
-Item.ItemListRender.PixelFormat := pf24bit;
-Item.ItemListRender.Width := fRenderWidth;
-Item.ItemListRender.Height := fRenderHeight;
-Item.FilteredOut := False;
+ItemInitInternals(Item);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveItemShop_VER00000000(Stream: TStream; const Shop: TILItemShop);
+procedure TILManager_00000000.SaveItemShop_00000000(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
 begin
@@ -430,7 +427,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadItemShop_VER00000000(Stream: TStream; out Shop: TILItemShop);
+procedure TILManager_00000000.LoadItemShop_00000000(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
 begin
@@ -462,7 +459,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.SaveParsingSettings_VER00000000(Stream: TStream; const ParsSett: TILItemShopParsingSetting);
+procedure TILManager_00000000.SaveParsingSettings_00000000(Stream: TStream; const ParsSett: TILItemShopParsingSetting);
 begin
 // save empty settings
 Stream_WriteString(Stream,'');
@@ -474,12 +471,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000000.LoadParsingSettings_VER00000000(Stream: TStream; out ParsSett: TILItemShopParsingSetting);
+procedure TILManager_00000000.LoadParsingSettings_00000000(Stream: TStream; out ParsSett: TILItemShopParsingSetting);
 var
   i:    Integer;
   Temp: TILItemShopParsingSetting_old;
 
-  procedure ConvertStages(ElementFinder: TILElementFinder; Stages: TILItemShopParsingStages_old);
+  procedure ContStages(ElementFinder: TILElementFinder; Stages: TILItemShopParsingStages_old);
   var
     ii:           Integer;
     TempElemComp: TILElementComparator;
@@ -545,7 +542,7 @@ ParsSett.Available.Extraction[0].ExtractionMethod := ilpemFirstIntegerTag;
 ParsSett.Available.Extraction[0].ExtractionData := '';
 ParsSett.Available.Extraction[0].NegativeTag := Temp.MoreThanTag;
 ParsSett.Available.Finder := TILElementFinder.Create;
-ConvertStages(ParsSett.Available.Finder as TILElementFinder,Temp.AvailStages);
+ContStages(ParsSett.Available.Finder as TILElementFinder,Temp.AvailStages);
 // price
 SetLength(ParsSett.Price.Extraction,1);
 ParsSett.Price.Extraction[0].ExtractFrom := ilpefText;
@@ -553,7 +550,7 @@ ParsSett.Price.Extraction[0].ExtractionMethod := ilpemFirstInteger;
 ParsSett.Price.Extraction[0].ExtractionData := '';
 ParsSett.Price.Extraction[0].NegativeTag := '';
 ParsSett.Price.Finder := TILElementFinder.Create;
-ConvertStages(ParsSett.Price.Finder as TILElementFinder,Temp.PriceStages);
+ContStages(ParsSett.Price.Finder as TILElementFinder,Temp.PriceStages);
 end;
 
 end.

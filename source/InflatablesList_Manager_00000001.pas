@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_VER00000001;
+unit InflatablesList_Manager_00000001;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,35 +7,36 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Manager_VER00000000;
+  InflatablesList_Manager_00000000;
 
 type
-  TILManager_VER00000001 = class(TILManager_VER00000000)
+  TILManager_00000001 = class(TILManager_00000000)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveSortingSettings_VER00000001(Stream: TStream); virtual;
-    procedure LoadSortingSettings_VER00000001(Stream: TStream); virtual;
+    procedure SaveSortingSettings_00000001(Stream: TStream); virtual;
+    procedure LoadSortingSettings_00000001(Stream: TStream); virtual;
   end;
 
 implementation
 
 uses
   BinaryStreaming,
-  InflatablesList_Types, InflatablesList_Manager_Base;
+  InflatablesList_Types, InflatablesList_Manager_Base,
+  InflatablesList_Manager_IO;
 
-procedure TILManager_VER00000001.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_00000001.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000001:
     begin
-      fFNSaveToStream := SaveToStream_VER00000000;
-      fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
-      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
-      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
-      fFNSaveItem := SaveItem_VER00000000;
-      fFNSaveItemShop := SaveItemShop_VER00000000;
-      fFNSaveParsingSettings := SaveParsingSettings_VER00000000;
+      fFNSaveToStream := SaveToStream_00000000;
+      fFNSaveSortingSettings := SaveSortingSettings_00000001;
+      fFNSaveShopTemplates := SaveShopTemplates_00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_00000000;
+      fFNSaveItem := SaveItem_00000000;
+      fFNSaveItemShop := SaveItemShop_00000000;
+      fFNSaveParsingSettings := SaveParsingSettings_00000000;
       fFNExportShopTemplate := nil;
     end;
 else
@@ -45,18 +46,18 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000001.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_00000001.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000001:
     begin
-      fFNLoadFromStream := LoadFromStream_VER00000000;
-      fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
-      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
-      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
-      fFNLoadItem := LoadItem_VER00000000;
-      fFNLoadItemShop := LoadItemShop_VER00000000;
-      fFNLoadParsingSettings := LoadParsingSettings_VER00000000;
+      fFNLoadFromStream := LoadFromStream_00000000;
+      fFNLoadSortingSettings := LoadSortingSettings_00000001;
+      fFNLoadShopTemplates := LoadShopTemplates_00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_00000000;
+      fFNLoadItem := LoadItem_00000000;
+      fFNLoadItemShop := LoadItemShop_00000000;
+      fFNLoadParsingSettings := LoadParsingSettings_00000000;
       fFNImportShopTemplate := nil;
     end;
 else
@@ -66,14 +67,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000001.SaveSortingSettings_VER00000001(Stream: TStream);
+procedure TILManager_00000001.SaveSortingSettings_00000001(Stream: TStream);
 var
   i,j:  Integer;
 begin
-// save reversed flag
+// save resed flag
 Stream_WriteBool(Stream,fReversedSort);
 // save actual sort settings
-SaveSortingSettings_VER00000000(Stream);
+SaveSortingSettings_00000000(Stream);
 // now save profiles
 Stream_WriteUInt32(Stream,Length(fSortingProfiles));
 For i := Low(fSortingProfiles) to High(fSortingProfiles) do
@@ -90,14 +91,14 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000001.LoadSortingSettings_VER00000001(Stream: TStream);
+procedure TILManager_00000001.LoadSortingSettings_00000001(Stream: TStream);
 var
   i,j:  Integer;
 begin
-// load reversed flag
+// load resed flag
 fReversedSort := Stream_ReadBool(Stream);
 // load actual sort settings
-LoadSortingSettings_VER00000000(Stream);
+LoadSortingSettings_00000000(Stream);
 // now load profiles
 SetLength(fSortingProfiles,Stream_ReadUInt32(Stream));
 For i := Low(fSortingProfiles) to High(fSortingProfiles) do

@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_VER00000005;
+unit InflatablesList_Manager_00000005;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,36 +7,36 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Manager_VER00000004;
+  InflatablesList_Types, InflatablesList_Manager_00000004;
 
 type
-  TILManager_VER00000005 = class(TILManager_VER00000004)
+  TILManager_00000005 = class(TILManager_00000004)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItemShop_VER00000005(Stream: TStream; const Shop: TILItemShop); virtual;
-    procedure LoadItemShop_VER00000005(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveItemShop_00000005(Stream: TStream; const Shop: TILItemShop); virtual;
+    procedure LoadItemShop_00000005(Stream: TStream; out Shop: TILItemShop); virtual;
   end;
 
 implementation
 
 uses
   BinaryStreaming,
-  InflatablesList_Manager_Base;
+  InflatablesList_Manager_Base, InflatablesList_Manager_IO;
 
-procedure TILManager_VER00000005.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_00000005.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000005:
     begin
-      fFNSaveToStream := SaveToStream_VER00000002;
-      fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
-      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
-      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
-      fFNSaveItem := SaveItem_VER00000000;
-      fFNSaveItemShop := SaveItemShop_VER00000005;
-      fFNSaveParsingSettings := SaveParsingSettings_VER00000003;
-      fFNExportShopTemplate := SaveShopTemplate_VER00000002;
+      fFNSaveToStream := SaveToStream_00000002;
+      fFNSaveSortingSettings := SaveSortingSettings_00000001;
+      fFNSaveShopTemplates := SaveShopTemplates_00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_00000000;
+      fFNSaveItem := SaveItem_00000000;
+      fFNSaveItemShop := SaveItemShop_00000005;
+      fFNSaveParsingSettings := SaveParsingSettings_00000003;
+      fFNExportShopTemplate := SaveShopTemplate_00000002;
     end;
 else
   inherited InitSaveFunctions(Struct);
@@ -45,19 +45,19 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000005.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_00000005.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000005:
     begin
-      fFNLoadFromStream := LoadFromStream_VER00000002;
-      fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
-      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
-      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
-      fFNLoadItem := LoadItem_VER00000000;
-      fFNLoadItemShop := LoadItemShop_VER00000005;
-      fFNLoadParsingSettings := LoadParsingSettings_VER00000003;
-      fFNImportShopTemplate := LoadShopTemplate_VER00000002;
+      fFNLoadFromStream := LoadFromStream_00000002;
+      fFNLoadSortingSettings := LoadSortingSettings_00000001;
+      fFNLoadShopTemplates := LoadShopTemplates_00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_00000000;
+      fFNLoadItem := LoadItem_00000000;
+      fFNLoadItemShop := LoadItemShop_00000005;
+      fFNLoadParsingSettings := LoadParsingSettings_00000003;
+      fFNImportShopTemplate := LoadShopTemplate_00000002;
     end;
 else
   inherited InitLoadFunctions(Struct);
@@ -66,7 +66,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000005.SaveItemShop_VER00000005(Stream: TStream; const Shop: TILItemShop);
+procedure TILManager_00000005.SaveItemShop_00000005(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
 begin
@@ -100,7 +100,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000005.LoadItemShop_VER00000005(Stream: TStream; out Shop: TILItemShop);
+procedure TILManager_00000005.LoadItemShop_00000005(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
 begin

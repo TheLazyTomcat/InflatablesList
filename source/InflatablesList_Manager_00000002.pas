@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_VER00000002;
+unit InflatablesList_Manager_00000002;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,21 +7,21 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Manager_VER00000001;
+  InflatablesList_Types, InflatablesList_Manager_00000001;
 
 type
-  TILManager_VER00000002 = class(TILManager_VER00000001)
+  TILManager_00000002 = class(TILManager_00000001)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveToStream_VER00000002(Stream: TStream); virtual;
-    procedure LoadFromStream_VER00000002(Stream: TStream); virtual;
-    procedure SaveItemShop_VER00000002(Stream: TStream; const Shop: TILItemShop); virtual;
-    procedure LoadItemShop_VER00000002(Stream: TStream; out Shop: TILItemShop); virtual;
-    procedure SaveParsingSettings_VER00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting); virtual;
-    procedure LoadParsingSettings_VER00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting); virtual;
-    procedure SaveShopTemplate_VER00000002(Stream: TStream; const ShopTemplate: TILShopTemplate); virtual;
-    procedure LoadShopTemplate_VER00000002(Stream: TStream; out ShopTemplate: TILShopTemplate); virtual;
+    procedure SaveToStream_00000002(Stream: TStream); virtual;
+    procedure LoadFromStream_00000002(Stream: TStream); virtual;
+    procedure SaveItemShop_00000002(Stream: TStream; const Shop: TILItemShop); virtual;
+    procedure LoadItemShop_00000002(Stream: TStream; out Shop: TILItemShop); virtual;
+    procedure SaveParsingSettings_00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting); virtual;
+    procedure LoadParsingSettings_00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting); virtual;
+    procedure SaveShopTemplate_00000002(Stream: TStream; const ShopTemplate: TILShopTemplate); virtual;
+    procedure LoadShopTemplate_00000002(Stream: TStream; out ShopTemplate: TILShopTemplate); virtual;
   end;
 
 implementation
@@ -29,22 +29,22 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
-  InflatablesList_Manager_Base,
+  InflatablesList_Manager_Base, InflatablesList_Manager_IO,
   InflatablesList_HTML_ElementFinder;
 
-procedure TILManager_VER00000002.InitSaveFunctions(Struct: UInt32);
+procedure TILManager_00000002.InitSaveFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000002:
     begin
-      fFNSaveToStream := SaveToStream_VER00000002;
-      fFNSaveSortingSettings := SaveSortingSettings_VER00000001;
-      fFNSaveShopTemplates := SaveShopTemplates_VER00000000;
-      fFNSaveFilterSettings := SaveFilterSettings_VER00000000;
-      fFNSaveItem := SaveItem_VER00000000;
-      fFNSaveItemShop := SaveItemShop_VER00000002;
-      fFNSaveParsingSettings := SaveParsingSettings_VER00000002;
-      fFNExportShopTemplate := SaveShopTemplate_VER00000002;
+      fFNSaveToStream := SaveToStream_00000002;
+      fFNSaveSortingSettings := SaveSortingSettings_00000001;
+      fFNSaveShopTemplates := SaveShopTemplates_00000000;
+      fFNSaveFilterSettings := SaveFilterSettings_00000000;
+      fFNSaveItem := SaveItem_00000000;
+      fFNSaveItemShop := SaveItemShop_00000002;
+      fFNSaveParsingSettings := SaveParsingSettings_00000002;
+      fFNExportShopTemplate := SaveShopTemplate_00000002;
     end;
 else
   inherited InitSaveFunctions(Struct);
@@ -53,19 +53,19 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.InitLoadFunctions(Struct: UInt32);
+procedure TILManager_00000002.InitLoadFunctions(Struct: UInt32);
 begin
 case Struct of
   IL_LISTFILE_FILESTRUCTURE_00000002:
     begin
-      fFNLoadFromStream := LoadFromStream_VER00000002;
-      fFNLoadSortingSettings := LoadSortingSettings_VER00000001;
-      fFNLoadShopTemplates := LoadShopTemplates_VER00000000;
-      fFNLoadFilterSettings := LoadFilterSettings_VER00000000;
-      fFNLoadItem := LoadItem_VER00000000;
-      fFNLoadItemShop := LoadItemShop_VER00000002;
-      fFNLoadParsingSettings := LoadParsingSettings_VER00000002;
-      fFNImportShopTemplate := LoadShopTemplate_VER00000002;
+      fFNLoadFromStream := LoadFromStream_00000002;
+      fFNLoadSortingSettings := LoadSortingSettings_00000001;
+      fFNLoadShopTemplates := LoadShopTemplates_00000000;
+      fFNLoadFilterSettings := LoadFilterSettings_00000000;
+      fFNLoadItem := LoadItem_00000000;
+      fFNLoadItemShop := LoadItemShop_00000002;
+      fFNLoadParsingSettings := LoadParsingSettings_00000002;
+      fFNImportShopTemplate := LoadShopTemplate_00000002;
     end;
 else
   inherited InitLoadFunctions(Struct);
@@ -74,7 +74,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveToStream_VER00000002(Stream: TStream);
+procedure TILManager_00000002.SaveToStream_00000002(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -91,7 +91,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.LoadFromStream_VER00000002(Stream: TStream);
+procedure TILManager_00000002.LoadFromStream_00000002(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -110,7 +110,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveItemShop_VER00000002(Stream: TStream; const Shop: TILItemShop);
+procedure TILManager_00000002.SaveItemShop_00000002(Stream: TStream; const Shop: TILItemShop);
 var
   i:  Integer;
 begin
@@ -142,7 +142,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.LoadItemShop_VER00000002(Stream: TStream; out Shop: TILItemShop);
+procedure TILManager_00000002.LoadItemShop_00000002(Stream: TStream; out Shop: TILItemShop);
 var
   i: Integer;
 begin
@@ -175,7 +175,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveParsingSettings_VER00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting);
+procedure TILManager_00000002.SaveParsingSettings_00000002(Stream: TStream; const ParsSett: TILItemShopParsingSetting);
 var
   i: Integer;
 begin
@@ -207,7 +207,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.LoadParsingSettings_VER00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting);
+procedure TILManager_00000002.LoadParsingSettings_00000002(Stream: TStream; out ParsSett: TILItemShopParsingSetting);
 var
   i: Integer;
 begin
@@ -243,7 +243,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.SaveShopTemplate_VER00000002(Stream: TStream; const ShopTemplate: TILShopTemplate);
+procedure TILManager_00000002.SaveShopTemplate_00000002(Stream: TStream; const ShopTemplate: TILShopTemplate);
 begin
 Stream_WriteString(Stream,ShopTemplate.Name);
 fFNSaveItemShop(Stream,ShopTemplate.ShopData);
@@ -251,7 +251,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_VER00000002.LoadShopTemplate_VER00000002(Stream: TStream; out ShopTemplate: TILShopTemplate);
+procedure TILManager_00000002.LoadShopTemplate_00000002(Stream: TStream; out ShopTemplate: TILShopTemplate);
 begin
 ShopTemplate.Name := Stream_ReadString(Stream);
 fFNLoadItemShop(Stream,ShopTemplate.ShopData);

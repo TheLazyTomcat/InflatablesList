@@ -1,0 +1,375 @@
+unit InflatablesList_Manager_Utils;
+
+{$INCLUDE '.\InflatablesList_defs.inc'}
+
+interface
+
+uses
+  AuxTypes,
+  InflatablesList_Types, InflatablesList_Manager_Base;
+
+const
+  // how many times to repeat update when it fails in certain way
+  IL_LISTFILE_UPDATE_TRYCOUNT = 5;
+
+type
+  TILManager_Utils = class(TILManager_Base)
+  public
+    // non-item methods
+    Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
+    // items
+    Function ItemTitleStr(const Item: TILItem): String; virtual;
+    Function ItemTypeStr(const Item: TILItem): String; override;
+    Function ItemSize(const Item: TILItem): UInt32; virtual;
+    Function ItemSizeStr(const Item: TILItem): String; virtual;
+    Function ItemTotalWeight(const Item: TILItem): UInt32; virtual;
+    Function ItemTotalWeightStr(const Item: TILItem): String; virtual;
+    Function ItemUnitPrice(const Item: TILItem): UInt32; virtual;
+    Function ItemTotalPriceLowest(const Item: TILItem): UInt32; virtual;
+    Function ItemTotalPriceSelected(const Item: TILItem): UInt32; virtual;
+    Function ItemTotalPrice(const Item: TILItem): UInt32;
+    procedure ItemUpdatePriceAndAvail(var Item: TILItem); virtual;
+    procedure ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32); virtual;
+    Function ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
+    procedure ItemUpdateShopsHistory(var Item: TILItem); virtual;
+    class Function ItemShopUpdate(var Shop: TILItemShop): Boolean; virtual;
+  end;
+
+implementation
+
+uses
+  SysUtils,
+  InflatablesList_Utils, InflatablesList_ShopUpdate;
+
+Function TILManager_Utils.SortingItemStr(const SortingItem: TILSortingItem): String;
+begin
+Result := Format('%s %s',[IL_BoolToChar(SortingItem.Reversed,'-','+'),
+  fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTitleStr(const Item: TILItem): String;
+begin
+If Item.Manufacturer = ilimOthers then
+  begin
+    If Length(Item.ManufacturerStr) > 0 then
+      Result := Item.ManufacturerStr
+    else
+      Result :='<unknown_manuf>';
+  end
+else Result := fDataProvider.ItemManufacturers[Item.Manufacturer].Str;
+If Item.ID <> 0 then
+  begin
+    If Length(Result) > 0 then
+      Result := Format('%s %d',[Result,Item.ID])
+    else
+      Result := IntToStr(Item.ID);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTypeStr(const Item: TILItem): String;
+begin
+If not(Item.ItemType in [ilitUnknown,ilitOther]) then
+  begin
+    If Length(Item.ItemTypeSpec) > 0 then
+      Result := Format('%s (%s)',[fDataProvider.GetItemTypeString(Item.ItemType),Item.ItemTypeSpec])
+    else
+      Result := fDataProvider.GetItemTypeString(Item.ItemType);
+  end
+else
+  begin
+    If Length(Item.ItemTypeSpec) > 0 then
+      Result := Item.ItemTypeSpec
+    else
+      Result := '<unknown_type>';
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemSize(const Item: TILItem): UInt32;
+var
+  szX,szY,szZ:  UInt32;
+begin
+If Item.SizeX = 0 then szX := 1
+  else szX := Item.SizeX;
+If Item.SizeY = 0 then szY := 1
+  else szY := Item.SizeY;
+If Item.SizeZ = 0 then szZ := 1
+  else szZ := Item.SizeZ;
+Result := szX * szY * szZ;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemSizeStr(const Item: TILItem): String;
+begin
+Result := '';
+If Item.SizeX > 0 then
+  Result := Format('%g',[Item.SizeX / 10]);
+If Item.SizeY > 0 then
+  begin
+    If Length(Result) > 0 then
+      Result := Format('%s x %g',[Result,Item.SizeY / 10])
+    else
+      Result := Format('%g',[Item.SizeY / 10]);
+  end;
+If Item.SizeZ > 0 then
+  begin
+    If Length(Result) > 0 then
+      Result := Format('%s x %g',[Result,Item.SizeZ / 10])
+    else
+      Result := Format('%g',[Item.SizeZ / 10]);
+  end;
+If Length(Result) > 0 then
+  Result := Format('%s cm',[Result]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTotalWeight(const Item: TILItem): UInt32;
+begin
+Result := Item.UnitWeight * Item.Count;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTotalWeightStr(const Item: TILItem): String;
+var
+  Temp: UInt32;
+begin
+Temp := ItemTotalWeight(Item);
+If Temp > 0 then
+  Result := Format('%g kg',[ItemTotalWeight(Item) / 1000])
+else
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemUnitPrice(const Item: TILItem): UInt32;
+begin
+If Item.UnitPriceSelected > 0 then
+  Result := Item.UnitPriceSelected
+else
+  Result := Item.UnitPriceDefault;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTotalPriceLowest(const Item: TILItem): UInt32;
+begin
+Result := Item.UnitPriceLowest * Item.Count;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTotalPriceSelected(const Item: TILItem): UInt32;
+begin
+Result := Item.UnitPriceSelected * Item.Count;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemTotalPrice(const Item: TILItem): UInt32;
+begin
+Result := ItemUnitPrice(Item) * Item.Count;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Utils.ItemUpdatePriceAndAvail(var Item: TILItem);
+var
+  i:        Integer;
+  Selected: Boolean;
+  LowPrice: Int64;
+begin
+// first make sure only one shop is selected
+Selected := False;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If Item.Shops[i].Selected and not Selected then
+    Selected := True
+  else
+    Item.Shops[i].Selected := False;
+// get lowest price (availability must be non-zero), also get selected price
+LowPrice := -1;
+Item.UnitPriceSelected := 0;
+Item.AvailablePieces := 0;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  begin
+    If (Item.Shops[i].Available <> 0) and (Item.Shops[i].Price > 0) then
+      If (Item.Shops[i].Price < LowPrice) or (LowPrice < 0) then
+        LowPrice := Item.Shops[i].Price;
+    If (Item.Shops[i].Available <> 0) and Item.Shops[i].Selected then
+      begin
+        Item.UnitPriceSelected := Item.Shops[i].Price;
+        Item.AvailablePieces := Item.Shops[i].Available;
+      end;
+  end;
+If LowPrice < 0 then
+  Item.UnitPriceLowest := 0
+else
+  Item.UnitPriceLowest := LowPrice;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Utils.ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32);
+begin
+If (ilifWanted in Item.Flags) and (Length(Item.Shops) > 0) then
+  begin
+    Exclude(Item.Flags,ilifNotAvailable);
+    If (Item.AvailablePieces <> 0) and (Item.UnitPriceSelected > 0) then
+      begin
+        If Item.AvailablePieces > 0 then
+          begin
+            If UInt32(Item.AvailablePieces) < Item.Count then
+              Include(Item.Flags,ilifNotAvailable);
+          end
+        else
+          begin
+            If UInt32(Abs(Item.AvailablePieces) * 2) < Item.Count then
+              Include(Item.Flags,ilifNotAvailable);
+          end;
+        If Item.AvailablePieces <> OldAvail then
+          Include(Item.Flags,ilifAvailChange);
+        If Item.UnitPriceSelected <> OldPrice then
+          Include(Item.Flags,ilifPriceChange);
+      end
+    else
+      begin
+        Include(Item.Flags,ilifNotAvailable);
+        If (Item.AvailablePieces <> OldAvail) then
+          Include(Item.Flags,ilifAvailChange);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean;
+var
+  i:  Integer;
+begin
+Result := False;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If Item.Shops[i].Selected then
+    begin
+      Shop := Item.Shops[i];
+      Result := True;
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Utils.ItemUpdateShopsHistory(var Item: TILItem);
+var
+  i:  Integer;
+
+  procedure DoAddToHistory(var Shop: TILItemShop);
+  begin
+    SetLength(Shop.AvailHistory,Length(Shop.AvailHistory) + 1);
+    Shop.AvailHistory[High(Shop.AvailHistory)].Value := Shop.Available;
+    Shop.AvailHistory[High(Shop.AvailHistory)].Time := Now;
+    SetLength(Shop.PriceHistory,Length(Shop.PriceHistory) + 1);
+    Shop.PriceHistory[High(Shop.PriceHistory)].Value := Int32(Shop.Price);
+    // make sure the time is the same...
+    Shop.PriceHistory[High(Shop.PriceHistory)].Time :=
+      Shop.AvailHistory[High(Shop.AvailHistory)].Time;
+  end;
+
+begin
+For i := Low(Item.Shops) to High(Item.Shops) do
+  begin
+    If Item.Shops[i].Price > 0 then
+      begin
+        // price is nonzero, add only when current price or avail differs from last entry
+        // or there is no prior entry
+        If (Length(Item.Shops[i].PriceHistory) <= 0) then
+          DoAddToHistory(Item.Shops[i])
+        else If (Item.Shops[i].AvailHistory[High(Item.Shops[i].AvailHistory)].Value <> Item.Shops[i].Available) or
+                (Item.Shops[i].PriceHistory[High(Item.Shops[i].PriceHistory)].Value <> Int32(Item.Shops[i].Price)) then
+          DoAddToHistory(Item.Shops[i]);
+      end
+    else
+      begin
+        // price is zero, add only when there is already a price entry and
+        // current price or avail differs from last entry
+        If (Length(Item.Shops[i].PriceHistory) > 0) then
+          If ((Item.Shops[i].AvailHistory[High(Item.Shops[i].AvailHistory)].Value <> Item.Shops[i].Available) or
+              (Item.Shops[i].PriceHistory[High(Item.Shops[i].PriceHistory)].Value <> Int32(Item.Shops[i].Price))) then
+          DoAddToHistory(Item.Shops[i]);
+      end
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILManager_Utils.ItemShopUpdate(var Shop: TILItemShop): Boolean;
+var
+  Updater:        TILShopUpdater;
+  UpdaterResult:  TILShopUpdaterResult;
+  TryCounter:     Integer;
+
+  procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
+  begin
+    Shop.Available := Avail;
+    Shop.Price := Price;
+    Shop.LastUpdateRes := Res;
+    Shop.LastUpdateMsg := Msg;
+  end;
+
+begin
+If not Shop.Untracked then
+  begin
+    TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
+    Result := False;
+    Updater := TILShopUpdater.Create(Shop);
+    try
+      repeat
+        UpdaterResult := Updater.Run(Shop.AltDownMethod);
+        case UpdaterResult of
+          ilurSuccess:          begin
+                                  SetValues(Format(
+                                    'Success (%d bytes downloaded) - Avail: %d  Price: %d',
+                                    [Updater.DownloadSize,Updater.Available,Updater.Price]),
+                                    ilisurSuccess,Updater.Available,Updater.Price);
+                                  Result := True;
+                                end;
+          ilurNoLink:           SetValues('No item link',ilisurDataFail,0,0);
+          ilurNoData:           SetValues('Insufficient search data',ilisurDataFail,0,0);
+          // when download fails, keep old price (assumes the item vent unavailable)
+          ilurFailDown:         SetValues(Format('Download failed (code: %d)',[Updater.DownloadResultCode]),ilisurCritical,0,Shop.Price);
+          // when parsing fails, keep old values (assumes bad download or internal exception)
+          ilurFailParse:        SetValues(Format('Parsing failed (%s)',[Updater.ErrorString]),ilisurCritical,Shop.Available,Shop.Price);
+          // following assumes the item is unavailable
+          ilurFailAvailSearch:  SetValues('Search of available count failed',ilisurSoftFail,0,Updater.Price);
+          // following assumes the item is unavailable, keep old price
+          ilurFailSearch:       SetValues('Search failed',ilisurHardFail,0,Shop.Price);
+          // following assumes the item is unavailable
+          ilurFailAvailValGet:  SetValues('Unable to obtain available count',ilisurSoftFail,0,Updater.Price);
+          // following assumes the item is unavailable, keep old price
+          ilurFailValGet:       SetValues('Unable to obtain values',ilisurHardFail,0,Shop.Price);
+          // general fail, invalidate
+          ilurFail:             SetValues('Failed (general error)',ilisurFatal,0,0);
+        else
+          SetValues('Failed (unknown state)',ilisurFatal,0,0);
+        end;
+        Dec(TryCounter);
+      until (TryCounter <= 0) or not(UpdaterResult in [ilurFailDown,ilurFailParse]);
+    finally
+      Updater.Free;
+    end;
+  end
+else
+  begin
+    SetValues(Format('Success (untracked) - Avail: %d  Price: %d',
+      [Shop.Available,Shop.Price]),ilisurMildSucc,Shop.Available,Shop.Price);
+    Result := True;
+  end;
+end;
+
+end.

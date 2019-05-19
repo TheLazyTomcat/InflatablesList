@@ -35,7 +35,7 @@ type
                  ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitOther);
 
   TILItemManufacturer = (ilimOthers,ilimIntex,ilimBestway,ilimWIKY,
-                         ilimHappyPeople,ilimSwimline,ilimMondo);
+                         ilimHappyPeople,ilimSwimline,ilimMondo,ilimWehncke);
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,
@@ -442,6 +442,7 @@ case ItemManufacturer of
   ilimHappyPeople:  Result := 4;
   ilimSwimline:     Result := 5;
   ilimMondo:        Result := 6;
+  ilimWehncke:      Result := 7;
 else
   {ilimOthers}
   Result := 0;
@@ -459,6 +460,7 @@ case Num of
   4:  Result := ilimHappyPeople;
   5:  Result := ilimSwimline;
   6:  Result := ilimMondo;
+  7:  Result := ilimWehncke;
 else
   Result := ilimOthers;
 end;

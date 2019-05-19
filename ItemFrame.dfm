@@ -446,6 +446,23 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
     end
+    object lblNotesEdit: TLabel
+      Left = 281
+      Top = 372
+      Width = 16
+      Height = 19
+      Alignment = taRightJustify
+      Caption = '2'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clTeal
+      Font.Height = -16
+      Font.Name = 'Webdings'
+      Font.Style = []
+      ParentFont = False
+      OnClick = lblNotesEditClick
+      OnMouseEnter = lblNotesEditMouseEnter
+      OnMouseLeave = lblNotesEditMouseLeave
+    end
     object seWantedLevel: TSpinEdit
       Left = 0
       Top = 312
@@ -526,7 +543,6 @@ object frmItemFrame: TfrmItemFrame
       ScrollBars = ssBoth
       TabOrder = 13
       WordWrap = False
-      OnDblClick = meNotesDblClick
       OnKeyPress = meNotesKeyPress
     end
     object leManufacturerString: TLabeledEdit

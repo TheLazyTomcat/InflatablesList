@@ -216,7 +216,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
       Draw(fRenderWidth - 102,2,fDataProvider.ItemDefaultPictures[Item.ItemType]);
 
     // worst result bar
-    If Length(Item.Shops) > 0 then
+    If (Length(Item.Shops) > 0) and (ilifWanted in Item.Flags) then
       begin
         Pen.Style := psClear;
         Brush.Style := bsSolid;

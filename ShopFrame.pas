@@ -37,6 +37,7 @@ type
     btnTemplates: TButton;
     lblNotes: TLabel;
     meNotes: TMemo;
+    lblNotesEdit: TLabel;    
     gbParsing: TGroupBox;
     leParsVar_1: TLabeledEdit;
     leParsVar_2: TLabeledEdit;
@@ -66,8 +67,10 @@ type
     procedure pmnHistoryPopup(Sender: TObject);
     procedure mniHI_RemoveClick(Sender: TObject);
     procedure mniHI_ClearClick(Sender: TObject);
-    procedure meNotesDblClick(Sender: TObject);
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
+    procedure lblNotesEditClick(Sender: TObject);
+    procedure lblNotesEditMouseEnter(Sender: TObject);
+    procedure lblNotesEditMouseLeave(Sender: TObject);    
     procedure btnParsCopyToLocalClick(Sender: TObject);    
     procedure btnParsAvailClick(Sender: TObject);
     procedure btnParsPriceClick(Sender: TObject);
@@ -534,7 +537,18 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.meNotesDblClick(Sender: TObject);
+procedure TfrmShopFrame.meNotesKeyPress(Sender: TObject; var Key: Char);
+begin
+If Key = ^A then
+  begin
+    meNotes.SelectAll;
+    Key := #0;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.lblNotesEditClick(Sender: TObject);
 var
   Temp: String;
 begin
@@ -548,13 +562,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.meNotesKeyPress(Sender: TObject; var Key: Char);
+procedure TfrmShopFrame.lblNotesEditMouseEnter(Sender: TObject);
 begin
-If Key = ^A then
-  begin
-    meNotes.SelectAll;
-    Key := #0;
-  end;
+lblNotesEdit.Font.Style := lblNotesEdit.Font.Style + [fsBold];
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.lblNotesEditMouseLeave(Sender: TObject);
+begin
+lblNotesEdit.Font.Style := lblNotesEdit.Font.Style - [fsBold];
 end;
 
 //------------------------------------------------------------------------------
@@ -650,6 +667,5 @@ If Assigned(fCurrentItemShopPtr) then
     leShopItemURL.SetFocus;
   end;
 end;
-
 
 end.

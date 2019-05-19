@@ -56,6 +56,7 @@ type
     seUnitWeight: TSpinEdit;
     lblNotes: TLabel;
     meNotes: TMemo;
+    lblNotesEdit: TLabel;    
     leReviewURL: TLabeledEdit;
     btnReviewOpen: TButton;    
     leMainPictureFile: TLabeledEdit;
@@ -115,8 +116,10 @@ type
     procedure seSizeYChange(Sender: TObject);
     procedure seSizeZChange(Sender: TObject);
     procedure seUnitWeightChange(Sender: TObject);
-    procedure meNotesDblClick(Sender: TObject);
-    procedure meNotesKeyPress(Sender: TObject; var Key: Char);       
+    procedure meNotesKeyPress(Sender: TObject; var Key: Char);
+    procedure lblNotesEditClick(Sender: TObject);
+    procedure lblNotesEditMouseEnter(Sender: TObject);
+    procedure lblNotesEditMouseLeave(Sender: TObject);         
     procedure leReviewURLChange(Sender: TObject);
     procedure btnReviewOpenClick(Sender: TObject);        
     procedure leMainPictureFileChange(Sender: TObject);
@@ -793,7 +796,18 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.meNotesDblClick(Sender: TObject);
+procedure TfrmItemFrame.meNotesKeyPress(Sender: TObject; var Key: Char);
+begin
+If Key = ^A then
+  begin
+    meNotes.SelectAll;
+    Key := #0;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.lblNotesEditClick(Sender: TObject);
 var
   Temp: String;
 begin
@@ -807,13 +821,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.meNotesKeyPress(Sender: TObject; var Key: Char);
+procedure TfrmItemFrame.lblNotesEditMouseEnter(Sender: TObject);
 begin
-If Key = ^A then
-  begin
-    meNotes.SelectAll;
-    Key := #0;
-  end;
+lblNotesEdit.Font.Style := lblNotesEdit.Font.Style + [fsBold];
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.lblNotesEditMouseLeave(Sender: TObject);
+begin
+lblNotesEdit.Font.Style := lblNotesEdit.Font.Style - [fsBold];
 end;
 
 //------------------------------------------------------------------------------

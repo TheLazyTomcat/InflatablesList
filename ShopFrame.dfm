@@ -61,6 +61,23 @@ object frmShopFrame: TfrmShopFrame
       Height = 13
       Caption = 'Notes:'
     end
+    object lblNotesEdit: TLabel
+      Left = 873
+      Top = -4
+      Width = 16
+      Height = 19
+      Alignment = taRightJustify
+      Caption = '2'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clTeal
+      Font.Height = -16
+      Font.Name = 'Webdings'
+      Font.Style = []
+      ParentFont = False
+      OnClick = lblNotesEditClick
+      OnMouseEnter = lblNotesEditMouseEnter
+      OnMouseLeave = lblNotesEditMouseLeave
+    end
     object leShopName: TLabeledEdit
       Left = 0
       Top = 16
@@ -253,7 +270,6 @@ object frmShopFrame: TfrmShopFrame
       ScrollBars = ssBoth
       TabOrder = 12
       WordWrap = False
-      OnDblClick = meNotesDblClick
       OnKeyPress = meNotesKeyPress
     end
     object gbParsing: TGroupBox

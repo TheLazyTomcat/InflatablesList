@@ -34,8 +34,8 @@ type
                  ilitLounger,ilitLoungerChair,ilitChair,ilitSeat,ilitMattress,
                  ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitOther);
 
-  TILItemManufacturer = (ilimOthers,ilimIntex,ilimBestway,ilimWIKY,
-                         ilimHappyPeople,ilimSwimline,ilimMondo,ilimWehncke);
+  TILItemManufacturer = (ilimOthers,ilimIntex,ilimBestway,ilimWIKY,ilimHappyPeople,
+                         ilimSwimline,ilimMondo,ilimWehncke,ilimVetroPlus);
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,
@@ -443,6 +443,7 @@ case ItemManufacturer of
   ilimSwimline:     Result := 5;
   ilimMondo:        Result := 6;
   ilimWehncke:      Result := 7;
+  ilimVetroPlus:    Result := 8;
 else
   {ilimOthers}
   Result := 0;
@@ -461,6 +462,7 @@ case Num of
   5:  Result := ilimSwimline;
   6:  Result := ilimMondo;
   7:  Result := ilimWehncke;
+  8:  Result := ilimVetroPlus;
 else
   Result := ilimOthers;
 end;

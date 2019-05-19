@@ -43,7 +43,7 @@ OutFileName := ExtractFilePath(ParamStr(0)) + CRC32ToStr(StringCRC32(URL));
     -T ...  timeout [s]
     -O ...  output file
 }
-CommandLine := Format('"%s" -q -T 10 -O "%s" "%s"',[
+CommandLine := Format('"%s" -q -T 5 -O "%s" "%s"',[
   ExtractFilePath(ParamStr(0)) + 'wget.exe',OutFileName,URL]);
 // init security attributes
 FillChar(SecurityAttr,SizeOf(TSecurityAttributes),0);
@@ -90,7 +90,7 @@ HTTPClient := THTTPSend.Create;
 try
   // user agent must be set to something sensible, otherwise some webs refuse to send anything
   HTTPClient.UserAgent := 'Mozilla/5.0 (Windows NT 5.1; rv:62.0) Gecko/20100101 Firefox/62.0';
-  HTTPClient.Timeout := 10000; 
+  HTTPClient.Timeout := 5000;
   If HTTPClient.HTTPMethod('GET',URL) then
     begin
       HTTPClient.Document.SaveToStream(Stream);

@@ -1,9 +1,9 @@
 object fTemplatesForm: TfTemplatesForm
-  Left = 997
-  Top = 203
+  Left = 896
+  Top = 91
   BorderStyle = bsDialog
   Caption = 'Shop templates'
-  ClientHeight = 408
+  ClientHeight = 600
   ClientWidth = 272
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,6 +13,7 @@ object fTemplatesForm: TfTemplatesForm
   Font.Style = []
   OldCreateOrder = False
   Position = poOwnerFormCenter
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object lblTemplates: TLabel
@@ -45,7 +46,7 @@ object fTemplatesForm: TfTemplatesForm
     Left = 8
     Top = 104
     Width = 257
-    Height = 264
+    Height = 459
     IntegralHeight = True
     ItemHeight = 13
     PopupMenu = pmnTemplates
@@ -56,7 +57,7 @@ object fTemplatesForm: TfTemplatesForm
   end
   object btnLoad: TButton
     Left = 8
-    Top = 376
+    Top = 568
     Width = 257
     Height = 25
     Caption = 'Load selected template'

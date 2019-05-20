@@ -88,9 +88,10 @@ type
     procedure FillHistoryLists(Selector: Integer);
     procedure FillTemplatesList;
   public
-    OnListUpdate:     TNotifyEvent;
-    OnPriceChange:    TNotifyEvent;
-    OnClearSelected:  TNotifyEvent;
+    OnListUpdate:       TNotifyEvent;
+    OnPriceChange:      TNotifyEvent;
+    OnClearSelected:    TNotifyEvent;
+    OnTemplatesChange:  TNotifyEvent;
     procedure SaveItemShop;
     procedure LoadItemShop;
     procedure Initialize(ILManager: TILManager);
@@ -665,6 +666,8 @@ If Assigned(fCurrentItemShopPtr) then
     LoadItemShop;
     DoListItemChange;
     leShopItemURL.SetFocus;
+    If Assigned(OnTemplatesChange) then
+      OnTemplatesChange(Self);
   end;
 end;
 

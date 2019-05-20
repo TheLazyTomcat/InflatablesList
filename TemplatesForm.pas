@@ -27,6 +27,7 @@ type
     btnLoad: TButton;
     diaExport: TSaveDialog;    
     diaImport: TOpenDialog;
+    procedure FormShow(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure lbTemplatesClick(Sender: TObject);
     procedure lbTemplatesDblClick(Sender: TObject);
@@ -96,6 +97,13 @@ end;
 
 //==============================================================================
 
+procedure TfTemplatesForm.FormShow(Sender: TObject);
+begin
+lbTemplates.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfTemplatesForm.btnSaveClick(Sender: TObject);
 var
   Index:  Integer;
@@ -138,15 +146,12 @@ procedure TfTemplatesForm.lbTemplatesMouseDown(Sender: TObject;
 var
   Index:  Integer;
 begin
-If Button = mbRight then
-  begin
-    Index := lbTemplates.ItemAtPos(Point(X,Y),True);
-    If Index >= 0 then
-      begin
-        lbTemplates.ItemIndex := Index;
-        lbTemplates.OnClick(nil);
-      end;
-  end;
+Index := lbTemplates.ItemAtPos(Point(X,Y),True);
+If Index >= 0 then
+  lbTemplates.ItemIndex := Index
+else
+  lbTemplates.ItemIndex := Pred(lbTemplates.Count);
+lbTemplates.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -300,7 +305,7 @@ If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
           // variables (copy only when destination is empty)
           For i := Low(fCurrentShopPtr^.ParsingSettings.Variables.Vars) to
                    High(fCurrentShopPtr^.ParsingSettings.Variables.Vars) do
-            If Length(fCurrentShopPtr^.ParsingSettings.Variables.Vars[I]) <= 0 then
+            If Length(fCurrentShopPtr^.ParsingSettings.Variables.Vars[i]) <= 0 then
               fCurrentShopPtr^.ParsingSettings.Variables.Vars[i] :=
                 ShopData.ParsingSettings.Variables.Vars[i];
           // other options

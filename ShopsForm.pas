@@ -24,6 +24,7 @@ type
     btnClose: TButton;
     pmnShops: TPopupMenu;
     mniSH_Add: TMenuItem;
+    mniSH_AddFromSub: TMenuItem;
     mniSH_AddFromTemplate: TMenuItem;    
     mniSH_Remove: TMenuItem;
     N1: TMenuItem;
@@ -31,10 +32,12 @@ type
     mniSH_MoveDown: TMenuItem;
     frmShopFrame: TfrmShopFrame;
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);    
     procedure lvShopsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure pmnShopsPopup(Sender: TObject);
     procedure mniSH_AddCommon;
     procedure mniSH_AddClick(Sender: TObject);
+    procedure mniSH_AddFromSubClick(Sender: TObject);
     procedure mniSH_AddFromTemplateClick(Sender: TObject);
     procedure mniSH_RemoveClick(Sender: TObject);
     procedure mniSH_MoveUpClick(Sender: TObject);
@@ -46,6 +49,8 @@ type
     fILManager:       TILManager;
     fCurrentItemPtr:  PILItem;
   protected
+    procedure CreateAddFromSubMenu;
+    procedure TemplateChangeHandler(Sender: TObject);
     procedure ListViewItemSelected(var Message: TMessage); overload; message WM_LVITEMSELECTED;
     procedure ListViewItemSelected; overload;
     procedure UpdateListItem(Index: Integer);
@@ -68,6 +73,44 @@ uses
   UpdateForm, TemplatesForm;
 
 {$R *.dfm}
+
+procedure TfShopsForm.CreateAddFromSubMenu;
+var
+  i:    Integer;
+  Temp: TMenuItem;
+begin
+// first clear the submenu
+For i := Pred(mniSH_AddFromSub.Count) downto 0 do
+  If mniSH_AddFromSub[i].Tag >= 0 then
+    begin
+      Temp := mniSH_AddFromSub[i];
+      mniSH_AddFromSub.Delete(i);
+      FreeAndNil(Temp);
+    end;
+// recreate the menu
+For i := 0 to Pred(fILManager.ShopTemplateCount) do
+  begin
+    Temp := TMenuItem.Create(Self);
+    Temp.Name := Format('mniSH_AS_Template%d',[i]);
+    Temp.Caption := fILManager.ShopTemplates[i].Name;
+    Temp.OnClick := mniSH_AddFromSubClick;
+    Temp.Tag := i;
+    If (Pred(fILManager.ShopTemplateCount) - i) <= 9 then
+      Temp.ShortCut := ShortCut(Ord('0') +
+        (((Pred(fILManager.ShopTemplateCount) - i) + 1) mod 10),[ssCtrl]);
+    mniSH_AddFromSub.Add(Temp);
+  end;
+mniSH_AddFromSub.Enabled := mniSH_AddFromSub.Count > 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.TemplateChangeHandler(Sender: TObject);
+begin
+CreateAddFromSubMenu;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfShopsForm.ListViewItemSelected(var Message: TMessage);
 begin
@@ -180,6 +223,7 @@ procedure TfShopsForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 frmShopFrame.Initialize(fILManager);
+CreateAddFromSubMenu;
 end;
 
 //------------------------------------------------------------------------------
@@ -237,6 +281,14 @@ lvShops.DoubleBuffered := True;
 frmShopFrame.OnListUpdate := UpdateCurrentListItem;
 frmShopFrame.OnPriceChange := RecalcAndShowPrices;
 frmShopFrame.OnClearSelected := ClearSelected;
+frmShopFrame.OnTemplatesChange := TemplateChangeHandler;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.FormShow(Sender: TObject);
+begin
+lvShops.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -293,6 +345,41 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfShopsForm.mniSH_AddFromSubClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+If Assigned(fCurrentItemPtr) and (Sender is TMenuItem) then
+  begin
+    mniSH_AddCommon;
+    If lvShops.ItemIndex >= 0 then
+      begin
+        frmShopFrame.SaveItemShop;
+        // copy the settings from template
+        with fCurrentItemPtr^.Shops[lvShops.ItemIndex],
+             fILManager.ShopTemplates[TMenuItem(Sender).Tag] do
+          begin
+            Untracked := ShopData.Untracked;
+            AltDownMethod := ShopData.AltDownMethod;
+            fCurrentItemPtr^.Shops[lvShops.ItemIndex].Name := ShopData.Name;  
+            ShopURL := ShopData.ShopURL;
+            // variables (copy only when destination is empty)
+            For i := Low(ParsingSettings.Variables.Vars) to High(ParsingSettings.Variables.Vars) do
+              If Length(ParsingSettings.Variables.Vars[i]) <= 0 then
+                ParsingSettings.Variables.Vars[i] := ShopData.ParsingSettings.Variables.Vars[i];
+            // other options
+            ParsingSettings.DisableParsErrs := ShopData.ParsingSettings.DisableParsErrs;
+            ParsingSettings.TemplateRef := fILManager.ShopTemplates[TMenuItem(Sender).Tag].Name;
+          end;
+        frmShopFrame.LoadItemShop;
+        frmShopFrame.leShopItemURL.SetFocus;
+      end;
+    UpdateCurrentListItem(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfShopsForm.mniSH_AddFromTemplateClick(Sender: TObject);
 begin
 If Assigned(fCurrentItemPtr) then
@@ -303,6 +390,7 @@ If Assigned(fCurrentItemPtr) then
         frmShopFrame.SaveItemShop;
         fTemplatesForm.ShowTemplates(Addr(fCurrentItemPtr^.Shops[lvShops.ItemIndex]),True);
         frmShopFrame.LoadItemShop;
+        CreateAddFromSubMenu;
         frmShopFrame.leShopItemURL.SetFocus;
       end;
     UpdateCurrentListItem(nil);

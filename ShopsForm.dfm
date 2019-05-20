@@ -14,6 +14,7 @@ object fShopsForm: TfShopsForm
   OldCreateOrder = False
   Position = poMainFormCenter
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object lblShops: TLabel
@@ -157,6 +158,9 @@ object fShopsForm: TfShopsForm
       Caption = 'Add new shop'
       ShortCut = 45
       OnClick = mniSH_AddClick
+    end
+    object mniSH_AddFromSub: TMenuItem
+      Caption = 'Add new shop from template'
     end
     object mniSH_AddFromTemplate: TMenuItem
       Caption = 'Add new shop from template...'

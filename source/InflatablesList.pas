@@ -4,6 +4,7 @@ unit InflatablesList;
   {$message 'export/import (ini)'}
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
+{$message 'selected shops overview (non-modal window)'}
 
 {
   manager inheritance chain:

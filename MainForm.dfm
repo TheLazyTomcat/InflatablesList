@@ -1,5 +1,5 @@
 object fMainForm: TfMainForm
-  Left = 38
+  Left = 16
   Top = 47
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
@@ -228,6 +228,11 @@ object fMainForm: TfMainForm
       Caption = 'Sums...'
       ShortCut = 16461
       OnClick = mniLM_SumsClick
+    end
+    object mniLM_Overview: TMenuItem
+      Caption = 'Selected shops overview...'
+      ShortCut = 16471
+      OnClick = mniLM_OverviewClick
     end
     object N6: TMenuItem
       Caption = '-'

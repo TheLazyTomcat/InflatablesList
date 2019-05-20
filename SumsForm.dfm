@@ -1,6 +1,6 @@
 object fSumsForm: TfSumsForm
-  Left = 314
-  Top = 20
+  Left = 372
+  Top = 3
   BorderStyle = bsDialog
   Caption = 'Sums'
   ClientHeight = 688
@@ -21,7 +21,6 @@ object fSumsForm: TfSumsForm
     Width = 896
     Height = 569
     VertScrollBar.Margin = 8
-    VertScrollBar.Position = 500
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
     Color = clWhite
@@ -29,42 +28,42 @@ object fSumsForm: TfSumsForm
     TabOrder = 0
     object lblSumsByTextTag: TLabel
       Left = 8
-      Top = 318
+      Top = 818
       Width = 86
       Height = 13
       Caption = 'Sums by text tag:'
     end
     object lblSumsBySelShop: TLabel
       Left = 8
-      Top = 70
+      Top = 570
       Width = 113
       Height = 13
       Caption = 'Sums by selected shop:'
     end
     object lblSumsByManufacturer: TLabel
       Left = 8
-      Top = -178
+      Top = 322
       Width = 135
       Height = 13
       Caption = 'Sums by item manufacturer:'
     end
     object lblSumsByType: TLabel
       Left = 8
-      Top = -426
+      Top = 74
       Width = 87
       Height = 13
       Caption = 'Sum by item type:'
     end
     object lblSumsGrandTotal: TLabel
       Left = 8
-      Top = -492
+      Top = 8
       Width = 58
       Height = 13
       Caption = 'Grand total:'
     end
     object sgSumsByManufacturer: TStringGrid
       Left = 8
-      Top = -162
+      Top = 338
       Width = 857
       Height = 225
       Color = 16316664
@@ -80,7 +79,7 @@ object fSumsForm: TfSumsForm
     end
     object sgSumsByType: TStringGrid
       Left = 8
-      Top = -410
+      Top = 90
       Width = 857
       Height = 225
       Color = 16316664
@@ -96,7 +95,7 @@ object fSumsForm: TfSumsForm
     end
     object sgSumsBySelShop: TStringGrid
       Left = 8
-      Top = 86
+      Top = 586
       Width = 857
       Height = 225
       Color = 16316664
@@ -112,7 +111,7 @@ object fSumsForm: TfSumsForm
     end
     object sgSumsByTextTag: TStringGrid
       Left = 8
-      Top = 334
+      Top = 834
       Width = 857
       Height = 225
       Color = 16316664
@@ -128,7 +127,7 @@ object fSumsForm: TfSumsForm
     end
     object sgSumsGrandTotal: TStringGrid
       Left = 8
-      Top = -476
+      Top = 24
       Width = 857
       Height = 44
       Color = 16316664

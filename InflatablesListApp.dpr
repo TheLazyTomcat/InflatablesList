@@ -48,7 +48,8 @@ uses
   InflatablesList_HTML_Tokenizer in 'source\InflatablesList_HTML_Tokenizer.pas',
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
   InflatablesList in 'source\InflatablesList.pas',
-  InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas';
+  InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas',
+  OverviewForm in 'OverviewForm.pas' {fOverviewForm};
 
 {$R *.res}
 
@@ -64,6 +65,7 @@ begin
   Application.CreateForm(TfTemplatesForm, fTemplatesForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfTextEditForm, fTextEditForm);
+  Application.CreateForm(TfOverviewForm, fOverviewForm);
   fMainForm.DoOtherFormsInit;
   Application.Run;
 end.

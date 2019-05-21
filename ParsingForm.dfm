@@ -191,6 +191,21 @@ object fParsingForm: TfParsingForm
       Font.Style = []
       ParentFont = False
       TabOrder = 4
+      inherited pnlMain: TPanel
+        inherited lblExtractMethod: TLabel
+          Left = 144
+        end
+        inherited cmbExtractFrom: TComboBox
+          Width = 121
+        end
+        inherited cmbExtractMethod: TComboBox
+          Left = 144
+          Width = 137
+        end
+        inherited leNegativeTag: TLabeledEdit
+          Width = 105
+        end
+      end
     end
   end
   object pmnStages: TPopupMenu

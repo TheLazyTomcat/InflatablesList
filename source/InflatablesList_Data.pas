@@ -121,7 +121,8 @@ const
     'Text','Nested text','Attribute value');
 
   IL_DATA_SHOPPARSING_EXTRACTMETHOD: array[TILItemShopParsingExtrMethod] of String = (
-    'First integer','First integer, tagged','Negative tag is count');
+    'First integer','First integer, tagged','Negative tag is count',
+    'First number','First number tagged');
 
 //==============================================================================
 

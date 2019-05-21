@@ -41,6 +41,8 @@ type
     Function ExtractValue_FirstInteger(const Text: TILReconvString): UInt32; overload; virtual;
     Function ExtractValue_ContainsTag(const Text,Tag: String): Boolean; overload; virtual;
     Function ExtractValue_ContainsTag(const Text: TILReconvString; const Tag: String): Boolean; overload; virtual;
+    Function ExtractValue_FirstNumber(const Text: String): UInt32; overload; virtual;
+    Function ExtractValue_FirstNumber(const Text: TILReconvString): UInt32; overload; virtual;
     Function ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFrom: TILItemShopParsingExtrFrom; const Data: String): TILReconvString; virtual;
     Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
     Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
@@ -92,7 +94,7 @@ For i := 1 to Length(Text) do
   begin
     If IL_CharInSet(Text[i],['0'..'9']) then
       Buff := Buff + Text[i]
-    else If IL_CharInSet(Text[i],[#0..#32,#160,'.',',']) then
+    else If IL_CharInSet(Text[i],[#0..#32,#160]) then
       Continue  // ignore character
     else If Length(Buff) > 0 then
       Break{For i};
@@ -133,6 +135,39 @@ If not Result then
     Result := ExtractValue_ContainsTag(Text.UTF8Reconv,Tag);
     If not Result then
       Result := ExtractValue_ContainsTag(Text.AnsiReconv,Tag);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILShopUpdater.ExtractValue_FirstNumber(const Text: String): UInt32;
+var
+  i:    Integer;
+  Buff: String;
+begin
+Buff := '';
+For i := 1 to Length(Text) do
+  begin
+    If IL_CharInSet(Text[i],['0'..'9']) then
+      Buff := Buff + Text[i]
+    else If IL_CharInSet(Text[i],[#0..#32,#160,'.',',','-']) then
+      Continue  // ignore character
+    else If Length(Buff) > 0 then
+      Break{For i};
+  end;
+Result := StrToIntDef(Buff,0);
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function TILShopUpdater.ExtractValue_FirstNumber(const Text: TILReconvString): UInt32;
+begin
+Result := ExtractValue_FirstNumber(Text.Str);
+If Result = 0 then
+  begin
+    Result := ExtractValue_FirstNumber(Text.UTF8Reconv);
+    If Result = 0 then
+      Result := ExtractValue_FirstNumber(Text.AnsiReconv);
   end;
 end;
 
@@ -183,6 +218,14 @@ For i := Low(fShopData.ParsingSettings.Available.Extraction) to
             ilpemNegTagIsCount:
               If ExtractValue_ContainsTag(Text,NegativeTag) then
                 Result := fShopData.RequiredCount;
+            ilpemFirstNumber:
+              Result := Int32(ExtractValue_FirstNumber(Text));
+            ilpemFirstNumberTag:
+              begin
+                Result := Int32(ExtractValue_FirstNumber(Text));
+                If ExtractValue_ContainsTag(Text,NegativeTag) then
+                  Result := -Result;
+              end;
           else
             {ilpemFirstInteger}
             Result := Int32(ExtractValue_FirstInteger(Text));
@@ -216,6 +259,10 @@ For i := Low(fShopData.ParsingSettings.Price.Extraction) to
             ilpemNegTagIsCount:
               If ExtractValue_ContainsTag(Text,NegativeTag) then
                 Result := fShopData.RequiredCount;
+            // price cannot be negative, ignore tag
+            ilpemFirstNumber,
+            ilpemFirstNumberTag:
+              Result := Int32(ExtractValue_FirstNumber(Text)); 
           else
             {ilpemFirstInteger,
              ilpemFirstIntegerTag}

@@ -66,7 +66,8 @@ type
   TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
 
   TILItemShopParsingExtrMethod = (ilpemFirstInteger,ilpemFirstIntegerTag,
-                                  ilpemNegTagIsCount);
+                                  ilpemNegTagIsCount,ilpemFirstNumber,
+                                  ilpemFirstNumberTag);
 
   TILItemShopParsingExtrSett = record
     ExtractFrom:      TILItemShopParsingExtrFrom;
@@ -559,6 +560,8 @@ begin
 case ExtrMethod of
   ilpemFirstIntegerTag: Result := 1;
   ilpemNegTagIsCount:   Result := 2;
+  ilpemFirstNumber:     Result := 3;
+  ilpemFirstNumberTag:  Result := 4;
 else
   {ilpemFirstInteger}
   Result := 0;
@@ -572,6 +575,8 @@ begin
 case Num of
   1:  Result := ilpemFirstIntegerTag;
   2:  Result := ilpemNegTagIsCount;
+  3:  Result := ilpemFirstNumber;
+  4:  Result := ilpemFirstNumberTag;
 else
   Result := ilpemFirstInteger;
 end;

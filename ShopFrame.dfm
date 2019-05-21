@@ -62,7 +62,7 @@ object frmShopFrame: TfrmShopFrame
       Caption = 'Notes:'
     end
     object lblNotesEdit: TLabel
-      Left = 873
+      Left = 853
       Top = -4
       Width = 16
       Height = 19
@@ -165,7 +165,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 113
       Height = 25
       Caption = 'Update this shop'
-      TabOrder = 15
+      TabOrder = 16
       OnClick = btnUpdateClick
     end
     object lvAvailHistory: TListView
@@ -221,7 +221,7 @@ object frmShopFrame: TfrmShopFrame
       EditLabel.Height = 13
       EditLabel.Caption = 'Last update message:'
       ReadOnly = True
-      TabOrder = 14
+      TabOrder = 15
     end
     object btnTemplates: TButton
       Left = 776
@@ -229,7 +229,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 113
       Height = 25
       Caption = 'Shop templates...'
-      TabOrder = 16
+      TabOrder = 17
       OnClick = btnTemplatesClick
     end
     object btnAvailToHistory: TButton
@@ -268,7 +268,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 521
       Height = 89
       ScrollBars = ssBoth
-      TabOrder = 12
+      TabOrder = 13
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -278,7 +278,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 521
       Height = 185
       Caption = 'Parsing'
-      TabOrder = 13
+      TabOrder = 14
       object bvlVarsSep: TBevel
         Left = 8
         Top = 100
@@ -434,7 +434,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 73
       Height = 17
       Caption = 'Untracked'
-      TabOrder = 17
+      TabOrder = 18
       OnClick = cbShopUntrackedClick
     end
     object cbShopAltDownMethod: TCheckBox
@@ -443,7 +443,23 @@ object frmShopFrame: TfrmShopFrame
       Width = 161
       Height = 17
       Caption = 'Alternative download method'
-      TabOrder = 18
+      TabOrder = 19
+    end
+    object btnPredefNotes: TButton
+      Left = 873
+      Top = 0
+      Width = 16
+      Height = 16
+      Caption = '6'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Webdings'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 12
+      TabStop = False
+      OnClick = btnPredefNotesClick
     end
   end
   object pmnHistory: TPopupMenu
@@ -458,5 +474,9 @@ object frmShopFrame: TfrmShopFrame
       Caption = 'Clear the history'
       OnClick = mniHI_ClearClick
     end
+  end
+  object pmnPredefNotes: TPopupMenu
+    Alignment = paRight
+    Left = 816
   end
 end

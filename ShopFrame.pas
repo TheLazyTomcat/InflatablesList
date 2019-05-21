@@ -37,7 +37,9 @@ type
     btnTemplates: TButton;
     lblNotes: TLabel;
     meNotes: TMemo;
-    lblNotesEdit: TLabel;    
+    lblNotesEdit: TLabel;
+    btnPredefNotes: TButton;
+    pmnPredefNotes: TPopupMenu;        
     gbParsing: TGroupBox;
     leParsVar_1: TLabeledEdit;
     leParsVar_2: TLabeledEdit;
@@ -70,8 +72,10 @@ type
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
     procedure lblNotesEditClick(Sender: TObject);
     procedure lblNotesEditMouseEnter(Sender: TObject);
-    procedure lblNotesEditMouseLeave(Sender: TObject);    
-    procedure btnParsCopyToLocalClick(Sender: TObject);    
+    procedure lblNotesEditMouseLeave(Sender: TObject);
+    procedure btnPredefNotesClick(Sender: TObject);
+    procedure mniPredefNotesClick(Sender: TObject);
+    procedure btnParsCopyToLocalClick(Sender: TObject);
     procedure btnParsAvailClick(Sender: TObject);
     procedure btnParsPriceClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
@@ -87,6 +91,7 @@ type
     procedure FrameClear;
     procedure FillHistoryLists(Selector: Integer);
     procedure FillTemplatesList;
+    procedure CreatePredefNotesMenu;
   public
     OnListUpdate:       TNotifyEvent;
     OnPriceChange:      TNotifyEvent;
@@ -106,6 +111,15 @@ uses
   ShellAPI,
   InflatablesList_HTML_ElementFinder,
   TemplatesForm, TextEditForm, ParsingForm;
+
+const
+  IL_SHOP_PREDEFNOTES: array[0..3] of String = (
+    'nelze vybrat variantu',
+    'konkrétní typ není k dispozici',
+    'dostupnost varianty je nejistá',
+    'pravdìpodonì nelze vybar variantu');
+
+//==============================================================================
 
 procedure TfrmShopFrame.DoListItemChange;
 begin
@@ -223,6 +237,25 @@ If cmbParsTemplRef.Items.Count > 0 then
   cmbParsTemplRef.ItemIndex := 0;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.CreatePredefNotesMenu;
+var
+  i:    Integer;
+  Temp: TMenuItem;
+begin
+pmnPredefNotes.Items.Clear;
+For i := Low(IL_SHOP_PREDEFNOTES) to High(IL_SHOP_PREDEFNOTES) do
+  begin
+    Temp := TMenuItem.Create(Self);
+    Temp.Name := Format('mniPN_Item%d',[i]);
+    Temp.Caption := IL_SHOP_PREDEFNOTES[i];
+    Temp.Tag := i;
+    Temp.OnClick := self.mniPredefNotesClick;
+    pmnPredefNotes.Items.Add(Temp);
+  end;
+end;
+
 //==============================================================================
 
 procedure TfrmShopFrame.SaveItemShop;
@@ -304,6 +337,7 @@ procedure TfrmShopFrame.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 FillTemplatesList;
+CreatePredefNotesMenu;
 end;
 
 //------------------------------------------------------------------------------
@@ -573,6 +607,27 @@ end;
 procedure TfrmShopFrame.lblNotesEditMouseLeave(Sender: TObject);
 begin
 lblNotesEdit.Font.Style := lblNotesEdit.Font.Style - [fsBold];
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.btnPredefNotesClick(Sender: TObject);
+var
+  ScreenPoint:  TPoint;
+begin
+ScreenPoint := btnPredefNotes.ClientToScreen(
+  Point(btnPredefNotes.Width,btnPredefNotes.Height));
+pmnPredefNotes.Popup(ScreenPoint.X,ScreenPoint.Y);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.mniPredefNotesClick(Sender: TObject);
+begin
+If (Sender is TMenuItem) and Assigned(fCurrentItemShopPtr) then
+  If (TMenuItem(Sender).Tag >= Low(IL_SHOP_PREDEFNOTES)) and
+     (TMenuItem(Sender).Tag <= High(IL_SHOP_PREDEFNOTES)) then
+    meNotes.Text := meNotes.Text + IL_SHOP_PREDEFNOTES[TMenuItem(Sender).Tag];
 end;
 
 //------------------------------------------------------------------------------

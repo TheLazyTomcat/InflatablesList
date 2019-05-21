@@ -165,7 +165,7 @@ var
       ilivtSizeX:             Result := IL_CompareUInt32(fList[Idx1].SizeX,fList[Idx2].SizeX);
       ilivtSizeY:             Result := IL_CompareUInt32(fList[Idx1].SizeY,fList[Idx2].SizeY);
       ilivtSizeZ:             Result := IL_CompareUInt32(fList[Idx1].SizeZ,fList[Idx2].SizeZ);
-      ilivtSize:              Result := IL_CompareUInt32(ItemSize(fList[Idx1]),ItemSize(fList[Idx2]));
+      ilivtSize:              Result := IL_CompareInt64(ItemSize(fList[Idx1]),ItemSize(fList[Idx2]));
       ilivtUnitWeight:        Result := IL_CompareUInt32(fList[Idx1].UnitWeight,fList[Idx2].UnitWeight);
       ilivtTotalWeight:       Result := IL_CompareUInt32(ItemTotalWeight(fList[Idx1]),ItemTotalWeight(fList[Idx2]));
       // others

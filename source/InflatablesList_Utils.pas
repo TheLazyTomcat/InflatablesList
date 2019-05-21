@@ -17,6 +17,7 @@ Function IL_PathAbsolute(const Path: String): String;
 Function IL_CompareBool(A,B: Boolean): Integer;
 Function IL_CompareInt32(A,B: Int32): Integer;
 Function IL_CompareUInt32(A,B: UInt32): Integer;
+Function IL_CompareInt64(A,B: Int64): Integer;
 Function IL_CompareDateTime(A,B: TDateTime): Integer;
 Function IL_CompareText(const A,B: String): Integer;
 
@@ -96,6 +97,20 @@ end;
 //------------------------------------------------------------------------------
 
 Function IL_CompareUInt32(A,B: UInt32): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_CompareInt64(A,B: Int64): Integer;
 begin
 If A <> B then
   begin

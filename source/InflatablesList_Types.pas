@@ -337,8 +337,14 @@ end;
 //------------------------------------------------------------------------------
 
 Function IL_ReconvString(const Str: String): TILReconvString;
+var
+  i:  Integer;
 begin
 Result.Str := Str;
+// remove null characters as they might break comparation function
+For i := 1 to Length(Result.Str) do
+  If Ord(Result.Str[i]) = 0 then
+    Result.Str[i] := Char(' ');
 Result.UTF8Reconv := IL_UTF8Reconvert(Str);
 Result.AnsiReconv := IL_ANSIReconvert(Str);
 end;

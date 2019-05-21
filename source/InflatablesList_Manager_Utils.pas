@@ -20,7 +20,7 @@ type
     // items
     Function ItemTitleStr(const Item: TILItem): String; virtual;
     Function ItemTypeStr(const Item: TILItem): String; override;
-    Function ItemSize(const Item: TILItem): UInt32; virtual;
+    Function ItemSize(const Item: TILItem): Int64; virtual;
     Function ItemSizeStr(const Item: TILItem): String; virtual;
     Function ItemTotalWeight(const Item: TILItem): UInt32; virtual;
     Function ItemTotalWeightStr(const Item: TILItem): String; virtual;
@@ -91,7 +91,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Utils.ItemSize(const Item: TILItem): UInt32;
+Function TILManager_Utils.ItemSize(const Item: TILItem): Int64;
 var
   szX,szY,szZ:  UInt32;
 begin
@@ -101,7 +101,7 @@ If Item.SizeY = 0 then szY := 1
   else szY := Item.SizeY;
 If Item.SizeZ = 0 then szZ := 1
   else szZ := Item.SizeZ;
-Result := szX * szY * szZ;
+Result := Int64(szX) * Int64(szY) * Int64(szZ);
 end;
 
 //------------------------------------------------------------------------------

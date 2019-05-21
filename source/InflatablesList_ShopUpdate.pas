@@ -92,7 +92,7 @@ For i := 1 to Length(Text) do
   begin
     If IL_CharInSet(Text[i],['0'..'9']) then
       Buff := Buff + Text[i]
-    else If IL_CharInSet(Text[i],[#0..#32,#160]) then
+    else If IL_CharInSet(Text[i],[#0..#32,#160,'.',',']) then
       Continue  // ignore character
     else If Length(Buff) > 0 then
       Break{For i};
@@ -117,7 +117,10 @@ end;
 
 Function TILShopUpdater.ExtractValue_ContainsTag(const Text,Tag: String): Boolean;
 begin
-Result := AnsiContainsText(Text,Tag);
+If Length(Tag) > 0 then
+  Result := AnsiContainsText(Text,Tag)
+else
+  Result := True;
 end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

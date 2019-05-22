@@ -18,6 +18,7 @@ Function IL_CompareBool(A,B: Boolean): Integer;
 Function IL_CompareInt32(A,B: Int32): Integer;
 Function IL_CompareUInt32(A,B: UInt32): Integer;
 Function IL_CompareInt64(A,B: Int64): Integer;
+Function IL_CompareFloat(A,B: Double): Integer;
 Function IL_CompareDateTime(A,B: TDateTime): Integer;
 Function IL_CompareText(const A,B: String): Integer;
 
@@ -122,6 +123,20 @@ If A <> B then
 else Result := 0;
 end;
  
+//------------------------------------------------------------------------------
+
+Function IL_CompareFloat(A,B: Double): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+
 //------------------------------------------------------------------------------
 
 Function IL_CompareDateTime(A,B: TDateTime): Integer;

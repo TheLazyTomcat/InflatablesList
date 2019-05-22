@@ -192,7 +192,22 @@ var
                                       Result := +1;
                                   end;
                               end;
-      ilivtShopCount:         Result := IL_CompareUInt32(Length(fList[Idx1].Shops),Length(fList[Idx2].Shops));
+
+      ilivtShopCount:         Result := IL_CompareUInt32(ItemShopsCount(fList[Idx1]),ItemShopsCount(fList[Idx2]));
+      ilivtUsefulShopCount:   Result := IL_CompareUInt32(ItemShopsUsefulCount(fList[Idx1]),ItemShopsUsefulCount(fList[Idx2]));
+      ilivtUsefulShopRatio:   If (ItemShopsCount(fList[Idx1]) > 0) and (ItemShopsCount(fList[Idx2]) > 0) then
+                                begin
+                                  Result := IL_CompareFloat(
+                                    ItemShopsUsefulCount(fList[Idx1]) / ItemShopsCount(fList[Idx1]),
+                                    ItemShopsUsefulCount(fList[Idx2]) / ItemShopsCount(fList[Idx2]));
+                                end
+                              else If ItemShopsCount(fList[Idx1]) > 0 then
+                                Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
+                              else If ItemShopsCount(fList[Idx2]) > 0 then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;
+
       ilivtSelectedShop:      If ItemShopsSelected(fList[Idx1],SelShop1) and ItemShopsSelected(fList[Idx2],SelShop2) then
                                 Result := IL_CompareText(SelShop1.Name,SelShop2.Name)
                               else If ItemShopsSelected(fList[Idx1],SelShop1) then
@@ -201,6 +216,7 @@ var
                                 Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
                               else
                                 Result := 0;
+
       ilivtWorstUpdateResult: If (Length(fList[Idx1].Shops) > 0) and (Length(fList[Idx2].Shops) > 0) then
                                 Result := IL_CompareInt32(Ord(ItemShopsWorstUpdateResult(fList[Idx1])),Ord(ItemShopsWorstUpdateResult(fList[Idx2])))
                               else If Length(fList[Idx1].Shops) > 0 then

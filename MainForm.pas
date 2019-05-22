@@ -55,6 +55,7 @@ type
     acFindPrev: TAction;
     acFindNext: TAction;
     acSave: TAction;
+    acExit: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);    
@@ -96,6 +97,7 @@ type
     procedure acFindPrevExecute(Sender: TObject);
     procedure acFindNextExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
+    procedure acExitExecute(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
     fILManager:   TILManager;
@@ -221,8 +223,8 @@ sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
 mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
-mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
-mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 fSaveOnExit := True;
 fILManager := TILManager.Create(lbList);
@@ -784,6 +786,13 @@ end;
 procedure TfMainForm.acSaveExecute(Sender: TObject);
 begin
 mniLM_Save.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acExitExecute(Sender: TObject);
+begin
+mniLM_Exit.OnClick(nil);
 end;
 
 end.

@@ -222,12 +222,7 @@ If Assigned(fCurrentItemPtr) then
     else
       lblSelectedShop.Caption := '';
     // number of shops
-    If fILManager.ItemShopsUsefulCount(fCurrentItemPtr^) <> fILManager.ItemShopsCount(fCurrentItemPtr^) then
-      lblShopCount.Caption := Format('%d/%d',[
-        fILManager.ItemShopsUsefulCount(fCurrentItemPtr^),
-        fILManager.ItemShopsCount(fCurrentItemPtr^)])
-    else
-      lblShopCount.Caption := IntToStr(fILManager.ItemShopsCount(fCurrentItemPtr^));
+    lblShopCount.Caption := fILManager.ItemShopsCountStr(fCurrentItemPtr^);
     // available pieces
     If fCurrentItemPtr^.AvailablePieces <> 0 then
       begin

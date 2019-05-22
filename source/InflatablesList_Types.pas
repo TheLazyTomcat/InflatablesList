@@ -137,6 +137,8 @@ type
   end;
   PILItemShop = ^TILItemShop;
 
+  TILShops = array of TILItemShop;
+
   // used to pass shops for updating
   TILItemShopUpdate = record
     ItemName:     String;
@@ -189,7 +191,7 @@ type
     UnitPriceSelected:  UInt32;
     AvailablePieces:    Int32;    // negative value means "more than"
     // shops
-    Shops:              array of TILItemShop;
+    Shops:              TILShops;
     // internals
     ItemListRender:     TBitmap;
     FilteredOut:        Boolean;
@@ -209,7 +211,10 @@ type
     ilivtSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
     ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
-    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtSelectedShop,
+    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
+    ilivtUsefulShopCount,ilivtUsefulShopRatio,
+
+    ilivtSelectedShop,
     ilivtWorstUpdateResult);
 
   TILSortingItem = record
@@ -687,6 +692,8 @@ case ItemValueTag of
   // newly added
   ilivtFlagLost:          Result := 48;
   ilivtWorstUpdateResult: Result := 49;
+  ilivtUsefulShopCount:   Result := 50;
+  ilivtUsefulShopRatio:   Result := 51;
 else
   {ilivtNone}
   Result := 0;
@@ -748,6 +755,8 @@ case Num of
   // newly added
   48: Result := ilivtFlagLost;
   49: Result := ilivtWorstUpdateResult;
+  50: Result := ilivtUsefulShopCount;
+  51: Result := ilivtUsefulShopRatio;
 else
   Result := ilivtNone;
 end;

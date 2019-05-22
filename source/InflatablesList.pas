@@ -4,8 +4,6 @@ unit InflatablesList;
   {$message 'export/import (ini)'}
   {$message 'export/import of templates to/from ini'}
 {$ENDIF}
-{$message 'add per-item info about usefull shops count (those with available <> 0)'}
-{$message 'add sort by - usefull shop count, usefull / total ratio'}
 
 {
   manager inheritance chain:

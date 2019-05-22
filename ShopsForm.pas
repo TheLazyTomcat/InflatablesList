@@ -46,6 +46,7 @@ type
     procedure btnUpdateHistoryClick(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
   private
+    fWndCaption:      String;
     fILManager:       TILManager;
     fCurrentItemPtr:  PILItem;
   protected
@@ -57,6 +58,8 @@ type
     procedure UpdateCurrentListItem(Sender: TObject);
     procedure ClearSelected(Sender: TObject);
     procedure RecalcAndShowPrices(Sender: TObject);
+    procedure UpdateShopsCounts;
+    procedure UpdateShopIndex;
   public
     procedure Initialize(ILManager: TILManager);
     procedure ShowShops(ItemPtr: PILItem);
@@ -130,6 +133,7 @@ If Assigned(fCurrentItemPtr) then
       end
     else frmShopFrame.SetItemShop(nil,True);
   end;
+UpdateShopIndex;
 end;
 
 //------------------------------------------------------------------------------
@@ -217,6 +221,34 @@ If Assigned(fCurrentItemPtr) then
   end;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.UpdateShopsCounts;
+begin
+If Assigned(fCurrentItemPtr) then
+  begin
+    If fILManager.ItemShopsCount(fCurrentItemPtr^) > 0 then
+      Caption := Format('%s [%s]',[fWndCaption,fILManager.ItemShopsCountStr(fCurrentItemPtr^)])
+    else
+      Caption := fWndCaption;
+  end
+else Caption := fWndCaption;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.UpdateShopIndex;
+begin
+If lvShops.ItemIndex < 0 then
+  begin
+    If lvShops.Items.Count > 0 then
+      lblShops.Caption := Format('Shops (%d):',[lvShops.Items.Count])
+    else
+      lblShops.Caption := 'Shops:';
+  end
+else lblShops.Caption := Format('Shops (%d/%d):',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
+end;
+
 //==============================================================================
 
 procedure TfShopsForm.Initialize(ILManager: TILManager);
@@ -239,7 +271,7 @@ If Assigned(ItemPtr) then
     OldAvail := ItemPtr^.AvailablePieces;
     OldPrice := ItemPtr^.UnitPriceSelected;
     fCurrentItemPtr := ItemPtr;
-    Caption := fILManager.ItemTitleStr(fCurrentItemPtr^) + ' - Shops';
+    fWndCaption := fILManager.ItemTitleStr(fCurrentItemPtr^) + ' - Shops';
     // fill list
     lvShops.Items.BeginUpdate;
     try
@@ -263,6 +295,7 @@ If Assigned(ItemPtr) then
       lvShops.ItemIndex := -1;
     ListViewItemSelected;
     RecalcAndShowPrices(nil);
+    UpdateShopsCounts;
     ShowModal;                            // <----
     frmShopFrame.SetItemShop(nil,True);
     // update and set flags
@@ -295,7 +328,7 @@ end;
 
 procedure TfShopsForm.lvShopsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
 begin
-//this deffers reaction to change and prefers flickering
+//this deffers reaction to change and prevents flickering
 PostMessage(Handle,WM_LVITEMSELECTED,Ord(Selected),0);
 end;
 
@@ -332,6 +365,7 @@ If Assigned(fCurrentItemPtr) then
       frmShopFrame.SetItemShop(Addr(fCurrentItemPtr^.Shops[Index]),False);
     lvShops.ItemIndex := Pred(lvShops.Items.Count);
     ListViewItemSelected;
+    UpdateShopsCounts;
   end;
 end;
 
@@ -421,6 +455,7 @@ If Assigned(fCurrentItemPtr) and (lvShops.ItemIndex >= 0) then
       If lvShops.ItemIndex >= 0 then
         frmShopFrame.SetItemShop(Addr(fCurrentItemPtr^.Shops[lvShops.ItemIndex]),False);
       RecalcAndShowPrices(nil);
+      UpdateShopsCounts;
     end;
 end;
 

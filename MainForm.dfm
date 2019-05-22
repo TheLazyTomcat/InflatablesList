@@ -279,5 +279,10 @@ object fMainForm: TfMainForm
       ShortCut = 16467
       OnExecute = acSaveExecute
     end
+    object acExit: TAction
+      Caption = 'acExit'
+      ShortCut = 16472
+      OnExecute = acExitExecute
+    end
   end
 end

@@ -217,11 +217,17 @@ If Assigned(fCurrentItemPtr) then
     else
       lblTotalWeight.Caption := '-';
     // selected shop
-    If fILManager.ItemSelectedShop(fCurrentItemPtr^,SelectedShop) then
+    If fILManager.ItemShopsSelected(fCurrentItemPtr^,SelectedShop) then
       lblSelectedShop.Caption := SelectedShop.Name
     else
       lblSelectedShop.Caption := '';
-    lblShopCount.Caption := IntToStr(Length(fCurrentItemPtr^.Shops));
+    // number of shops
+    If fILManager.ItemShopsUsefulCount(fCurrentItemPtr^) <> fILManager.ItemShopsCount(fCurrentItemPtr^) then
+      lblShopCount.Caption := Format('%d/%d',[
+        fILManager.ItemShopsUsefulCount(fCurrentItemPtr^),
+        fILManager.ItemShopsCount(fCurrentItemPtr^)])
+    else
+      lblShopCount.Caption := IntToStr(fILManager.ItemShopsCount(fCurrentItemPtr^));
     // available pieces
     If fCurrentItemPtr^.AvailablePieces <> 0 then
       begin
@@ -942,10 +948,10 @@ var
 begin
 If Assigned(fCurrentItemPtr) then
   begin
-    If Length(fCurrentItemPtr^.Shops) > 0 then
+    If fILManager.ItemShopsCount(fCurrentItemPtr^) > 0 then
       begin
         SaveItem;
-        SetLength(Temp,Length(fCurrentItemPtr^.Shops));
+        SetLength(Temp,fILManager.ItemShopsCount(fCurrentItemPtr^));
         For i := Low(Temp) to High(Temp) do
           begin
             Temp[i].ItemName := Format('[#%d] %s',[fCurrentItemPtr^.Index,fILManager.ItemTitleStr(fCurrentItemPtr^)]);

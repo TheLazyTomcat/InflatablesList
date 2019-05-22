@@ -30,10 +30,12 @@ type
     Function ItemTotalPrice(const Item: TILItem): UInt32;
     procedure ItemUpdatePriceAndAvail(var Item: TILItem); virtual;
     procedure ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32); virtual;
-    Function ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
-    procedure ItemUpdateShopsHistory(var Item: TILItem); virtual;
+    Function ItemShopsCount(const Item: TILItem): Integer; virtual;
+    Function ItemShopsUsefulCount(const Item: TILItem): Integer; virtual;
+    Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
+    procedure ItemShopsUpdateHistory(var Item: TILItem); virtual;
+    Function ItemShopsWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult; virtual;
     class Function ItemShopUpdate(var Shop: TILItemShop): Boolean; virtual;
-    Function ItemWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult; virtual;
   end;
 
 implementation
@@ -251,7 +253,26 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Utils.ItemSelectedShop(const Item: TILItem; out Shop: TILItemShop): Boolean;
+Function TILManager_Utils.ItemShopsCount(const Item: TILItem): Integer;
+begin
+Result := Length(Item.Shops);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemShopsUsefulCount(const Item: TILItem): Integer;
+var
+  i:  Integer;
+begin
+Result := 0;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If (Item.Shops[i].Available <> 0) and (Item.Shops[i].Price > 0) then
+    Inc(Result); 
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean;
 var
   i:  Integer;
 begin
@@ -266,7 +287,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Utils.ItemUpdateShopsHistory(var Item: TILItem);
+procedure TILManager_Utils.ItemShopsUpdateHistory(var Item: TILItem);
 var
   i:  Integer;
 
@@ -305,6 +326,18 @@ For i := Low(Item.Shops) to High(Item.Shops) do
           DoAddToHistory(Item.Shops[i]);
       end
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemShopsWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult;
+var
+  i:  Integer;
+begin
+Result := ilisurSuccess;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If Item.Shops[i].LastUpdateRes > Result then
+    Result := Item.Shops[i].LastUpdateRes;
 end;
 
 //------------------------------------------------------------------------------
@@ -371,18 +404,6 @@ else
       [Shop.Available,Shop.Price]),ilisurMildSucc,Shop.Available,Shop.Price);
     Result := True;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Utils.ItemWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult;
-var
-  i:  Integer;
-begin
-Result := ilisurSuccess;
-For i := Low(Item.Shops) to High(Item.Shops) do
-  If Item.Shops[i].LastUpdateRes > Result then
-    Result := Item.Shops[i].LastUpdateRes;
 end;
 
 end.

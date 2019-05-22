@@ -193,16 +193,16 @@ var
                                   end;
                               end;
       ilivtShopCount:         Result := IL_CompareUInt32(Length(fList[Idx1].Shops),Length(fList[Idx2].Shops));
-      ilivtSelectedShop:      If ItemSelectedShop(fList[Idx1],SelShop1) and ItemSelectedShop(fList[Idx2],SelShop2) then
+      ilivtSelectedShop:      If ItemShopsSelected(fList[Idx1],SelShop1) and ItemShopsSelected(fList[Idx2],SelShop2) then
                                 Result := IL_CompareText(SelShop1.Name,SelShop2.Name)
-                              else If ItemSelectedShop(fList[Idx1],SelShop1) then
+                              else If ItemShopsSelected(fList[Idx1],SelShop1) then
                                 Result := IL_NegateValue(+1,Reversed)
-                              else If ItemSelectedShop(fList[Idx2],SelShop2) then
+                              else If ItemShopsSelected(fList[Idx2],SelShop2) then
                                 Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
                               else
                                 Result := 0;
       ilivtWorstUpdateResult: If (Length(fList[Idx1].Shops) > 0) and (Length(fList[Idx2].Shops) > 0) then
-                                Result := IL_CompareInt32(Ord(ItemWorstUpdateResult(fList[Idx1])),Ord(ItemWorstUpdateResult(fList[Idx2])))
+                                Result := IL_CompareInt32(Ord(ItemShopsWorstUpdateResult(fList[Idx1])),Ord(ItemShopsWorstUpdateResult(fList[Idx2])))
                               else If Length(fList[Idx1].Shops) > 0 then
                                 Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
                               else If Length(fList[Idx2].Shops) > 0 then

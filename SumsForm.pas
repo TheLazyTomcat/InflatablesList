@@ -199,7 +199,7 @@ begin
 CDA_Clear(fSelectedShops);
 // enumerate all unique shops (by name)
 For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemSelectedShop(fIlManager[i],SelShop) then
+  If fILManager.ItemShopsSelected(fIlManager[i],SelShop) then
     If not fIlManager[i].FilteredOut then
       If CDA_IndexOf(fSelectedShops,SelShop.Name,False) < 0 then
         CDA_Add(fSelectedShops,SelShop.Name);
@@ -394,7 +394,7 @@ For i := 0 to Pred(fILManager.ItemCount) do
   If not fIlManager[i].FilteredOut then
     begin
       Index := -1;
-      If fILManager.ItemSelectedShop(fILManager[i],SelShop) then
+      If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
         Index := CDA_IndexOf(fSelectedShops,SelShop.Name,False);
       If CDA_CheckIndex(fSelectedShops,Index) then
         begin

@@ -592,7 +592,7 @@ begin
 Screen.Cursor := crHourGlass;
 try
   For i := 0 to Pred(fILManager.ItemCount) do
-    fILManager.ItemUpdateShopsHistory(fILManager.ItemPtrs[i]^);
+    fILManager.ItemShopsUpdateHistory(fILManager.ItemPtrs[i]^);
 finally
   Screen.Cursor := crDefault;
 end;

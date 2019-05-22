@@ -501,7 +501,7 @@ If Assigned(fCurrentItemPtr) then
     begin
       frmShopFrame.SaveItemShop;
       For i := Low(fCurrentItemPtr^.Shops) to High(fCurrentItemPtr^.Shops) do
-        fILManager.ItemUpdateShopsHistory(fCurrentItemPtr^);
+        fILManager.ItemShopsUpdateHistory(fCurrentItemPtr^);
       frmShopFrame.LoadItemShop;
     end;
 end;

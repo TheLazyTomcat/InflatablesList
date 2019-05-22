@@ -166,12 +166,16 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
     Font.Size := 8;
     Font.Style := [];
     TempInt := 5;
-    If ItemSelectedShop(Item,SelShop) then
+    If ItemShopsSelected(Item,SelShop) then
       begin
-        If Length(Item.Shops) > 1 then
-          TempStr := Format('%s [%d]',[SelShop.Name,Length(Item.Shops)])
-        else
-          TempStr := SelShop.Name;
+        If ItemShopsCount(Item) > 1 then
+          begin
+            If ItemShopsUsefulCount(Item) <> ItemShopsCount(Item) then
+              TempStr := Format('%s [%d/%d]',[SelShop.Name,ItemShopsUsefulCount(Item),ItemShopsCount(Item)])
+            else
+              TempStr := Format('%s [%d]',[SelShop.Name,ItemShopsCount(Item)]);
+          end
+        else TempStr := SelShop.Name;
         TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
         Inc(TempInt,15);
 
@@ -220,7 +224,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
       begin
         Pen.Style := psClear;
         Brush.Style := bsSolid;
-        Brush.Color := IL_ItemShopUpdateResultToColor(ItemWorstUpdateResult(Item));
+        Brush.Color := IL_ItemShopUpdateResultToColor(ItemShopsWorstUpdateResult(Item));
         Polygon([Point(fRenderWidth - 15,0),Point(fRenderWidth,0),Point(fRenderWidth,15)]);
       end;
   end;

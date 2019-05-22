@@ -56,7 +56,7 @@ begin
 // get list of selected shops
 CDA_Clear(fSelShopList);
 For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemSelectedShop(fILManager[i],SelShop) then
+  If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
     If not CDA_CheckIndex(fSelShopList,CDA_IndexOf(fSelShopList,SelShop.Name)) then
       CDA_Add(fSelShopList,SelShop.Name);
 // sort the list
@@ -111,7 +111,7 @@ InitializeTable;
 // do sums
 SetLength(Sums,CDA_Count(fSelShopList) + 1);  // last entry is total sum
 For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemSelectedShop(fILManager[i],SelShop) then
+  If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
     begin
       Index := CDA_IndexOf(fSelShopList,SelShop.Name);
       If CDA_CheckIndex(fSelShopList,Index) then
@@ -120,12 +120,12 @@ For i := 0 to Pred(fILManager.ItemCount) do
           Inc(Sums[Index].Items);
           Inc(Sums[Index].Count,fILManager[i].Count);
           Inc(Sums[Index].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
-          Inc(Sums[Index].TotalPrice,SelShop.Price);
+          Inc(Sums[Index].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
           // add to total sum
           Inc(Sums[High(Sums)].Items);
           Inc(Sums[High(Sums)].Count,fILManager[i].Count);
           Inc(Sums[High(Sums)].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPrice,SelShop.Price);
+          Inc(Sums[High(Sums)].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
         end;
     end;
 // fill the table

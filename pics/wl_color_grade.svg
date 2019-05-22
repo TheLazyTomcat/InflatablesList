@@ -21,19 +21,35 @@
      id="defs4">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient4162">
+       id="linearGradient4180">
       <stop
-         style="stop-color:#ff0000;stop-opacity:1"
+         style="stop-color:#ffabbb;stop-opacity:1"
          offset="0"
-         id="stop4164" />
+         id="stop4182" />
       <stop
-         id="stop4170"
+         id="stop4184"
          offset="0.5"
-         style="stop-color:#ffee00;stop-opacity:1" />
+         style="stop-color:#fff9a4;stop-opacity:1" />
       <stop
-         style="stop-color:#00ff00;stop-opacity:1"
+         style="stop-color:#b9ffb9;stop-opacity:1"
          offset="1"
-         id="stop4166" />
+         id="stop4186" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4162"
+       inkscape:collect="always">
+      <stop
+         id="stop4172"
+         offset="0"
+         style="stop-color:#ff0000;stop-opacity:1" />
+      <stop
+         style="stop-color:#ffee00;stop-opacity:1"
+         offset="0.5"
+         id="stop4174" />
+      <stop
+         id="stop4176"
+         offset="1"
+         style="stop-color:#00ff00;stop-opacity:1" />
     </linearGradient>
     <linearGradient
        id="linearGradient4152"
@@ -98,6 +114,16 @@
        y2="559.50507"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1,0,0,0.22916665,-12.142857,392.71377)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4180"
+       id="linearGradient4167"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.22916665,-12.142857,439.14234)"
+       x1="50"
+       y1="559.50507"
+       x2="542.85715"
+       y2="559.50507" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -107,8 +133,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="267.19595"
-     inkscape:cy="500.83643"
+     inkscape:cx="330.10312"
+     inkscape:cy="500.12214"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -264,5 +290,14 @@
        y="513.07654"
        inkscape:export-xdpi="46.747826"
        inkscape:export-ydpi="46.747826" />
+    <rect
+       inkscape:export-ydpi="46.747826"
+       inkscape:export-xdpi="46.747826"
+       y="559.50513"
+       x="37.857143"
+       height="15.714285"
+       width="492.85715"
+       id="rect4165"
+       style="opacity:1;fill:url(#linearGradient4167);fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

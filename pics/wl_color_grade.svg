@@ -20,6 +20,22 @@
   <defs
      id="defs4">
     <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4162">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1"
+         offset="0"
+         id="stop4164" />
+      <stop
+         id="stop4170"
+         offset="0.5"
+         style="stop-color:#ffee00;stop-opacity:1" />
+      <stop
+         style="stop-color:#00ff00;stop-opacity:1"
+         offset="1"
+         id="stop4166" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient4152"
        inkscape:collect="always">
       <stop
@@ -72,6 +88,16 @@
        y1="139.1479"
        x2="463.57144"
        y2="139.1479" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4162"
+       id="linearGradient4168"
+       x1="50"
+       y1="559.50507"
+       x2="542.85715"
+       y2="559.50507"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.22916665,-12.142857,392.71377)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -81,8 +107,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="471.52155"
-     inkscape:cy="501.55072"
+     inkscape:cx="267.19595"
+     inkscape:cy="500.83643"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -229,5 +255,14 @@
        transform="matrix(0,-1,1,0,0,0)"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:1;fill:url(#linearGradient4168);fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4160"
+       width="492.85715"
+       height="15.714285"
+       x="37.857143"
+       y="513.07654"
+       inkscape:export-xdpi="46.747826"
+       inkscape:export-ydpi="46.747826" />
   </g>
 </svg>

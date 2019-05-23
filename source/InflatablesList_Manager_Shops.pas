@@ -12,6 +12,7 @@ type
   public
     class procedure ItemShopInitialize(out ItemShop: TILItemShop); virtual;    
     class procedure ItemShopFinalize(var ItemShop: TILItemShop); override;
+    class Function ItemShopIndexOf(const Item: TILItem; const Name: String): Integer; virtual;
     class Function ItemShopAdd(var Item: TILItem): Integer; virtual;
     class procedure ItemShopExchange(var Item: TILItem; Idx1,Idx2: Integer); virtual;
     class procedure ItemShopDelete(var Item: TILItem; Index: Integer); virtual;
@@ -61,6 +62,21 @@ class procedure TILManager_Shops.ItemShopFinalize(var ItemShop: TILITemShop);
 begin
 FreeAndNil(ItemShop.ParsingSettings.Available.Finder);
 FreeAndNil(ItemShop.ParsingSettings.Price.Finder);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILManager_Shops.ItemShopIndexOf(const Item: TILItem; const Name: String): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := Low(Item.Shops) to High(Item.Shops) do
+  If AnsiSameText(Item.Shops[i].Name,Name) then
+    begin
+      Result := i;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------

@@ -38,7 +38,8 @@ type
     mniLN_UpdateShopsHistory: TMenuItem;
     N5: TMenuItem;
     mniLM_Sums: TMenuItem;
-    mniLM_Overview: TMenuItem;    
+    mniLM_Overview: TMenuItem;
+    mniLM_Selection: TMenuItem;       
     N6: TMenuItem;
     mniLM_Save: TMenuItem;
     mniLM_Specials: TMenuItem;    
@@ -80,6 +81,7 @@ type
     procedure mniLN_UpdateShopsHistoryClick(Sender: TObject);
     procedure mniLM_SumsClick(Sender: TObject);
     procedure mniLM_OverviewClick(Sender: TObject);
+    procedure mniLM_SelectionClick(Sender: TObject);
     procedure mniLM_SaveClick(Sender: TObject);
     procedure mniLM_SpecialsClick(Sender: TObject);
     procedure mniLM_ExitClick(Sender: TObject);
@@ -120,7 +122,7 @@ uses
   AuxTypes,
   InflatablesList_Types, InflatablesList_Backup,
   SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
-  ParsingForm, SpecialsForm, OverviewForm;
+  ParsingForm, SpecialsForm, OverviewForm, SelectionForm;
 
 {$R *.dfm}
 
@@ -211,6 +213,7 @@ fUpdateForm.Initialize(fILManager);
 fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
+fSelectionform.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -613,6 +616,13 @@ end;
 procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
 begin
 fOverviewForm.Show;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
+begin
+fSelectionForm.ShowTable;
 end;
 
 //------------------------------------------------------------------------------

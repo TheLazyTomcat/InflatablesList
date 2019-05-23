@@ -49,7 +49,8 @@ uses
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
   InflatablesList in 'source\InflatablesList.pas',
   InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas',
-  OverviewForm in 'OverviewForm.pas' {fOverviewForm};
+  OverviewForm in 'OverviewForm.pas' {fOverviewForm},
+  SelectionForm in 'SelectionForm.pas' {fSelectionForm};
 
 {$R *.res}
 
@@ -66,6 +67,7 @@ begin
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfTextEditForm, fTextEditForm);
   Application.CreateForm(TfOverviewForm, fOverviewForm);
+  Application.CreateForm(TfSelectionForm, fSelectionForm);
   fMainForm.DoOtherFormsInit;
   Application.Run;
 end.

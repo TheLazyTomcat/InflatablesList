@@ -228,7 +228,7 @@ begin
 If Assigned(fCurrentItemPtr) then
   begin
     If fILManager.ItemShopsCount(fCurrentItemPtr^) > 0 then
-      Caption := Format('%s [%s]',[fWndCaption,fILManager.ItemShopsCountStr(fCurrentItemPtr^)])
+      Caption := Format('%s (%s)',[fWndCaption,fILManager.ItemShopsCountStr(fCurrentItemPtr^)])
     else
       Caption := fWndCaption;
   end
@@ -242,11 +242,11 @@ begin
 If lvShops.ItemIndex < 0 then
   begin
     If lvShops.Items.Count > 0 then
-      lblShops.Caption := Format('Shops (%d):',[lvShops.Items.Count])
+      lblShops.Caption := Format('Shops [%d]:',[lvShops.Items.Count])
     else
       lblShops.Caption := 'Shops:';
   end
-else lblShops.Caption := Format('Shops (%d/%d):',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
+else lblShops.Caption := Format('Shops [%d/%d]:',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
 end;
 
 //==============================================================================

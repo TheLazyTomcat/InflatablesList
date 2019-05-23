@@ -234,6 +234,11 @@ object fMainForm: TfMainForm
       ShortCut = 16471
       OnClick = mniLM_OverviewClick
     end
+    object mniLM_Selection: TMenuItem
+      Caption = 'Shop selection table...'
+      ShortCut = 16468
+      OnClick = mniLM_SelectionClick
+    end
     object N6: TMenuItem
       Caption = '-'
     end

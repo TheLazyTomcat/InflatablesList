@@ -32,6 +32,7 @@ type
     procedure ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32); virtual;
     Function ItemShopsCount(const Item: TILItem): Integer; virtual;
     Function ItemShopsUsefulCount(const Item: TILItem): Integer; virtual;
+    Function ItemShopsUsefulRatio(const Item: TILItem): Double; virtual;
     Function ItemShopsCountStr(const Item: TILItem): String; virtual;
     Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
     procedure ItemShopsUpdateHistory(var Item: TILItem); virtual;
@@ -269,6 +270,16 @@ Result := 0;
 For i := Low(Item.Shops) to High(Item.Shops) do
   If (Item.Shops[i].Available <> 0) and (Item.Shops[i].Price > 0) then
     Inc(Result); 
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Utils.ItemShopsUsefulRatio(const Item: TILItem): Double;
+begin
+If ItemShopsCount(Item) > 0 then
+  Result := ItemShopsUsefulCount(Item) / ItemShopsCount(Item)
+else
+  Result := -1;
 end;
 
 //------------------------------------------------------------------------------

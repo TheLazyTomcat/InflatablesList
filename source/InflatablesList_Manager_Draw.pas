@@ -169,7 +169,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
     If ItemShopsSelected(Item,SelShop) then
       begin
         If ItemShopsCount(Item) > 1 then
-          TempStr := Format('%s [%s]',[SelShop.Name,ItemShopsCountStr(Item)])
+          TempStr := Format('%s (%s)',[SelShop.Name,ItemShopsCountStr(Item)])
         else
           TempStr := SelShop.Name;
         TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);

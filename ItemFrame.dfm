@@ -752,7 +752,7 @@ object frmItemFrame: TfrmItemFrame
         EditLabel.Width = 45
         EditLabel.Height = 13
         EditLabel.Caption = 'Text tag:'
-        MaxLength = 3
+        MaxLength = 10
         TabOrder = 14
         OnChange = leTextTagChange
       end

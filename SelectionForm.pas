@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids,
   CountedDynArrayString,
-  InflatablesList;
+  InflatablesList, StdCtrls;
 
 type
   TfSelectionForm = class(TForm)
@@ -15,10 +15,20 @@ type
       Rect: TRect; State: TGridDrawState);
     procedure sgTableDblClick(Sender: TObject);
     procedure sgTableKeyPress(Sender: TObject; var Key: Char);
+    procedure sgTableExit(Sender: TObject);
+    procedure sgTableKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sgTableMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure sgTableKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
-    fILManager: TILManager;
-    fShopList:  TStringCountedDynArray;
+    fILManager:     TILManager;
+    fShopList:      TStringCountedDynArray;
+    fTableTracking: Boolean;
+    fOldMouseX:     Integer;
+    fOldMouseY:     Integer;
   protected
     procedure PrepareTable;
   public
@@ -33,6 +43,10 @@ var
 implementation
 
 {$R *.dfm}
+
+const
+  IL_TABLE_TRACKSCALE_X = 10;
+  IL_TABLE_TRACKSCALE_Y = 3;
 
 procedure TfSelectionForm.PrepareTable;
 var
@@ -72,6 +86,7 @@ end;
 
 procedure TfSelectionForm.ShowTable;
 begin
+fTableTracking := False;
 //fILManager.ItemRedrawSmall;
 PrepareTable;
 ShowModal;
@@ -186,7 +201,7 @@ If Sender is TDrawGrid then
       begin
         Pen.Style := psClear;
         Brush.Style := bsSolid;
-        Brush.Color := clBlue;
+        Brush.Color := clWhite;
         Rectangle(Rect);
       end;
 end;
@@ -201,12 +216,85 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfSelectionForm.sgTableExit(Sender: TObject);
+begin
+fTableTracking := False;
+end;
+
+procedure TfSelectionForm.sgTableKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+If not fTableTracking and (Key = VK_SHIFT) then
+  begin
+    fTableTracking := True;
+    fOldMouseX := Mouse.CursorPos.X;
+    fOldMouseY := Mouse.CursorPos.Y;
+  end;
+end;
+
 procedure TfSelectionForm.sgTableKeyPress(Sender: TObject; var Key: Char);
 begin
 If Key = #32{spacebar} then
   begin
     ShowMessage(Format('col %d  row %d',[sgTable.Col,sgTable.Row]));
     sgTable.Invalidate;
+  end;
+end;
+
+procedure TfSelectionForm.sgTableKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+If Key = VK_SHIFT then
+  fTableTracking := False;
+end;
+
+procedure TfSelectionForm.sgTableMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var
+  i:  Integer;
+
+  procedure MoveLeftCol(Negative: Boolean);
+  begin
+    If Negative then
+      begin
+        If sgTable.LeftCol > sgTable.FixedCols then
+          sgTable.LeftCol := sgTable.LeftCol - 1;
+      end
+    else
+      begin
+        If (sgTable.LeftCol + sgTable.VisibleColCount) < sgTable.ColCount then
+          sgTable.LeftCol := sgTable.LeftCol + 1;
+      end;
+  end;
+
+  procedure MoveTopRow(Negative: Boolean);
+  begin
+    If Negative then
+      begin
+        If sgTable.TopRow > sgTable.FixedRows then
+          sgTable.TopRow := sgTable.TopRow - 1;
+      end
+    else
+      begin
+        If (sgTable.TopRow + sgTable.VisibleRowCount) < sgTable.RowCount then
+          sgTable.TopRow := sgTable.TopRow + 1;
+      end;
+  end;
+
+begin
+If fTableTracking and (ssShift in Shift) then
+  begin
+    If Abs(X - fOldMouseX) >= IL_TABLE_TRACKSCALE_X then
+      begin
+        For i := 1 to (Abs(X - fOldMouseX) div IL_TABLE_TRACKSCALE_X) do
+          MoveLeftCol((X - fOldMouseX) < 0);
+        fOldMouseX := X;
+      end; 
+    If Abs(Y - fOldMouseY) >= IL_TABLE_TRACKSCALE_Y then
+      begin
+        For i := 1 to (Abs(Y - fOldMouseY) div IL_TABLE_TRACKSCALE_Y) do
+          MoveTopRow((Y - fOldMouseY) < 0);
+        fOldMouseY := Y;
+      end;
   end;
 end;
 

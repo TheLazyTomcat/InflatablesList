@@ -1,6 +1,6 @@
 object fSelectionForm: TfSelectionForm
-  Left = 403
-  Top = 115
+  Left = 411
+  Top = 117
   Width = 864
   Height = 498
   BorderIcons = [biSystemMenu, biMaximize]
@@ -30,15 +30,17 @@ object fSelectionForm: TfSelectionForm
     ColCount = 2
     DefaultRowHeight = 37
     DefaultDrawing = False
+    RowCount = 2
     Options = [goThumbTracking]
     TabOrder = 0
     OnDblClick = sgTableDblClick
     OnDrawCell = sgTableDrawCell
+    OnExit = sgTableExit
+    OnKeyDown = sgTableKeyDown
     OnKeyPress = sgTableKeyPress
+    OnKeyUp = sgTableKeyUp
+    OnMouseMove = sgTableMouseMove
     RowHeights = (
-      37
-      37
-      37
       37
       37)
   end

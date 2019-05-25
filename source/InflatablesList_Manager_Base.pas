@@ -146,8 +146,11 @@ Item.MainPictureFile := '';
 Item.PackagePictureFile := '';
 Item.UnitPriceDefault := 0;
 Item.UnitPriceLowest := 0;
+Item.UnitPriceHighest := 0;
 Item.UnitPriceSelected := 0;
-Item.AvailablePieces := 0;
+Item.AvailableLowest := 0;
+Item.AvailableHighest := 0;
+Item.AvailableSelected := 0;
 // shops
 SetLength(Item.Shops,0);
 end;
@@ -317,9 +320,9 @@ begin
 SetLength(fList,Length(fList) + 1);
 Result := High(fList);
 ItemInitialize(fList[Result]);
+fList[Result].TimeOfAddition := Now;
 // internals
 fList[Result].Index := Result;
-fList[Result].TimeOfAddition := Now;
 ItemInitInternals(fList[Result]);
 end;
 
@@ -334,8 +337,8 @@ If (SrcIndex >= Low(fList)) and (SrcIndex <= High(fList)) then
     ItemFinalInternals(fList[Result]);
     If Result >= 0 then
       ItemCopy(fList[SrcIndex],fList[Result],True);
+    fList[Result].TimeOfAddition := Now;
     fList[Result].Index := Result;
-    fList[Result].TimeOfAddition := Now;      
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;

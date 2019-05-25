@@ -554,10 +554,10 @@ If Length(Temp) > 0 then
     For i := 0 to Pred(fILManager.ItemCount) do
       If ilifWanted in fILManager[i].Flags then
         begin
-          OldAvail := fILManager[i].AvailablePieces;
+          OldAvail := fILManager[i].AvailableSelected;
           OldPrice := fILManager[i].UnitPriceSelected;
           fILManager.ItemUpdatePriceAndAvail(fILManager.ItemPtrs[i]^);
-          fILManager.ItemFlagPriceAndAvail(fILManager.ItemPtrs[i]^,OldAvail,OldPrice);
+          fILManager.ItemFlagPriceAndAvail(fILManager.ItemPtrs[i]^,OldPrice,OldAvail);
         end;
     // show changes
     frmItemFrame.LoadItem;

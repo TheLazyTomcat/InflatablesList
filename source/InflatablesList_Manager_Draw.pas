@@ -16,12 +16,13 @@ type
     fRenderHeight:  Integer;
     fFontSettings:  TFont;
     procedure ItemInitInternals(var Item: TILItem); override;
+    procedure ItemRedrawFull(var Item: TILItem); virtual;
+    procedure ItemRedrawSmall(var Item: TILItem); virtual;
   public
     constructor Create(ListComponent: TListBox);
     procedure ItemReinitSize(ListComponent: TListBox); virtual;
     procedure ItemRedraw(var Item: TILItem); overload; virtual;
     procedure ItemRedraw; overload; virtual;
-    property RenderWidth: Integer read fRenderWidth write fRenderWidth;
   end;
 
 implementation
@@ -37,31 +38,9 @@ Item.ItemListRender.Width := fRenderWidth;
 Item.ItemListRender.Height := fRenderHeight;
 end;
 
-//==============================================================================
-
-constructor TILManager_Draw.Create(ListComponent: TListBox);
-begin
-inherited Create;
-ItemReinitSize(ListComponent);
-end;
-
 //------------------------------------------------------------------------------
 
-procedure TILManager_Draw.ItemReinitSize(ListComponent: TListBox);
-var
-  OldWidth: Integer;
-begin
-OldWidth := fRenderWidth;
-fRenderWidth := ListComponent.ClientWidth;
-fRenderHeight := ListComponent.ItemHeight;
-fFontSettings := ListComponent.Font;
-If OldWidth <> fRenderWidth then
-  ItemRedraw;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_Draw.ItemRedraw(var Item: TILItem);
+procedure TILManager_Draw.ItemRedrawFull(var Item: TILItem);
 const
   WL_STRIP_WIDTH  = 20;
 var
@@ -175,12 +154,12 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
         TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
         Inc(TempInt,15);
 
-        If Item.AvailablePieces <> 0 then
+        If Item.AvailableSelected <> 0 then
           begin
-            If Item.AvailablePieces < 0 then
-              TempStr := Format('more than %d pcs',[Abs(Item.AvailablePieces)])
+            If Item.AvailableSelected < 0 then
+              TempStr := Format('more than %d pcs',[Abs(Item.AvailableSelected)])
             else
-              TempStr := Format('%d pcs',[Item.AvailablePieces]);
+              TempStr := Format('%d pcs',[Item.AvailableSelected]);
             TextOut(fRenderWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
             Inc(TempInt,15);
           end;
@@ -224,6 +203,42 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
         Polygon([Point(fRenderWidth - 15,0),Point(fRenderWidth,0),Point(fRenderWidth,15)]);
       end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Draw.ItemRedrawSmall(var Item: TILItem);
+begin
+end;
+
+//==============================================================================
+
+constructor TILManager_Draw.Create(ListComponent: TListBox);
+begin
+inherited Create;
+ItemReinitSize(ListComponent);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Draw.ItemReinitSize(ListComponent: TListBox);
+var
+  OldWidth: Integer;
+begin
+OldWidth := fRenderWidth;
+fRenderWidth := ListComponent.ClientWidth;
+fRenderHeight := ListComponent.ItemHeight;
+fFontSettings := ListComponent.Font;
+If OldWidth <> fRenderWidth then
+  ItemRedraw;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Draw.ItemRedraw(var Item: TILItem);
+begin
+ItemRedrawFull(Item);
+ItemRedrawSmall(Item);
 end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

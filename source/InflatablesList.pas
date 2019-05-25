@@ -22,10 +22,10 @@ unit InflatablesList;
 interface
 
 uses
-  InflatablesList_Manager_00000006;
+  InflatablesList_Manager_00000007;
 
 type
-  TILManager = TILManager_00000006;
+  TILManager = TILManager_00000007;
 
 implementation
 

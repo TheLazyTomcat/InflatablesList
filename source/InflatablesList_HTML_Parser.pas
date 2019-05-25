@@ -92,7 +92,7 @@ case Token.TokenType of
                             fCurrentElement := NewElement;
                           end;
                       end
-                    else fCurrentElement.Free;
+                    else NewElement.Free;
                     If (Sender is TILHTMLTokenizer) then
                       begin
                         If AnsiSameText(UnicodeToStr('script'),Token.TagName) then

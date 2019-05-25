@@ -45,8 +45,8 @@ implementation
 {$R *.dfm}
 
 const
-  IL_TABLE_TRACKSCALE_X = 10;
-  IL_TABLE_TRACKSCALE_Y = 3;
+  IL_TABLE_TRACKSCALE_X = 20;
+  IL_TABLE_TRACKSCALE_Y = 2;
 
 procedure TfSelectionForm.PrepareTable;
 var
@@ -221,16 +221,22 @@ begin
 fTableTracking := False;
 end;
 
-procedure TfSelectionForm.sgTableKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.sgTableKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  ClientPoint:  TPoint;
 begin
-If not fTableTracking and (Key = VK_SHIFT) then
+If not fTableTracking and (Key in [VK_SHIFT,VK_RSHIFT,VK_LSHIFT]) then
   begin
     fTableTracking := True;
-    fOldMouseX := Mouse.CursorPos.X;
-    fOldMouseY := Mouse.CursorPos.Y;
+    ClientPoint := sgTable.ScreenToClient(Mouse.CursorPos);
+    fOldMouseX := ClientPoint.X;
+    fOldMouseY := ClientPoint.Y;
   end;
 end;
+
+//------------------------------------------------------------------------------
 
 procedure TfSelectionForm.sgTableKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -241,12 +247,16 @@ If Key = #32{spacebar} then
   end;
 end;
 
+//------------------------------------------------------------------------------
+
 procedure TfSelectionForm.sgTableKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-If Key = VK_SHIFT then
+If Key in [VK_SHIFT,VK_RSHIFT,VK_LSHIFT] then
   fTableTracking := False;
 end;
+
+//------------------------------------------------------------------------------
 
 procedure TfSelectionForm.sgTableMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var

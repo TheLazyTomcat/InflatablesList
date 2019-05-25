@@ -316,7 +316,7 @@ Stream_WriteString(Stream,Item.PackagePictureFile);
 Stream_WriteUInt32(Stream,Item.UnitPriceDefault);
 Stream_WriteUInt32(Stream,Item.UnitPriceLowest);
 Stream_WriteUInt32(Stream,Item.UnitPriceSelected);
-Stream_WriteInt32(Stream,Item.AvailablePieces);
+Stream_WriteInt32(Stream,Item.AvailableSelected);
 // shops
 Stream_WriteUInt32(Stream,Length(Item.Shops));
 For i := Low(Item.Shops) to High(Item.Shops) do
@@ -385,7 +385,7 @@ Item.PackagePictureFile := Stream_ReadString(Stream);
 Item.UnitPriceDefault := Stream_ReadUInt32(Stream);
 Item.UnitPriceLowest := Stream_ReadUInt32(Stream);
 Item.UnitPriceSelected := Stream_ReadUInt32(Stream);
-Item.AvailablePieces := Stream_ReadInt32(Stream);
+Item.AvailableSelected := Stream_ReadInt32(Stream);
 // shops
 SetLength(Item.Shops,Stream_ReadUInt32(Stream));
 For i := Low(Item.Shops) to High(Item.Shops) do

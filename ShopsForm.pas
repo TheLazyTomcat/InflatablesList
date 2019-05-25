@@ -268,7 +268,7 @@ var
 begin
 If Assigned(ItemPtr) then
   begin
-    OldAvail := ItemPtr^.AvailablePieces;
+    OldAvail := ItemPtr^.AvailableSelected;
     OldPrice := ItemPtr^.UnitPriceSelected;
     fCurrentItemPtr := ItemPtr;
     fWndCaption := fILManager.ItemTitleStr(fCurrentItemPtr^) + ' - Shops';
@@ -300,7 +300,7 @@ If Assigned(ItemPtr) then
     frmShopFrame.SetItemShop(nil,True);
     // update and set flags
     fILManager.ItemUpdatePriceAndAvail(fCurrentItemPtr^);
-    fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,OldAvail,OldPrice);
+    fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,OldPrice,OldAvail);
   end;
 end;
 

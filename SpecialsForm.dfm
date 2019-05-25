@@ -73,4 +73,13 @@ object fSpecialsForm: TfSpecialsForm
     EditLabel.Caption = 'Parameter (represented as ... in captions):'
     TabOrder = 0
   end
+  object btnUpdateAllAPF: TButton
+    Left = 440
+    Top = 96
+    Width = 137
+    Height = 25
+    Caption = 'Upd avail + prc and flag'
+    TabOrder = 5
+    OnClick = btnUpdateAllAPFClick
+  end
 end

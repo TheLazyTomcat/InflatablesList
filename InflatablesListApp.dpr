@@ -50,7 +50,8 @@ uses
   InflatablesList in 'source\InflatablesList.pas',
   InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas',
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
-  SelectionForm in 'SelectionForm.pas' {fSelectionForm};
+  SelectionForm in 'SelectionForm.pas' {fSelectionForm},
+  InflatablesList_Manager_00000007 in 'source\InflatablesList_Manager_00000007.pas';
 
 {$R *.res}
 

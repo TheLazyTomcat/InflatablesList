@@ -225,14 +225,14 @@ var
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtTotalPrice:        Result := IL_CompareUInt32(ItemTotalPrice(fList[Idx1]),ItemTotalPrice(fList[Idx2]));
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      ilivtAvailable:         If (fList[Idx1].AvailablePieces < 0) and (fList[Idx2].AvailablePieces < 0) then
-                                Result := IL_CompareInt32(Abs(fList[Idx1].AvailablePieces),Abs(fList[Idx2].AvailablePieces))
-                              else If (fList[Idx1].AvailablePieces < 0) then
-                                Result := IL_CompareInt32(Abs(fList[Idx1].AvailablePieces) + 1,fList[Idx2].AvailablePieces)
-                              else If (fList[Idx2].AvailablePieces < 0) then
-                                Result := IL_CompareInt32(fList[Idx1].AvailablePieces,Abs(fList[Idx2].AvailablePieces) + 1)
+      ilivtAvailable:         If (fList[Idx1].AvailableSelected < 0) and (fList[Idx2].AvailableSelected < 0) then
+                                Result := IL_CompareInt32(Abs(fList[Idx1].AvailableSelected),Abs(fList[Idx2].AvailableSelected))
+                              else If (fList[Idx1].AvailableSelected < 0) then
+                                Result := IL_CompareInt32(Abs(fList[Idx1].AvailableSelected) + 1,fList[Idx2].AvailableSelected)
+                              else If (fList[Idx2].AvailableSelected < 0) then
+                                Result := IL_CompareInt32(fList[Idx1].AvailableSelected,Abs(fList[Idx2].AvailableSelected) + 1)
                               else
-                                Result := IL_CompareInt32(fList[Idx1].AvailablePieces,fList[Idx2].AvailablePieces);
+                                Result := IL_CompareInt32(fList[Idx1].AvailableSelected,fList[Idx2].AvailableSelected);
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtShopCount:         Result := IL_CompareUInt32(ItemShopsCount(fList[Idx1]),ItemShopsCount(fList[Idx2]));
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

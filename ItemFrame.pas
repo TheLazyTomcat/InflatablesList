@@ -224,12 +224,12 @@ If Assigned(fCurrentItemPtr) then
     // number of shops
     lblShopCount.Caption := fILManager.ItemShopsCountStr(fCurrentItemPtr^);
     // available pieces
-    If fCurrentItemPtr^.AvailablePieces <> 0 then
+    If fCurrentItemPtr^.AvailableSelected <> 0 then
       begin
-        If fCurrentItemPtr^.AvailablePieces < 0 then
-          lblAvailPieces.Caption := 'more than ' + IntToStr(Abs(fCurrentItemPtr^.AvailablePieces))
+        If fCurrentItemPtr^.AvailableSelected < 0 then
+          lblAvailPieces.Caption := 'more than ' + IntToStr(Abs(fCurrentItemPtr^.AvailableSelected))
         else
-          lblAvailPieces.Caption := IntToStr(fCurrentItemPtr^.AvailablePieces);
+          lblAvailPieces.Caption := IntToStr(fCurrentItemPtr^.AvailableSelected);
       end
     else lblAvailPieces.Caption := '-';
     // unit price lowest
@@ -624,7 +624,7 @@ If not fInitializing then
       begin
         SaveItem;
         fCurrentItemPtr^.Count := seCount.Value;
-        fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,fCurrentItemPtr^.AvailablePieces,fCurrentItemPtr^.UnitPriceSelected);
+        fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,fCurrentItemPtr^.UnitPriceSelected,fCurrentItemPtr^.AvailableSelected);
         LoadItem;
       end;
     DoTitleChange;
@@ -689,7 +689,7 @@ If Sender is TCheckBox then
           2:  begin
                 SaveItem;
                 IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifWanted,cbFlagWanted.Checked);
-                fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,fCurrentItemPtr^.AvailablePieces,fCurrentItemPtr^.UnitPriceSelected);
+                fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,fCurrentItemPtr^.UnitPriceSelected,fCurrentItemPtr^.AvailableSelected);
                 LoadItem;
               end;
           3:  IL_SetItemFlagValue(fCurrentItemPtr^.Flags,ilifOrdered,cbFlagOrdered.Checked);
@@ -955,10 +955,10 @@ If Assigned(fCurrentItemPtr) then
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
-        OldAvail := fCurrentItemPtr^.AvailablePieces;
+        OldAvail := fCurrentItemPtr^.AvailableSelected;
         OldPrice := fCurrentItemPtr^.UnitPriceSelected;
         fILManager.ItemUpdatePriceAndAvail(fCurrentItemPtr^);
-        fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,OldAvail,OldPrice);
+        fILManager.ItemFlagPriceAndAvail(fCurrentItemPtr^,OldPrice,OldAvail);
         LoadItem;
         DoListItemChange;
       end

@@ -157,8 +157,7 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 
 type
   TILItem = record
-    // internals
-    Index:              Integer;  // used when sorting
+    // general read-only info
     TimeOfAddition:     TDateTime;
     // stored pictures
     MainPicture:        TBitmap;  // 96 x 96 px, white background
@@ -186,13 +185,17 @@ type
     MainPictureFile:    String;
     PackagePictureFile: String;
     UnitPriceDefault:   UInt32;
-    // read-only
+    // availability and prices (calculated from shops)
     UnitPriceLowest:    UInt32;
+    UnitPriceHighest:   UInt32;
     UnitPriceSelected:  UInt32;
-    AvailablePieces:    Int32;    // negative value means "more than"
+    AvailableLowest:    Int32;    // negative value means "more than"
+    AvailableHighest:   Int32;
+    AvailableSelected:  Int32;
     // shops
     Shops:              TILShops;
     // internals
+    Index:              Integer;  // used when sorting
     ItemListRender:     TBitmap;
     FilteredOut:        Boolean;
   end;
@@ -211,11 +214,8 @@ type
     ilivtSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
     ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
-    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
-    ilivtUsefulShopCount,ilivtUsefulShopRatio,
-
-    ilivtSelectedShop,
-    ilivtWorstUpdateResult);
+    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
+    ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;

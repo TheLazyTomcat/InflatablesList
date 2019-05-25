@@ -26,10 +26,11 @@ type
     Function ItemTotalWeightStr(const Item: TILItem): String; virtual;
     Function ItemUnitPrice(const Item: TILItem): UInt32; virtual;
     Function ItemTotalPriceLowest(const Item: TILItem): UInt32; virtual;
+    Function ItemTotalPriceHighest(const Item: TILItem): UInt32; virtual;
     Function ItemTotalPriceSelected(const Item: TILItem): UInt32; virtual;
     Function ItemTotalPrice(const Item: TILItem): UInt32;
     procedure ItemUpdatePriceAndAvail(var Item: TILItem); virtual;
-    procedure ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32); virtual;
+    procedure ItemFlagPriceAndAvail(var Item: TILItem; OldPrice: UInt32; OldAvail: Int32); virtual;
     Function ItemShopsCount(const Item: TILItem): Integer; virtual;
     Function ItemShopsUsefulCount(const Item: TILItem): Integer; virtual;
     Function ItemShopsUsefulRatio(const Item: TILItem): Double; virtual;
@@ -172,6 +173,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILManager_Utils.ItemTotalPriceHighest(const Item: TILItem): UInt32;
+begin
+Result := Item.UnitPriceHighest * Item.Count;
+end;
+
+//------------------------------------------------------------------------------
+
 Function TILManager_Utils.ItemTotalPriceSelected(const Item: TILItem): UInt32;
 begin
 Result := Item.UnitPriceSelected * Item.Count;
@@ -188,9 +196,29 @@ end;
 
 procedure TILManager_Utils.ItemUpdatePriceAndAvail(var Item: TILItem);
 var
-  i:        Integer;
-  Selected: Boolean;
-  LowPrice: Int64;
+  i:          Integer;
+  Selected:   Boolean;
+  LowPrice:   Int64;
+  HighPrice:  Int64;
+  LowAvail:   Int64;
+  HighAvail:  Int64;
+
+  Function AvailIsLess(A,B: Int32): Boolean;
+  begin
+    If Abs(A) = Abs(B) then
+      Result := B > 0
+    else
+      Result := Abs(A) < Abs(B);
+  end;
+
+  Function AvailIsMore(A,B: Int32): Boolean;
+  begin
+    If Abs(A) = Abs(B) then
+      Result := A < 0
+    else
+      Result := Abs(A) > Abs(B);
+  end;
+
 begin
 // first make sure only one shop is selected
 Selected := False;
@@ -199,47 +227,58 @@ For i := Low(Item.Shops) to High(Item.Shops) do
     Selected := True
   else
     Item.Shops[i].Selected := False;
-// get lowest price (availability must be non-zero), also get selected price
-LowPrice := -1;
+// get price and avail extremes (availability must be non-zero) and selected
+LowPrice := 0;
+HighPrice := 0;
+LowAvail := 0;
+HighAvail := 0;
 Item.UnitPriceSelected := 0;
-Item.AvailablePieces := 0;
+Item.AvailableSelected := 0;
 For i := Low(Item.Shops) to High(Item.Shops) do
   begin
     If (Item.Shops[i].Available <> 0) and (Item.Shops[i].Price > 0) then
-      If (Item.Shops[i].Price < LowPrice) or (LowPrice < 0) then
-        LowPrice := Item.Shops[i].Price;
-    If (Item.Shops[i].Available <> 0) and Item.Shops[i].Selected then
+      begin
+        If (Item.Shops[i].Price < LowPrice) or (LowPrice <= 0) then
+          LowPrice := Item.Shops[i].Price;
+        If (Item.Shops[i].Price > HighPrice) or (HighPrice <= 0) then
+          HighPrice := Item.Shops[i].Price; 
+        If AvailIsLess(Item.Shops[i].Available,LowAvail) or (LowAvail <= 0) then
+          LowAvail := Item.Shops[i].Available;
+        If AvailIsMore(Item.Shops[i].Available,HighAvail) or (HighAvail <= 0) then
+          HighAvail := Item.Shops[i].Available;
+      end;
+    If Item.Shops[i].Selected then
       begin
         Item.UnitPriceSelected := Item.Shops[i].Price;
-        Item.AvailablePieces := Item.Shops[i].Available;
+        Item.AvailableSelected := Item.Shops[i].Available;
       end;
   end;
-If LowPrice < 0 then
-  Item.UnitPriceLowest := 0
-else
-  Item.UnitPriceLowest := LowPrice;
+Item.UnitPriceLowest := LowPrice;
+Item.UnitPriceHighest := HighPrice;
+Item.AvailableLowest := LowAvail;
+Item.AvailableHighest := HighAvail;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Utils.ItemFlagPriceAndAvail(var Item: TILItem; OldAvail: Int32; OldPrice: UInt32);
+procedure TILManager_Utils.ItemFlagPriceAndAvail(var Item: TILItem; OldPrice: UInt32; OldAvail: Int32);
 begin
 If (ilifWanted in Item.Flags) and (Length(Item.Shops) > 0) then
   begin
     Exclude(Item.Flags,ilifNotAvailable);
-    If (Item.AvailablePieces <> 0) and (Item.UnitPriceSelected > 0) then
+    If (Item.AvailableSelected <> 0) and (Item.UnitPriceSelected > 0) then
       begin
-        If Item.AvailablePieces > 0 then
+        If Item.AvailableSelected > 0 then
           begin
-            If UInt32(Item.AvailablePieces) < Item.Count then
+            If UInt32(Item.AvailableSelected) < Item.Count then
               Include(Item.Flags,ilifNotAvailable);
           end
         else
           begin
-            If UInt32(Abs(Item.AvailablePieces) * 2) < Item.Count then
+            If UInt32(Abs(Item.AvailableSelected) * 2) < Item.Count then
               Include(Item.Flags,ilifNotAvailable);
           end;
-        If Item.AvailablePieces <> OldAvail then
+        If Item.AvailableSelected <> OldAvail then
           Include(Item.Flags,ilifAvailChange);
         If Item.UnitPriceSelected <> OldPrice then
           Include(Item.Flags,ilifPriceChange);
@@ -247,7 +286,7 @@ If (ilifWanted in Item.Flags) and (Length(Item.Shops) > 0) then
     else
       begin
         Include(Item.Flags,ilifNotAvailable);
-        If (Item.AvailablePieces <> OldAvail) then
+        If (Item.AvailableSelected <> OldAvail) then
           Include(Item.Flags,ilifAvailChange);
       end;
   end;

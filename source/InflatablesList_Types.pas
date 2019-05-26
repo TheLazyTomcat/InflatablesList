@@ -35,7 +35,8 @@ type
                  ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitOther);
 
   TILItemManufacturer = (ilimOthers,ilimIntex,ilimBestway,ilimWIKY,ilimHappyPeople,
-                         ilimSwimline,ilimMondo,ilimWehncke,ilimVetroPlus);
+                         ilimSwimline,ilimMondo,ilimWehncke,ilimVetroPlus,
+                         ilimPolygroup,ilimSummerWaves);
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,
@@ -456,6 +457,8 @@ case ItemManufacturer of
   ilimMondo:        Result := 6;
   ilimWehncke:      Result := 7;
   ilimVetroPlus:    Result := 8;
+  ilimPolygroup:    Result := 9;
+  ilimSummerWaves:  Result := 10;
 else
   {ilimOthers}
   Result := 0;
@@ -475,6 +478,8 @@ case Num of
   6:  Result := ilimMondo;
   7:  Result := ilimWehncke;
   8:  Result := ilimVetroPlus;
+  9:  Result := ilimPolygroup;
+  10: Result := ilimSummerWaves;
 else
   Result := ilimOthers;
 end;

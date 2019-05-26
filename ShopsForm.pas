@@ -174,6 +174,7 @@ procedure TfShopsForm.UpdateCurrentListItem(Sender: TObject);
 begin
 If lvShops.ItemIndex >= 0 then
   UpdateListItem(lvShops.ItemIndex);
+UpdateShopsCounts;
 end;
 
 //------------------------------------------------------------------------------

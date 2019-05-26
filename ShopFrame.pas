@@ -686,7 +686,7 @@ If Assigned(fCurrentItemShopPtr) then
     try
       fILManager.ItemShopCopyForUpdate(fCurrentItemShopPtr^,Temp);
       try
-        Result := fILManager.ItemShopUpdate(Temp);
+        Result := fILManager.ItemShopUpdate(Temp,fILManager.Options);
         // retrieve results
         fCurrentItemShopPtr^.Available := Temp.Available;
         fCurrentItemShopPtr^.Price := Temp.Price;

@@ -38,7 +38,7 @@ type
     Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
     procedure ItemShopsUpdateHistory(var Item: TILItem); virtual;
     Function ItemShopsWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult; virtual;
-    class Function ItemShopUpdate(var Shop: TILItemShop): Boolean; virtual;
+    class Function ItemShopUpdate(var Shop: TILItemShop; Options: TILCMDManagerOptions): Boolean; virtual;
   end;
 
 implementation
@@ -403,7 +403,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-class Function TILManager_Utils.ItemShopUpdate(var Shop: TILItemShop): Boolean;
+class Function TILManager_Utils.ItemShopUpdate(var Shop: TILItemShop; Options: TILCMDManagerOptions): Boolean;
 var
   Updater:        TILShopUpdater;
   UpdaterResult:  TILShopUpdaterResult;
@@ -422,7 +422,7 @@ If not Shop.Untracked then
   begin
     TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
     Result := False;
-    Updater := TILShopUpdater.Create(Shop);
+    Updater := TILShopUpdater.Create(Shop,IL_ThreadSafeCopy(Options));
     try
       repeat
         UpdaterResult := Updater.Run(Shop.AltDownMethod);

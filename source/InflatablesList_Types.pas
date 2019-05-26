@@ -301,6 +301,17 @@ type
 
   TILShopTemplates = array of TILShopTemplate;
 
+//- manager command-line options -----------------------------------------------
+
+  TILCMDManagerOptions = record
+    NoPictures: Boolean;
+    TestCode:   Boolean;
+    SavePages:  Boolean;
+    LoadPages:  Boolean;
+  end;
+
+Function IL_ThreadSafeCopy(const Value: TILCMDManagerOptions): TILCMDManagerOptions;
+
 implementation
 
 uses
@@ -871,6 +882,14 @@ IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableSet,GetFlagState(Flags,$010
 IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableClr,GetFlagState(Flags,$02000000));
 IL_SetFilterSettingsFlagValue(Result,ilffLostSet,GetFlagState(Flags,$04000000));
 IL_SetFilterSettingsFlagValue(Result,ilffLostClr,GetFlagState(Flags,$08000000));
+end;
+
+//==============================================================================
+
+Function IL_ThreadSafeCopy(const Value: TILCMDManagerOptions): TILCMDManagerOptions;
+begin
+Result := Value;
+// no need to do anything more atm.
 end;
 
 end.

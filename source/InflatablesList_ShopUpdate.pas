@@ -34,6 +34,7 @@ type
     fErrorString: String;
     fAvailable:   Int32;
     fPrice:       UInt32;
+    fOptions:     TILCMDManagerOptions;
   protected
     procedure InitializeResults; virtual;
     Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements; virtual;
@@ -47,7 +48,7 @@ type
     Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
     Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
   public
-    constructor Create(ShopData: TILItemShop);
+    constructor Create(ShopData: TILItemShop; Options: TILCMDManagerOptions);
     destructor Destroy; override;
     Function Run(AlternativeDownload: Boolean): TILShopUpdaterResult; virtual;
     property DownloadResultCode: Integer read fDownResCode;
@@ -55,12 +56,14 @@ type
     property ErrorString: String read fErrorString;
     property Available: Int32 read fAvailable;
     property Price: UInt32 read fPrice;
+    property Options: TILCMDManagerOptions read fOptions;
   end;
 
 implementation
 
 uses
-  SysUtils, StrUtils, 
+  SysUtils, StrUtils,
+  CRC32,
   InflatablesList, CountedDynArrayObject,
   InflatablesList_Utils,
   InflatablesList_HTML_Download, InflatablesList_HTML_Parser;
@@ -279,12 +282,13 @@ end;
 
 //==============================================================================
 
-constructor TILShopUpdater.Create(ShopData: TILItemShop);
+constructor TILShopUpdater.Create(ShopData: TILItemShop; Options: TILCMDManagerOptions);
 begin
 inherited Create;
 TILManager.ItemShopCopy(ShopData,fShopData);
 fDownStream := TMemoryStream.Create;
 InitializeResults;
+fOptions := Options;
 end;
 
 //------------------------------------------------------------------------------
@@ -304,21 +308,30 @@ var
   Document:     TILHTMLDocument;
   AvailNodes:   TILHTMLElements;
   PriceNodes:   TILHTMLElements;
-{$IFDEF TestCode}
   ElementList:  TStringList;
-{$ENDIF}
+  OfflineFile:  String;
 
   Function CallDownload: Boolean;
   begin
-    If AlternativeDownload then
-      Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
+    If not fOptions.LoadPages or not FileExists(OfflineFile) then
+      begin
+        If AlternativeDownload then
+          Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
+        else
+          Result := IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode);
+      end
     else
-      Result := IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode);
+      begin
+        fDownStream.LoadFromFile(OfflineFile);
+        Result := True;
+      end;
   end;
 
 begin
 SetLength(AvailNodes,0);
 SetLength(PriceNodes,0);
+OfflineFile := ExtractFilePath(ParamStr(0)) + 'saved_pages\' +
+  AnsiUpperCase(CRC32ToStr(StringCRC32(fShopData.ItemURL))) + '.txt';
 If Length(fShopData.ItemURL) > 0 then
   begin
     If (TILElementFinder(fShopData.ParsingSettings.Available.Finder).StageCount > 0) and
@@ -329,9 +342,13 @@ If Length(fShopData.ItemURL) > 0 then
         fDownStream.Clear;
         If CallDownload then
           begin
-          {$IFDEF TestCode}
-            fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'test.txt');
-          {$ENDIF}
+            If fOptions.TestCode then
+              fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'page.txt');
+            If fOptions.SavePages then
+              begin
+                ForceDirectories(ExtractFilePath(ParamStr(0)) + 'saved_pages');
+                fDownStream.SaveToFile(OfflineFile);
+              end;
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
             Parser := TILHTMLParser.Create(fDownStream);
@@ -342,15 +359,16 @@ If Length(fShopData.ItemURL) > 0 then
                 Parser.Run;
                 Document := Parser.GetDocument;
                 try
-                {$IFDEF TestCode}
-                  ElementList := TStringList.Create;
-                  try
-                    Document.List(ElementList);
-                    ElementList.SaveToFile(ExtractFilePath(ParamStr(0)) + 'elements.txt');
-                  finally
-                    ElementList.Free;
-                  end;
-                {$ENDIF}
+                  If fOptions.TestCode then
+                    begin
+                      ElementList := TStringList.Create;
+                      try
+                        Document.List(ElementList);
+                        ElementList.SaveToFile(ExtractFilePath(ParamStr(0)) + 'elements.txt');
+                      finally
+                        ElementList.Free;
+                      end;
+                    end;
                   // prepare finders
                   TILElementFinder(fShopData.ParsingSettings.Available.Finder).
                     Prepare(Addr(fShopData.ParsingSettings.Variables));

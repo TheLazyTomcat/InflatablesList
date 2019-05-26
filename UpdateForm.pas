@@ -60,6 +60,7 @@ type
   private
     fProcessingIndex: Integer;
     fItemShop:        TILItemShop;
+    fOptions:         TILCMDManagerOptions;
   public
     constructor Create(ILManager: TILManager; ItemShop: TILItemShop; ProcessingIndex: Integer);
     destructor Destroy; override;
@@ -75,6 +76,7 @@ begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
 ILManager.ItemShopCopyForUpdate(ItemShop,fItemShop);
+fOptions := IL_ThreadSafeCopy(ILManager.Options)
 end;
 
 //------------------------------------------------------------------------------
@@ -90,7 +92,7 @@ end;
 Function TILUpdateTask.Main: Boolean;
 begin
 If not Terminated then
-  Result := TILManager.ItemShopUpdate(fItemShop)
+  Result := TILManager.ItemShopUpdate(fItemShop,fOptions)
 else
   Result := False;
 Cycle;

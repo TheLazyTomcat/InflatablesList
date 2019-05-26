@@ -14,12 +14,13 @@ type
   TILManager_Base = class(TObject)
   protected
     fDataProvider:  TILDataProvider;
-    fCMDLineParser: TCLPParser;
     fFileName:      String;
-    fNoPictures:    Boolean;    
     fSorting:       Boolean;
     // main list
     fList:          array of TILItem;
+    // cmd options
+    fCMDLineParser: TCLPParser;
+    fOptions:       TILCMDManagerOptions;
     // getters, setters
     Function GetItemCount: Integer;
     Function GetItem(Index: Integer): TILItem;
@@ -57,12 +58,12 @@ type
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     // properties
     property DataProvider: TILDataProvider read fDataProvider;
-    property CommandLineParser: TCLPParser read fCMDLineParser;
     property FileName: String read fFileName;
-    property NoPictures: Boolean read fNoPictures write fNoPictures;
     property ItemCount: Integer read GetItemCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property ItemPtrs[Index: Integer]: PILItem read GetItemPtr;
+    property CommandLineParser: TCLPParser read fCMDLineParser;
+    property Options: TILCMDManagerOptions read fOptions;
   end;
 
 implementation
@@ -101,10 +102,13 @@ end;
 procedure TILManager_Base.Initialize;
 begin
 fDataProvider := TILDataProvider.Create;
-fCMDLineParser := TCLPParser.Create;
-fNoPictures := fCMDLineParser.CommandPresent('no_pics');
 fSorting := False;
 SetLength(fList,0);
+fCMDLineParser := TCLPParser.Create;
+fOptions.NoPictures := fCMDLineParser.CommandPresent('no_pics');
+fOptions.TestCode := fCMDLineParser.CommandPresent('test_code');
+fOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
+fOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
 end;
 
 //------------------------------------------------------------------------------

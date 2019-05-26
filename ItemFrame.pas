@@ -288,7 +288,7 @@ procedure TfrmItemFrame.ShowPictures;
 begin
 imgPictureA.Tag := 0;
 imgPictureB.Tag := 0;
-If Assigned(fCurrentItemPtr) and not fILManager.NoPictures then
+If Assigned(fCurrentItemPtr) and not fILManager.Options.NoPictures then
   begin
     If Assigned(fCurrentItemPtr^.MainPicture) and Assigned(fCurrentItemPtr^.PackagePicture) then
       begin

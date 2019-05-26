@@ -189,7 +189,7 @@ with Item.ItemListRender,Item.ItemListRender.Canvas do
       end;
 
     // main picture
-    If Assigned(Item.MainPicture) and not fNoPictures then
+    If Assigned(Item.MainPicture) and not fOptions.NoPictures then
       Draw(fRenderWidth - 102,2,Item.MainPicture)
     else
       Draw(fRenderWidth - 102,2,fDataProvider.ItemDefaultPictures[Item.ItemType]);

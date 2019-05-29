@@ -41,6 +41,7 @@ type
     class procedure ItemShopFinalize(var ItemShop: TILItemShop); virtual; abstract;
     class procedure ItemShopClear(var Item: TILItem); virtual; abstract;
     Function ItemTypeStr(const Item: TILItem): String; virtual; abstract;
+    Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual; abstract;
     // utility functions
     class procedure ItemCopy(const Src: TILItem; out Dest: TILItem; CopyPics: Boolean = False); virtual;
     class procedure ItemShopCopy(const Src: TILItemShop; out Dest: TILItemShop); virtual;
@@ -180,6 +181,8 @@ end;
 //------------------------------------------------------------------------------
 
 Function TILManager_Base.ItemContains(const Item: TILItem; const Text: String): Boolean;
+var
+  SelShop:  TILItemShop;
 begin
 Result :=
   AnsiContainsText(ItemTypeStr(Item),Text) or
@@ -196,6 +199,8 @@ Result :=
   AnsiContainsText(IntToStr(Item.SizeZ),Text) or
   AnsiContainsText(IntToStr(Item.UnitWeight),Text) or
   AnsiContainsText(Item.Notes,Text);
+If not Result and ItemShopsSelected(Item,SelShop) then
+  Result := AnsiContainsText(SelShop.Name,Text);
 end;
 
 //------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ type
     Function ItemShopsUsefulCount(const Item: TILItem): Integer; virtual;
     Function ItemShopsUsefulRatio(const Item: TILItem): Double; virtual;
     Function ItemShopsCountStr(const Item: TILItem): String; virtual;
-    Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; virtual;
+    Function ItemShopsSelected(const Item: TILItem; out Shop: TILItemShop): Boolean; override;
     procedure ItemShopsUpdateHistory(var Item: TILItem); virtual;
     Function ItemShopsWorstUpdateResult(const Item: TILItem): TILItemShopUpdateResult; virtual;
     class Function ItemShopUpdate(var Shop: TILItemShop; Options: TILCMDManagerOptions): Boolean; virtual;

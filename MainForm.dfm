@@ -52,10 +52,10 @@ object fMainForm: TfMainForm
         Width = 100
       end
       item
-        Alignment = taRightJustify
         Width = 540
       end
       item
+        Alignment = taRightJustify
         Width = 50
       end>
   end

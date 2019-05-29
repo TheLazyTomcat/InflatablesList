@@ -109,6 +109,7 @@ type
     procedure ShowListItem(Sender: TObject);
     procedure ShowIndexAndCount;
     procedure SaveList;
+    procedure FillCopyright;
   public
     procedure DoOtherFormsInit;
   end;
@@ -119,7 +120,7 @@ var
 implementation
 
 uses
-  AuxTypes,
+  AuxTypes, WinFileInfo,
   InflatablesList_Types, InflatablesList_Backup,
   SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
   ParsingForm, SpecialsForm, OverviewForm, SelectionForm;
@@ -200,6 +201,25 @@ If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
 fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FillCopyright;
+begin
+with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
+try
+  sbStatusBar.Panels[2].Text := Format('%s, version %s%s %d.%d.%d.%d %s',[
+    VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
+    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
+    {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
+finally
+  Free;
+end;
+end;
+
 //==============================================================================
 
 procedure TfMainForm.DoOtherFormsInit;
@@ -229,6 +249,7 @@ mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
 mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
+FillCopyright;
 fSaveOnExit := True;
 fILManager := TILManager.Create(lbList);
 frmItemFrame.Initialize(fILManager);
@@ -237,9 +258,9 @@ frmItemFrame.OnShowListItem := ShowListItem;
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   begin
     fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-    sbStatusBar.Panels[2].Text := fILManager.FileName;
+    sbStatusBar.Panels[1].Text := fILManager.FileName;
   end
-else sbStatusBar.Panels[2].Text := '';
+else sbStatusBar.Panels[1].Text := '';
 ShowIndexAndCount;
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
@@ -633,7 +654,7 @@ Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
   SaveList;
-  sbStatusBar.Panels[2].Text := fILManager.FileName;
+  sbStatusBar.Panels[1].Text := fILManager.FileName;
 finally
   Screen.Cursor := crDefault;
 end;

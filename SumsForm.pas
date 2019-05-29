@@ -160,7 +160,13 @@ sgSumsByType.Cells[0,7] := 'Total price (lowest)';
 sgSumsByType.Cells[0,8] := 'Total price (selected)';
 sgSumsByType.Cells[0,9] := 'Total price';
 For i := Ord(Low(TILItemType)) to Ord(High(TILItemType)) do
-  sgSumsByType.Cells[i + 1,0] := fILManager.DataProvider.GetItemTypeString(TILItemType(i));
+  with fILManager.DataProvider do
+    begin
+      sgSumsByType.Cells[i + 1,0] := GetItemTypeString(TILItemType(i));
+      // ensure the name will fit
+      If sgSumsByType.Canvas.TextWidth(GetItemTypeString(TILItemType(i))) + 10 > sgSumsByType.ColWidths[i + 1] then
+        sgSumsByType.ColWidths[i + 1] := sgSumsByType.Canvas.TextWidth(GetItemTypeString(TILItemType(i))) + 10;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -185,7 +191,13 @@ sgSumsByManufacturer.Cells[0,7] := 'Total price (lowest)';
 sgSumsByManufacturer.Cells[0,8] := 'Total price (selected)';
 sgSumsByManufacturer.Cells[0,9] := 'Total price';
 For i := Ord(Low(TILItemManufacturer)) to Ord(High(TILItemManufacturer)) do
-  sgSumsByManufacturer.Cells[i + 1,0] := fILManager.DataProvider.ItemManufacturers[TILItemManufacturer(i)].Str;
+  with fILManager.DataProvider do
+    begin
+      sgSumsByManufacturer.Cells[i + 1,0] := ItemManufacturers[TILItemManufacturer(i)].Str;
+      // ensure the name will fit
+      If sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturers[TILItemManufacturer(i)].Str) + 10 > sgSumsByManufacturer.ColWidths[i + 1] then
+        sgSumsByManufacturer.ColWidths[i + 1] := sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturers[TILItemManufacturer(i)].Str) + 10;
+    end;
 end;
 
 
@@ -262,7 +274,12 @@ sgSumsByTextTag.Cells[0,8] := 'Total price (selected)';
 sgSumsByTextTag.Cells[0,9] := 'Total price';
 // add tags
 For i := CDA_Low(fTextTags) to CDA_High(fTextTags) do
-  sgSumsByTextTag.Cells[i + 1,0] := CDA_GetItem(fTextTags,i);
+  begin
+    sgSumsByTextTag.Cells[i + 1,0] := CDA_GetItem(fTextTags,i);
+    // ensure the name will fit
+    If sgSumsByTextTag.Canvas.TextWidth(CDA_GetItem(fTextTags,i)) + 10 > sgSumsByTextTag.ColWidths[i + 1] then
+      sgSumsByTextTag.ColWidths[i + 1] := sgSumsByTextTag.Canvas.TextWidth(CDA_GetItem(fTextTags,i)) + 10;
+  end;
 end;
 
 //------------------------------------------------------------------------------

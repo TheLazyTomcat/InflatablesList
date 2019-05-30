@@ -34,9 +34,9 @@ type
                  ilitLounger,ilitLoungerChair,ilitChair,ilitSeat,ilitMattress,
                  ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitOther);
 
-  TILItemManufacturer = (ilimOthers,ilimIntex,ilimBestway,ilimWIKY,ilimHappyPeople,
-                         ilimSwimline,ilimMondo,ilimWehncke,ilimVetroPlus,
-                         ilimPolygroup,ilimSummerWaves);
+  TILItemManufacturer = (ilimBestway,ilimIntex,ilimHappyPeople,ilimMondo,
+                         ilimPolygroup,ilimSummerWaves,ilimSwimline,
+                         ilimVetroPlus,ilimWehncke,ilimWIKY,ilimOthers);
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,

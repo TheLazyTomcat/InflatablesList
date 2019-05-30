@@ -128,17 +128,37 @@ var
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtPackagePicture:    Result := IL_CompareBool(Assigned(fList[Idx1].PackagePicture),Assigned(fList[Idx2].PackagePicture));
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      ilivtItemType:          Result := IL_CompareText(
-                                fDataProvider.GetItemTypeString(fList[Idx1].ItemType),
-                                fDataProvider.GetItemTypeString(fList[Idx2].ItemType));
+      ilivtItemType:          If not(fList[Idx1].ItemType in [ilitUnknown,ilitOther]) and not(fList[Idx2].ItemType in [ilitUnknown,ilitOther]) then
+                                Result := IL_CompareText(
+                                  fDataProvider.GetItemTypeString(fList[Idx1].ItemType),
+                                  fDataProvider.GetItemTypeString(fList[Idx2].ItemType))
+                              // push others and unknowns to the end
+                              else If not(fList[Idx1].ItemType in [ilitUnknown,ilitOther]) then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else If not(fList[Idx2].ItemType in [ilitUnknown,ilitOther]) then
+                                Result := IL_NegateValue(-1,Reversed)
+                              // both are either unknown or other, push others to the end...
+                              else If fList[Idx1].ItemType = ilitUnknown then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else If fList[Idx2].ItemType = ilitUnknown then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else
+                                Result := 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtItemTypeSpec:      Result := IL_CompareText(fList[Idx1].ItemTypeSpec,fList[Idx2].ItemTypeSpec);
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtCount:             Result := IL_CompareUInt32(fList[Idx1].Count,fList[Idx2].Count);
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      ilivtManufacturer:      Result := IL_CompareText(
-                                fDataProvider.ItemManufacturers[fList[Idx1].Manufacturer].Str,
-                                fDataProvider.ItemManufacturers[fList[Idx2].Manufacturer].Str,);
+      ilivtManufacturer:      If (fList[Idx1].Manufacturer <> ilimOthers) and (fList[Idx2].Manufacturer <> ilimOthers) then
+                                Result := IL_CompareText(
+                                  fDataProvider.ItemManufacturers[fList[Idx1].Manufacturer].Str,
+                                  fDataProvider.ItemManufacturers[fList[Idx2].Manufacturer].Str)
+                              else If fList[Idx1].Manufacturer = ilimOthers then
+                                Result := IL_NegateValue(-1,Reversed) // push other to the end
+                              else If fList[Idx2].Manufacturer = ilimOthers then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else
+                                Result := 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       ilivtManufacturerStr:   Result := IL_CompareText(fList[Idx1].ManufacturerStr,fList[Idx2].ManufacturerStr);
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -100,7 +100,7 @@ type
     mniIM_Switch: TMenuItem;
     diaImgExport: TSaveDialog;
     cbFlagLost: TCheckBox;
-    procedure lblItemTitleClick(Sender: TObject);    
+    procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);

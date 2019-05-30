@@ -32,7 +32,8 @@ procedure IL_ReconvUnique(var Str: TILReconvString);
 type
   TILItemType = (ilitUnknown,ilitRing,ilitRingWithHandles,ilitBall,ilitRider,
                  ilitLounger,ilitLoungerChair,ilitChair,ilitSeat,ilitMattress,
-                 ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitOther);
+                 ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitBalloon,
+                 ilitOther);
 
   TILItemManufacturer = (ilimBestway,ilimIntex,ilimHappyPeople,ilimMondo,
                          ilimPolygroup,ilimSummerWaves,ilimSwimline,
@@ -424,6 +425,7 @@ case ItemType of
   ilitToy:              Result := 13;
   ilitWings:            Result := 14;
   ilitOther:            Result := 15;
+  ilitBalloon:          Result := 16;
 else
  {ilitUnknown}
  Result := 0;
@@ -450,6 +452,7 @@ case Num of
   13: Result := ilitToy;
   14: Result := ilitWings;
   15: Result := ilitOther;
+  16: Result := ilitBalloon;
 else
   Result := ilitUnknown;
 end;

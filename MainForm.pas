@@ -4,9 +4,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, XPMan,
-  ItemFrame,
-  InflatablesList, ActnList;
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, XPMan, ActnList,
+  ItemFrame;
+  //ItemFrame,
+  //InflatablesList;
 
 type
   TfMainForm = class(TForm)
@@ -102,7 +103,7 @@ type
     procedure acExitExecute(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
-    fILManager:   TILManager;
+    //fILManager:   TILManager;
   protected
     procedure CreateSortBySubmenu;
     procedure InvalidateList(Sender: TObject);
@@ -120,10 +121,10 @@ var
 implementation
 
 uses
-  AuxTypes, WinFileInfo,
-  InflatablesList_Types, InflatablesList_Backup,
-  SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
-  ParsingForm, SpecialsForm, OverviewForm, SelectionForm;
+  AuxTypes, WinFileInfo;
+//  InflatablesList_Types, InflatablesList_Backup,
+//  SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
+//  ParsingForm, SpecialsForm, OverviewForm, SelectionForm;
 
 {$R *.dfm}
 
@@ -137,6 +138,7 @@ var
   i:    Integer;
   Temp: TMenuItem;
 begin
+(*
 For i := Pred(mniLM_SortBy.Count) downto 0 do
   If mniLM_SortBy[i].Tag >= 0 then
     begin
@@ -155,6 +157,7 @@ For i := 0 to Pred(fILManager.SortingProfileCount) do
       Temp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
     mniLM_SortBy.Add(Temp);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -181,6 +184,7 @@ end;
 
 procedure TfMainForm.ShowIndexAndCount;
 begin
+(*
 If lbList.ItemIndex < 0 then
   begin
     If fILManager.ItemCount > 0 then
@@ -189,16 +193,19 @@ If lbList.ItemIndex < 0 then
       sbStatusBar.Panels[0].Text := '-/-';
   end
 else sbStatusBar.Panels[0].Text := Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.SaveList;
 begin
+(*
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
     IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
 fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -224,6 +231,7 @@ end;
 
 procedure TfMainForm.DoOtherFormsInit;
 begin
+(*
 fSortForm.Initialize(fILManager);
 fSumsForm.Initialize(fILManager);
 fShopsForm.Initialize(fILManager);
@@ -234,6 +242,7 @@ fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
 fSelectionform.Initialize(fIlManager);
+*)
 end;
 
 //==============================================================================
@@ -251,6 +260,7 @@ mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 FillCopyright;
 fSaveOnExit := True;
+(*
 fILManager := TILManager.Create(lbList);
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnListInvalidate := InvalidateList;
@@ -279,24 +289,27 @@ else frmItemFrame.SetItem(nil,True);
 mniLM_SortRev.Checked := fILManager.ReversedSort;
 CreateSortBySubmenu;
 eSearchFor.OnExit(nil);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormDestroy(Sender: TObject);
 begin
+(*
 frmItemFrame.SetItem(nil,True);
 lbList.Items.Clear; // to be sure
 If fSaveOnExit then
   SaveList;
 FreeAndNil(fILManager);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
-fILManager.ItemReinitSize(lbList);
+//fILManager.ItemReinitSize(lbList);
 end;
 
 //------------------------------------------------------------------------------
@@ -316,6 +329,7 @@ procedure TfMainForm.mniLM_AddClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 lbList.Items.Add(IntToStr(lbList.Count));
 Index := lbList.ItemIndex;
 lbList.ItemIndex := fILManager.ItemAddEmpty;
@@ -325,6 +339,7 @@ lbList.OnClick(nil);
 fILManager.ItemReinitSize(lbList);
 lbList.Invalidate;
 ShowIndexAndCount;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -333,6 +348,7 @@ procedure TfMainForm.mniLM_AddCopyClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If lbList.ItemIndex >= 0 then
   begin
     lbList.Items.Add(IntToStr(lbList.Count));
@@ -345,6 +361,7 @@ If lbList.ItemIndex >= 0 then
     lbList.Invalidate;
     ShowIndexAndCount;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -353,6 +370,7 @@ procedure TfMainForm.mniLM_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If lbList.ItemIndex >= 0 then
   If MessageDlg(Format('Are you sure you want to remove the item "%s"?',
                 [fILManager.ItemTitleStr(fILManager[lbList.ItemIndex])]),
@@ -374,12 +392,14 @@ If lbList.ItemIndex >= 0 then
       lbList.Invalidate;
       ShowIndexAndCount;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ClearClick(Sender: TObject);
 begin
+(*
 If lbList.Count > 0 then
   If MessageDlg('Are you sure you want to clear the entire list?',
                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
@@ -392,6 +412,7 @@ If lbList.Count > 0 then
       lbList.Invalidate;
       ShowIndexAndCount;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -400,6 +421,7 @@ procedure TfMainForm.mniLM_MoveUpClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If lbList.ItemIndex > 0 then
   begin
     Index := lbList.ItemIndex;
@@ -410,6 +432,7 @@ If lbList.ItemIndex > 0 then
     lbList.Invalidate;
     ShowIndexAndCount;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -418,6 +441,7 @@ procedure TfMainForm.mniLM_MoveDownClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If lbList.ItemIndex < Pred(lbList.Count) then
   begin
     Index := lbList.ItemIndex;
@@ -428,6 +452,7 @@ If lbList.ItemIndex < Pred(lbList.Count) then
     lbList.Invalidate;
     ShowIndexAndCount;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -436,6 +461,7 @@ procedure TfMainForm.mniLM_FindPrevClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If Length(eSearchFor.Text) > 0 then
   begin
     Index := fILManager.FindPrev(eSearchFor.Text,lbList.ItemIndex);
@@ -446,6 +472,7 @@ If Length(eSearchFor.Text) > 0 then
       end
     else Beep;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -454,6 +481,7 @@ procedure TfMainForm.mniLM_FindNextClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+(*
 If Length(eSearchFor.Text) > 0 then
   begin
     Index := fILManager.FindNext(eSearchFor.Text,lbList.ItemIndex);
@@ -464,12 +492,14 @@ If Length(eSearchFor.Text) > 0 then
       end
     else Beep;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SortSettClick(Sender: TObject);
 begin
+(*
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 If fSortForm.ShowSortingSettings then
@@ -490,12 +520,14 @@ else
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
 CreateSortBySubmenu;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
 begin
+(*
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 Screen.Cursor := crHourGlass;
@@ -511,6 +543,7 @@ If lbList.ItemIndex >= 0 then
   end;
 lbList.Invalidate;
 ShowIndexAndCount;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -532,8 +565,10 @@ end;
 
 procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
+(*
 mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
 fILManager.ReversedSort := mniLM_SortRev.Checked;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -541,10 +576,11 @@ end;
 procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted, OnlySelected: Boolean);
 var
   i,j,k:    Integer;
-  Temp:     TILItemShopUpdates;
+  //Temp:     TILItemShopUpdates;
   OldAvail: Int32;
   OldPrice: UInt32;
 begin
+(*
 frmItemFrame.SaveItem;
 // preallocate array
 k := 0;
@@ -586,6 +622,7 @@ If Length(Temp) > 0 then
     lbList.Invalidate;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -615,6 +652,7 @@ procedure TfMainForm.mniLN_UpdateShopsHistoryClick(Sender: TObject);
 var
   i:  Integer;
 begin
+(*
 Screen.Cursor := crHourGlass;
 try
   For i := 0 to Pred(fILManager.ItemCount) do
@@ -622,34 +660,38 @@ try
 finally
   Screen.Cursor := crDefault;
 end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SumsClick(Sender: TObject);
 begin
+(*
 frmItemFrame.SaveItem;
 fSumsForm.ShowSums;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
 begin
-fOverviewForm.Show;
+//fOverviewForm.Show;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
-fSelectionForm.ShowTable;
+//fSelectionForm.ShowTable;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
 begin
+(*
 Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
@@ -658,25 +700,30 @@ try
 finally
   Screen.Cursor := crDefault;
 end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
 begin
+(*
 frmItemFrame.SaveItem;
 fSpecialsForm.ShowModal;
 frmItemFrame.LoadItem;
 fILManager.ItemRedraw;
 lbList.Invalidate;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ExitClick(Sender: TObject);
 begin
+(*
 fSaveOnExit := False;
 Close;
+*)
 end;
 
 
@@ -684,11 +731,13 @@ end;
 
 procedure TfMainForm.lbListClick(Sender: TObject);
 begin
+(*
 If lbList.ItemIndex >= 0 then
   frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],True)
 else
   frmItemFrame.SetItem(nil,True);
 ShowIndexAndCount;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -713,13 +762,14 @@ end;
 procedure TfMainForm.lbListDrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 begin
+(*
 // background
 lbList.Canvas.Pen.Style := psClear;
 lbList.Canvas.Brush.Style := bsSolid;
 lbList.Canvas.Brush.Color := clWhite;
 lbList.Canvas.Rectangle(Rect.Left,Rect.Top,Succ(Rect.Right),Succ(Rect.Bottom));
 // content
-lbList.Canvas.Draw(Rect.Left,Rect.Top,fILManager.Items[Index].ItemListRender);  
+lbList.Canvas.Draw(Rect.Left,Rect.Top,fILManager.Items[Index].ItemListRender);
 // separator line
 lbList.Canvas.Pen.Style := psSolid;
 lbList.Canvas.Pen.Color := clSilver;
@@ -740,6 +790,7 @@ If odFocused in State then
     lbList.Canvas.Brush.Style := bsClear;
     lbList.Canvas.DrawFocusRect(Rect);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------

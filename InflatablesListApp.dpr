@@ -4,6 +4,7 @@ uses
   FastMM4,
   Forms,
   MainForm in 'MainForm.pas' {fMainForm},
+  (*
   SortForm in 'SortForm.pas' {fSortForm},
   SumsForm in 'SumsForm.pas' {fSumsForm},
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
@@ -12,7 +13,9 @@ uses
   TemplatesForm in 'TemplatesForm.pas' {fTemplatesForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   TextEditForm in 'TextEditForm.pas' {fTextEditForm},
+  *)
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
+  (*
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
   ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
@@ -51,7 +54,15 @@ uses
   InflatablesList_Manager_00000006 in 'source\InflatablesList_Manager_00000006.pas',
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
-  InflatablesList_Manager_00000007 in 'source\InflatablesList_Manager_00000007.pas';
+  InflatablesList_Manager_00000007 in 'source\InflatablesList_Manager_00000007.pas',
+  *)
+  IL_Types in 'source\IL_Types.pas',
+  IL_Item in 'source\IL_Item.pas',
+  IL_Data in 'source\IL_Data.pas',
+  IL_Utils in 'source\IL_Utils.pas',
+  IL_ItemShop in 'source\IL_ItemShop.pas',
+  IL_Item_Base in 'source\IL_Item_Base.pas',
+  IL_Manager_Base in 'source\IL_Manager_Base.pas';
 
 {$R *.res}
 
@@ -59,16 +70,16 @@ begin
   Application.Initialize;
   Application.Title := 'Inflatables List';
   Application.CreateForm(TfMainForm, fMainForm);
-  Application.CreateForm(TfSortForm, fSortForm);
-  Application.CreateForm(TfSumsForm, fSumsForm);
-  Application.CreateForm(TfSpecialsForm, fSpecialsForm);
-  Application.CreateForm(TfShopsForm, fShopsForm);
-  Application.CreateForm(TfParsingForm, fParsingForm);
-  Application.CreateForm(TfTemplatesForm, fTemplatesForm);
-  Application.CreateForm(TfUpdateForm, fUpdateForm);
-  Application.CreateForm(TfTextEditForm, fTextEditForm);
-  Application.CreateForm(TfOverviewForm, fOverviewForm);
-  Application.CreateForm(TfSelectionForm, fSelectionForm);
+  //Application.CreateForm(TfSortForm, fSortForm);
+  //Application.CreateForm(TfSumsForm, fSumsForm);
+  //Application.CreateForm(TfSpecialsForm, fSpecialsForm);
+  //Application.CreateForm(TfShopsForm, fShopsForm);
+  //Application.CreateForm(TfParsingForm, fParsingForm);
+  //Application.CreateForm(TfTemplatesForm, fTemplatesForm);
+  //Application.CreateForm(TfUpdateForm, fUpdateForm);
+  //Application.CreateForm(TfTextEditForm, fTextEditForm);
+  //Application.CreateForm(TfOverviewForm, fOverviewForm);
+  //Application.CreateForm(TfSelectionForm, fSelectionForm);
   fMainForm.DoOtherFormsInit;
   Application.Run;
 end.

@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
-  Dialogs, ExtCtrls, StdCtrls, Spin, Menus,
-  InflatablesList_Types, InflatablesList;
+  Dialogs, ExtCtrls, StdCtrls, Spin, Menus;
+  //InflatablesList_Types, InflatablesList;
 
 type
   TfrmItemFrame = class(TFrame)
@@ -138,8 +138,8 @@ type
     procedure mniIM_SwitchClick(Sender: TObject);
   private
     fInitializing:    Boolean;
-    fILManager:       TILManager;
-    fCurrentItemPtr:  PILItem;
+    //fILManager:       TILManager;
+    //fCurrentItemPtr:  PILItem;
     fLastSmallPicDir: String;
     fLastPicDir:      String;
   protected
@@ -153,18 +153,18 @@ type
   public
     OnListInvalidate: TNotifyEvent;
     OnShowListItem: TNotifyEvent;
-    procedure Initialize(ILManager: TILManager);
-    procedure SaveItem;
-    procedure LoadItem;
-    procedure SetItem(ItemPtr: PILItem; ProcessChange: Boolean);
+    //procedure Initialize(ILManager: TILManager);
+    //procedure SaveItem;
+    //procedure LoadItem;
+    //procedure SetItem(ItemPtr: PILItem; ProcessChange: Boolean);
   end;
 
 implementation
 
 uses
-  ShellAPI, AuxTypes,
-  InflatablesList_Utils,
-  ShopsForm, TextEditForm, UpdateForm;
+  ShellAPI, AuxTypes;
+  //InflatablesList_Utils,
+  //ShopsForm, TextEditForm, UpdateForm;
 
 {$R *.dfm}
 
@@ -173,6 +173,7 @@ var
   ManufStr: String;
   TypeStr:  String;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     // construct manufacturer + ID string
@@ -187,12 +188,14 @@ If Assigned(fCurrentItemPtr) then
     lblItemTitle.Caption := ManufStr;
   end
 else lblItemTitle.Caption := '';
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.DoListItemChange;
 begin
+(*
 // redraw item
 If Assigned(fCurrentItemPtr) then
   begin
@@ -201,14 +204,16 @@ If Assigned(fCurrentItemPtr) then
     If Assigned(OnListInvalidate) then
       OnListInvalidate(Self);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.ProcessAndShowReadOnlyInfo;
-var
-  SelectedShop: TILItemShop;
+//var
+//  SelectedShop: TILItemShop;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     // total weight
@@ -280,12 +285,14 @@ else
     lblTotalPriceSelected.Caption := '-';
     shpTotalPriceSelectedBcgr.Visible := False;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.ShowPictures;
 begin
+(*
 imgPictureA.Tag := 0;
 imgPictureB.Tag := 0;
 If Assigned(fCurrentItemPtr) and not fILManager.Options.NoPictures then
@@ -322,12 +329,14 @@ else
     imgPictureA.Picture.Assign(nil);
     imgPictureB.Picture.Assign(nil);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.FrameSave;
 begin
+(*
 // pictures and shops are not needed to be saved, they are saved on the fly
 // also lowest and selected prices are not saved, they are read only set by other processes
 If Assigned(fCurrentItemPtr) then
@@ -369,12 +378,14 @@ If Assigned(fCurrentItemPtr) then
     fCurrentItemPtr^.PackagePictureFile := lePackagePictureFile.Text;
     fCurrentItemPtr^.UnitPriceDefault := seUnitPriceDefault.Value;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.FrameLoad;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     fInitializing := True;
@@ -425,12 +436,14 @@ If Assigned(fCurrentItemPtr) then
     DoTitleChange;
     cmbManufacturer.OnChange(nil);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.FrameClear;
 begin
+(*
 // only called in init
 DoTitleChange;
 // basic specs
@@ -486,10 +499,11 @@ lblAvailPieces.Caption := '0';
 lblTotalPriceLowest.Caption := '-';
 lblTotalPriceSelected.Caption := '-';
 shpTotalPriceSelectedBcgr.Visible := False;
+*)
 end;
 
 //==============================================================================
-
+(*
 procedure TfrmItemFrame.Initialize(ILManager: TILManager);
 var
   i:  Integer;
@@ -560,7 +574,7 @@ If ProcessChange then
   end
 else fCurrentItemPtr := ItemPtr;
 end;
-
+*)
 //==============================================================================
 
 procedure TfrmItemFrame.lblItemTitleClick(Sender: TObject);
@@ -572,26 +586,29 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
-
+(*
   procedure OpenPicture(const FileName: String);
   begin
     If Length(FileName) > 0 then
       If FileExists(IL_PathAbsolute(FileName)) then
         ShellExecute(Handle,'open',PChar(IL_PathAbsolute(FileName)),nil,nil,SW_SHOWNORMAL);
   end;
-
+*)
 begin
+(*
 If Assigned(fCurrentItemPtr) and (Sender is TImage) then
   case TImage(Sender).Tag and $0F of
     1:  OpenPicture(fCurrentItemPtr^.MainPictureFile);
     2:  OpenPicture(fCurrentItemPtr^.PackagePictureFile);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.cmbItemTypeChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -599,12 +616,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.leItemTypeSpecificationChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -612,12 +631,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seCountChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -630,12 +651,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)  
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.cmbManufacturerChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -648,12 +671,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.leManufacturerStringChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -661,12 +686,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seIDChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -674,12 +701,14 @@ If not fInitializing then
     DoTitleChange;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.CommonFlagClick(Sender: TObject);
 begin
+(*
 If Sender is TCheckBox then
   If not fInitializing then
     begin
@@ -709,90 +738,105 @@ If Sender is TCheckBox then
         end;
       DoListItemChange;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.leTextTagChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.TextTag := leTextTag.Text;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seWantedLevelChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.WantedLevel := seWantedLevel.Value;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.leVariantChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.Variant := leVariant.Text;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seSizeXChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.SizeX := seSizeX.Value;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seSizeYChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.SizeY := seSizeY.Value;
     DoListItemChange;
   end;
+*)
 end;
  
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seSizeZChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.SizeZ := seSizeZ.Value;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.UnitWeight := seUnitWeight.Value;
     ProcessAndShowReadOnlyInfo;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -812,12 +856,14 @@ procedure TfrmItemFrame.lblNotesEditClick(Sender: TObject);
 var
   Temp: String;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     Temp := meNotes.Text;
     fTextEditForm.ShowTextEditor('Edit item notes',Temp,False);
     meNotes.Text := Temp;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -838,35 +884,42 @@ end;
 
 procedure TfrmItemFrame.leReviewURLChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
       fCurrentItemPtr^.ReviewURL := leReviewURL.Text;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnReviewOpenClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   If Length(fCurrentItemPtr^.ReviewURL) > 0 then
     ShellExecute(Handle,'open',PChar(fCurrentItemPtr^.ReviewURL),nil,nil,SW_SHOWNORMAL);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.leMainPictureFileChange(Sender: TObject);
 begin
+(*
 If not fInitializing and Assigned(fCurrentItemPtr) then
   fCurrentItemPtr^.MainPictureFile := leMainPictureFile.Text;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnBrowseMainPictureFileClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     diaImgOpenDialog.Title := 'Select main picture file';
@@ -885,20 +938,24 @@ If Assigned(fCurrentItemPtr) then
       leMainPictureFile.Text := fCurrentItemPtr^.MainPictureFile;
     end;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.lePackagePictureFileChange(Sender: TObject);
 begin
+(*
 If not fInitializing and Assigned(fCurrentItemPtr) then
   fCurrentItemPtr^.PackagePictureFile := lePackagePictureFile.Text;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnBrowsePackagePictureFileClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     diaImgOpenDialog.Title := 'Select package picture file';
@@ -917,12 +974,14 @@ If Assigned(fCurrentItemPtr) then
       lePackagePictureFile.Text := fCurrentItemPtr^.PackagePictureFile;
     end;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.seUnitPriceDefaultChange(Sender: TObject);
 begin
+(*
 If not fInitializing then
   begin
     If Assigned(fCurrentItemPtr) then
@@ -930,6 +989,7 @@ If not fInitializing then
     ProcessAndShowReadOnlyInfo;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -937,10 +997,11 @@ end;
 procedure TfrmItemFrame.btnUpdateShopsClick(Sender: TObject);
 var
   i:        Integer;
-  Temp:     TILItemShopUpdates;
+//  Temp:     TILItemShopUpdates;
   OldAvail: Int32;
   OldPrice: UInt32;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     If fILManager.ItemShopsCount(fCurrentItemPtr^) > 0 then
@@ -964,6 +1025,7 @@ If Assigned(fCurrentItemPtr) then
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -972,6 +1034,7 @@ procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
 var
   i:  Integer;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     SaveItem;
@@ -982,12 +1045,14 @@ If Assigned(fCurrentItemPtr) then
     LoadItem;
     DoListItemChange;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.pmnImagesMenuPopup(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
   begin
     mniIM_Export.Enabled := (TImage(pmnImagesMenu.PopupComponent).Tag and $F) <> 0;
@@ -1004,6 +1069,7 @@ else
     mniIM_RemovePackage.Enabled := False;
     mniIM_Switch.Enabled := False;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -1050,6 +1116,7 @@ procedure TfrmItemFrame.mniIM_LoadClick(Sender: TObject);
   end;
 
 begin
+(*
 If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
   case TImage(pmnImagesMenu.PopupComponent).Tag and $0F of
     1:  BrowsePicture('main',fCurrentItemPtr^.MainPicture);
@@ -1063,6 +1130,7 @@ If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
       BrowsePicture('main',fCurrentItemPtr^.MainPicture);
     end;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -1081,17 +1149,20 @@ procedure TfrmItemFrame.mniIM_ExportClick(Sender: TObject);
   end;
 
 begin
+(*
 If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
   case TImage(pmnImagesMenu.PopupComponent).Tag and $0F of
     1:  ExportPicture('main',fCurrentItemPtr^.MainPicture);
     2:  ExportPicture('package',fCurrentItemPtr^.PackagePicture);
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.mniIM_RemoveClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
   If MessageDlg('Are you sure you want to remove this picture?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
@@ -1102,12 +1173,14 @@ If Assigned(fCurrentItemPtr) and (pmnImagesMenu.PopupComponent is TImage) then
       ShowPictures;
       DoListItemChange;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.mniIM_RemoveMainClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   If MessageDlg('Are you sure you want to remove main picture?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
@@ -1115,18 +1188,21 @@ If Assigned(fCurrentItemPtr) then
       ShowPictures;
       DoListItemChange;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.mniIM_RemovePackageClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   If MessageDlg('Are you sure you want to remove package picture?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
       FreeAndNil(fCurrentItemPtr^.PackagePicture);
       ShowPictures;
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -1135,6 +1211,7 @@ procedure TfrmItemFrame.mniIM_SwitchClick(Sender: TObject);
 var
   Temp: TBitmap;
 begin
+(*
 If Assigned(fCurrentItemPtr) then
   begin
     Temp := fCurrentItemPtr^.MainPicture;
@@ -1143,6 +1220,7 @@ If Assigned(fCurrentItemPtr) then
     ShowPictures;
     DoListItemChange;
   end;
+*)
 end;
 
 end.

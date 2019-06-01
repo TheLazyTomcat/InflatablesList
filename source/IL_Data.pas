@@ -65,11 +65,11 @@ uses
   SysUtils, Classes;
 
 // resources containing the data
-{.$R '..\resources\man_logos.res'}
-{.$R '..\resources\icon_review.res'}
-{.$R '..\resources\flag_icons.res'}
-{.$R '..\resources\default_pics.res'}
-{.$R '..\resources\gradient.res'}
+{$R '..\resources\man_logos.res'}
+{$R '..\resources\icon_review.res'}
+{$R '..\resources\flag_icons.res'}
+{$R '..\resources\default_pics.res'}
+{$R '..\resources\gradient.res'}
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (

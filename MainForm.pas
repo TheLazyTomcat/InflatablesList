@@ -1,13 +1,14 @@
 unit MainForm;
 
+{$message 'menu - add "Item shops...", "Update item shops..." and "Update item shops history"'}
+
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, XPMan, ActnList,
-  ItemFrame;
-  //ItemFrame,
-  //InflatablesList;
+  ItemFrame,
+  IL_Manager;
 
 type
   TfMainForm = class(TForm)
@@ -103,16 +104,16 @@ type
     procedure acExitExecute(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
-    //fILManager:   TILManager;
+    fILManager:   TILManager;
   protected
-    procedure CreateSortBySubmenu;
-    procedure InvalidateList(Sender: TObject);
-    procedure ShowListItem(Sender: TObject);
-    procedure ShowIndexAndCount;
-    procedure SaveList;
     procedure FillCopyright;
+    procedure BuildSortBySubmenu;
+    procedure InvalidateList(Sender: TObject);
+    procedure ShowSelectedItem(Sender: TObject);
+    procedure UpdateIndexAndCount;
+    procedure SaveList;
   public
-    procedure DoOtherFormsInit;
+    procedure InitOtherForms;
   end;
 
 var
@@ -121,10 +122,10 @@ var
 implementation
 
 uses
-  AuxTypes, WinFileInfo;
-//  InflatablesList_Types, InflatablesList_Backup,
-//  SortForm, SumsForm, ShopsForm, TemplatesForm, TextEditForm, UpdateForm,
-//  ParsingForm, SpecialsForm, OverviewForm, SelectionForm;
+  AuxTypes, WinFileInfo,
+//  InflatablesList_Types,
+  InflatablesList_Backup,
+  TextEditForm;
 
 {$R *.dfm}
 
@@ -133,10 +134,29 @@ const
 
 //==============================================================================
 
-procedure TfMainForm.CreateSortBySubmenu;
-var
-  i:    Integer;
-  Temp: TMenuItem;
+procedure TfMainForm.FillCopyright;
+begin
+with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
+try
+  sbStatusBar.Panels[2].Text := Format('%s, version %s%s %d.%d.%d.%d %s',[
+    VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
+    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
+    {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
+finally
+  Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.BuildSortBySubmenu;
+//var
+//  i:    Integer;
+//  Temp: TMenuItem;
 begin
 (*
 For i := Pred(mniLM_SortBy.Count) downto 0 do
@@ -169,7 +189,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.ShowListItem(Sender: TObject);
+procedure TfMainForm.ShowSelectedItem(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   begin
@@ -182,9 +202,8 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.ShowIndexAndCount;
+procedure TfMainForm.UpdateIndexAndCount;
 begin
-(*
 If lbList.ItemIndex < 0 then
   begin
     If fILManager.ItemCount > 0 then
@@ -193,56 +212,32 @@ If lbList.ItemIndex < 0 then
       sbStatusBar.Panels[0].Text := '-/-';
   end
 else sbStatusBar.Panels[0].Text := Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
-*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.SaveList;
 begin
-(*
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
     IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
-fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-*)
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.FillCopyright;
-begin
-with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
-try
-  sbStatusBar.Panels[2].Text := Format('%s, version %s%s %d.%d.%d.%d %s',[
-    VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
-    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
-    {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
-finally
-  Free;
-end;
+//fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
 end;
 
 //==============================================================================
 
-procedure TfMainForm.DoOtherFormsInit;
+procedure TfMainForm.InitOtherForms;
 begin
-(*
-fSortForm.Initialize(fILManager);
-fSumsForm.Initialize(fILManager);
-fShopsForm.Initialize(fILManager);
-fTemplatesForm.Initialize(fILManager);
+//fSortForm.Initialize(fILManager);
+//fSumsForm.Initialize(fILManager);
+//fShopsForm.Initialize(fILManager);
+//fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
-fUpdateForm.Initialize(fILManager);
-fParsingForm.Initialize(fILManager);
-fSpecialsForm.Initialize(fILManager);
-fOverviewForm.Initialize(fILManager);
-fSelectionform.Initialize(fIlManager);
-*)
+//fUpdateForm.Initialize(fILManager);
+//fParsingForm.Initialize(fILManager);
+//fSpecialsForm.Initialize(fILManager);
+//fOverviewForm.Initialize(fILManager);
+//fSelectionForm.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -251,6 +246,7 @@ procedure TfMainForm.FormCreate(Sender: TObject);
 var
   i:  Integer;
 begin
+// prepare form
 sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
 mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
@@ -259,19 +255,21 @@ mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 FillCopyright;
+eSearchFor.OnExit(nil);
+// prepare variables/fields
 fSaveOnExit := True;
-(*
-fILManager := TILManager.Create(lbList);
+fILManager := TILManager.Create;
+fILManager.OnListUpdate := InvalidateList;
+// prepare item frame
 frmItemFrame.Initialize(fILManager);
-frmItemFrame.OnListInvalidate := InvalidateList;
-frmItemFrame.OnShowListItem := ShowListItem;
+frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
+// load list
+(*
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
-  begin
-    fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-    sbStatusBar.Panels[1].Text := fILManager.FileName;
-  end
-else sbStatusBar.Panels[1].Text := '';
-ShowIndexAndCount;
+  fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+*)
+sbStatusBar.Panels[1].Text := fILManager.FileName;
+// fill list
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
   begin
@@ -286,30 +284,28 @@ If fILManager.ItemCount > 0 then
     lbList.OnClick(nil);
   end
 else frmItemFrame.SetItem(nil,True);
-mniLM_SortRev.Checked := fILManager.ReversedSort;
-CreateSortBySubmenu;
-eSearchFor.OnExit(nil);
-*)
+UpdateIndexAndCount;
+// load other things from manager
+//mniLM_SortRev.Checked := fILManager.ReversedSort;
+BuildSortBySubmenu;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormDestroy(Sender: TObject);
 begin
-(*
 frmItemFrame.SetItem(nil,True);
 lbList.Items.Clear; // to be sure
 If fSaveOnExit then
   SaveList;
 FreeAndNil(fILManager);
-*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
-//fILManager.ItemReinitSize(lbList);
+fILManager.ReinitDrawSize(lbList);
 end;
 
 //------------------------------------------------------------------------------
@@ -328,18 +324,15 @@ end;
 procedure TfMainForm.mniLM_AddClick(Sender: TObject);
 var
   Index:  Integer;
-begin
-(*
-lbList.Items.Add(IntToStr(lbList.Count));
+begin 
 Index := lbList.ItemIndex;
-lbList.ItemIndex := fILManager.ItemAddEmpty;
 If Index >= 0 then
-  frmItemFrame.SetItem(fILManager.ItemPtrs[Index],False);
+  frmItemFrame.SetItem(fILManager[Index],False);
+lbList.Items.Add(IntToStr(lbList.Count));  
+lbList.ItemIndex := fILManager.ItemAddEmpty;
+fILManager.ReinitDrawSize(lbList);  // will also redraw and update the list
 lbList.OnClick(nil);
-fILManager.ItemReinitSize(lbList);
-lbList.Invalidate;
-ShowIndexAndCount;
-*)
+UpdateIndexAndCount;
 end;
 
 //------------------------------------------------------------------------------
@@ -348,20 +341,17 @@ procedure TfMainForm.mniLM_AddCopyClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If lbList.ItemIndex >= 0 then
   begin
-    lbList.Items.Add(IntToStr(lbList.Count));
     Index := lbList.ItemIndex;
-    lbList.ItemIndex := fILManager.ItemAddCopy(Index);
     If Index >= 0 then
-      frmItemFrame.SetItem(fILManager.ItemPtrs[Index],False);
+      frmItemFrame.SetItem(fILManager[Index],False);
+    lbList.Items.Add(IntToStr(lbList.Count));
+    lbList.ItemIndex := fILManager.ItemAddCopy(Index);
+    fILManager.ReinitDrawSize(lbList);
     lbList.OnClick(nil);
-    fILManager.ItemReinitSize(lbList);
-    lbList.Invalidate;
-    ShowIndexAndCount;
+    UpdateIndexAndCount;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -370,49 +360,43 @@ procedure TfMainForm.mniLM_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If lbList.ItemIndex >= 0 then
   If MessageDlg(Format('Are you sure you want to remove the item "%s"?',
-                [fILManager.ItemTitleStr(fILManager[lbList.ItemIndex])]),
-                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
+       [fILManager[lbList.ItemIndex].TitleStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
+      frmItemFrame.SaveItem;
+      frmItemFrame.SetItem(nil,False);
       Index := lbList.ItemIndex;
-      If lbList.ItemIndex < Pred(lbList.Count) then
-        lbList.ItemIndex := lbList.ItemIndex + 1
-      else If lbList.ItemIndex > 0 then
-        lbList.ItemIndex := lbList.ItemIndex - 1
-      else
-        lbList.ItemIndex := -1;
-      lbList.OnClick(nil);
-      lbList.Items.Delete(Index);
       fILManager.ItemDelete(Index);
-      If lbList.ItemIndex >= 0 then
-        frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
-      fILManager.ItemReinitSize(lbList);
-      lbList.Invalidate;
-      ShowIndexAndCount;
+      lbList.Items.Delete(Index);
+      fILManager.ReinitDrawSize(lbList);
+      If lbList.Count > 0 then
+        begin
+          If Index < lbList.Count then
+            lbList.ItemIndex := Index
+          else
+            lbList.ItemIndex := Pred(lbList.Count);
+        end
+      else lbList.ItemIndex := -1;
+      lbList.OnClick(nil);
+      UpdateIndexAndCount;
     end;
-*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ClearClick(Sender: TObject);
 begin
-(*
 If lbList.Count > 0 then
   If MessageDlg('Are you sure you want to clear the entire list?',
-                mtConfirmation,[mbYes,mbNo],0) = mrYes then
+       mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
       lbList.ItemIndex := -1;
       lbList.OnClick(nil);
       lbList.Items.Clear;
       fILManager.ItemClear;
-      fILManager.ItemReinitSize(lbList);
-      lbList.Invalidate;
-      ShowIndexAndCount;
+      UpdateIndexAndCount;
     end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -421,18 +405,16 @@ procedure TfMainForm.mniLM_MoveUpClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If lbList.ItemIndex > 0 then
   begin
     Index := lbList.ItemIndex;
     lbList.Items.Exchange(Index,Index - 1);
     fILManager.ItemExchange(Index,Index - 1);
     lbList.ItemIndex := Index - 1;
-    frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     lbList.Invalidate;
-    ShowIndexAndCount;
+    UpdateIndexAndCount;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -441,18 +423,16 @@ procedure TfMainForm.mniLM_MoveDownClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If lbList.ItemIndex < Pred(lbList.Count) then
   begin
     Index := lbList.ItemIndex;
     lbList.Items.Exchange(Index,Index + 1);
     fILManager.ItemExchange(Index,Index + 1);
     lbList.ItemIndex := Index + 1;
-    frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     lbList.Invalidate;
-    ShowIndexAndCount;
+    UpdateIndexAndCount;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -461,7 +441,6 @@ procedure TfMainForm.mniLM_FindPrevClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If Length(eSearchFor.Text) > 0 then
   begin
     Index := fILManager.FindPrev(eSearchFor.Text,lbList.ItemIndex);
@@ -472,7 +451,6 @@ If Length(eSearchFor.Text) > 0 then
       end
     else Beep;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -481,7 +459,6 @@ procedure TfMainForm.mniLM_FindNextClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
 If Length(eSearchFor.Text) > 0 then
   begin
     Index := fILManager.FindNext(eSearchFor.Text,lbList.ItemIndex);
@@ -492,7 +469,6 @@ If Length(eSearchFor.Text) > 0 then
       end
     else Beep;
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -574,11 +550,13 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted, OnlySelected: Boolean);
+(*
 var
   i,j,k:    Integer;
-  //Temp:     TILItemShopUpdates;
+  Temp:     TILItemShopUpdates;
   OldAvail: Int32;
   OldPrice: UInt32;
+*)
 begin
 (*
 frmItemFrame.SaveItem;
@@ -649,8 +627,8 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateShopsHistoryClick(Sender: TObject);
-var
-  i:  Integer;
+//var
+//  i:  Integer;
 begin
 (*
 Screen.Cursor := crHourGlass;
@@ -691,7 +669,6 @@ end;
 
 procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
 begin
-(*
 Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
@@ -700,7 +677,6 @@ try
 finally
   Screen.Cursor := crDefault;
 end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -720,10 +696,8 @@ end;
 
 procedure TfMainForm.mniLM_ExitClick(Sender: TObject);
 begin
-(*
 fSaveOnExit := False;
 Close;
-*)
 end;
 
 
@@ -731,13 +705,11 @@ end;
 
 procedure TfMainForm.lbListClick(Sender: TObject);
 begin
-(*
 If lbList.ItemIndex >= 0 then
-  frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],True)
+  frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True)
 else
   frmItemFrame.SetItem(nil,True);
-ShowIndexAndCount;
-*)
+UpdateIndexAndCount;
 end;
 
 //------------------------------------------------------------------------------
@@ -762,14 +734,8 @@ end;
 procedure TfMainForm.lbListDrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
 begin
-(*
-// background
-lbList.Canvas.Pen.Style := psClear;
-lbList.Canvas.Brush.Style := bsSolid;
-lbList.Canvas.Brush.Color := clWhite;
-lbList.Canvas.Rectangle(Rect.Left,Rect.Top,Succ(Rect.Right),Succ(Rect.Bottom));
 // content
-lbList.Canvas.Draw(Rect.Left,Rect.Top,fILManager.Items[Index].ItemListRender);
+lbList.Canvas.Draw(Rect.Left,Rect.Top,fILManager.Items[Index].Render);
 // separator line
 lbList.Canvas.Pen.Style := psSolid;
 lbList.Canvas.Pen.Color := clSilver;
@@ -790,7 +756,6 @@ If odFocused in State then
     lbList.Canvas.Brush.Style := bsClear;
     lbList.Canvas.DrawFocusRect(Rect);
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------

@@ -5,10 +5,16 @@ unit IL_Item;
 interface
 
 uses
-  IL_Item_Base;
+  IL_Item_Comp;
+
+{
+  inheritance chain:
+
+    base - utils - draw - comp - this
+}
 
 type
-  TILItem = TILItem_Base;
+  TILItem = TILItem_Comp;
 
 implementation
 

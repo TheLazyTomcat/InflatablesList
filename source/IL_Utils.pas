@@ -5,7 +5,7 @@ unit IL_Utils;
 interface
 
 uses
-  SysUtils,
+  Windows, SysUtils,
   AuxTypes;
 
 //==============================================================================
@@ -49,7 +49,12 @@ Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer;
 
 Function IL_BoolToChar(Value: Boolean; FalseChar,TrueChar: Char): Char;
 
+procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
+
 implementation
+
+uses
+  ShellAPI;
 
 //==============================================================================
 //- file path manipulation -----------------------------------------------------
@@ -289,6 +294,14 @@ If Value then
   Result := TrueChar
 else
   Result := FalseChar;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
+begin
+If Length(Path) > 0 then
+  ShellExecute(WindowHandle,'open',PChar(Path),nil,nil,SW_SHOWNORMAL);
 end;
 
 end.

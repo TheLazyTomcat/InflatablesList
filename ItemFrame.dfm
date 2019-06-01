@@ -138,7 +138,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 96
       Height = 96
       Center = True
-      PopupMenu = pmnImagesMenu
+      PopupMenu = pmnPicturesMenu
       OnClick = imgPictureClick
     end
     object imgPictureA: TImage
@@ -147,7 +147,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 96
       Height = 96
       Center = True
-      PopupMenu = pmnImagesMenu
+      PopupMenu = pmnPicturesMenu
       OnClick = imgPictureClick
     end
     object bvlInfoSep: TBevel
@@ -157,12 +157,12 @@ object frmItemFrame: TfrmItemFrame
       Height = 9
       Shape = bsTopLine
     end
-    object lblCount: TLabel
+    object lblPieces: TLabel
       Left = 504
       Top = 136
-      Width = 33
+      Width = 34
       Height = 13
-      Caption = 'Count:'
+      Caption = 'Pieces:'
     end
     object lblTimeOfCreation: TLabel
       Left = 256
@@ -556,16 +556,16 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 4
       OnChange = leManufacturerStringChange
     end
-    object leMainPictureFile: TLabeledEdit
+    object leItemPictureFile: TLabeledEdit
       Left = 304
       Top = 432
       Width = 240
       Height = 21
       EditLabel.Width = 79
       EditLabel.Height = 13
-      EditLabel.Caption = 'Main picture file:'
+      EditLabel.Caption = 'Item picture file:'
       TabOrder = 16
-      OnChange = leMainPictureFileChange
+      OnChange = leItemPictureFileChange
     end
     object leVariant: TLabeledEdit
       Left = 128
@@ -805,14 +805,14 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 22
       OnClick = btnShopsClick
     end
-    object btnBrowseMainPictureFile: TButton
+    object btnBrowseItemPictureFile: TButton
       Left = 544
       Top = 432
       Width = 25
       Height = 21
       Caption = '...'
       TabOrder = 17
-      OnClick = btnBrowseMainPictureFileClick
+      OnClick = btnBrowseItemPictureFileClick
     end
     object btnBrowsePackagePictureFile: TButton
       Left = 544
@@ -823,7 +823,7 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 19
       OnClick = btnBrowsePackagePictureFileClick
     end
-    object seCount: TSpinEdit
+    object sePieces: TSpinEdit
       Left = 504
       Top = 152
       Width = 65
@@ -832,7 +832,7 @@ object frmItemFrame: TfrmItemFrame
       MinValue = 1
       TabOrder = 2
       Value = 1
-      OnChange = seCountChange
+      OnChange = sePiecesChange
     end
     object leReviewURL: TLabeledEdit
       Left = 304
@@ -866,46 +866,46 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seUnitWeightChange
     end
   end
-  object diaImgOpenDialog: TOpenDialog
+  object diaPicOpenDialog: TOpenDialog
     Filter = 'BMP image files|*.bmp|All files|*.*'
     Top = 96
   end
-  object pmnImagesMenu: TPopupMenu
-    OnPopup = pmnImagesMenuPopup
+  object pmnPicturesMenu: TPopupMenu
+    OnPopup = pmnPicturesMenuPopup
     Left = 64
     Top = 96
-    object mniIM_Load: TMenuItem
+    object mniPM_Load: TMenuItem
       Caption = 'Load picture...'
-      OnClick = mniIM_LoadClick
+      OnClick = mniPM_LoadClick
     end
-    object mniIM_Export: TMenuItem
+    object mniPM_Export: TMenuItem
       Caption = 'Export picture...'
-      OnClick = mniIM_ExportClick
+      OnClick = mniPM_ExportClick
     end
     object N1: TMenuItem
       Caption = '-'
     end
-    object mniIM_Remove: TMenuItem
+    object mniPM_Remove: TMenuItem
       Caption = 'Remove this image'
-      OnClick = mniIM_RemoveClick
+      OnClick = mniPM_RemoveClick
     end
-    object mniIM_RemoveMain: TMenuItem
-      Caption = 'Remove main picture'
-      OnClick = mniIM_RemoveMainClick
+    object mniPM_RemoveItemPic: TMenuItem
+      Caption = 'Remove item picture'
+      OnClick = mniPM_RemoveItemPicClick
     end
-    object mniIM_RemovePackage: TMenuItem
+    object mniPM_RemovePackagePic: TMenuItem
       Caption = 'Remove package picture'
-      OnClick = mniIM_RemovePackageClick
+      OnClick = mniPM_RemovePackagePicClick
     end
     object N2: TMenuItem
       Caption = '-'
     end
-    object mniIM_Switch: TMenuItem
+    object mniPM_Switch: TMenuItem
       Caption = 'Switch images'
-      OnClick = mniIM_SwitchClick
+      OnClick = mniPM_SwitchClick
     end
   end
-  object diaImgExport: TSaveDialog
+  object diaPicExport: TSaveDialog
     DefaultExt = 'BMP'
     Filter = 'BMP image files|*.bmp|All files|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]

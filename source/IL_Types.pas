@@ -285,7 +285,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_SetItemFlagValue(var ItemFlags: TILItemFlags; ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; overload;
+Function IL_SetItemFlagValue(var ItemFlags: TILItemFlags; ItemFlag: TILItemFlag; NewValue: Boolean): Boolean;
 begin
 Result := ItemFlag in ItemFlags;
 If NewValue then

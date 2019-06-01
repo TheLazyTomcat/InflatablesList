@@ -10,7 +10,7 @@ uses
   IL_Types, IL_Data, IL_ItemShop;
 
 type
-  TILItemUpdatedFlag = (iliufList,iliufTitle,iliufPictures);
+  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures);
 
   TILItemUpdatedFlags = set of TILItemUpdatedFlag;
 
@@ -18,16 +18,21 @@ type
   protected
     fDataProvider:        TILDataProvider;
     fOwnsDataProvider:    Boolean;
-    fIndex:               Integer;  // used when sorting
+    fIndex:               Integer;  // used in sorting
     fRender:              TBitmap;
     fFilteredOut:         Boolean;
     fUpdateCounter:       Integer;
     fUpdated:             TILItemUpdatedFlags;
+    // events
+    fOnMainListUpdate:    TNotifyEvent;
+    fOnSmallListUpdate:   TNotifyEvent;
+    fOnTitleUpdate:       TNotifyEvent;
+    fOnPicturesUpdate:    TNotifyEvent;    
     // item data...
     // general read-only info
     fTimeOfAddition:      TDateTime;
     // stored pictures
-    fMainPicture:         TBitmap;  // 96 x 96 px, white background
+    fItemPicture:         TBitmap;  // 96 x 96 px, white background
     fPackagePicture:      TBitmap;  // 96 x 96 px, white background
     // basic specs
     fItemType:            TILItemType;
@@ -49,7 +54,7 @@ type
     // some other stuff
     fNotes:               String;
     fReviewURL:           String;
-    fMainPictureFile:     String;
+    fItemPictureFile:     String;
     fPackagePictureFile:  String;
     fUnitPriceDefault:    UInt32;
     // availability and prices (calculated from shops)
@@ -61,13 +66,9 @@ type
     fAvailableSelected:   Int32;
     // shops
     fShopCount:           Integer;
-    fShops:               array of TILItemShop;
-    // events
-    fOnListUpdate:        TNotifyEvent;
-    fOnTitleUpdate:       TNotifyEvent;
-    fOnPicturesUpdate:    TNotifyEvent;
+    fShops_:               array of TILItemShop; {$message 'later remove the underscore'}
     // data getters and setters
-    procedure SetMainPicture(Value: TBitmap); virtual;
+    procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetPackagePicture(Value: TBitmap); virtual;
     procedure SetItemType(Value: TILItemType); virtual;
     procedure SetItemTypeSpec(const Value: String); virtual;
@@ -85,7 +86,7 @@ type
     procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
-    procedure SetMainPictureFile(const Value: String); virtual;
+    procedure SetItemPictureFile(const Value: String); virtual;
     procedure SetPackagePictureFile(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
@@ -98,7 +99,8 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
-    procedure UpdateList; virtual;
+    procedure UpdateMainList; virtual;
+    procedure UpdateSmallList; virtual;
     procedure UpdateTitle; virtual;
     procedure UpdatePictures; virtual;
   public
@@ -119,12 +121,21 @@ type
     procedure ShopExchange(Idx1,Idx2: Integer); virtual;
     procedure ShopDelete(Index: Integer); virtual;
     procedure ShopClear; virtual;
+    // data helpers
+    procedure SwitchPictures; virtual;
+    Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
+    // properties
     property Index: Integer read fIndex write fIndex;
     property Render: TBitmap read fRender;
     property FilteredOut: Boolean read fFilteredOut;
+    // events
+    property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
+    property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
+    property OnTitleUpdate: TNotifyEvent read fOnTitleUpdate write fOnTitleUpdate;
+    property OnPicturesUpdate: TNotifyEvent read fOnPicturesUpdate write fOnPicturesUpdate;
     // item data
     property TimeOfAddition: TDateTime read fTimeOfAddition;
-    property MainPicture: TBitmap read fMainPicture write SetMainPicture;
+    property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
     property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
@@ -142,7 +153,7 @@ type
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
-    property MainPictureFile: String read fMainPictureFile write SetMainPictureFile;
+    property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
     property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
@@ -153,10 +164,6 @@ type
     property AvailableSelected: Int32 read fAvailableSelected;
     property ShopCount: Integer read GetCount;
     property Shops[Index: Integer]: TILItemShop read GetShop; default;
-    // events
-    property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
-    property OnTitleUpdate: TNotifyEvent read fOnTitleUpdate write fOnTitleUpdate;
-    property OnPicturesUpdate: TNotifyEvent read fOnPicturesUpdate write fOnPicturesUpdate;
   end;
 
 implementation
@@ -164,14 +171,14 @@ implementation
 uses
   SysUtils;
 
-procedure TILItem_Base.SetMainPicture(Value: TBitmap);
+procedure TILItem_Base.SetItemPicture(Value: TBitmap);
 begin
-If fMainPicture <> Value {a different object reference} then
+If fItemPicture <> Value {a different object reference} then
   begin
-    If Assigned(fMainPicture) then
-      FreeAndNil(fMainPicture);
-    fMainPicture := Value;
-    UpdateList;
+    If Assigned(fItemPicture) then
+      FreeAndNil(fItemPicture);
+    fItemPicture := Value;
+    UpdateMainList;
     UpdatePictures;
   end;
 end;
@@ -196,7 +203,7 @@ begin
 If fItemType <> Value then
   begin
     fItemType := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -208,7 +215,7 @@ begin
 If not AnsiSameStr(fItemTypeSpec,Value) then
   begin
     fItemTypeSpec := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -220,7 +227,7 @@ begin
 If fPieces <> Value then
   begin
     fPieces := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -232,7 +239,7 @@ begin
 If fManufacturer <> Value then
   begin
     fManufacturer := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -244,7 +251,7 @@ begin
 If not AnsiSameStr(fManufacturerStr,Value) then
   begin
     fManufacturerStr := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -256,7 +263,7 @@ begin
 If fID <> Value then
   begin
     fID := Value;
-    UpdateList;
+    UpdateMainList;
     UpdateTitle;
   end;
 end;
@@ -268,7 +275,7 @@ begin
 If fFlags <> Value then
   begin
     fFlags := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -279,7 +286,7 @@ begin
 If not AnsiSameStr(fTextTag,Value) then
   begin
     fTextTag := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -290,7 +297,7 @@ begin
 If fWantedLevel <> Value then
   begin
     fWantedLevel := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -301,7 +308,7 @@ begin
 If not AnsiSameStr(fVariant,Value) then
   begin
     fVariant := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -312,7 +319,7 @@ begin
 If fSizeX <> Value then
   begin
     fSizeX := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -323,7 +330,7 @@ begin
 If fSizeY <> Value then
   begin
     fSizeY := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -334,7 +341,7 @@ begin
 If fSizeZ <> Value then
   begin
     fSizeZ := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -365,17 +372,17 @@ begin
 If not AnsiSameStr(fReviewURL,Value) then
   begin
     fReviewURL := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetMainPictureFile(const Value: String);
+procedure TILItem_Base.SetItemPictureFile(const Value: String);
 begin
-If not AnsiSameStr(fMainPictureFile,Value) then
+If not AnsiSameStr(fItemPictureFile,Value) then
   begin
-    fMainPictureFile := Value;
+    fItemPictureFile := Value;
   end;
 end;
 
@@ -396,7 +403,7 @@ begin
 If fUnitPriceDefault <> Value then
   begin
     fUnitPriceDefault := Value;
-    UpdateList;
+    UpdateMainList;
   end;
 end;
 
@@ -405,7 +412,7 @@ end;
 Function TILItem_Base.GetShop(Index: Integer): TILItemShop;
 begin
 If CheckIndex(Index) then
-  Result := fShops[Index]
+  Result := fShops_[Index]
 else
   raise Exception.CreateFmt('TILItem_Base.GetShop: Index (%d) out of bounds.',[Index]);
 end;
@@ -414,7 +421,7 @@ end;
 
 Function TILItem_Base.GetCapacity: Integer;
 begin
-Result := Length(fShops);
+Result := Length(fShops_);
 end;
 
 //------------------------------------------------------------------------------
@@ -425,8 +432,8 @@ var
 begin
 If Value < fShopCount then
   For i := Value to Pred(fShopCount) do
-    fShops[i].Free;
-SetLength(fShops,Value);
+    fShops_[i].Free;
+SetLength(fShops_,Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -449,7 +456,7 @@ procedure TILItem_Base.InitializeData;
 begin
 fTimeOfAddition := Now;
 // basic specs
-fMainPicture := nil;
+fItemPicture := nil;
 fPackagePicture := nil;
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
@@ -470,7 +477,7 @@ fUnitWeight := 0;
 // other info
 fNotes := '';
 fReviewURL := '';
-fMainPictureFile := '';
+fItemPictureFile := '';
 fPackagePictureFile := '';
 fUnitPriceDefault := 0;
 fUnitPriceLowest := 0;
@@ -481,7 +488,7 @@ fAvailableHighest := 0;
 fAvailableSelected := 0;
 // shops
 fShopCount := 0;
-SetLength(fShops,0);
+SetLength(fShops_,0);
 end;
 
 //------------------------------------------------------------------------------
@@ -490,15 +497,15 @@ procedure TILItem_Base.FinalizeData;
 var
   i:  Integer;
 begin
-If Assigned(fMainPicture) then
-  FreeAndNil(fMainPicture);
+If Assigned(fItemPicture) then
+  FreeAndNil(fItemPicture);
 If Assigned(fPackagePicture) then
   FreeAndNil(fPackagePicture);
 // remove shops  
 For i := LowIndex to HighIndex do
-  fShops[i].Free;
+  fShops_[i].Free;
 fShopCount := 0;
-SetLength(fShops,0);
+SetLength(fShops_,0);
 end;
 
 //------------------------------------------------------------------------------
@@ -525,19 +532,26 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.UpdateList;
+procedure TILItem_Base.UpdateMainList;
 begin
-{$message 'implement'}
-If Assigned(fOnListUpdate) and (fUpdateCounter <= 0) then
-  fOnListUpdate(Self);
-Include(fUpdated,iliufList);
+If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
+  fOnMainListUpdate(Self);
+Include(fUpdated,iliufMainList);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateSmallList;
+begin
+If Assigned(fOnSmallListUpdate) and (fUpdateCounter <= 0) then
+  fOnSmallListUpdate(Self);
+Include(fUpdated,iliufSmallList);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.UpdateTitle;
 begin
-{$message 'implement'}
 If Assigned(fOnTitleUpdate) and (fUpdateCounter <= 0) then
   fOnTitleUpdate(Self);
 Include(fUpdated,iliufTitle);
@@ -547,7 +561,6 @@ end;
 
 procedure TILItem_Base.UpdatePictures;
 begin
-{$message 'implement'}
 If Assigned(fOnPicturesUpdate) and (fUpdateCounter <= 0) then
   fOnPicturesUpdate(Self);
 Include(fUpdated,iliufPictures);
@@ -578,19 +591,21 @@ var
   i:  Integer;
 begin
 Create(DataProvider);
-// do not copz time of addition, leave it as is (actual time)
+// do not copy time of addition, leave it as is (actual time)
 If CopyPics then
   begin
-    If Assigned(Source.MainPicture) then
+    If Assigned(Source.ItemPicture) then
       begin
-        fMainPicture := TBitmap.Create;
-        fMainPicture.Assign(Source.MainPicture);
+        fItemPicture := TBitmap.Create;
+        fItemPicture.Assign(Source.ItemPicture);
       end;
-    If Assigned(fPackagePicture) then
+    If Assigned(Source.PackagePicture) then
       begin
         fPackagePicture := TBitmap.Create;
         fPackagePicture.Assign(Source.PackagePicture);
       end;
+    If Assigned(Source.Render) then
+      fRender.Assign(Source.Render);
   end;
 fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;
@@ -614,8 +629,8 @@ fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;
 UniqueString(fReviewURL);
-fMainPictureFile := Source.MainPictureFile;
-UniqueString(fMainPictureFile);
+fItemPictureFile := Source.ItemPictureFile;
+UniqueString(fItemPictureFile);
 fPackagePictureFile := Source.PackagePictureFile;
 UniqueString(fPackagePictureFile);
 fUnitPriceDefault := Source.UnitPriceDefault;
@@ -626,9 +641,9 @@ fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
 fAvailableSelected := Source.AvailableSelected;
 // copy shops
-SetLength(fShops,Source.ShopCount);
-For i := Low(fShops) to High(fShops) do
-  fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
+SetLength(fShops_,Source.ShopCount);
+For i := Low(fShops_) to High(fShops_) do
+  fShops_[i] := TILItemShop.CreateAsCopy(Source[i]);
 end;
 
 //------------------------------------------------------------------------------
@@ -666,8 +681,10 @@ Dec(fUpdateCounter);
 If fUpdateCounter <= 0 then
   begin
     fUpdateCounter := 0;
-    If iliufList in fUpdated then
-      UpdateList;
+    If iliufMainList in fUpdated then
+      UpdateMainList;
+    If iliufSmallList in fUpdated then
+      UpdateSmallList;
     If iliufTitle in fUpdated then
       UpdateTitle;
     If iliufPictures in fUpdated then
@@ -680,7 +697,7 @@ end;
 
 Function TILItem_Base.LowIndex: Integer;
 begin
-Result := Low(fShops);
+Result := Low(fShops_);
 end;
 
 //------------------------------------------------------------------------------
@@ -725,7 +742,7 @@ Function TILItem_Base.ShopAdd: Integer;
 begin
 Grow;
 Result := HighIndex;
-fShops[Result] := TILItemShop.Create;
+fShops_[Result] := TILItemShop.Create;
 Inc(fShopCount);
 end;
 
@@ -742,9 +759,9 @@ If Idx1 <> Idx2 then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
     If (Idx2 < ShopLowIndex) or (Idx2 > ShopHighIndex) then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
-    Temp := fShops[Idx1];
-    fShops[Idx1] := fShops[Idx2];
-    fShops[Idx2] := Temp;
+    Temp := fShops_[Idx1];
+    fShops_[Idx1] := fShops_[Idx2];
+    fShops_[Idx2] := Temp;
   end;
 end;
 
@@ -756,9 +773,9 @@ var
 begin
 If (Index >= ShopLowIndex) and (Index <= ShopHighIndex) then
   begin
-    FreeAndNil(fShops[Index]);
+    FreeAndNil(fShops_[Index]);
     For i := Index to Pred(ShopHighIndex) do
-      fShops[i] := fShops[i + 1];
+      fShops_[i] := fShops_[i + 1];
     Dec(fShopCount);
     Shrink;
   end
@@ -772,9 +789,31 @@ var
   i:  Integer;
 begin
 For i := ShopLowIndex to ShopHighIndex do
-  FreeAndNil(fShops[i]);
-SetLength(fShops,0);
+  FreeAndNil(fShops_[i]);
+SetLength(fShops_,0);
 fShopCount := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SwitchPictures;
+var
+  Temp: TBitmap;
+begin
+Temp := fItemPicture;
+fItemPicture := fPackagePicture;
+fPackagePicture := Temp;
+UpdateMainList;
+UpdateSmallList;
+UpdatePictures;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Base.SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean;
+begin
+Result := IL_SetItemFlagValue(fFlags,ItemFlag,NewValue);
+UpdateMainList;
 end;
 
 end.

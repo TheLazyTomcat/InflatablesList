@@ -44,7 +44,7 @@ type
     procedure Finalize; virtual;
   public
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
-    //class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
+    class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
     class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
     class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
     constructor Create;
@@ -92,7 +92,7 @@ const
     'flag_icon_tested','flag_icon_damaged','flag_icon_repaired',
     'flag_icon_pricechange','flag_icon_availchange','flag_icon_notavailable',
     'flag_icon_lost');
-(*
+
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Main picture (is present)','Package picture (is present)',
     'Time of addition','Item type','Item type specifier','Count','Manufacturer',
@@ -103,14 +103,14 @@ const
     'Availability change (flag)','Not available (flag)','Lost (flag)',
     'Textual tag','Wanted level (flagged)','Variant (color, pattern, type, ...)',
     'Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
-    'Size Z (height, thickness, ...)','Size (X * Y * Z)',
+    'Size Z (height, thickness, ...)','Total size (X * Y * Z)',
     'Weight','Total weight','Notes','ReviewURL','Review (is present)',
     'Main picture file','Main picture file (is present)','Package picture file',
     'Package picture file (is present)','Default unit price','Lowest unit price',
     'Lowest total price','Selected unit price','Selected total price',
     'Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
-*)
+
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
     'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles','def_pic_ball',
     'def_pic_rider','def_pic_lounger','def_pic_lounger_chair','def_pic_chair',
@@ -371,7 +371,7 @@ else
 end;
 
 //------------------------------------------------------------------------------
-(*
+
 class Function TILDataProvider.GetItemValueTagString(ItemValueTag: TILItemValueTag): String;
 begin
 If (ItemValueTag >= Low(TILItemValueTag)) and (ItemValueTag <= High(TILItemValueTag)) then
@@ -379,7 +379,7 @@ If (ItemValueTag >= Low(TILItemValueTag)) and (ItemValueTag <= High(TILItemValue
 else
   raise Exception.CreateFmt('TILDataProvider.GetItemValueTagString: Invalid item value tag (%d).',[Ord(ItemValueTag)]);
 end;
-*)
+
 //------------------------------------------------------------------------------
 
 class Function TILDataProvider.GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String;

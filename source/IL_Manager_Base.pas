@@ -57,6 +57,8 @@ type
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     // macro methods (broadcast to item objects)
     procedure ReinitDrawSize(MainList: TListBox); virtual;
+    // utility methods
+    Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
     property DataProvider: TILDataProvider read fDataProvider;
     property FileName: String read fFileName;
@@ -374,6 +376,14 @@ try
 finally
   EndUpdate;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): String;
+begin
+Result := Format('%s %s',[IL_BoolToChar(SortingItem.Reversed,'+','-'),
+  fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
 end;
 
 end.

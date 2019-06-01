@@ -5,10 +5,10 @@ unit IL_Manager;
 interface
 
 uses
-  IL_Manager_Base;
+  IL_Manager_Sort;
 
 type
-  TILManager = TILManager_Base;
+  TILManager = TILManager_Sort;
 
 implementation
 

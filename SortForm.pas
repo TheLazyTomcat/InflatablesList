@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,
-  InflatablesList_Types, InflatablesList, Menus;
+  Dialogs, StdCtrls, ExtCtrls, Menus, 
+  IL_Types, IL_Manager;
 
 type
   TfSortForm = class(TForm)
@@ -37,7 +37,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure lbProfilesClick(Sender: TObject);
     procedure lbProfilesDblClick(Sender: TObject);    
-    procedure lbProfilesMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure lbProfilesMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure btnProfileLoadClick(Sender: TObject);
     procedure btnLoadDefaultClick(Sender: TObject);
     procedure btnProfileSaveClick(Sender: TObject);
@@ -63,7 +64,7 @@ type
     fSorted:        Boolean;
   protected
     procedure FillSortByList(Init: Boolean);
-    procedure UpdateNumber;
+    procedure UpdateNumbers;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
@@ -98,12 +99,12 @@ If lbSortBy.Count > 0  then
     else
       lbSortBy.ItemIndex := OldIndex;
   end;
-UpdateNumber;
+UpdateNumbers;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSortForm.UpdateNumber;
+procedure TfSortForm.UpdateNumbers;
 begin
 lblSortBy.Caption := Format('Sort by values (%d/30):',[fLocalSortSett.Count]);
 end;
@@ -374,7 +375,7 @@ If (lbAvailable.ItemIndex > 0) and (fLocalSortSett.Count < Length(fLocalSortSett
     lbSortBy.Items.Add(fILManager.SortingItemStr(fLocalSortSett.Items[fLocalSortSett.Count]));
     lbSortBy.ItemIndex := Pred(lbSortBy.Count);
     Inc(fLocalSortSett.Count);
-    UpdateNumber;
+    UpdateNumbers;
   end;
 end;
 
@@ -410,7 +411,7 @@ If (lbSortBy.ItemIndex >= 0) then
     else
       lbSortBy.ItemIndex := -1;
     lbSortBy.Items.Delete(Index);
-    UpdateNumber;
+    UpdateNumbers;
   end;
 end;
 

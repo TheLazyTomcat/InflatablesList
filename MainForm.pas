@@ -1,6 +1,7 @@
 unit MainForm;
 
 {$message 'menu - add "Item shops...", "Update item shops..." and "Update item shops history"'}
+{$message 'make most menu shortcuts global (all except item/list manipulations)'}
 
 interface
 
@@ -125,7 +126,7 @@ uses
   AuxTypes, WinFileInfo,
 //  InflatablesList_Types,
   InflatablesList_Backup,
-  TextEditForm;
+  TextEditForm, SortForm;
 
 {$R *.dfm}
 
@@ -154,11 +155,10 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.BuildSortBySubmenu;
-//var
-//  i:    Integer;
-//  Temp: TMenuItem;
+var
+  i:    Integer;
+  Temp: TMenuItem;
 begin
-(*
 For i := Pred(mniLM_SortBy.Count) downto 0 do
   If mniLM_SortBy[i].Tag >= 0 then
     begin
@@ -177,7 +177,6 @@ For i := 0 to Pred(fILManager.SortingProfileCount) do
       Temp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
     mniLM_SortBy.Add(Temp);
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -228,7 +227,7 @@ end;
 
 procedure TfMainForm.InitOtherForms;
 begin
-//fSortForm.Initialize(fILManager);
+fSortForm.Initialize(fILManager);
 //fSumsForm.Initialize(fILManager);
 //fShopsForm.Initialize(fILManager);
 //fTemplatesForm.Initialize(fILManager);
@@ -286,7 +285,7 @@ If fILManager.ItemCount > 0 then
 else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
-//mniLM_SortRev.Checked := fILManager.ReversedSort;
+mniLM_SortRev.Checked := fILManager.ReversedSort;
 BuildSortBySubmenu;
 end;
 
@@ -475,7 +474,6 @@ end;
 
 procedure TfMainForm.mniLM_SortSettClick(Sender: TObject);
 begin
-(*
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 If fSortForm.ShowSortingSettings then
@@ -483,27 +481,25 @@ If fSortForm.ShowSortingSettings then
     // sorting was performed
     If lbList.ItemIndex >= 0 then
       begin
-        frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+        frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
         frmItemFrame.LoadItem;
       end;
     lbList.Invalidate;
-    ShowIndexAndCount;
+    UpdateIndexAndCount;
   end
 else
   begin
     If lbList.ItemIndex >= 0 then
-      frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+      frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
-CreateSortBySubmenu;
-*)
+BuildSortBySubmenu;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
 begin
-(*
 frmItemFrame.SaveItem;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 Screen.Cursor := crHourGlass;
@@ -514,12 +510,11 @@ finally
 end;
 If lbList.ItemIndex >= 0 then
   begin
-    frmItemFrame.SetItem(fILManager.ItemPtrs[lbList.ItemIndex],False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     frmItemFrame.LoadItem;
   end;
 lbList.Invalidate;
-ShowIndexAndCount;
-*)
+UpdateIndexAndCount;
 end;
 
 //------------------------------------------------------------------------------
@@ -541,10 +536,8 @@ end;
 
 procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
-(*
 mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
 fILManager.ReversedSort := mniLM_SortRev.Checked;
-*)
 end;
 
 //------------------------------------------------------------------------------

@@ -6,13 +6,14 @@ interface
 
 uses
   AuxTypes,
-  IL_Item_Base, IL_ItemShop;
+  IL_Types, IL_Item_Base, IL_ItemShop;
 
 type
   TILItem_Utils = class(TILItem_Base)
   public
     Function TitleStr: String; virtual;
     Function TypeStr: String; virtual;
+    Function TotalSize: Int64; virtual;
     Function SizeStr: String; virtual;
     Function TotalWeight: UInt32; virtual;
     Function TotalWeightStr: String; virtual;
@@ -23,6 +24,7 @@ type
     Function TotalPrice: UInt32; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     Function ShopsUsefulCount: Integer; virtual;
+    Function ShopsUsefulRatio: Double; virtual;
     Function ShopsCountStr: String; virtual;
     Function ShopsSelected(out Shop: TILItemShop): Boolean; virtual;
     Function ShopsWorstUpdateResult: TILItemShopUpdateResult; virtual;
@@ -31,8 +33,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  IL_Types;
+  SysUtils;
 
 Function TILItem_Utils.TitleStr: String;
 begin
@@ -71,6 +72,21 @@ else
     else
       Result := '<unknown_type>';
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Utils.TotalSize: Int64;
+var
+  szX,szY,szZ:  UInt32;
+begin
+If fSizeX = 0 then szX := 1
+  else szX := fSizeX;
+If fSizeY = 0 then szY := 1
+  else szY := fSizeY;
+If fSizeZ = 0 then szZ := 1
+  else szZ := fSizeZ;
+Result := Int64(szX) * Int64(szY) * Int64(szZ);
 end;
 
 //------------------------------------------------------------------------------
@@ -196,6 +212,16 @@ Result := 0;
 For i := ShopLowIndex to ShopHighIndex do
   If (fShops_[i].Available <> 0) and (fShops_[i].Price > 0) then
     Inc(Result); 
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Utils.ShopsUsefulRatio: Double;
+begin
+If fShopCount > 0 then
+  Result := ShopsUsefulCount / fShopCount
+else
+  Result := -1;
 end;
 
 //------------------------------------------------------------------------------

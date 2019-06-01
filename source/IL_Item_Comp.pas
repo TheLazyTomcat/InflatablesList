@@ -5,19 +5,20 @@ unit IL_Item_Comp;
 interface
 
 uses
-  IL_Item_Draw;
+  IL_Types, IL_Item_Draw;
 
 type
   TILItem_Comp = class(TILItem_Draw)
   public
     Function Contains(const Text: String): Boolean; virtual;
+    Function Compare(Item: TILItem_Comp; ItemValueTag: TILItemValueTag; Reversed: Boolean): Integer; virtual;
   end;
 
 implementation
 
 uses
   SysUtils, StrUtils,
-  IL_ItemShop;
+  IL_Utils, IL_ItemShop;
 
 Function TILItem_Comp.Contains(const Text: String): Boolean;
 var
@@ -40,6 +41,188 @@ Result :=
   AnsiContainsText(fNotes,Text);
 If not Result and ShopsSelected(SelShop) then
   Result := AnsiContainsText(SelShop.Name,Text);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Comp.Compare(Item: TILItem_Comp; ItemValueTag: TILItemValueTag; Reversed: Boolean): Integer;
+var
+  SelShop1: TILItemShop;
+  SelShop2: TILItemShop;
+begin
+case ItemValueTag of
+  // internals = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtTimeOfAdd:         Result := IL_CompareDateTime(fTimeOfAddition,Item.TimeOfAddition);
+
+  // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtMainPicture:       Result := IL_CompareBool(Assigned(fItemPicture),Assigned(Item.ItemPicture));
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtPackagePicture:    Result := IL_CompareBool(Assigned(fPackagePicture),Assigned(Item.PackagePicture));
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtItemType:          If not(fItemType in [ilitUnknown,ilitOther]) and not(Item.ItemType in [ilitUnknown,ilitOther]) then
+                            Result := IL_CompareText(
+                              fDataProvider.GetItemTypeString(fItemType),
+                              fDataProvider.GetItemTypeString(Item.ItemType))
+                          // push others and unknowns to the end
+                          else If not(fItemType in [ilitUnknown,ilitOther]) then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If not(Item.ItemType in [ilitUnknown,ilitOther]) then
+                            Result := IL_NegateValue(-1,Reversed)
+                          // both are either unknown or other, push others to the end...
+                          else If fItemType = ilitUnknown then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else If Item.ItemType = ilitUnknown then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtItemTypeSpec:      Result := IL_CompareText(fItemTypeSpec,Item.ItemTypeSpec);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtCount:             Result := IL_CompareUInt32(fPieces,Item.Pieces);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtManufacturer:      If (fManufacturer <> ilimOthers) and (Item.Manufacturer <> ilimOthers) then
+                            Result := IL_CompareText(
+                              fDataProvider.ItemManufacturers[fManufacturer].Str,
+                              fDataProvider.ItemManufacturers[Item.Manufacturer].Str)
+                          else If fManufacturer = ilimOthers then
+                            Result := IL_NegateValue(-1,Reversed) // push other to the end
+                          else If Item.Manufacturer = ilimOthers then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtManufacturerStr:   Result := IL_CompareText(fManufacturerStr,Item.ManufacturerStr);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtID:                Result := IL_CompareInt32(fID,Item.ID);
+
+  // flags = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtFlagOwned:         Result := IL_CompareBool(ilifOwned in fFlags,ilifOwned in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagWanted:        Result := IL_CompareBool(ilifWanted in fFlags,ilifWanted in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagOrdered:       Result := IL_CompareBool(ilifOrdered in fFlags,ilifOrdered in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagBoxed:         Result := IL_CompareBool(ilifBoxed in fFlags,ilifBoxed in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagElsewhere:     Result := IL_CompareBool(ilifElsewhere in fFlags,ilifElsewhere in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagUntested:      Result := IL_CompareBool(ilifUntested in fFlags,ilifUntested in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagTesting:       Result := IL_CompareBool(ilifTesting in fFlags,ilifTesting in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagTested:        Result := IL_CompareBool(ilifTested in fFlags,ilifTested in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagDamaged:       Result := IL_CompareBool(ilifDamaged in fFlags,ilifDamaged in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagRepaired:      Result := IL_CompareBool(ilifRepaired in fFlags,ilifRepaired in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagPriceChange:   Result := IL_CompareBool(ilifPriceChange in fFlags,ilifPriceChange in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagAvailChange:   Result := IL_CompareBool(ilifAvailChange in fFlags,ilifAvailChange in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagNotAvailable:  Result := IL_CompareBool(ilifNotAvailable in fFlags,ilifNotAvailable in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagLost:          Result := IL_CompareBool(ilifLost in fFlags,ilifLost in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTextTag:           Result := IL_CompareText(fTextTag,Item.TextTag);
+
+  // extended specs  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtWantedLevel:       If (ilifWanted in fFlags) and (ilifWanted in Item.Flags) then
+                            Result := IL_CompareUInt32(fWantedLevel,Item.WantedLevel)
+                          else If ilifWanted in fFlags then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If ilifWanted in Item.Flags then
+                            Result := IL_NegateValue(-1,Reversed) // those without the flag set goes at the end
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtVariant:           Result := IL_CompareText(fVariant,Item.Variant);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSizeX:             Result := IL_CompareUInt32(fSizeX,Item.SizeX);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSizeY:             Result := IL_CompareUInt32(fSizeY,Item.SizeY);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSizeZ:             Result := IL_CompareUInt32(fSizeZ,Item.SizeZ);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTotalSize:         Result := IL_CompareInt64(TotalSize,Item.TotalSize);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUnitWeight:        Result := IL_CompareUInt32(fUnitWeight,Item.UnitWeight);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTotalWeight:       Result := IL_CompareUInt32(TotalWeight,Item.TotalWeight);
+
+  // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtNotes:             Result := IL_CompareText(fNotes,Item.Notes);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtReviewURL:         Result := IL_CompareText(fReviewURL,Item.ReviewURL);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtReview:            Result := IL_CompareBool(Length(fReviewURL) > 0,Length(Item.ReviewURL) > 0);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtMainPictureFile:   Result := IL_CompareText(fItemPictureFile,Item.ItemPictureFile);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtMainPicFilePres:   Result := IL_CompareBool(Length(fItemPictureFile) > 0,Length(Item.ItemPictureFile) > 0);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtPackPictureFile:   Result := IL_CompareText(fPackagePictureFile,Item.PackagePictureFile);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtPackPicFilePres:   Result := IL_CompareBool(Length(fPackagePictureFile) > 0,Length(Item.PackagePictureFile) > 0);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUnitPriceDefault:  Result := IL_CompareUInt32(fUnitPriceDefault,Item.UnitPriceDefault);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUnitPriceLowest:   Result := IL_CompareUInt32(fUnitPriceLowest,Item.UnitPriceLowest);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTotalPriceLowest:  Result := IL_CompareUInt32(TotalPriceLowest,Item.TotalPriceLowest);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUnitPriceSel:      Result := IL_CompareUInt32(fUnitPriceSelected,Item.UnitPriceSelected);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTotalPriceSel:     Result := IL_CompareUInt32(TotalPriceSelected,Item.TotalPriceSelected);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTotalPrice:        Result := IL_CompareUInt32(TotalPrice,Item.TotalPrice);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtAvailable:         If (fAvailableSelected < 0) and (Item.AvailableSelected < 0) then
+                            Result := IL_CompareInt32(Abs(fAvailableSelected),Abs(Item.AvailableSelected))
+                          else If (fAvailableSelected < 0) then
+                            Result := IL_CompareInt32(Abs(fAvailableSelected) + 1,Item.AvailableSelected)
+                          else If (Item.AvailableSelected < 0) then
+                            Result := IL_CompareInt32(fAvailableSelected,Abs(Item.AvailableSelected) + 1)
+                          else
+                            Result := IL_CompareInt32(fAvailableSelected,Item.AvailableSelected);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtShopCount:         Result := IL_CompareUInt32(fShopCount,Item.ShopCount);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUsefulShopCount:   Result := IL_CompareUInt32(ShopsUsefulCount,Item.ShopsUsefulCount);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtUsefulShopRatio:   If (fShopCount > 0) and (Item.ShopCount > 0) then
+                            Result := IL_CompareFloat(ShopsUsefulRatio,Item.ShopsUsefulRatio)
+                          else If fShopCount > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
+                          else If Item.ShopCount > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSelectedShop:      If ShopsSelected(SelShop1) and Item.ShopsSelected(SelShop2) then
+                            Result := IL_CompareText(SelShop1.Name,SelShop2.Name)
+                          else If ShopsSelected(SelShop1) then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If Item.ShopsSelected(SelShop2) then
+                            Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtWorstUpdateResult: If (fShopCount > 0) and (Item.ShopCount > 0) then
+                            Result := IL_CompareInt32(Ord(ShopsWorstUpdateResult),Ord(Item.ShopsWorstUpdateResult))
+                          else If fShopCount > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
+                          else If Item.ShopCount > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+else
+  {vtNone}
+  Result := 0;
+end;
+If Reversed then
+  Result := -Result;
 end;
 
 end.

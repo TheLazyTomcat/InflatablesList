@@ -10,10 +10,6 @@ uses
   IL_Types, IL_Data, IL_ItemShop;
 
 type
-  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures);
-
-  TILItemUpdatedFlags = set of TILItemUpdatedFlag;
-
   TILItem_Base = class(TCustomListObject)
   protected
     fDataProvider:        TILDataProvider;
@@ -813,7 +809,8 @@ end;
 Function TILItem_Base.SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean;
 begin
 Result := IL_SetItemFlagValue(fFlags,ItemFlag,NewValue);
-UpdateMainList;
+If Result <> NewValue then
+  UpdateMainList;
 end;
 
 end.

@@ -5,6 +5,7 @@ unit IL_Types;
 interface
 
 uses
+  Graphics,
   AuxTypes;
 
 //==============================================================================
@@ -78,7 +79,73 @@ Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
 //==============================================================================
 //- item shop ------------------------------------------------------------------
 
+type
+  TILItemShopUpdateResult = (
+    ilisurSuccess,    // lime     ilurSuccess
+    ilisurMildSucc,   // green    ilurSuccess on untracked
+    ilisurDataFail,   // blue     ilurNoLink, ilurNoData
+    ilisurSoftFail,   // yellow   ilurFailAvailSearch, ilurFailAvailValGet
+    ilisurHardFail,   // orange   ilurFailSearch, ilurFailValGet
+    ilisurCritical,   // red      ilurFailDown, ilurFailParse
+    ilisurFatal);     // black    ilurFail, unknown state
 
+  TILItemShopHistoryItem = record
+    Value:  Int32;
+    Time:   TDateTIme;
+  end;
+
+  TILItemShopHistory = array of TILItemShopHistoryItem;
+
+Function IL_ItemShopUpdateResultToNum(UpdateResult: TILItemShopUpdateResult): Int32;
+Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
+
+Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
+
+//==============================================================================
+//- item -----------------------------------------------------------------------
+
+type
+  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures);
+
+  TILItemUpdatedFlags = set of TILItemUpdatedFlag;
+
+//==============================================================================
+//- sorting --------------------------------------------------------------------  
+
+type
+  TILItemValueTag = (
+    ilivtNone,ilivtMainPicture,ilivtPackagePicture,ilivtTimeOfAdd,ilivtItemType,
+    ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtID,
+    ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
+    ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
+    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,
+    ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
+    ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
+    ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
+    ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
+    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
+    ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
+
+  TILSortingItem = record
+    ItemValueTag: TILItemValueTag;
+    Reversed:     Boolean;
+  end;
+
+  TILSortingSettings = record
+    Count:  Integer;
+    Items:  array[0..29] of TILSortingItem;
+  end;
+
+  TILSortingProfile = record
+    Name:     String;
+    Settings: TILSortingSettings;
+  end;
+  PILSortingProfile = ^TILSortingProfile;
+
+  TILSortingProfiles = array of TILSortingProfile;
+
+Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
+Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
 
 //==============================================================================
 //- command-line options -------------------------------------------------------
@@ -388,6 +455,183 @@ case Num of
   4:  Result := ilpemFirstNumberTag;
 else
   Result := ilpemFirstInteger;
+end;
+end;
+
+//==============================================================================
+//- item shop ------------------------------------------------------------------
+
+Function IL_ItemShopUpdateResultToNum(UpdateResult: TILItemShopUpdateResult): Int32;
+begin
+case UpdateResult of
+  ilisurMildSucc: Result := 1;
+  ilisurDataFail: Result := 2;
+  ilisurSoftFail: Result := 3;
+  ilisurHardFail: Result := 4;
+  ilisurCritical: Result := 5;
+  ilisurFatal:    Result := 6;
+else
+ {ilisurSuccess}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
+begin
+case Num of
+  1:  Result := ilisurMildSucc;
+  2:  Result := ilisurDataFail;
+  3:  Result := ilisurSoftFail;
+  4:  Result := ilisurHardFail;
+  5:  Result := ilisurCritical;
+  6:  Result := ilisurFatal;
+else
+  Result := ilisurSuccess;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
+begin
+case UpdateResult of
+  ilisurMildSucc: Result := clGreen;
+  ilisurDataFail: Result := clBlue;
+  ilisurSoftFail: Result := clYellow;
+  ilisurHardFail: Result := $00409BFF;  // orange
+  ilisurCritical: Result := clRed;
+  ilisurFatal:    Result := clBlack;
+else
+ {ilisurSuccess}
+  Result := clLime;
+end;
+end;
+
+//==============================================================================
+//- sorting --------------------------------------------------------------------
+
+Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
+begin
+case ItemValueTag of
+  ilivtMainPicture:       Result := 1;
+  ilivtPackagePicture:    Result := 2;
+  ilivtTimeOfAdd:         Result := 3;
+  ilivtItemType:          Result := 4;
+  ilivtItemTypeSpec:      Result := 5;
+  ilivtCount:             Result := 6;
+  ilivtManufacturer:      Result := 7;
+  ilivtManufacturerStr:   Result := 8;
+  ilivtID:                Result := 9;
+  ilivtFlagOwned:         Result := 10;
+  ilivtFlagWanted:        Result := 11;
+  ilivtFlagOrdered:       Result := 12;
+  ilivtFlagBoxed:         Result := 13;
+  ilivtFlagElsewhere:     Result := 14;
+  ilivtFlagUntested:      Result := 15;
+  ilivtFlagTesting:       Result := 16;
+  ilivtFlagTested:        Result := 17;
+  ilivtFlagDamaged:       Result := 18;
+  ilivtFlagRepaired:      Result := 19;
+  ilivtFlagPriceChange:   Result := 20;
+  ilivtFlagAvailChange:   Result := 21;
+  ilivtFlagNotAvailable:  Result := 22;
+  ilivtTextTag:           Result := 23;
+  ilivtWantedLevel:       Result := 24;
+  ilivtVariant:           Result := 25;
+  ilivtSizeX:             Result := 26;
+  ilivtSizeY:             Result := 27;
+  ilivtSizeZ:             Result := 28;
+  ilivtTotalSize:         Result := 29;
+  ilivtUnitWeight:        Result := 30;
+  ilivtTotalWeight:       Result := 31;
+  ilivtNotes:             Result := 32;
+  ilivtReviewURL:         Result := 33;
+  ilivtReview:            Result := 34;
+  ilivtMainPictureFile:   Result := 35;
+  ilivtMainPicFilePres:   Result := 36;
+  ilivtPackPictureFile:   Result := 37;
+  ilivtPackPicFilePres:   Result := 38;
+  ilivtUnitPriceDefault:  Result := 39;
+  ilivtUnitPriceLowest:   Result := 40;
+  ilivtTotalPriceLowest:  Result := 41;
+  ilivtUnitPriceSel:      Result := 42;
+  ilivtTotalPriceSel:     Result := 43;
+  ilivtTotalPrice:        Result := 44;
+  ilivtAvailable:         Result := 45;
+  ilivtShopCount:         Result := 46;
+  ilivtSelectedShop:      Result := 47;
+  // newly added
+  ilivtFlagLost:          Result := 48;
+  ilivtWorstUpdateResult: Result := 49;
+  ilivtUsefulShopCount:   Result := 50;
+  ilivtUsefulShopRatio:   Result := 51;
+else
+  {ilivtNone}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
+begin
+case Num of
+  1:  Result := ilivtMainPicture;
+  2:  Result := ilivtPackagePicture;
+  3:  Result := ilivtTimeOfAdd;
+  4:  Result := ilivtItemType;
+  5:  Result := ilivtItemTypeSpec;
+  6:  Result := ilivtCount;
+  7:  Result := ilivtManufacturer;
+  8:  Result := ilivtManufacturerStr;
+  9:  Result := ilivtID;
+  10: Result := ilivtFlagOwned;
+  11: Result := ilivtFlagWanted;
+  12: Result := ilivtFlagOrdered;
+  13: Result := ilivtFlagBoxed;
+  14: Result := ilivtFlagElsewhere;
+  15: Result := ilivtFlagUntested;
+  16: Result := ilivtFlagTesting;
+  17: Result := ilivtFlagTested;
+  18: Result := ilivtFlagDamaged;
+  19: Result := ilivtFlagRepaired;
+  20: Result := ilivtFlagPriceChange;
+  21: Result := ilivtFlagAvailChange;
+  22: Result := ilivtFlagNotAvailable;
+  23: Result := ilivtTextTag;
+  24: Result := ilivtWantedLevel;
+  25: Result := ilivtVariant;
+  26: Result := ilivtSizeX;
+  27: Result := ilivtSizeY;
+  28: Result := ilivtSizeZ;
+  29: Result := ilivtTotalSize;
+  30: Result := ilivtUnitWeight;
+  31: Result := ilivtTotalWeight;
+  32: Result := ilivtNotes;
+  33: Result := ilivtReviewURL;
+  34: Result := ilivtReview;
+  35: Result := ilivtMainPictureFile;
+  36: Result := ilivtMainPicFilePres;
+  37: Result := ilivtPackPictureFile;
+  38: Result := ilivtPackPicFilePres;
+  39: Result := ilivtUnitPriceDefault;
+  40: Result := ilivtUnitPriceLowest;
+  41: Result := ilivtTotalPriceLowest;
+  42: Result := ilivtUnitPriceSel;
+  43: Result := ilivtTotalPriceSel;
+  44: Result := ilivtTotalPrice;
+  45: Result := ilivtAvailable;
+  46: Result := ilivtShopCount;
+  47: Result := ilivtSelectedShop;
+  // newly added
+  48: Result := ilivtFlagLost;
+  49: Result := ilivtWorstUpdateResult;
+  50: Result := ilivtUsefulShopCount;
+  51: Result := ilivtUsefulShopRatio;
+else
+  Result := ilivtNone;
 end;
 end;
 

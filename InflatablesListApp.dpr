@@ -16,7 +16,9 @@ uses
   IL_Item_Draw in 'source\IL_Item_Draw.pas',
   IL_Item_Utils in 'source\IL_Item_Utils.pas',
   IL_Item_Comp in 'source\IL_Item_Comp.pas',
-  TextEditForm in 'TextEditForm.pas' {fTextEditForm};
+  TextEditForm in 'TextEditForm.pas' {fTextEditForm},
+  IL_Manager_Sort in 'source\IL_Manager_Sort.pas',
+  SortForm in 'SortForm.pas' {fSortForm};
 
 {$R *.res}
 
@@ -25,6 +27,7 @@ begin
   Application.Title := 'Inflatables List';
   Application.CreateForm(TfMainForm, fMainForm);
   Application.CreateForm(TfTextEditForm, fTextEditForm);
+  Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSumsForm, fSumsForm);
   //Application.CreateForm(TfSpecialsForm, fSpecialsForm);

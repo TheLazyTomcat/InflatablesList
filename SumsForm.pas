@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ExtCtrls,
   CountedDynArrayString,
-  InflatablesList;
+  IL_Manager;
 
 type
   TfSumsForm = class(TForm)
@@ -82,7 +82,7 @@ implementation
 {$R *.dfm}
 
 uses
-  InflatablesList_Types;
+  IL_Types, IL_ItemShop;
 
 procedure WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
 begin
@@ -128,7 +128,7 @@ sgSumsGrandTotal.ColWidths[6] := 120;
 sgSumsGrandTotal.ColWidths[7] := 120;
 sgSumsGrandTotal.ColWidths[8] := 88;
 sgSumsGrandTotal.Cells[0,0] := 'Items';
-sgSumsGrandTotal.Cells[1,0] := 'Count';
+sgSumsGrandTotal.Cells[1,0] := 'Pieces';
 sgSumsGrandTotal.Cells[2,0] := 'Unit weight';
 sgSumsGrandTotal.Cells[3,0] := 'Total weight';
 sgSumsGrandTotal.Cells[4,0] := 'Unit price (lowest)';
@@ -151,7 +151,7 @@ sgSumsByType.ColCount := Ord(High(TILItemType)) + 2;
 sgSumsByType.ColWidths[0] := 132;
 sgSumsByType.Cells[0,0] := '';
 sgSumsByType.Cells[0,1] := 'Items';
-sgSumsByType.Cells[0,2] := 'Count';
+sgSumsByType.Cells[0,2] := 'Pieces';
 sgSumsByType.Cells[0,3] := 'Unit weight';
 sgSumsByType.Cells[0,4] := 'Total weight';
 sgSumsByType.Cells[0,5] := 'Unit price (lowest)';
@@ -182,7 +182,7 @@ sgSumsByManufacturer.ColCount := Ord(High(TILItemManufacturer)) + 2;
 sgSumsByManufacturer.ColWidths[0] := 132;
 sgSumsByManufacturer.Cells[0,0] := '';
 sgSumsByManufacturer.Cells[0,1] := 'Items';
-sgSumsByManufacturer.Cells[0,2] := 'Count';
+sgSumsByManufacturer.Cells[0,2] := 'Pieces';
 sgSumsByManufacturer.Cells[0,3] := 'Unit weight';
 sgSumsByManufacturer.Cells[0,4] := 'Total weight';
 sgSumsByManufacturer.Cells[0,5] := 'Unit price (lowest)';
@@ -211,7 +211,7 @@ begin
 CDA_Clear(fSelectedShops);
 // enumerate all unique shops (by name)
 For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemShopsSelected(fIlManager[i],SelShop) then
+  If fIlManager[i].ShopsSelected(SelShop) then
     If not fIlManager[i].FilteredOut then
       If CDA_IndexOf(fSelectedShops,SelShop.Name,False) < 0 then
         CDA_Add(fSelectedShops,SelShop.Name);
@@ -224,7 +224,7 @@ sgSumsBySelShop.DefaultColWidth := 80;
 sgSumsBySelShop.ColWidths[0] := 132;
 sgSumsBySelShop.Cells[0,0] := '';
 sgSumsBySelShop.Cells[0,1] := 'Items';
-sgSumsBySelShop.Cells[0,2] := 'Count';
+sgSumsBySelShop.Cells[0,2] := 'Pieces';
 sgSumsBySelShop.Cells[0,3] := 'Unit weight';
 sgSumsBySelShop.Cells[0,4] := 'Total weight';
 sgSumsBySelShop.Cells[0,5] := 'Unit price (lowest)';
@@ -264,7 +264,7 @@ sgSumsByTextTag.ColCount := 1 + CDA_Count(fTextTags);
 sgSumsByTextTag.ColWidths[0] := 132;
 sgSumsByTextTag.Cells[0,0] := '';
 sgSumsByTextTag.Cells[0,1] := 'Items';
-sgSumsByTextTag.Cells[0,2] := 'Count';
+sgSumsByTextTag.Cells[0,2] := 'Pieces';
 sgSumsByTextTag.Cells[0,3] := 'Unit weight';
 sgSumsByTextTag.Cells[0,4] := 'Total weight';
 sgSumsByTextTag.Cells[0,5] := 'Unit price (lowest)';
@@ -295,18 +295,18 @@ For i := 0 to Pred(fILManager.ItemCount) do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums.Items);
-      Inc(Sums.Count,fILManager[i].Count);
+      Inc(Sums.Pieces,fILManager[i].Pieces);
       Inc(Sums.UnitWeigth,fILManager[i].UnitWeight);
-      Inc(Sums.TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+      Inc(Sums.TotalWeight,fILManager[i].TotalWeight);
       Inc(Sums.UnitPriceLow,fILManager[i].UnitPriceLowest);
       Inc(Sums.UnitPriceSel,fILManager[i].UnitPriceSelected);
-      Inc(Sums.TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-      Inc(Sums.TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-      Inc(Sums.TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+      Inc(Sums.TotalPriceLow,fILManager[i].TotalPriceLowest);
+      Inc(Sums.TotalPriceSel,fILManager[i].TotalPriceSelected);
+      Inc(Sums.TotalPrice,fILManager[i].TotalPrice);
     end;
 // fill table
 WriteCellValueCond(sgSumsGrandTotal,0,1,Sums.Items,'');
-WriteCellValueCond(sgSumsGrandTotal,1,1,Sums.Count,'');
+WriteCellValueCond(sgSumsGrandTotal,1,1,Sums.Pieces,'');
 WriteCellValueCond(sgSumsGrandTotal,2,1,Sums.UnitWeigth / 1000,'kg');
 WriteCellValueCond(sgSumsGrandTotal,3,1,Sums.TotalWeight / 1000,'kg');
 WriteCellValueCond(sgSumsGrandTotal,4,1,Sums.UnitPriceLow,'Kè');
@@ -331,20 +331,20 @@ For i := 0 to Pred(fILManager.ItemCount) do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].ItemType].Items);
-      Inc(Sums[fILManager[i].ItemType].Count,fILManager[i].Count);
+      Inc(Sums[fILManager[i].ItemType].Pieces,fILManager[i].Pieces);
       Inc(Sums[fILManager[i].ItemType].UnitWeigth,fILManager[i].UnitWeight);
-      Inc(Sums[fILManager[i].ItemType].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+      Inc(Sums[fILManager[i].ItemType].TotalWeight,fILManager[i].TotalWeight);
       Inc(Sums[fILManager[i].ItemType].UnitPriceLow,fILManager[i].UnitPriceLowest);
       Inc(Sums[fILManager[i].ItemType].UnitPriceSel,fILManager[i].UnitPriceSelected);
-      Inc(Sums[fILManager[i].ItemType].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-      Inc(Sums[fILManager[i].ItemType].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-      Inc(Sums[fILManager[i].ItemType].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+      Inc(Sums[fILManager[i].ItemType].TotalPriceLow,fILManager[i].TotalPriceLowest);
+      Inc(Sums[fILManager[i].ItemType].TotalPriceSel,fILManager[i].TotalPriceSelected);
+      Inc(Sums[fILManager[i].ItemType].TotalPrice,fILManager[i].TotalPrice);
     end;
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
     WriteCellValueCond(sgSumsByType,i + 1,1,Sums[TILItemType(i)].Items,'');
-    WriteCellValueCond(sgSumsByType,i + 1,2,Sums[TILItemType(i)].Count,'');
+    WriteCellValueCond(sgSumsByType,i + 1,2,Sums[TILItemType(i)].Pieces,'');
     WriteCellValueCond(sgSumsByType,i + 1,3,Sums[TILItemType(i)].UnitWeigth / 1000,'kg');
     WriteCellValueCond(sgSumsByType,i + 1,4,Sums[TILItemType(i)].TotalWeight / 1000,'kg');
     WriteCellValueCond(sgSumsByType,i + 1,5,Sums[TILItemType(i)].UnitPriceLow,'Kè');
@@ -370,20 +370,20 @@ For i := 0 to Pred(fILManager.ItemCount) do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].Manufacturer].Items);
-      Inc(Sums[fILManager[i].Manufacturer].Count,fILManager[i].Count);
+      Inc(Sums[fILManager[i].Manufacturer].Pieces,fILManager[i].Pieces);
       Inc(Sums[fILManager[i].Manufacturer].UnitWeigth,fILManager[i].UnitWeight);
-      Inc(Sums[fILManager[i].Manufacturer].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+      Inc(Sums[fILManager[i].Manufacturer].TotalWeight,fILManager[i].TotalWeight);
       Inc(Sums[fILManager[i].Manufacturer].UnitPriceLow,fILManager[i].UnitPriceLowest);
       Inc(Sums[fILManager[i].Manufacturer].UnitPriceSel,fILManager[i].UnitPriceSelected);
-      Inc(Sums[fILManager[i].Manufacturer].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-      Inc(Sums[fILManager[i].Manufacturer].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-      Inc(Sums[fILManager[i].Manufacturer].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+      Inc(Sums[fILManager[i].Manufacturer].TotalPriceLow,fILManager[i].TotalPriceLowest);
+      Inc(Sums[fILManager[i].Manufacturer].TotalPriceSel,fILManager[i].TotalPriceSelected);
+      Inc(Sums[fILManager[i].Manufacturer].TotalPrice,fILManager[i].TotalPrice);
     end;
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
     WriteCellValueCond(sgSumsByManufacturer,i + 1,1,Sums[TILItemManufacturer(i)].Items,'');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,2,Sums[TILItemManufacturer(i)].Count,'');
+    WriteCellValueCond(sgSumsByManufacturer,i + 1,2,Sums[TILItemManufacturer(i)].Pieces,'');
     WriteCellValueCond(sgSumsByManufacturer,i + 1,3,Sums[TILItemManufacturer(i)].UnitWeigth / 1000,'kg');
     WriteCellValueCond(sgSumsByManufacturer,i + 1,4,Sums[TILItemManufacturer(i)].TotalWeight / 1000,'kg');
     WriteCellValueCond(sgSumsByManufacturer,i + 1,5,Sums[TILItemManufacturer(i)].UnitPriceLow,'Kè');
@@ -411,39 +411,39 @@ For i := 0 to Pred(fILManager.ItemCount) do
   If not fIlManager[i].FilteredOut then
     begin
       Index := -1;
-      If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
+      If fILManager[i].ShopsSelected(SelShop) then
         Index := CDA_IndexOf(fSelectedShops,SelShop.Name,False);
       If CDA_CheckIndex(fSelectedShops,Index) then
         begin
           Inc(Sums[Index].Items);
-          Inc(Sums[Index].Count,fILManager[i].Count);
+          Inc(Sums[Index].Pieces,fILManager[i].Pieces);
           Inc(Sums[Index].UnitWeigth,fILManager[i].UnitWeight);
-          Inc(Sums[Index].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+          Inc(Sums[Index].TotalWeight,fILManager[i].TotalWeight);
           Inc(Sums[Index].UnitPriceLow,fILManager[i].UnitPriceLowest);
           Inc(Sums[Index].UnitPriceSel,fILManager[i].UnitPriceSelected);
-          Inc(Sums[Index].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-          Inc(Sums[Index].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-          Inc(Sums[Index].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[Index].TotalPriceLow,fILManager[i].TotalPriceLowest);
+          Inc(Sums[Index].TotalPriceSel,fILManager[i].TotalPriceSelected);
+          Inc(Sums[Index].TotalPrice,fILManager[i].TotalPrice);
         end
       else
         begin
           // no selected shop, add values to last
           Inc(Sums[High(Sums)].Items);
-          Inc(Sums[High(Sums)].Count,fILManager[i].Count);
+          Inc(Sums[High(Sums)].Pieces,fILManager[i].Pieces);
           Inc(Sums[High(Sums)].UnitWeigth,fILManager[i].UnitWeight);
-          Inc(Sums[High(Sums)].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+          Inc(Sums[High(Sums)].TotalWeight,fILManager[i].TotalWeight);
           Inc(Sums[High(Sums)].UnitPriceLow,fILManager[i].UnitPriceLowest);
           Inc(Sums[High(Sums)].UnitPriceSel,fILManager[i].UnitPriceSelected);
-          Inc(Sums[High(Sums)].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[High(Sums)].TotalPriceLow,fILManager[i].TotalPriceLowest);
+          Inc(Sums[High(Sums)].TotalPriceSel,fILManager[i].TotalPriceSelected);
+          Inc(Sums[High(Sums)].TotalPrice,fILManager[i].TotalPrice);
         end;
     end;
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
     WriteCellValueCond(sgSumsBySelShop,i + 1,1,Sums[i].Items,'');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,2,Sums[i].Count,'');
+    WriteCellValueCond(sgSumsBySelShop,i + 1,2,Sums[i].Pieces,'');
     WriteCellValueCond(sgSumsBySelShop,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
     WriteCellValueCond(sgSumsBySelShop,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
     WriteCellValueCond(sgSumsBySelShop,i + 1,5,Sums[i].UnitPriceLow,'Kè');
@@ -475,34 +475,34 @@ For i := 0 to Pred(fILManager.ItemCount) do
       If CDA_CheckIndex(fTextTags,Index) then
         begin
           Inc(Sums[Index].Items);
-          Inc(Sums[Index].Count,fILManager[i].Count);
+          Inc(Sums[Index].Pieces,fILManager[i].Pieces);
           Inc(Sums[Index].UnitWeigth,fILManager[i].UnitWeight);
-          Inc(Sums[Index].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+          Inc(Sums[Index].TotalWeight,fILManager[i].TotalWeight);
           Inc(Sums[Index].UnitPriceLow,fILManager[i].UnitPriceLowest);
           Inc(Sums[Index].UnitPriceSel,fILManager[i].UnitPriceSelected);
-          Inc(Sums[Index].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-          Inc(Sums[Index].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-          Inc(Sums[Index].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[Index].TotalPriceLow,fILManager[i].TotalPriceLowest);
+          Inc(Sums[Index].TotalPriceSel,fILManager[i].TotalPriceSelected);
+          Inc(Sums[Index].TotalPrice,fILManager[i].TotalPrice);
         end
       else
         begin
           // no selected shop, add values to last
           Inc(Sums[High(Sums)].Items);
-          Inc(Sums[High(Sums)].Count,fILManager[i].Count);
+          Inc(Sums[High(Sums)].Pieces,fILManager[i].Pieces);
           Inc(Sums[High(Sums)].UnitWeigth,fILManager[i].UnitWeight);
-          Inc(Sums[High(Sums)].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
+          Inc(Sums[High(Sums)].TotalWeight,fILManager[i].TotalWeight);
           Inc(Sums[High(Sums)].UnitPriceLow,fILManager[i].UnitPriceLowest);
           Inc(Sums[High(Sums)].UnitPriceSel,fILManager[i].UnitPriceSelected);
-          Inc(Sums[High(Sums)].TotalPriceLow,fILManager.ItemTotalPriceLowest(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPriceSel,fILManager.ItemTotalPriceSelected(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[High(Sums)].TotalPriceLow,fILManager[i].TotalPriceLowest);
+          Inc(Sums[High(Sums)].TotalPriceSel,fILManager[i].TotalPriceSelected);
+          Inc(Sums[High(Sums)].TotalPrice,fILManager[i].TotalPrice);
         end;
     end;
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
     WriteCellValueCond(sgSumsByTextTag,i + 1,1,Sums[i].Items,'');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,2,Sums[i].Count,'');
+    WriteCellValueCond(sgSumsByTextTag,i + 1,2,Sums[i].Pieces,'');
     WriteCellValueCond(sgSumsByTextTag,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
     WriteCellValueCond(sgSumsByTextTag,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
     WriteCellValueCond(sgSumsByTextTag,i + 1,5,Sums[i].UnitPriceLow,'Kè');

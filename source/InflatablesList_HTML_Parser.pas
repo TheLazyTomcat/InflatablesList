@@ -37,7 +37,8 @@ implementation
 uses
   SysUtils,
   StrRect,
-  InflatablesList_Types, InflatablesList_HTML_UnicodeTagAttributeArray,
+  IL_Types,
+  InflatablesList_HTML_UnicodeTagAttributeArray,
   InflatablesList_HTML_Preprocessor;
 
 class Function TILHTMLParser.IsVoidElement(const Name: String): Boolean;

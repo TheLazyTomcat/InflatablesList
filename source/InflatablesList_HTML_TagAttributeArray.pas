@@ -7,7 +7,7 @@ interface
 
 uses
   AuxTypes, CountedDynArrays,
-  InflatablesList_Types;
+  IL_Types;
 
 type
   TILTagAttribute = record
@@ -42,7 +42,7 @@ implementation
 uses
   SysUtils,
   ListSorters,
-  InflatablesList_Utils;
+  InflatablesList_HTML_Utils;
 
 Function CDA_CompareFunc(const A,B: TCDABaseType): Integer;
 begin
@@ -53,8 +53,8 @@ end;
 
 procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
 begin
-IL_ReconvUnique(Item.Name);
-IL_ReconvUnique(Item.Value);
+IL_UniqueReconvStr(Item.Name);
+IL_UniqueReconvStr(Item.Value);
 end;
 
 //------------------------------------------------------------------------------

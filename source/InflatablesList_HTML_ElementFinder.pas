@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types,
+  IL_Types,
   InflatablesList_HTML_TagAttributeArray, InflatablesList_HTML_Document;
 
 type

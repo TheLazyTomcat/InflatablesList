@@ -12,12 +12,14 @@ type
   public
     Function Contains(const Text: String): Boolean; virtual;
     Function Compare(Item: TILItem_Comp; ItemValueTag: TILItemValueTag; Reversed: Boolean): Integer; virtual;
+    procedure Filter(FilterSettings: TILFilterSettings); virtual;
   end;
 
 implementation
 
 uses
   SysUtils, StrUtils,
+  AuxTypes, BitOps,
   IL_Utils, IL_ItemShop;
 
 Function TILItem_Comp.Contains(const Text: String): Boolean;
@@ -223,6 +225,87 @@ else
 end;
 If Reversed then
   Result := -Result;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Comp.Filter(FilterSettings: TILFilterSettings);
+var
+  FlagsMap:   UInt32;
+  FlagsMask:  UInt32;
+  i:          Integer;
+  StateSet:   Boolean;
+  State:      Boolean;  // true = filtered-in, false = filtered-out
+
+  procedure CheckItemFlag(BitMask: UInt32; ItemFlag: TILItemFlag; FlagSet, FlagClr: TILFilterFlag);
+  begin
+    If FlagSet in FilterSettings.Flags then
+      begin
+        SetFlagStateValue(FlagsMap,BitMask,ItemFlag in fFlags);
+        BitOps.SetFlagValue(FlagsMask,BitMask);
+      end
+    else If FlagClr in FilterSettings.Flags then
+      begin
+        SetFlagStateValue(FlagsMap,BitMask,not(ItemFlag in fFlags));
+        BitOps.SetFlagValue(FlagsMask,BitMask);
+      end
+    else
+      begin
+        ResetFlagValue(FlagsMap,BitMask);
+        ResetFlagValue(FlagsMask,BitMask);
+      end;
+  end;
+
+begin
+FlagsMap := 0;
+FlagsMask := 0;
+If FilterSettings.Flags <> [] then
+  begin
+    CheckItemFlag($00000001,ilifOwned,ilffOwnedSet,ilffOwnedClr);
+    CheckItemFlag($00000002,ilifWanted,ilffWantedSet,ilffWantedClr);
+    CheckItemFlag($00000004,ilifOrdered,ilffOrderedSet,ilffOrderedClr);
+    CheckItemFlag($00000008,ilifBoxed,ilffBoxedSet,ilffBoxedClr);
+    CheckItemFlag($00000010,ilifElsewhere,ilffElsewhereSet,ilffElsewhereClr);
+    CheckItemFlag($00000020,ilifUntested,ilffUntestedSet,ilffUntestedClr);
+    CheckItemFlag($00000040,ilifTesting,ilffTestingSet,ilffTestingClr);
+    CheckItemFlag($00000080,ilifTested,ilffTestedSet,ilffTestedClr);
+    CheckItemFlag($00000100,ilifDamaged,ilffDamagedSet,ilffDamagedClr);
+    CheckItemFlag($00000200,ilifRepaired,ilffRepairedSet,ilffRepairedClr);
+    CheckItemFlag($00000400,ilifPriceChange,ilffPriceChangeSet,ilffPriceChangeClr);
+    CheckItemFlag($00000800,ilifAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
+    CheckItemFlag($00001000,ilifNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
+    CheckItemFlag($00002000,ilifLost,ilffLostSet,ilffLostClr);
+  end;
+StateSet := False;
+State := False; // will be later set to true value
+If FlagsMask <> 0 then
+  begin
+    For i := 0 to Ord(High(TILItemFlag)) do
+      begin
+        If FlagsMask and 1 <> 0 then
+          begin
+            If StateSet then
+              begin
+                case FilterSettings.Operator of
+                  ilfoOR:   State := State or (FlagsMap and 1 <> 0);
+                  ilfoXOR:  State := State xor (FlagsMap and 1 <> 0);
+                else
+                 {ilfoAND}
+                  State := State and (FlagsMap and 1 <> 0);
+                end;
+              end
+            else
+              begin
+                State := FlagsMap and 1 <> 0;
+                StateSet := True;
+              end;
+          end;
+        FlagsMap := FlagsMap shr 1;
+        FlagsMask := FlagsMask shr 1;
+      end;
+  end
+else State := True;
+fFilteredOut := not State;
 end;
 
 end.

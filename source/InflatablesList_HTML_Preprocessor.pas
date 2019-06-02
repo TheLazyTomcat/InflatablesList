@@ -47,7 +47,7 @@ implementation
 
 uses
   SysUtils,
-  InflatablesList_Utils;
+  InflatablesList_HTML_Utils;
 
 Function TILHTMLPreprocessor.ParseError(const Msg: String): Boolean;
 begin

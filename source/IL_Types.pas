@@ -31,7 +31,7 @@ Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
 procedure IL_UniqueReconvStr(var Str: TILReconvString);
 
 //==============================================================================
-//- list item ------------------------------------------------------------------
+//- items ----------------------------------------------------------------------
 
 type
   TILItemType = (ilitUnknown,ilitRing,ilitRingWithHandles,ilitBall,ilitRider,
@@ -70,6 +70,19 @@ type
                                   ilpemNegTagIsCount,ilpemFirstNumber,
                                   ilpemFirstNumberTag);
 
+  TILItemShopParsingExtrSett = record
+    ExtractFrom:      TILItemShopParsingExtrFrom;
+    ExtractionMethod: TILItemShopParsingExtrMethod;    
+    ExtractionData:   String;
+    NegativeTag:      String;
+  end;
+  PILItemShopParsingExtrSett = ^TILItemShopParsingExtrSett;
+
+  TILItemShopParsingVariables = record
+    Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
+  end;
+  PILItemShopParsingVariables = ^TILItemShopParsingVariables; 
+
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
 Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
 
@@ -89,12 +102,12 @@ type
     ilisurCritical,   // red      ilurFailDown, ilurFailParse
     ilisurFatal);     // black    ilurFail, unknown state
 
-  TILItemShopHistoryItem = record
+  TILItemShopHistoryEntry = record
     Value:  Int32;
     Time:   TDateTIme;
   end;
 
-  TILItemShopHistory = array of TILItemShopHistoryItem;
+  TILItemShopHistory = array of TILItemShopHistoryEntry;
 
 Function IL_ItemShopUpdateResultToNum(UpdateResult: TILItemShopUpdateResult): Int32;
 Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
@@ -146,6 +159,58 @@ type
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
+
+//==============================================================================
+//- sum filters ----------------------------------------------------------------
+
+type
+  TILFilterOperator = (ilfoAND,ilfoOR,ilfoXOR);
+
+  TILFilterFlag = (
+    ilffOwnedSet,ilffOwnedClr,ilffWantedSet,ilffWantedClr,
+    ilffOrderedSet,ilffOrderedClr,ilffBoxedSet,ilffBoxedClr,
+    ilffElsewhereSet,ilffElsewhereClr,ilffUntestedSet,ilffUntestedClr,
+    ilffTestingSet,ilffTestingClr,ilffTestedSet,ilffTestedClr,
+    ilffDamagedSet,ilffDamagedClr,ilffRepairedSet,ilffRepairedClr,
+    ilffPriceChangeSet,ilffPriceChangeClr,ilffAvailChangeSet,ilffAvailChangeClr,
+    ilffNotAvailableSet,ilffNotAvailableClr,ilffLostSet,ilffLostClr);
+
+  TILFilterFlags = set of TILFilterFlag;
+
+  TILFilterSettings = record
+    Operator: TILFilterOperator;
+    Flags:    TILFilterFlags;
+  end;
+
+Function IL_FilterOperatorToNum(Operator: TILFilterOperator): Int32;
+Function IL_NumToFilterOperator(Num: Int32): TILFilterOperator;
+
+Function IL_SetFilterSettingsFlagValue(var FilterFlags: TILFilterFlags; FilterFlag: TILFilterFlag; NewValue: Boolean): Boolean;
+
+Function IL_EncodeFilterFlags(FilterFlags: TILFilterFlags): UInt32;
+Function IL_DecodeFilterFlags(Flags: UInt32): TILFilterFlags;
+
+//==============================================================================
+//- sums -----------------------------------------------------------------------
+
+type
+  TILSumRec = record
+    Items:          Integer;
+    Pieces:         Integer;
+    UnitWeigth:     Integer;
+    TotalWeight:    Integer;
+    UnitPriceLow:   Integer;
+    UnitPriceSel:   Integer;
+    TotalPriceLow:  Integer;
+    TotalPriceSel:  Integer;
+    TotalPrice:     Integer;
+  end;
+
+  TILSumsByType = array[TILItemType] of TILSumRec;
+
+  TILSumsByManufacturer = array[TILItemManufacturer] of TILSumRec;
+
+  TILSumsArray = array of TILSumRec;
 
 //==============================================================================
 //- command-line options -------------------------------------------------------
@@ -633,6 +698,113 @@ case Num of
 else
   Result := ilivtNone;
 end;
+end;
+
+//==============================================================================
+//- sum filters ----------------------------------------------------------------
+
+Function IL_FilterOperatorToNum(Operator: TILFilterOperator): Int32;
+begin
+case Operator of
+  ilfoOR:   Result := 1;
+  ilfoXOR:  Result := 2;
+else
+  {ilfoAND}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToFilterOperator(Num: Int32): TILFilterOperator;
+begin
+case Num of
+  1:  Result := ilfoOR;
+  2:  Result := ilfoXOR;
+else
+  Result := ilfoAND;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SetFilterSettingsFlagValue(var FilterFlags: TILFilterFlags; FilterFlag: TILFilterFlag; NewValue: Boolean): Boolean;
+begin
+Result := FilterFlag in FilterFlags;
+If NewValue then
+  Include(FilterFlags,FilterFlag)
+else
+  Exclude(FilterFlags,FilterFlag);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_EncodeFilterFlags(FilterFlags: TILFilterFlags): UInt32;
+begin
+Result := 0;
+SetFlagStateValue(Result,$00000001,ilffOwnedSet in FilterFlags);
+SetFlagStateValue(Result,$00000002,ilffOwnedClr in FilterFlags);
+SetFlagStateValue(Result,$00000004,ilffWantedSet in FilterFlags);
+SetFlagStateValue(Result,$00000008,ilffWantedClr in FilterFlags);
+SetFlagStateValue(Result,$00000010,ilffOrderedSet in FilterFlags);
+SetFlagStateValue(Result,$00000020,ilffOrderedClr in FilterFlags);
+SetFlagStateValue(Result,$00000040,ilffBoxedSet in FilterFlags);
+SetFlagStateValue(Result,$00000080,ilffBoxedClr in FilterFlags);
+SetFlagStateValue(Result,$00000100,ilffElsewhereSet in FilterFlags);
+SetFlagStateValue(Result,$00000200,ilffElsewhereClr in FilterFlags);
+SetFlagStateValue(Result,$00000400,ilffUntestedSet in FilterFlags);
+SetFlagStateValue(Result,$00000800,ilffUntestedClr in FilterFlags);
+SetFlagStateValue(Result,$00001000,ilffTestingSet in FilterFlags);
+SetFlagStateValue(Result,$00002000,ilffTestingClr in FilterFlags);
+SetFlagStateValue(Result,$00004000,ilffTestedSet in FilterFlags);
+SetFlagStateValue(Result,$00008000,ilffTestedClr in FilterFlags);
+SetFlagStateValue(Result,$00010000,ilffDamagedSet in FilterFlags);
+SetFlagStateValue(Result,$00020000,ilffDamagedClr in FilterFlags);
+SetFlagStateValue(Result,$00040000,ilffRepairedSet in FilterFlags);
+SetFlagStateValue(Result,$00080000,ilffRepairedClr in FilterFlags);
+SetFlagStateValue(Result,$00100000,ilffPriceChangeSet in FilterFlags);
+SetFlagStateValue(Result,$00200000,ilffPriceChangeClr in FilterFlags);
+SetFlagStateValue(Result,$00400000,ilffAvailChangeSet in FilterFlags);
+SetFlagStateValue(Result,$00800000,ilffAvailChangeClr in FilterFlags);
+SetFlagStateValue(Result,$01000000,ilffNotAvailableSet in FilterFlags);
+SetFlagStateValue(Result,$02000000,ilffNotAvailableClr in FilterFlags);
+SetFlagStateValue(Result,$04000000,ilffLostSet in FilterFlags);
+SetFlagStateValue(Result,$08000000,ilffLostClr in FilterFlags);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_DecodeFilterFlags(Flags: UInt32): TILFilterFlags;
+begin
+Result := [];
+IL_SetFilterSettingsFlagValue(Result,ilffOwnedSet,GetFlagState(Flags,$00000001));
+IL_SetFilterSettingsFlagValue(Result,ilffOwnedClr,GetFlagState(Flags,$00000002));
+IL_SetFilterSettingsFlagValue(Result,ilffWantedSet,GetFlagState(Flags,$00000004));
+IL_SetFilterSettingsFlagValue(Result,ilffWantedClr,GetFlagState(Flags,$00000008));
+IL_SetFilterSettingsFlagValue(Result,ilffOrderedSet,GetFlagState(Flags,$00000010));
+IL_SetFilterSettingsFlagValue(Result,ilffOrderedClr,GetFlagState(Flags,$00000020));
+IL_SetFilterSettingsFlagValue(Result,ilffBoxedSet,GetFlagState(Flags,$00000040));
+IL_SetFilterSettingsFlagValue(Result,ilffBoxedClr,GetFlagState(Flags,$00000080));
+IL_SetFilterSettingsFlagValue(Result,ilffElsewhereSet,GetFlagState(Flags,$00000100));
+IL_SetFilterSettingsFlagValue(Result,ilffElsewhereClr,GetFlagState(Flags,$00000200));
+IL_SetFilterSettingsFlagValue(Result,ilffUntestedSet,GetFlagState(Flags,$00000400));
+IL_SetFilterSettingsFlagValue(Result,ilffUntestedClr,GetFlagState(Flags,$00000800));
+IL_SetFilterSettingsFlagValue(Result,ilffTestingSet,GetFlagState(Flags,$00001000));
+IL_SetFilterSettingsFlagValue(Result,ilffTestingClr,GetFlagState(Flags,$00002000));
+IL_SetFilterSettingsFlagValue(Result,ilffTestedSet,GetFlagState(Flags,$00004000));
+IL_SetFilterSettingsFlagValue(Result,ilffTestedClr,GetFlagState(Flags,$00008000));
+IL_SetFilterSettingsFlagValue(Result,ilffDamagedSet,GetFlagState(Flags,$00010000));
+IL_SetFilterSettingsFlagValue(Result,ilffDamagedClr,GetFlagState(Flags,$00020000));
+IL_SetFilterSettingsFlagValue(Result,ilffRepairedSet,GetFlagState(Flags,$00040000));
+IL_SetFilterSettingsFlagValue(Result,ilffRepairedClr,GetFlagState(Flags,$00080000));
+IL_SetFilterSettingsFlagValue(Result,ilffPriceChangeSet,GetFlagState(Flags,$00100000));
+IL_SetFilterSettingsFlagValue(Result,ilffPriceChangeClr,GetFlagState(Flags,$00200000));
+IL_SetFilterSettingsFlagValue(Result,ilffAvailChangeSet,GetFlagState(Flags,$00400000));
+IL_SetFilterSettingsFlagValue(Result,ilffAvailChangeClr,GetFlagState(Flags,$00800000));
+IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableSet,GetFlagState(Flags,$01000000));
+IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableClr,GetFlagState(Flags,$02000000));
+IL_SetFilterSettingsFlagValue(Result,ilffLostSet,GetFlagState(Flags,$04000000));
+IL_SetFilterSettingsFlagValue(Result,ilffLostClr,GetFlagState(Flags,$08000000));
 end;
 
 //==============================================================================

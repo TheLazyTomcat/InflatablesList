@@ -5,9 +5,10 @@ unit InflatablesList_HTML_Document;
 interface
 
 uses
-  AuxTypes, CountedDynArrayObject, classes,
-  InflatablesList_Types, InflatablesList_HTML_UnicodeCharArray,
-  InflatablesList_HTML_TagAttributeArray;
+  Classes,
+  AuxTypes, CountedDynArrayObject,
+  IL_Types,
+  InflatablesList_HTML_UnicodeCharArray, InflatablesList_HTML_TagAttributeArray;
 
 type
   TILHTMLElementNode = class(TObject)
@@ -120,7 +121,7 @@ var
   i:    Integer;
 begin
 Create(Parent,Source.Name);
-IL_ReconvUnique(fName);
+IL_UniqueReconvStr(fName);
 fOpen := Source.Open;
 Source.TextFinalize;
 // copy attributes
@@ -128,8 +129,8 @@ For i := 0 to Pred(Source.AttributeCount) do
   CDA_Add(fAttributes,Source.Attributes[i]);
 fText := Source.Text;
 fNestedText := Source.NestedText;
-IL_ReconvUnique(fText);
-IL_ReconvUnique(fNestedText);
+IL_UniqueReconvStr(fText);
+IL_UniqueReconvStr(fNestedText);
 CDA_Clear(fTextArr);
 Temp := StrToUnicode(fText.Str);
 For i := 1 to Length(Temp) do

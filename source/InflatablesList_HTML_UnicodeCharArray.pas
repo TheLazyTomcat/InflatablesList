@@ -46,7 +46,7 @@ implementation
 uses
   SysUtils,
   ListSorters,
-  InflatablesList_Utils;
+  InflatablesList_HTML_Utils;
 
 {$IFDEF FPC_DisableWarns}
   {$DEFINE FPCDWM}

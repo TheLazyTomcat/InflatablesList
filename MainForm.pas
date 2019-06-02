@@ -126,7 +126,7 @@ uses
   AuxTypes, WinFileInfo,
 //  InflatablesList_Types,
   InflatablesList_Backup,
-  TextEditForm, SortForm;
+  TextEditForm, SortForm, SumsForm;
 
 {$R *.dfm}
 
@@ -228,7 +228,7 @@ end;
 procedure TfMainForm.InitOtherForms;
 begin
 fSortForm.Initialize(fILManager);
-//fSumsForm.Initialize(fILManager);
+fSumsForm.Initialize(fILManager);
 //fShopsForm.Initialize(fILManager);
 //fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
@@ -638,10 +638,8 @@ end;
 
 procedure TfMainForm.mniLM_SumsClick(Sender: TObject);
 begin
-(*
 frmItemFrame.SaveItem;
 fSumsForm.ShowSums;
-*)
 end;
 
 //------------------------------------------------------------------------------

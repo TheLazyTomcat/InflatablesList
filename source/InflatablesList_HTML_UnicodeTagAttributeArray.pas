@@ -42,7 +42,7 @@ implementation
 uses
   SysUtils,
   ListSorters,
-  InflatablesList_Utils;
+  InflatablesList_HTML_Utils;
 
 Function CDA_CompareFunc(const A,B: TCDABaseType): Integer;
 begin

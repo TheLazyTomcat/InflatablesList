@@ -56,7 +56,10 @@ uses
   IL_Item_IO_00000000 in 'source\IL_Item_IO_00000000.pas',
   IL_Manager_IO in 'source\IL_Manager_IO.pas',
   IL_Manager_IO_00000008 in 'source\IL_Manager_IO_00000008.pas',
-  IL_Manager_IO_Converter in 'source\IL_Manager_IO_Converter.pas';
+  IL_Manager_IO_Converter in 'source\IL_Manager_IO_Converter.pas',
+  ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
+  ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
+  ParsingForm in 'ParsingForm.pas' {fParsingForm};
 
 {$R *.res}
 
@@ -72,6 +75,7 @@ begin
   Application.CreateForm(TfTemplatesForm, fTemplatesForm);
   Application.CreateForm(TfOverviewForm, fOverviewForm);
   Application.CreateForm(TfSelectionForm, fSelectionForm);
+  Application.CreateForm(TfParsingForm, fParsingForm);
   //Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSumsForm, fSumsForm);
   //Application.CreateForm(TfSpecialsForm, fSpecialsForm);

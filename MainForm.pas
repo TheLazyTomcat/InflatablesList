@@ -126,7 +126,7 @@ uses
   AuxTypes, WinFileInfo,
   InflatablesList_Backup,
   TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm, TemplatesForm,
-  OverviewForm, SelectionForm;
+  OverviewForm, SelectionForm, ParsingForm;
 
 {$R *.dfm}
 
@@ -233,7 +233,7 @@ fShopsForm.Initialize(fILManager);
 fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
 //fUpdateForm.Initialize(fILManager);
-//fParsingForm.Initialize(fILManager);
+fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);

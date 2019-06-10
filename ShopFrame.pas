@@ -106,7 +106,7 @@ implementation
 uses
   IL_Utils,
   InflatablesList_HTML_ElementFinder,
-  TextEditForm, TemplatesForm;
+  TextEditForm, TemplatesForm, ParsingForm;
 
 const
   IL_SHOP_PREDEFNOTES: array[0..3] of String = (
@@ -616,22 +616,18 @@ end;
 
 procedure TfrmShopFrame.btnParsAvailClick(Sender: TObject);
 begin
-(*
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   fParsingForm.ShowParsingSettings('Available count parsing settings',
-    Addr(fCurrentItemShopPtr^.ParsingSettings.Available));
-    *)
+    fCurrentItemShop.ParsingSettings,False);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnParsPriceClick(Sender: TObject);
 begin
-(*
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   fParsingForm.ShowParsingSettings('Price parsing settings',
-    Addr(fCurrentItemShopPtr^.ParsingSettings.Price));
-    *)
+    fCurrentItemShop.ParsingSettings,True);
 end;
 
 //------------------------------------------------------------------------------

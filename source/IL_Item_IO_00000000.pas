@@ -177,13 +177,17 @@ fAvailableSelected := Stream_ReadInt32(Stream);
 // shops
 ShopClear;
 SetLength(fShops,Stream_ReadUInt32(Stream));
+fShopCount := Length(fShops);
 For i := ShopLowIndex to ShopHighIndex do
   begin
     fShops[i] := TILItemShop.Create;
     fShops[i].LoadFromStream(Stream);
+    fShops[i].OnClearSelected := ClearSelectedHandler;
+    fShops[i].OnListUpdate := UpdateShopListItem;
+    fShops[i].OnValuesUpdate := UpdateShopValues;
+    fShops[i].OnAvailHistoryUpdate := UpdateShopAvailHistory;
+    fShops[i].OnPriceHistoryUpdate := UpdateShopPriceHistory;
   end;
-// internals
-ReDraw;
 end;
 
 end.

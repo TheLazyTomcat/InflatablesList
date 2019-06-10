@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, StdCtrls, ExtCtrls, Spin,
-  InflatablesList, InflatablesList_HTML_ElementFinder;
+  InflatablesList_HTML_ElementFinder, IL_Manager;
 
 type
   TfrmComparatorFrame = class(TFrame)

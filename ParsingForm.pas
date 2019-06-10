@@ -5,10 +5,16 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Menus,
-  InflatablesList_Types, InflatablesList, InflatablesList_HTML_ElementFinder,
-  ComparatorFrame, ExtractionFrame;
+  ComparatorFrame, ExtractionFrame,
+  IL_Types, InflatablesList_HTML_ElementFinder, IL_ItemShopParsingSettings,
+  IL_Manager;
 
 type
+  TILItemShopParsingEntry = record
+    Extraction: TILItemShopParsingExtrSettList;
+    Finder:     TILElementFinder;
+  end;
+
   TfParsingForm = class(TForm)
     gbFinderSettings: TGroupBox;
     lblStages: TLabel;
@@ -75,7 +81,7 @@ type
     procedure btnExtrNextClick(Sender: TObject);
   private
     fILManager:           TILManager;
-    fCurrentParsingEntry: PILItemShopParsingEntry;
+    fCurrentParsingEntry: TILItemShopParsingEntry;
     fExtractionSettIndex: Integer;
   protected
     procedure FrameChangeHandler(Sender: TObject);
@@ -89,7 +95,7 @@ type
     procedure LoadForm;
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowParsingSettings(const Caption: String; ParsingEntryPtr: PILItemShopParsingEntry);
+    procedure ShowParsingSettings(const Caption: String; ParsingSettings: TILItemShopParsingSettings; OnPrice: Boolean);
   end;
 
 var
@@ -298,22 +304,13 @@ end;
 
 procedure TfParsingForm.SetExtractionIndex(NewIndex: Integer);
 begin
-If Assigned(fCurrentParsingEntry) then
+If (NewIndex >= Low(fCurrentParsingEntry.Extraction)) and
+   (NewIndex <= High(fCurrentParsingEntry.Extraction)) then
   begin
-    If (NewIndex >= Low(fCurrentParsingEntry^.Extraction)) and
-       (NewIndex <= High(fCurrentParsingEntry^.Extraction)) then
-      begin
-        fExtractionSettIndex := NewIndex;
-        frmExtractionFrame.SetExtractSett(
-          Addr(fCurrentParsingEntry^.Extraction[fExtractionSettIndex]),True);
-        ShowExtractionIndex;
-      end
-    else
-      begin
-        fExtractionSettIndex := -1;
-        frmExtractionFrame.SetExtractSett(nil,True);
-        ShowExtractionIndex;
-      end;
+    fExtractionSettIndex := NewIndex;
+    frmExtractionFrame.SetExtractSett(
+      Addr(fCurrentParsingEntry.Extraction[fExtractionSettIndex]),True);
+    ShowExtractionIndex;
   end
 else
   begin
@@ -327,15 +324,15 @@ end;
 
 procedure TfParsingForm.ShowExtractionIndex;
 begin
-If (fExtractionSettIndex >= 0) and (Length(fCurrentParsingEntry^.Extraction) > 0) then
-  lblExtrIdx.Caption := Format('%d/%d',[fExtractionSettIndex + 1,Length(fCurrentParsingEntry^.Extraction)])
+If (fExtractionSettIndex >= 0) and (Length(fCurrentParsingEntry.Extraction) > 0) then
+  lblExtrIdx.Caption := Format('%d/%d',[fExtractionSettIndex + 1,Length(fCurrentParsingEntry.Extraction)])
 else
   lblExtrIdx.Caption := '-';
 btnExtrRemove.Enabled := fExtractionSettIndex >= 0;
 btnExtrPrev.Enabled := (fExtractionSettIndex >= 0) and
-  (fExtractionSettIndex > Low(fCurrentParsingEntry^.Extraction));
+  (fExtractionSettIndex > Low(fCurrentParsingEntry.Extraction));
 btnExtrNext.Enabled := (fExtractionSettIndex >= 0) and
-  (fExtractionSettIndex < High(fCurrentParsingEntry^.Extraction)); 
+  (fExtractionSettIndex < High(fCurrentParsingEntry.Extraction));
 end;
 
 //------------------------------------------------------------------------------
@@ -364,20 +361,31 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfParsingForm.ShowParsingSettings(const Caption: String; ParsingEntryPtr: PILItemShopParsingEntry);
+procedure  TfParsingForm.ShowParsingSettings(const Caption: String; ParsingSettings: TILItemShopParsingSettings; OnPrice: Boolean);
 var
   i:  Integer;
 begin
 Self.Caption := Caption;
-fCurrentParsingEntry := ParsingEntryPtr;
+If OnPrice then
+  begin
+    SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.PriceExtractionSettingsCount);
+    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+      fCurrentParsingEntry.Extraction[i] := ParsingSettings.PriceExtractionSettingsPtrs[i]^;
+    fCurrentParsingEntry.Finder := ParsingSettings.PriceFinder;
+  end
+else
+  begin
+    SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.AvailExtractionSettingsCount);
+    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+      fCurrentParsingEntry.Extraction[i] := ParsingSettings.AvailExtractionSettingsPtrs[i]^;
+    fCurrentParsingEntry.Finder := ParsingSettings.AvailFinder;
+  end;
 // fill list of stages
 lbStages.Items.BeginUpdate;
 try
   lbStages.Clear;
-  For i := 0 to Pred(TILElementFinder(fCurrentParsingEntry^.Finder).StageCount) do
-    lbStages.Items.AddObject(
-      TILElementFinder(fCurrentParsingEntry^.Finder).Stages[i].AsString,
-      TILElementFinder(fCurrentParsingEntry^.Finder).Stages[i])
+  For i := 0 to Pred(TILElementFinder(fCurrentParsingEntry.Finder).StageCount) do
+    lbStages.Items.AddObject(fCurrentParsingEntry.Finder.Stages[i].AsString,fCurrentParsingEntry.Finder.Stages[i])
 finally
   lbStages.Items.EndUpdate;
 end;
@@ -386,14 +394,10 @@ If lbStages.Count > 0 then
 lbStages.OnClick(nil);
 // set extraction frame
 fExtractionSettIndex := -1;
-If Assigned(fCurrentParsingEntry) then
-  begin
-    If Length(fCurrentParsingEntry^.Extraction) > 0 then
-      SetExtractionIndex(0)
-    else
-      SetExtractionIndex(-1);
-  end
-else SetExtractionIndex(-1);
+If Length(fCurrentParsingEntry.Extraction) > 0 then
+  SetExtractionIndex(0)
+else
+  SetExtractionIndex(-1);
 LoadForm;
 ShowModal;
 SaveForm;
@@ -404,6 +408,25 @@ lbStages.Clear;
 tvStageElements.Items.Clear;
 tvAttrComps.Items.Clear;
 tvTextComps.Items.Clear;
+// get results
+If OnPrice then
+  begin
+    ParsingSettings.PriceExtractionSettingsClear;
+    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+      begin
+        ParsingSettings.PriceExtractionSettingsAdd;
+        ParsingSettings.PriceExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
+      end;
+  end
+else
+  begin
+    ParsingSettings.AvailExtractionSettingsClear;
+    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+      begin
+        ParsingSettings.AvailExtractionSettingsAdd;
+        ParsingSettings.AvailExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
+      end;
+  end;
 end;
 
 //==============================================================================
@@ -460,16 +483,13 @@ procedure TfParsingForm.mniSG_AddClick(Sender: TObject);
 var
   Temp: TILElementFinderStage;
 begin
-If Assigned(fCurrentParsingEntry) then
+Temp := fCurrentParsingEntry.Finder.StageAdd;
+lbStages.Items.AddObject(Temp.AsString,Temp);
+If lbStages.Items.Count > 0 then
   begin
-    Temp := TILElementFinder(fCurrentParsingEntry^.Finder).StageAdd;
-    lbStages.Items.AddObject(Temp.AsString,Temp);
-    If lbStages.Items.Count > 0 then
-      begin
-        lbStages.ItemIndex := Pred(lbStages.Count);
-        lbStages.OnClick(nil);
-        FrameChangeHandler(nil);
-      end;
+    lbStages.ItemIndex := Pred(lbStages.Count);
+    lbStages.OnClick(nil);
+    FrameChangeHandler(nil);
   end;
 end;
 
@@ -479,7 +499,7 @@ procedure TfParsingForm.mniSG_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-If Assigned(fCurrentParsingEntry) and (lbStages.ItemIndex >= 0) then
+If lbStages.ItemIndex >= 0 then
   If MessageDlg(Format('Are you sure you want to delete stage "%s"?',
     [lbStages.Items[lbStages.ItemIndex]]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
@@ -492,7 +512,7 @@ If Assigned(fCurrentParsingEntry) and (lbStages.ItemIndex >= 0) then
         lbStages.ItemIndex := -1;
       lbStages.OnClick(nil);
       lbStages.Items.Delete(Index);
-      TILElementFinder(fCurrentParsingEntry^.Finder).StageDelete(Index);
+      fCurrentParsingEntry.Finder.StageDelete(Index);
       FrameChangeHandler(nil);
     end;
 end;
@@ -551,16 +571,13 @@ var
   Temp: TILElementComparator;
   Node: TTreeNode;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    Temp := TILElementFinder(fCurrentParsingEntry^.Finder)[lbStages.ItemIndex].AddComparator;
-    Node := tvStageElements.Items.AddChildObject(nil,Temp.AsString,Temp);
-    tvStageElements.Items.AddChildObject(Node,Temp.TagName.AsString,Temp.TagName);
-    tvStageElements.Items.AddChildObject(Node,Temp.Attributes.AsString,Temp.Attributes);
-    tvStageElements.Items.AddChildObject(Node,Temp.Text.AsString,Temp.Text);
-    Node.Expand(True);
-    FrameChangeHandler(nil);
-  end;
+Temp := fCurrentParsingEntry.Finder[lbStages.ItemIndex].AddComparator;
+Node := tvStageElements.Items.AddChildObject(nil,Temp.AsString,Temp);
+tvStageElements.Items.AddChildObject(Node,Temp.TagName.AsString,Temp.TagName);
+tvStageElements.Items.AddChildObject(Node,Temp.Attributes.AsString,Temp.Attributes);
+tvStageElements.Items.AddChildObject(Node,Temp.Text.AsString,Temp.Text);
+Node.Expand(True);
+FrameChangeHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -570,7 +587,7 @@ var
   Node:     TTreeNode;
   Temp:     TILElementComparator;
 begin
-If Assigned(fCurrentParsingEntry) and Assigned(tvStageElements.Selected) then
+If Assigned(tvStageElements.Selected) then
   If TObject(tvStageElements.Selected.Data) is TILElementComparator then
     begin
       Node := tvStageElements.Selected;
@@ -580,7 +597,7 @@ If Assigned(fCurrentParsingEntry) and Assigned(tvStageElements.Selected) then
         begin
           tvStageElements.Items.Delete(Node);
           tvStageElements.OnClick(nil);
-          TILElementFinder(fCurrentParsingEntry^.Finder)[lbStages.ItemIndex].Remove(Temp);
+          fCurrentParsingEntry.Finder[lbStages.ItemIndex].Remove(Temp);
           FrameChangeHandler(nil);
         end;
     end;
@@ -640,24 +657,21 @@ var
   Temp:   TILAttributeComparator;
   Node:   TTreeNode;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
-    Node := nil;
-    If Assigned(tvAttrComps.Selected) then
-      If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
-        begin
-          Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
-          Node := tvAttrComps.Selected;
-        end;
-    Temp := Group.AddComparator;
-    Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
-    tvAttrComps.Items.AddChildObject(Node,Temp.Name.AsString,Temp.Name);
-    tvAttrComps.Items.AddChildObject(Node,Temp.Value.AsString,Temp.Value);
-    Node.Expand(True);
-    tvAttrComps.Select(Node);
-    FrameChangeHandler(nil);
-  end;
+Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
+Node := nil;
+If Assigned(tvAttrComps.Selected) then
+  If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
+    begin
+      Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
+      Node := tvAttrComps.Selected;
+    end;
+Temp := Group.AddComparator;
+Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+tvAttrComps.Items.AddChildObject(Node,Temp.Name.AsString,Temp.Name);
+tvAttrComps.Items.AddChildObject(Node,Temp.Value.AsString,Temp.Value);
+Node.Expand(True);
+tvAttrComps.Select(Node);
+FrameChangeHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -668,22 +682,19 @@ var
   Temp:   TILAttributeComparatorGroup;
   Node:   TTreeNode;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
-    Node := nil;
-    If Assigned(tvAttrComps.Selected) then
-      If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
-        begin
-          Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
-          Node := tvAttrComps.Selected;
-        end;
-    Temp := Group.AddGroup;
-    Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
-    Node.Expand(True);
-    tvAttrComps.Select(Node);
-    FrameChangeHandler(nil);
-  end;
+Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
+Node := nil;
+If Assigned(tvAttrComps.Selected) then
+  If TObject(tvAttrComps.Selected.Data) is TILAttributeComparatorGroup then
+    begin
+      Group := TILAttributeComparatorGroup(tvAttrComps.Selected.Data);
+      Node := tvAttrComps.Selected;
+    end;
+Temp := Group.AddGroup;
+Node := tvAttrComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+Node.Expand(True);
+tvAttrComps.Select(Node);
+FrameChangeHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -693,7 +704,7 @@ var
   Group:    TILAttributeComparatorGroup;
   ToDelete: TObject;
 begin
-If Assigned(fCurrentParsingEntry) and Assigned(tvAttrComps.Selected) then
+If Assigned(tvAttrComps.Selected) then
   begin
     Group := TObject(tvStageElements.Selected.Data) as TILAttributeComparatorGroup;
     If Assigned(tvAttrComps.Selected.Parent) then
@@ -759,25 +770,22 @@ var
   Temp:   TILTextComparator;
   Node:   TTreeNode;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    If Assigned(tvAttrComps.Selected) then
-      Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
-    else
-      Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
-    Node := nil;
-    If Assigned(tvTextComps.Selected) then
-      If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
-        begin
-          Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
-          Node := tvTextComps.Selected;
-        end;
-    Temp := Group.AddComparator;
-    Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
-    Node.Expand(True);
-    tvTextComps.Select(Node);
-    FrameChangeHandler(nil);
-  end;
+If Assigned(tvAttrComps.Selected) then
+  Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
+else
+  Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
+Node := nil;
+If Assigned(tvTextComps.Selected) then
+  If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
+    begin
+      Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
+      Node := tvTextComps.Selected;
+    end;
+Temp := Group.AddComparator;
+Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+Node.Expand(True);
+tvTextComps.Select(Node);
+FrameChangeHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -788,25 +796,22 @@ var
   Temp:   TILTextComparatorGroup;
   Node:   TTreeNode;
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    If Assigned(tvAttrComps.Selected) then
-      Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
-    else
-      Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
-    Node := nil;
-    If Assigned(tvTextComps.Selected) then
-      If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
-        begin
-          Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
-          Node := tvTextComps.Selected;
-        end;
-    Temp := Group.AddGroup;
-    Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
-    Node.Expand(True);
-    tvTextComps.Select(Node);
-    FrameChangeHandler(nil);
-  end;
+If Assigned(tvAttrComps.Selected) then
+  Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
+else
+  Group := TObject(tvStageElements.Selected.Data) as TILTextComparatorGroup;
+Node := nil;
+If Assigned(tvTextComps.Selected) then
+  If TObject(tvTextComps.Selected.Data) is TILTextComparatorGroup then
+    begin
+      Group := TILTextComparatorGroup(tvTextComps.Selected.Data);
+      Node := tvTextComps.Selected;
+    end;
+Temp := Group.AddGroup;
+Node := tvTextComps.Items.AddChildObject(Node,Temp.AsString,Temp);
+Node.Expand(True);
+tvTextComps.Select(Node);
+FrameChangeHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -816,7 +821,7 @@ var
   Group:    TILTextComparatorGroup;
   ToDelete: TObject;
 begin
-If Assigned(fCurrentParsingEntry) and Assigned(tvTextComps.Selected) then
+If Assigned(tvTextComps.Selected) then
   begin
     If Assigned(tvAttrComps.Selected) then
       Group := TObject(tvAttrComps.Selected.Data) as TILTextComparatorGroup
@@ -841,13 +846,10 @@ end;
 
 procedure TfParsingForm.btnExtrAddClick(Sender: TObject);
 begin
-If Assigned(fCurrentParsingEntry) then
-  begin
-    frmExtractionFrame.SaveItem;
-    frmExtractionFrame.SetExtractSett(nil,False);
-    SetLength(fCurrentParsingEntry^.Extraction,Length(fCurrentParsingEntry^.Extraction) + 1);
-    SetExtractionIndex(High(fCurrentParsingEntry^.Extraction));
-  end;
+frmExtractionFrame.SaveItem;
+frmExtractionFrame.SetExtractSett(nil,False);
+SetLength(fCurrentParsingEntry.Extraction,Length(fCurrentParsingEntry.Extraction) + 1);
+SetExtractionIndex(High(fCurrentParsingEntry.Extraction));
 end;
 
 //------------------------------------------------------------------------------
@@ -857,23 +859,22 @@ var
   Index:  Integer;
   i:      Integer;
 begin
-If Assigned(fCurrentParsingEntry) then
-  If Length(fCurrentParsingEntry^.Extraction) > 0 then
-    If MessageDlg('Are you sure you want to delete this extraction setting?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-      begin
-        frmExtractionFrame.SaveItem;
-        frmExtractionFrame.SetExtractSett(nil,False);
-        Index := fExtractionSettIndex;
-        If Length(fCurrentParsingEntry^.Extraction) <= 1 then
-          fExtractionSettIndex := -1
-        else If fExtractionSettIndex >= High(fCurrentParsingEntry^.Extraction) then
-          fExtractionSettIndex := fExtractionSettIndex - 1;
-        For i := Index to Pred(High(fCurrentParsingEntry^.Extraction)) do
-          fCurrentParsingEntry^.Extraction[i] := fCurrentParsingEntry^.Extraction[i + 1];
-        SetLength(fCurrentParsingEntry^.Extraction,Length(fCurrentParsingEntry^.Extraction) - 1);
-        SetExtractionIndex(fExtractionSettIndex); // will also call frmExtractionFrame.SetExtractSett
-        ShowExtractionIndex;
-      end;
+If Length(fCurrentParsingEntry.Extraction) > 0 then
+  If MessageDlg('Are you sure you want to delete this extraction setting?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+    begin
+      frmExtractionFrame.SaveItem;
+      frmExtractionFrame.SetExtractSett(nil,False);
+      Index := fExtractionSettIndex;
+      If Length(fCurrentParsingEntry.Extraction) <= 1 then
+        fExtractionSettIndex := -1
+      else If fExtractionSettIndex >= High(fCurrentParsingEntry.Extraction) then
+        fExtractionSettIndex := fExtractionSettIndex - 1;
+      For i := Index to Pred(High(fCurrentParsingEntry.Extraction)) do
+        fCurrentParsingEntry.Extraction[i] := fCurrentParsingEntry.Extraction[i + 1];
+      SetLength(fCurrentParsingEntry.Extraction,Length(fCurrentParsingEntry.Extraction) - 1);
+      SetExtractionIndex(fExtractionSettIndex); // will also call frmExtractionFrame.SetExtractSett
+      ShowExtractionIndex;
+    end;
 end;
 
 //------------------------------------------------------------------------------

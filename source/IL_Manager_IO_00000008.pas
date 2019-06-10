@@ -226,11 +226,15 @@ If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
   begin
     ItemClear;
     SetLength(fList,Stream_ReadUInt32(Stream));
+    fCount := Length(fList);
     For i := ItemLowIndex to ItemHighIndex do
       begin
         fList[i] := TILItem.Create(fDataProvider);
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
+        fList[i].NoPictures := fOptions.NoPictures;
+        fList[i].OnMainListUpdate := OnItemListUpdate;
+        fList[i].OnSmallListUpdate := OnItemListUpdate;
       end;
   end
 else raise Exception.Create('TILManager_IO_00000008.LoadItems_00000008: Invalid stream.');

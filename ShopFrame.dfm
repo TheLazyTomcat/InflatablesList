@@ -300,84 +300,84 @@ object frmShopFrame: TfrmShopFrame
         Height = 13
         Caption = 'Parsing template reference:'
       end
-      object leParsVar_1: TLabeledEdit
+      object leParsVar_0: TLabeledEdit
         Left = 8
+        Top = 32
+        Width = 121
+        Height = 21
+        EditLabel.Width = 97
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Parsing variable #0:'
+        TabOrder = 0
+      end
+      object leParsVar_1: TLabeledEdit
+        Left = 136
         Top = 32
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
         EditLabel.Caption = 'Parsing variable #1:'
-        TabOrder = 0
+        TabOrder = 1
       end
       object leParsVar_2: TLabeledEdit
-        Left = 136
+        Left = 264
         Top = 32
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
         EditLabel.Caption = 'Parsing variable #2:'
-        TabOrder = 1
+        TabOrder = 2
       end
       object leParsVar_3: TLabeledEdit
-        Left = 264
+        Left = 392
         Top = 32
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
         EditLabel.Caption = 'Parsing variable #3:'
-        TabOrder = 2
-      end
-      object leParsVar_4: TLabeledEdit
-        Left = 392
-        Top = 32
-        Width = 121
-        Height = 21
-        EditLabel.Width = 97
-        EditLabel.Height = 13
-        EditLabel.Caption = 'Parsing variable #4:'
         TabOrder = 3
       end
-      object leParsVar_5: TLabeledEdit
+      object leParsVar_4: TLabeledEdit
         Left = 8
         Top = 72
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
-        EditLabel.Caption = 'Parsing variable #5:'
+        EditLabel.Caption = 'Parsing variable #4:'
         TabOrder = 4
       end
-      object leParsVar_6: TLabeledEdit
+      object leParsVar_5: TLabeledEdit
         Left = 136
         Top = 72
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
-        EditLabel.Caption = 'Parsing variable #6:'
+        EditLabel.Caption = 'Parsing variable #5:'
         TabOrder = 5
       end
-      object leParsVar_7: TLabeledEdit
+      object leParsVar_6: TLabeledEdit
         Left = 264
         Top = 72
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
-        EditLabel.Caption = 'Parsing variable #7:'
+        EditLabel.Caption = 'Parsing variable #6:'
         TabOrder = 6
       end
-      object leParsVar_8: TLabeledEdit
+      object leParsVar_7: TLabeledEdit
         Left = 392
         Top = 72
         Width = 121
         Height = 21
         EditLabel.Width = 97
         EditLabel.Height = 13
-        EditLabel.Caption = 'Parsing variable #8:'
+        EditLabel.Caption = 'Parsing variable #7:'
         TabOrder = 7
       end
       object btnParsAvail: TButton

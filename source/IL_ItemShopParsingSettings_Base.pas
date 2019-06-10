@@ -18,9 +18,9 @@ type
     fVariables:       TILItemShopParsingVariables;
     fTemplateRef:     String;
     fDisableParsErrs: Boolean;
-    fAvailExtrSetts:  array of TILItemShopParsingExtrSett;
+    fAvailExtrSetts:  TILItemShopParsingExtrSettList;
     fAvailFinder:     TILElementFinder;
-    fPriceExtrSetts:  array of TILItemShopParsingExtrSett;
+    fPriceExtrSetts:  TILItemShopParsingExtrSettList;
     fPriceFinder:     TILElementFinder;
     // data getters and setters
     Function GetVariableCount: Integer; virtual;
@@ -39,6 +39,13 @@ type
     constructor Create;
     constructor CreateAsCopy(Source: TILItemShopParsingSettings_Base);
     destructor Destroy; override;
+    // extraction settings lists
+    Function AvailExtractionSettingsAdd: Integer; virtual;
+    procedure AvailExtractionSettingsDelete(Index: Integer); virtual;
+    procedure AvailExtractionSettingsClear; virtual;
+    Function PriceExtractionSettingsAdd: Integer; virtual;
+    procedure PriceExtractionSettingsDelete(Index: Integer); virtual;
+    procedure PriceExtractionSettingsClear; virtual;
     // properties
     property RequiredCount: UInt32 read fRequiredCount write fRequiredCount;
     // data
@@ -138,9 +145,9 @@ end;
 
 procedure TILItemShopParsingSettings_Base.FinalizeData;
 begin
-SetLength(fAvailExtrSetts,0);
+AvailExtractionSettingsClear;
 FreeAndNil(fAvailFinder);
-SetLength(fPriceExtrSetts,0);
+PriceExtractionSettingsClear;
 FreeAndNil(fPriceFinder);
 end;
 
@@ -210,5 +217,74 @@ begin
 Finalize;
 inherited;
 end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemShopParsingSettings_Base.AvailExtractionSettingsAdd: Integer;
+begin
+SetLength(fAvailExtrSetts,Length(fAvailExtrSetts) + 1);
+Result := High(fAvailExtrSetts);
+fAvailExtrSetts[Result].ExtractFrom := ilpefText;
+fAvailExtrSetts[Result].ExtractionMethod := ilpemFirstInteger;
+fAvailExtrSetts[Result].ExtractionData := '';
+fAvailExtrSetts[Result].NegativeTag := '';
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILItemShopParsingSettings_Base.AvailExtractionSettingsDelete(Index: Integer);
+var
+  i:  Integer;
+begin
+If (Index >= Low(fAvailExtrSetts)) and (Index <= High(fAvailExtrSetts)) then
+  begin
+    For i := Index to Pred(High(fAvailExtrSetts)) do
+      fAvailExtrSetts[i] := fAvailExtrSetts[i + 1];
+    SetLength(fAvailExtrSetts,Length(fAvailExtrSetts) - 1);
+  end
+else raise Exception.CreateFmt('TILItemShopParsingSettings_Base.AvailExtractionSettingsDelete: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopParsingSettings_Base.AvailExtractionSettingsClear;
+begin
+SetLength(fAvailExtrSetts,0);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemShopParsingSettings_Base.PriceExtractionSettingsAdd: Integer;
+begin
+SetLength(fPriceExtrSetts,Length(fPriceExtrSetts) + 1);
+Result := High(fPriceExtrSetts);
+fPriceExtrSetts[Result].ExtractFrom := ilpefText;
+fPriceExtrSetts[Result].ExtractionMethod := ilpemFirstInteger;
+fPriceExtrSetts[Result].ExtractionData := '';
+fPriceExtrSetts[Result].NegativeTag := '';
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopParsingSettings_Base.PriceExtractionSettingsDelete(Index: Integer);
+var
+  i:  Integer;
+begin
+If (Index >= Low(fPriceExtrSetts)) and (Index <= High(fPriceExtrSetts)) then
+  begin
+    For i := Index to Pred(High(fPriceExtrSetts)) do
+      fPriceExtrSetts[i] := fPriceExtrSetts[i + 1];
+    SetLength(fPriceExtrSetts,Length(fPriceExtrSetts) - 1);
+  end
+else raise Exception.CreateFmt('TILItemShopParsingSettings_Base.PriceExtractionSettingsDelete: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopParsingSettings_Base.PriceExtractionSettingsClear;
+begin
+SetLength(fPriceExtrSetts,0);
+end;
+
 
 end.

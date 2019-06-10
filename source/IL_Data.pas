@@ -84,7 +84,7 @@ const
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
     ('neznámý','kruh','kruh s madly','míè','rider','lehátko','lehátko/køeslo',
      'køeslo','sedátko','matrace','ostrov','postel','èlun','hraèka','rukávky',
-     'balónek','ostatní');
+     'balonek','ostatní');
 
   IL_DATA_ITEMFLAGICON_RESNAMES: array[TILItemFlag] of String = (
     'flag_icon_owned','flag_icon_wanted','flag_icon_ordered','flag_icon_boxed',

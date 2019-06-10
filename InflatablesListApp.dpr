@@ -43,7 +43,10 @@ uses
   IL_ItemShopTemplate_IO in 'source\IL_ItemShopTemplate_IO.pas',
   IL_ItemShopTemplate_IO_00000000 in 'source\IL_ItemShopTemplate_IO_00000000.pas',
   IL_ItemShopParsingSettings_IO in 'source\IL_ItemShopParsingSettings_IO.pas',
-  IL_ItemShopParsingSettings_IO_00000000 in 'source\IL_ItemShopParsingSettings_IO_00000000.pas';
+  IL_ItemShopParsingSettings_IO_00000000 in 'source\IL_ItemShopParsingSettings_IO_00000000.pas',
+  ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
+  ShopsForm in 'ShopsForm.pas' {fShopsForm},
+  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm};
 
 {$R *.res}
 
@@ -54,6 +57,8 @@ begin
   Application.CreateForm(TfTextEditForm, fTextEditForm);
   Application.CreateForm(TfSortForm, fSortForm);
   Application.CreateForm(TfSumsForm, fSumsForm);
+  Application.CreateForm(TfShopsForm, fShopsForm);
+  Application.CreateForm(TfSpecialsForm, fSpecialsForm);
   //Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSumsForm, fSumsForm);
   //Application.CreateForm(TfSpecialsForm, fSpecialsForm);

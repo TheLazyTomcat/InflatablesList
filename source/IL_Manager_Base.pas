@@ -382,7 +382,7 @@ end;
 
 Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): String;
 begin
-Result := Format('%s %s',[IL_BoolToChar(SortingItem.Reversed,'+','-'),
+Result := Format('%s %s',[IL_BoolToStr(SortingItem.Reversed,'+','-'),
   fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
 end;
 

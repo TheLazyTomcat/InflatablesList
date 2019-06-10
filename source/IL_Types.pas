@@ -78,6 +78,8 @@ type
   end;
   PILItemShopParsingExtrSett = ^TILItemShopParsingExtrSett;
 
+  TILItemShopParsingExtrSettList = array of TILItemShopParsingExtrSett;
+
   TILItemShopParsingVariables = record
     Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
   end;
@@ -118,7 +120,8 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //- item -----------------------------------------------------------------------
 
 type
-  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures);
+  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures,
+                        iliufShopList);
 
   TILItemUpdatedFlags = set of TILItemUpdatedFlag;
 

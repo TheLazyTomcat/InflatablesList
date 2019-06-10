@@ -163,7 +163,7 @@ implementation
 uses
   AuxTypes,
   IL_Types, IL_Utils, IL_ItemShop,
-  TextEditForm;
+  TextEditForm, ShopsForm;
 
 {$R *.dfm}
 
@@ -560,13 +560,10 @@ var
 begin
 Reassigned := fCurrentItem = Item;
 If Assigned(fCurrentItem) then
-  begin
-    fCurrentItem.OnTitleUpdate := nil;
-    fCurrentItem.OnPicturesUpdate := nil;
-  end;
+  fCurrentItem.Release(True);
 If ProcessChange then
   begin
-    If Assigned(fCurrentItem) then
+    If Assigned(fCurrentItem) and not Reassigned then
       FrameSave;
     If Assigned(Item) then
       begin
@@ -835,9 +832,14 @@ If Sender is TCheckBox then
         case TCheckBox(Sender).Tag of
           1:  fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
           2:  begin
-                SaveItem;
-                fCurrentItem.FlagPriceAndAvail(fCurrentItem.UnitPriceSelected,fCurrentItem.AvailableSelected);
-                LoadItem;
+                fCurrentItem.BeginUpdate;
+                try
+                  SaveItem; // wanted flag is set here
+                  fCurrentItem.FlagPriceAndAvail(fCurrentItem.UnitPriceSelected,fCurrentItem.AvailableSelected);
+                  LoadItem;
+                finally
+                  fCurrentItem.EndUpdate;
+                end;
               end;
           3:  fCurrentItem.SetFlagValue(ilifOrdered,cbFlagOrdered.Checked);
           4:  fCurrentItem.SetFlagValue(ilifBoxed,cbFlagBoxed.Checked);
@@ -1091,21 +1093,16 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
-//var
-//  i:  Integer;
 begin
-(*
 If Assigned(fCurrentItem) then
   begin
     SaveItem;
-    For i := Low(fCurrentItem.Shops) to High(fCurrentItem.Shops) do
-      fCurrentItem.Shops[i].RequiredCount := fCurrentItem.Count;
+    fCurrentItem.BroadcastReqCount;
     fShopsForm.ShowShops(fCurrentItem);
-    // flags are set in shops form
+    // load potential changes
     LoadItem;
-    DoListItemChange;
+    fCurrentItem.ReDraw;
   end;
-*)
 end;
 
 end.

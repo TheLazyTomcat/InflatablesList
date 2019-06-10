@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls,
-  InflatablesList, StdCtrls;
+  Dialogs, ExtCtrls, StdCtrls,
+  IL_Manager;
 
 type
   TfSpecialsForm = class(TForm)
@@ -47,8 +47,8 @@ procedure TfSpecialsForm.btnClearTextTagsClick(Sender: TObject);
 var
   i:  Integer;
 begin
-For i := 0 to Pred(fILManager.ItemCount) do
-  fILManager.ItemPtrs[i].TextTag := '';
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  fILManager[i].TextTag := '';
 Close;
 end;
 
@@ -58,13 +58,13 @@ procedure TfSpecialsForm.btnClearParsingClick(Sender: TObject);
 var
   i,j:  Integer;
 begin
-For i := 0 to Pred(fILManager.ItemCount) do
-  For j := Low(fILManager.ItemPtrs[i]^.Shops) to High(fILManager.ItemPtrs[i]^.Shops) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     begin
-      SetLength(fILManager.ItemPtrs[i]^.Shops[j].ParsingSettings.Available.Extraction,0);
-      TILElementFinder(fILManager.ItemPtrs[i]^.Shops[j].ParsingSettings.Available.Finder).StageClear;
-      SetLength(fILManager.ItemPtrs[i]^.Shops[j].ParsingSettings.Price.Extraction,0);
-      TILElementFinder(fILManager.ItemPtrs[i]^.Shops[j].ParsingSettings.Price.Finder).StageClear;
+      fILManager[i][j].ParsingSettings.AvailExtractionSettingsClear;
+      fILManager[i][j].ParsingSettings.AvailFinder.StageClear;
+      fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
+      fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
     end;
 Close;
 end;
@@ -75,10 +75,10 @@ procedure TfSpecialsForm.btnSetAltDownMethodClick(Sender: TObject);
 var
   i,j:  Integer;
 begin
-For i := 0 to Pred(fILManager.ItemCount) do
-  For j := Low(fILManager.ItemPtrs[i]^.Shops) to High(fILManager.ItemPtrs[i]^.Shops) do
-    If AnsiSameText(fILManager.ItemPtrs[i]^.Shops[j].Name,leParam.Text) then
-      fILManager.ItemPtrs[i]^.Shops[j].AltDownMethod := True;
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+    If AnsiSameText(fILManager[i][j].Name,leParam.Text) then
+      fILManager[i][j].AltDownMethod := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -89,12 +89,12 @@ var
   OldPrice: UInt32;
   OldAvail: Int32;
 begin
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
-    OldPrice := fILManager.ItemPtrs[i]^.UnitPriceSelected;
-    OldAvail := fILManager.ItemPtrs[i]^.AvailableSelected;
-    fILManager.ItemUpdatePriceAndAvail(fILManager.ItemPtrs[i]^);
-    fILManager.ItemFlagPriceAndAvail(fILManager.ItemPtrs[i]^,OldPrice,OldAvail);
+    OldPrice := fILManager[i].UnitPriceSelected;
+    OldAvail := fILManager[i].AvailableSelected;
+    fILManager[i].UpdatePriceAndAvail;
+    fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
   end;
 end;
 

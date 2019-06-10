@@ -34,7 +34,7 @@ Function IL_IndexWrap(Index,Low,High: Integer): Integer;
 
 Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer; 
 
-Function IL_BoolToChar(Value: Boolean; FalseChar,TrueChar: Char): Char;
+Function IL_BoolToStr(Value: Boolean; FalseStr, TrueStr: String): String;
 
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
 
@@ -203,12 +203,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_BoolToChar(Value: Boolean; FalseChar,TrueChar: Char): Char;
+Function IL_BoolToStr(Value: Boolean; FalseStr, TrueStr: String): String;
 begin
 If Value then
-  Result := TrueChar
+  Result := TrueStr
 else
-  Result := FalseChar;
+  Result := FalseStr;
 end;
 
 //------------------------------------------------------------------------------

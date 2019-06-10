@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, StdCtrls, Spin, ComCtrls, Menus,
-  InflatablesList_Types, InflatablesList;
+  IL_Types, IL_ItemShop, IL_Manager;
 
 type
   TfrmShopFrame = class(TFrame)
@@ -41,6 +41,7 @@ type
     btnPredefNotes: TButton;
     pmnPredefNotes: TPopupMenu;        
     gbParsing: TGroupBox;
+    leParsVar_0: TLabeledEdit;
     leParsVar_1: TLabeledEdit;
     leParsVar_2: TLabeledEdit;
     leParsVar_3: TLabeledEdit;
@@ -48,7 +49,6 @@ type
     leParsVar_5: TLabeledEdit;
     leParsVar_6: TLabeledEdit;
     leParsVar_7: TLabeledEdit;
-    leParsVar_8: TLabeledEdit;
     bvlVarsSep: TBevel;
     lblParsTemplRef: TLabel;
     cmbParsTemplRef: TComboBox;
@@ -82,25 +82,21 @@ type
     procedure btnTemplatesClick(Sender: TObject);
     procedure cbShopUntrackedClick(Sender: TObject);
   private
-    fInitializing:        Boolean;
-    fILManager:           TILManager;
-    fCurrentItemShopPtr:  PILItemShop;
+    fInitializing:    Boolean;
+    fILManager:       TILManager;
+    fCurrentItemShop: TILItemShop;
   protected
-    procedure DoListItemChange;
-    procedure DoPriceChange;
     procedure FrameClear;
-    procedure FillHistoryLists(Selector: Integer);
     procedure FillTemplatesList;
     procedure CreatePredefNotesMenu;
   public
-    OnListUpdate:       TNotifyEvent;
-    OnPriceChange:      TNotifyEvent;
-    OnClearSelected:    TNotifyEvent;
     OnTemplatesChange:  TNotifyEvent;
     procedure SaveItemShop;
     procedure LoadItemShop;
+    procedure UpdateAvailHistory;
+    procedure UpdatePriceHistory;
     procedure Initialize(ILManager: TILManager);
-    procedure SetItemShop(ItemShopPtr: PILItemShop; ProcessChange: Boolean);
+    procedure SetItemShop(ItemShop: TILItemShop; ProcessChange: Boolean);
   end;
 
 implementation
@@ -108,9 +104,9 @@ implementation
 {$R *.dfm}
 
 uses
-  ShellAPI,
+  IL_Utils,
   InflatablesList_HTML_ElementFinder,
-  TemplatesForm, TextEditForm, ParsingForm;
+  TextEditForm;
 
 const
   IL_SHOP_PREDEFNOTES: array[0..3] of String = (
@@ -120,22 +116,6 @@ const
     'pravdìpodonì nelze vybar variantu');
 
 //==============================================================================
-
-procedure TfrmShopFrame.DoListItemChange;
-begin
-If Assigned(OnListUpdate) then
-  OnListUpdate(Self);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmShopFrame.DoPriceChange;
-begin
-If Assigned(OnPriceChange) then
-  OnPriceChange(Self);
-end;
-
-//------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.FrameClear;
 begin
@@ -151,6 +131,7 @@ lvAvailHistory.Clear;
 lvPriceHistory.Clear;
 meNotes.Text := '';
 // parsing
+leParsVar_0.Text := '';
 leParsVar_1.Text := '';
 leParsVar_2.Text := '';
 leParsVar_3.Text := '';
@@ -158,64 +139,12 @@ leParsVar_4.Text := '';
 leParsVar_5.Text := '';
 leParsVar_6.Text := '';
 leParsVar_7.Text := '';
-leParsVar_8.Text := '';
 If cmbParsTemplRef.Items.Count > 0 then
   cmbParsTemplRef.ItemIndex := 0
 else
   cmbParsTemplRef.ItemIndex := -1;
 cbParsDisableErrs.Checked := False;
 leLastUpdateMsg.Text := '';
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmShopFrame.FillHistoryLists(Selector: Integer);
-var
-  i:  Integer;
-begin
-If Assigned(fCurrentItemShopPtr) then
-  begin
-    If Selector = 0 then
-      begin
-        // avail
-        lvAvailHistory.Items.BeginUpdate;
-        try
-          lvAvailHistory.Items.Clear;
-          For i := High(fCurrentItemShopPtr^.AvailHistory) downto Low(fCurrentItemShopPtr^.AvailHistory) do
-            with lvAvailHistory.Items.Add do
-              begin
-                Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShopPtr^.AvailHistory[i].Time);
-                If fCurrentItemShopPtr^.AvailHistory[i].Value > 0 then
-                  SubItems.Add(Format('%d',[fCurrentItemShopPtr^.AvailHistory[i].Value]))
-                else If fCurrentItemShopPtr^.AvailHistory[i].Value < 0 then
-                  SubItems.Add(Format('> %d',[Abs(fCurrentItemShopPtr^.AvailHistory[i].Value)]))
-                else
-                  SubItems.Add('-');
-              end;
-        finally
-          lvAvailHistory.Items.EndUpdate;
-        end;
-      end
-    else
-      begin
-        // price
-        lvPriceHistory.Items.BeginUpdate;
-        try
-          lvPriceHistory.Items.Clear;
-          For i := High(fCurrentItemShopPtr^.PriceHistory) downto Low(fCurrentItemShopPtr^.PriceHistory) do
-            with lvPriceHistory.Items.Add do
-              begin
-                Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShopPtr^.PriceHistory[i].Time);
-                If fCurrentItemShopPtr^.PriceHistory[i].Value > 0 then
-                  SubItems.Add(Format('%d Kè',[fCurrentItemShopPtr^.PriceHistory[i].Value]))
-                else
-                  SubItems.Add('-');
-              end;
-        finally
-          lvPriceHistory.Items.EndUpdate;
-        end;
-      end;
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -260,31 +189,36 @@ end;
 
 procedure TfrmShopFrame.SaveItemShop;
 begin
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
-    fCurrentItemShopPtr^.Selected := cbShopSelected.Checked;
-    fCurrentItemShopPtr^.Untracked := cbShopUntracked.Checked;
-    fCurrentItemShopPtr^.AltDownMethod := cbShopAltDownMethod.Checked;
-    fCurrentItemShopPtr^.Name := leShopName.Text;
-    fCurrentItemShopPtr^.ShopURL := leShopURL.Text;
-    fCurrentItemShopPtr^.ItemURL := leShopItemURL.Text;
-    fCurrentItemShopPtr^.Available := seAvailable.Value;
-    fCurrentItemShopPtr^.Price := sePrice.Value;
-    fCurrentItemShopPtr^.Notes := meNotes.Text;
-    // parsing
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[0] := leParsVar_1.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[1] := leParsVar_2.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[2] := leParsVar_3.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[3] := leParsVar_4.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[4] := leParsVar_5.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5] := leParsVar_6.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6] := leParsVar_7.Text;
-    fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7] := leParsVar_8.Text;
-    If (cmbParsTemplRef.ItemIndex > 0) and (cmbParsTemplRef.ItemIndex <= fILManager.ShopTemplateCount) then
-      fCurrentItemShopPtr^.ParsingSettings.TemplateRef := fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].Name
-    else
-      fCurrentItemShopPtr^.ParsingSettings.TemplateRef := '';
-    fCurrentItemShopPtr^.ParsingSettings.DisableParsErrs := cbParsDisableErrs.Checked;
+    fCurrentItemShop.BeginListUpdate;
+    try
+      fCurrentItemShop.Selected := cbShopSelected.Checked;
+      fCurrentItemShop.Untracked := cbShopUntracked.Checked;
+      fCurrentItemShop.AltDownMethod := cbShopAltDownMethod.Checked;
+      fCurrentItemShop.Name := leShopName.Text;
+      fCurrentItemShop.ShopURL := leShopURL.Text;
+      fCurrentItemShop.ItemURL := leShopItemURL.Text;
+      fCurrentItemShop.Available := seAvailable.Value;
+      fCurrentItemShop.Price := sePrice.Value;
+      fCurrentItemShop.Notes := meNotes.Text;
+      // parsing
+      fCurrentItemShop.ParsingSettings.Variables[0] := leParsVar_0.Text;
+      fCurrentItemShop.ParsingSettings.Variables[1] := leParsVar_1.Text;
+      fCurrentItemShop.ParsingSettings.Variables[2] := leParsVar_2.Text;
+      fCurrentItemShop.ParsingSettings.Variables[3] := leParsVar_3.Text;
+      fCurrentItemShop.ParsingSettings.Variables[4] := leParsVar_4.Text;
+      fCurrentItemShop.ParsingSettings.Variables[5] := leParsVar_5.Text;
+      fCurrentItemShop.ParsingSettings.Variables[6] := leParsVar_6.Text;
+      fCurrentItemShop.ParsingSettings.Variables[7] := leParsVar_7.Text;
+      If (cmbParsTemplRef.ItemIndex > 0) and (cmbParsTemplRef.ItemIndex <= fILManager.ShopTemplateCount) then
+        fCurrentItemShop.ParsingSettings.TemplateReference := fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].Name
+      else
+        fCurrentItemShop.ParsingSettings.TemplateReference := '';
+      fCurrentItemShop.ParsingSettings.DisableParsingErrors := cbParsDisableErrs.Checked;
+    finally
+      fCurrentItemShop.EndListUpdate;
+    end;
   end;
 end;
 
@@ -294,39 +228,123 @@ procedure TfrmShopFrame.LoadItemShop;
 var
   Index:  Integer;
 begin
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
     fInitializing := True;
     try
-      cbShopSelected.Checked := fCurrentItemShopPtr^.Selected;
-      cbShopUntracked.Checked := fCurrentItemShopPtr^.Untracked;
-      cbShopAltDownMethod.Checked := fCurrentItemShopPtr^.AltDownMethod;
-      leShopName.Text := fCurrentItemShopPtr^.Name;
-      leShopURL.Text := fCurrentItemShopPtr^.ShopURL;
-      leShopItemURL.Text := fCurrentItemShopPtr^.ItemURL;
-      seAvailable.Value := fCurrentItemShopPtr^.Available;
-      sePrice.Value := fCurrentItemShopPtr^.Price;
-      FillHistoryLists(0);
-      FillHistoryLists(1);
-      meNotes.Text := fCurrentItemShopPtr^.Notes;
+      cbShopSelected.Checked := fCurrentItemShop.Selected;
+      cbShopUntracked.Checked := fCurrentItemShop.Untracked;
+      cbShopAltDownMethod.Checked := fCurrentItemShop.AltDownMethod;
+      leShopName.Text := fCurrentItemShop.Name;
+      leShopURL.Text := fCurrentItemShop.ShopURL;
+      leShopItemURL.Text := fCurrentItemShop.ItemURL;
+      seAvailable.Value := fCurrentItemShop.Available;
+      sePrice.Value := fCurrentItemShop.Price;
+      UpdateAvailHistory;
+      UpdatePriceHistory;
+      meNotes.Text := fCurrentItemShop.Notes;
       // parsing
-      leParsVar_1.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[0];
-      leParsVar_2.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[1];
-      leParsVar_3.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[2];
-      leParsVar_4.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[3];
-      leParsVar_5.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[4];
-      leParsVar_6.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[5];
-      leParsVar_7.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[6];
-      leParsVar_8.Text := fCurrentItemShopPtr^.ParsingSettings.Variables.Vars[7];
-      Index := fILManager.ShopTemplateIndexOf(fCurrentItemShopPtr^.ParsingSettings.TemplateRef);
+      leParsVar_0.Text := fCurrentItemShop.ParsingSettings.Variables[0];
+      leParsVar_1.Text := fCurrentItemShop.ParsingSettings.Variables[1];
+      leParsVar_2.Text := fCurrentItemShop.ParsingSettings.Variables[2];
+      leParsVar_3.Text := fCurrentItemShop.ParsingSettings.Variables[3];
+      leParsVar_4.Text := fCurrentItemShop.ParsingSettings.Variables[4];
+      leParsVar_5.Text := fCurrentItemShop.ParsingSettings.Variables[5];
+      leParsVar_6.Text := fCurrentItemShop.ParsingSettings.Variables[6];
+      leParsVar_7.Text := fCurrentItemShop.ParsingSettings.Variables[7];
+      Index := fILManager.ShopTemplateIndexOf(fCurrentItemShop.ParsingSettings.TemplateReference);
       If Index >= 0 then
-        cmbParsTemplRef.ItemIndex := Index + 1
+        cmbParsTemplRef.ItemIndex := Index + 1  // first (0) is noref
       else
         cmbParsTemplRef.ItemIndex := 0;
-      cbParsDisableErrs.Checked := fCurrentItemShopPtr^.ParsingSettings.DisableParsErrs;
-      leLastUpdateMsg.Text := fCurrentItemShopPtr^.LastUpdateMsg;
+      cbParsDisableErrs.Checked := fCurrentItemShop.ParsingSettings.DisableParsingErrors;
+      leLastUpdateMsg.Text := fCurrentItemShop.LastUpdateMsg;
     finally
       fInitializing := False;
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.UpdateAvailHistory;
+var
+  i:  Integer;
+begin
+If Assigned(fCurrentItemShop) then
+  begin
+    lvAvailHistory.Items.BeginUpdate;
+    try
+      // set proper item count
+      If lvAvailHistory.Items.Count > fCurrentItemShop.AvailHistoryEntryCount then
+        begin
+          For i := Pred(lvAvailHistory.Items.Count) downto fCurrentItemShop.AvailHistoryEntryCount do
+            lvAvailHistory.Items.Delete(i);
+        end
+      else If lvAvailHistory.Items.Count < fCurrentItemShop.AvailHistoryEntryCount then
+        begin
+          For i := Succ(lvAvailHistory.Items.Count) to fCurrentItemShop.AvailHistoryEntryCount do
+            with lvAvailHistory.Items.Add do
+              begin
+                Caption := '';
+                SubItems.Add('');
+              end;
+        end;
+      // fill the list
+      For i := Pred(fCurrentItemShop.AvailHistoryEntryCount) downto 0 do
+        with lvAvailHistory.Items[Pred(lvAvailHistory.Items.Count) - i] do
+          begin
+            Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.AvailHistoryEntries[i].Time);
+            If fCurrentItemShop.AvailHistoryEntries[i].Value > 0 then
+              SubItems[0] := Format('%d',[fCurrentItemShop.AvailHistoryEntries[i].Value])
+            else If fCurrentItemShop.AvailHistoryEntries[i].Value < 0 then
+              SubItems[0] := Format('> %d',[Abs(fCurrentItemShop.AvailHistoryEntries[i].Value)])
+            else
+              SubItems[0] := '-';
+          end;
+    finally
+      lvAvailHistory.Items.EndUpdate;
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.UpdatePriceHistory;
+var
+  i:  Integer;
+begin
+If Assigned(fCurrentItemShop) then
+  begin
+    lvPriceHistory.Items.BeginUpdate;
+    try
+      // set proper item count
+      If lvPriceHistory.Items.Count > fCurrentItemShop.PriceHistoryEntryCount then
+        begin
+          For i := Pred(lvPriceHistory.Items.Count) downto fCurrentItemShop.PriceHistoryEntryCount do
+            lvPriceHistory.Items.Delete(i);
+        end
+      else If lvPriceHistory.Items.Count < fCurrentItemShop.PriceHistoryEntryCount then
+        begin
+          For i := Succ(lvPriceHistory.Items.Count) to fCurrentItemShop.PriceHistoryEntryCount do
+            with lvPriceHistory.Items.Add do
+              begin
+                Caption := '';
+                SubItems.Add('');
+              end;
+        end;
+      // fill the list
+      For i := Pred(fCurrentItemShop.PriceHistoryEntryCount) downto 0 do
+        with lvPriceHistory.Items[Pred(lvPriceHistory.Items.Count) - i] do
+          begin
+            Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.PriceHistoryEntries[i].Time);
+            If fCurrentItemShop.PriceHistoryEntries[i].Value > 0 then
+              SubItems[0] := Format('%d Kè',[fCurrentItemShop.PriceHistoryEntries[i].Value])
+            else
+              SubItems[0] := '-';
+          end;
+    finally
+      lvPriceHistory.Items.EndUpdate;
     end;
   end;
 end;
@@ -342,78 +360,64 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.SetItemShop(ItemShopPtr: PILItemShop; ProcessChange: Boolean);
+procedure TfrmShopFrame.SetItemShop(ItemShop: TILItemShop; ProcessChange: Boolean);
+var
+  Reassigned: Boolean;
 begin
+Reassigned := fCurrentItemShop = ItemShop;
 If ProcessChange then
   begin
-    If Assigned(fCurrentItemShopPtr) then
+    If Assigned(fCurrentItemShop) and not Reassigned then
       SaveItemShop;
-    If Assigned(ItemShopPtr) then
+    If Assigned(ItemShop) then
       begin
-        fCurrentItemShopPtr := ItemShopPtr;
-        LoadItemShop;
+        fCurrentItemShop := ItemShop;
+        If not Reassigned then
+          LoadItemShop;
       end
     else
       begin
-        fCurrentItemShopPtr := nil;
+        fCurrentItemShop := nil;
         FrameClear;
       end;
-    Visible := Assigned(fCurrentItemShopPtr);
-    Enabled := Assigned(fCurrentItemShopPtr);
+    Visible := Assigned(fCurrentItemShop);
+    Enabled := Assigned(fCurrentItemShop);
   end
-else fCurrentItemShopPtr := ItemShopPtr;
+else fCurrentItemShop := ItemShop;
 end;
 
 //==============================================================================
 
 procedure TfrmShopFrame.leShopNameChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      fCurrentItemShopPtr^.Name := leShopName.Text;
-    DoListItemChange;
-  end
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.Name := leShopName.Text;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.cbShopSelectedClick(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      begin
-        If Assigned(OnClearSelected) then
-          OnClearSelected(Self);
-        fCurrentItemShopPtr^.Selected := cbShopSelected.Checked;
-      end;
-    DoListItemChange;
-    DoPriceChange;
-  end;
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.Selected := cbShopSelected.Checked;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.cbShopUntrackedClick(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      fCurrentItemShopPtr^.Untracked := cbShopUntracked.Checked;
-    DoListItemChange;
-  end
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.Untracked := cbShopUntracked.Checked;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnShopURLOpenClick(Sender: TObject);
 begin
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
-    fCurrentItemShopPtr^.ShopURL := leShopURL.Text;
-    If Length(fCurrentItemShopPtr^.ShopURL) > 0 then
-      ShellExecute(Handle,'open',PChar(fCurrentItemShopPtr^.ShopURL),nil,nil,SW_SHOWNORMAL);
+    fCurrentItemShop.ShopURL := leShopURL.Text;
+    IL_ShellOpen(Handle,fCurrentItemShop.ShopURL);
   end;
 end;
 
@@ -421,77 +425,48 @@ end;
 
 procedure TfrmShopFrame.leShopItemURLChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      fCurrentItemShopPtr^.ItemURL := leShopItemURL.Text;
-    DoListItemChange;
-  end
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.ItemURL := leShopItemURL.Text;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnShopItemURLOpenClick(Sender: TObject);
 begin
-If Assigned(fCurrentItemShopPtr) then
-  If Length(fCurrentItemShopPtr^.ItemURL) > 0 then
-    ShellExecute(Handle,'open',PChar(fCurrentItemShopPtr^.ItemURL),nil,nil,SW_SHOWNORMAL);
+If Assigned(fCurrentItemShop) then
+  IL_ShellOpen(Handle,fCurrentItemShop.ItemURL);
 end;
  
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.seAvailableChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      fCurrentItemShopPtr^.Available := seAvailable.Value;
-    DoListItemChange;
-    DoPriceChange;
-  end
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.Available := seAvailable.Value;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnAvailToHistoryClick(Sender: TObject);
 begin
-If Assigned(fCurrentItemShopPtr) then
-  begin
-    SaveItemShop;
-    SetLength(fCurrentItemShopPtr^.AvailHistory,Length(fCurrentItemShopPtr^.AvailHistory) + 1);
-    fCurrentItemShopPtr^.AvailHistory[High(fCurrentItemShopPtr^.AvailHistory)].Value :=
-      fCurrentItemShopPtr^.Available;
-    fCurrentItemShopPtr^.AvailHistory[High(fCurrentItemShopPtr^.AvailHistory)].Time := Now;
-    FillHistoryLists(0);
-  end;
+If Assigned(fCurrentItemShop) then
+  fCurrentItemShop.AvailHistoryAdd;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.sePriceChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItemShopPtr) then
-      fCurrentItemShopPtr^.Price := sePrice.Value;
-    DoListItemChange;
-    DoPriceChange;
-  end
+If not fInitializing and Assigned(fCurrentItemShop) then
+  fCurrentItemShop.Price := sePrice.Value;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnPriceToHistoryClick(Sender: TObject);
 begin
-If Assigned(fCurrentItemShopPtr) then
-  begin
-    SaveItemShop;
-    SetLength(fCurrentItemShopPtr^.PriceHistory,Length(fCurrentItemShopPtr^.PriceHistory) + 1);
-    fCurrentItemShopPtr^.PriceHistory[High(fCurrentItemShopPtr^.PriceHistory)].Value :=
-      fCurrentItemShopPtr^.Price;
-    fCurrentItemShopPtr^.PriceHistory[High(fCurrentItemShopPtr^.PriceHistory)].Time := Now;
-    FillHistoryLists(1);
-  end;
+If Assigned(fCurrentItemShop) then
+  fCurrentItemShop.PriceHistoryAdd;
 end;
 
 //------------------------------------------------------------------------------
@@ -514,31 +489,19 @@ var
   Index,i:  Integer;
   Temp:     TListView;
 begin
-If Assigned(fCurrentItemShopPtr) and (Sender is TMenuItem) then
+If Assigned(fCurrentItemShop) and (Sender is TMenuItem) then
   If TPopupMenu(TMenuItem(Sender).GetParentMenu).PopupComponent is TListView then
     begin
       Temp := TListView(TPopupMenu(TMenuItem(Sender).GetParentMenu).PopupComponent);
       If Temp = lvAvailHistory then
         begin
           If Temp.ItemIndex >= 0 then
-            begin
-              Index := Pred(Temp.Items.Count) - Temp.ItemIndex;
-              For i := Index to Pred(High(fCurrentItemShopPtr^.AvailHistory)) do
-                fCurrentItemShopPtr^.AvailHistory[i] := fCurrentItemShopPtr^.AvailHistory[i + 1];
-              SetLength(fCurrentItemShopPtr^.AvailHistory,Length(fCurrentItemShopPtr^.AvailHistory) - 1);
-              FillHistoryLists(0);
-            end;
+            fCurrentItemShop.AvailHistoryDelete(Pred(Temp.Items.Count) - Temp.ItemIndex);
         end
       else If Temp = lvPriceHistory then
         begin
           If Temp.ItemIndex >= 0 then
-            begin
-              Index := Pred(Temp.Items.Count) - Temp.ItemIndex;
-              For i := Index to Pred(High(fCurrentItemShopPtr^.PriceHistory)) do
-                fCurrentItemShopPtr^.PriceHistory[i] := fCurrentItemShopPtr^.PriceHistory[i + 1];
-              SetLength(fCurrentItemShopPtr^.PriceHistory,Length(fCurrentItemShopPtr^.PriceHistory) - 1);
-              FillHistoryLists(1);
-            end;
+            fCurrentItemShop.PriceHistoryDelete(Pred(Temp.Items.Count) - Temp.ItemIndex);
         end;
     end;
 end;
@@ -549,7 +512,7 @@ procedure TfrmShopFrame.mniHI_ClearClick(Sender: TObject);
 var
   Temp: TListView;
 begin
-If Assigned(fCurrentItemShopPtr) and (Sender is TMenuItem) then
+If Assigned(fCurrentItemShop) and (Sender is TMenuItem) then
   If TPopupMenu(TMenuItem(Sender).GetParentMenu).PopupComponent is TListView then
     begin
       Temp := TListView(TPopupMenu(TMenuItem(Sender).GetParentMenu).PopupComponent);
@@ -557,15 +520,9 @@ If Assigned(fCurrentItemShopPtr) and (Sender is TMenuItem) then
         If MessageDlg('Are you sure you want to clear the entire history?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
           begin
             If Temp = lvAvailHistory then
-              begin
-                SetLength(fCurrentItemShopPtr^.AvailHistory,0);
-                FillHistoryLists(0);
-              end
+              fCurrentItemShop.AvailHistoryClear
             else If Temp = lvPriceHistory then
-              begin
-                SetLength(fCurrentItemShopPtr^.PriceHistory,0);
-                FillHistoryLists(1);
-              end;
+              fCurrentItemShop.PriceHistoryClear;
           end;
     end;
 end;
@@ -587,7 +544,7 @@ procedure TfrmShopFrame.lblNotesEditClick(Sender: TObject);
 var
   Temp: String;
 begin
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
     Temp := meNotes.Text;
     fTextEditForm.ShowTextEditor('Edit item notes',Temp,False);
@@ -624,7 +581,7 @@ end;
 
 procedure TfrmShopFrame.mniPredefNotesClick(Sender: TObject);
 begin
-If (Sender is TMenuItem) and Assigned(fCurrentItemShopPtr) then
+If (Sender is TMenuItem) and Assigned(fCurrentItemShop) then
   If (TMenuItem(Sender).Tag >= Low(IL_SHOP_PREDEFNOTES)) and
      (TMenuItem(Sender).Tag <= High(IL_SHOP_PREDEFNOTES)) then
     meNotes.Text := meNotes.Text + IL_SHOP_PREDEFNOTES[TMenuItem(Sender).Tag];
@@ -634,6 +591,7 @@ end;
 
 procedure TfrmShopFrame.btnParsCopyToLocalClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemShopPtr) then
   If MessageDlg('Are you sure you want to replace existing finder objects with the ones from selected template?',
     mtConfirmation,[mbYes,mbNo],0) = mrYes then
@@ -652,33 +610,39 @@ If Assigned(fCurrentItemShopPtr) then
         fCurrentItemShopPtr^.ParsingSettings.Price.Finder :=
           TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
       end;
+      *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnParsAvailClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemShopPtr) then
   fParsingForm.ShowParsingSettings('Available count parsing settings',
     Addr(fCurrentItemShopPtr^.ParsingSettings.Available));
+    *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnParsPriceClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemShopPtr) then
   fParsingForm.ShowParsingSettings('Price parsing settings',
     Addr(fCurrentItemShopPtr^.ParsingSettings.Price));
+    *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnUpdateClick(Sender: TObject);
 var
-  Temp:   TILItemShop;
+  //Temp:   TILItemShop;
   Result: Boolean;
 begin
+(*
 If Assigned(fCurrentItemShopPtr) then
   begin
     SaveItemShop;
@@ -706,12 +670,14 @@ If Assigned(fCurrentItemShopPtr) then
     DoListItemChange;
     DoPriceChange;    
   end;
+  *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnTemplatesClick(Sender: TObject);
 begin
+(*
 If Assigned(fCurrentItemShopPtr) then
   begin
     SaveItemShop;
@@ -724,6 +690,7 @@ If Assigned(fCurrentItemShopPtr) then
     If Assigned(OnTemplatesChange) then
       OnTemplatesChange(Self);
   end;
+  *)
 end;
 
 end.

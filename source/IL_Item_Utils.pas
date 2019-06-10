@@ -22,6 +22,7 @@ type
     Function TotalPriceHighest: UInt32; virtual;
     Function TotalPriceSelected: UInt32; virtual;
     Function TotalPrice: UInt32; virtual;
+    procedure UpdatePriceAndAvail; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     Function ShopsUsefulCount: Integer; virtual;
     Function ShopsUsefulRatio: Double; virtual;
@@ -167,6 +168,73 @@ end;
 Function TILItem_Utils.TotalPrice: UInt32;
 begin
 Result := UnitPrice * fPieces;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Utils.UpdatePriceAndAvail;
+var
+  i:          Integer;
+  Selected:   Boolean;
+  LowPrice:   Int64;
+  HighPrice:  Int64;
+  LowAvail:   Int64;
+  HighAvail:  Int64;
+
+  Function AvailIsLess(A,B: Int32): Boolean;
+  begin
+    If Abs(A) = Abs(B) then
+      Result := B > 0
+    else
+      Result := Abs(A) < Abs(B);
+  end;
+
+  Function AvailIsMore(A,B: Int32): Boolean;
+  begin
+    If Abs(A) = Abs(B) then
+      Result := A < 0
+    else
+      Result := Abs(A) > Abs(B);
+  end;
+
+begin
+// first make sure only one shop is selected
+Selected := False;
+For i := ShopLowIndex to ShopHighIndex do
+  If fShops_[i].Selected and not Selected then
+    Selected := True
+  else
+    fShops_[i].Selected := False;
+// get price and avail extremes (availability must be non-zero) and selected
+LowPrice := 0;
+HighPrice := 0;
+LowAvail := 0;
+HighAvail := 0;
+fUnitPriceSelected := 0;
+fAvailableSelected := 0;
+For i := ShopLowIndex to ShopHighIndex do
+  begin
+    If (fShops_[i].Available <> 0) and (fShops_[i].Price > 0) then
+      begin
+        If (fShops_[i].Price < LowPrice) or (LowPrice <= 0) then
+          LowPrice := fShops_[i].Price;
+        If (fShops_[i].Price > HighPrice) or (HighPrice <= 0) then
+          HighPrice := fShops_[i].Price;
+        If AvailIsLess(fShops_[i].Available,LowAvail) or (LowAvail <= 0) then
+          LowAvail := fShops_[i].Available;
+        If AvailIsMore(fShops_[i].Available,HighAvail) or (HighAvail <= 0) then
+          HighAvail := fShops_[i].Available;
+      end;
+    If fShops_[i].Selected then
+      begin
+        fUnitPriceSelected := fShops_[i].Price;
+        fAvailableSelected := fShops_[i].Available;
+      end;
+  end;
+fUnitPriceLowest := LowPrice;
+fUnitPriceHighest := HighPrice;
+fAvailableLowest := LowAvail;
+fAvailableHighest := HighAvail;
 end;
 
 //------------------------------------------------------------------------------

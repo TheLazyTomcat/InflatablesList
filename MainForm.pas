@@ -126,7 +126,7 @@ uses
   AuxTypes, WinFileInfo,
 //  InflatablesList_Types,
   InflatablesList_Backup,
-  TextEditForm, SortForm, SumsForm;
+  TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm;
 
 {$R *.dfm}
 
@@ -229,12 +229,12 @@ procedure TfMainForm.InitOtherForms;
 begin
 fSortForm.Initialize(fILManager);
 fSumsForm.Initialize(fILManager);
-//fShopsForm.Initialize(fILManager);
+fShopsForm.Initialize(fILManager);
 //fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
 //fUpdateForm.Initialize(fILManager);
 //fParsingForm.Initialize(fILManager);
-//fSpecialsForm.Initialize(fILManager);
+fSpecialsForm.Initialize(fILManager);
 //fOverviewForm.Initialize(fILManager);
 //fSelectionForm.Initialize(fIlManager);
 end;
@@ -620,18 +620,17 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateShopsHistoryClick(Sender: TObject);
-//var
-//  i:  Integer;
+var
+  i,j:  Integer;
 begin
-(*
 Screen.Cursor := crHourGlass;
 try
-  For i := 0 to Pred(fILManager.ItemCount) do
-    fILManager.ItemShopsUpdateHistory(fILManager.ItemPtrs[i]^);
+  For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      fILManager[i][j].UpdateAvailAndPriceHistory;
 finally
   Screen.Cursor := crDefault;
 end;
-*)
 end;
 
 //------------------------------------------------------------------------------
@@ -674,13 +673,9 @@ end;
 
 procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
 begin
-(*
 frmItemFrame.SaveItem;
 fSpecialsForm.ShowModal;
 frmItemFrame.LoadItem;
-fILManager.ItemRedraw;
-lbList.Invalidate;
-*)
 end;
 
 //------------------------------------------------------------------------------

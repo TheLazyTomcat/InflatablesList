@@ -12,57 +12,62 @@ uses
 type
   TILItem_Base = class(TCustomListObject)
   protected
-    fDataProvider:        TILDataProvider;
-    fOwnsDataProvider:    Boolean;
-    fIndex:               Integer;  // used in sorting
-    fRender:              TBitmap;
-    fFilteredOut:         Boolean;
-    fUpdateCounter:       Integer;
-    fUpdated:             TILItemUpdatedFlags;
+    fDataProvider:          TILDataProvider;
+    fOwnsDataProvider:      Boolean;
+    fIndex:                 Integer;  // used in sorting
+    fRender:                TBitmap;
+    fFilteredOut:           Boolean;
+    fUpdateCounter:         Integer;
+    fUpdated:               TILItemUpdatedFlags;
     // events
-    fOnMainListUpdate:    TNotifyEvent;
-    fOnSmallListUpdate:   TNotifyEvent;
-    fOnTitleUpdate:       TNotifyEvent;
-    fOnPicturesUpdate:    TNotifyEvent;    
+    fOnMainListUpdate:      TNotifyEvent;
+    fOnSmallListUpdate:     TNotifyEvent;
+    fOnTitleUpdate:         TNotifyEvent;
+    fOnPicturesUpdate:      TNotifyEvent;
+    fOnShopListUpdate:      TNotifyEvent;
+    fOnShopListItemUpdate:  TIntegerEvent;
+    fOnShopValuesUpdate:    TIntegerEvent;
+    fOnShopAvailHistoryUpd: TIntegerEvent;
+    fOnShopPriceHistoryUpd: TIntegerEvent;
     // item data...
     // general read-only info
-    fTimeOfAddition:      TDateTime;
+    fTimeOfAddition:        TDateTime;
     // stored pictures
-    fItemPicture:         TBitmap;  // 96 x 96 px, white background
-    fPackagePicture:      TBitmap;  // 96 x 96 px, white background
+    fItemPicture:           TBitmap;  // 96 x 96 px, white background
+    fPackagePicture:        TBitmap;  // 96 x 96 px, white background
     // basic specs
-    fItemType:            TILItemType;
-    fItemTypeSpec:        String;   // closer specification of type
-    fPieces:              UInt32;
-    fManufacturer:        TILItemManufacturer;
-    fManufacturerStr:     String;
-    fID:                  Int32;
+    fItemType:              TILItemType;
+    fItemTypeSpec:          String;   // closer specification of type
+    fPieces:                UInt32;
+    fManufacturer:          TILItemManufacturer;
+    fManufacturerStr:       String;
+    fID:                    Int32;
     // flags, tags
-    fFlags:               TILItemFlags;
-    fTextTag:             String;
+    fFlags:                 TILItemFlags;
+    fTextTag:               String;
     // extended specs
-    fWantedLevel:         UInt32;   // 0..7
-    fVariant:             String;   // color, pattern, ...
-    fSizeX:               UInt32;   // length (diameter if applicable)
-    fSizeY:               UInt32;   // width (inner diameter if applicable)
-    fSizeZ:               UInt32;   // height
-    fUnitWeight:          UInt32;   // [g]
+    fWantedLevel:           UInt32;   // 0..7
+    fVariant:               String;   // color, pattern, ...
+    fSizeX:                 UInt32;   // length (diameter if applicable)
+    fSizeY:                 UInt32;   // width (inner diameter if applicable)
+    fSizeZ:                 UInt32;   // height
+    fUnitWeight:            UInt32;   // [g]
     // some other stuff
-    fNotes:               String;
-    fReviewURL:           String;
-    fItemPictureFile:     String;
-    fPackagePictureFile:  String;
-    fUnitPriceDefault:    UInt32;
+    fNotes:                 String;
+    fReviewURL:             String;
+    fItemPictureFile:       String;
+    fPackagePictureFile:    String;
+    fUnitPriceDefault:      UInt32;
     // availability and prices (calculated from shops)
-    fUnitPriceLowest:     UInt32;
-    fUnitPriceHighest:    UInt32;
-    fUnitPriceSelected:   UInt32;
-    fAvailableLowest:     Int32;    // negative value means "more than"
-    fAvailableHighest:    Int32;
-    fAvailableSelected:   Int32;
+    fUnitPriceLowest:       UInt32;
+    fUnitPriceHighest:      UInt32;
+    fUnitPriceSelected:     UInt32;
+    fAvailableLowest:       Int32;    // negative value means "more than"
+    fAvailableHighest:      Int32;
+    fAvailableSelected:     Int32;
     // shops
-    fShopCount:           Integer;
-    fShops_:               array of TILItemShop; {$message 'later remove the underscore'}
+    fShopCount:             Integer;
+    fShops_:                 array of TILItemShop; {$message 'later remove the underscore'}
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetPackagePicture(Value: TBitmap); virtual;
@@ -95,10 +100,16 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
+    procedure ClearSelectedHandler(Sender: TObject); virtual;
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
     procedure UpdateTitle; virtual;
     procedure UpdatePictures; virtual;
+    procedure UpdateShopList; virtual;
+    procedure UpdateShopListItem(Sender: TObject); virtual;
+    procedure UpdateShopValues(Sender: TObject); virtual;
+    procedure UpdateShopAvailHistory(Sender: TObject); virtual;
+    procedure UpdateShopPriceHistory(Sender: TObject); virtual;
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
@@ -112,7 +123,8 @@ type
     Function HighIndex: Integer; override;
     Function ShopLowIndex: Integer; virtual;
     Function ShopHighIndex: Integer; virtual;
-    Function ShopIndexOf(const Name: String): Integer; virtual;
+    Function ShopIndexOf(const Name: String): Integer; overload; virtual;
+    Function ShopIndexOf(Shop: TILITemShop): Integer; overload; virtual;    
     Function ShopAdd: Integer; virtual;
     procedure ShopExchange(Idx1,Idx2: Integer); virtual;
     procedure ShopDelete(Index: Integer); virtual;
@@ -120,6 +132,8 @@ type
     // data helpers
     procedure SwitchPictures; virtual;
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
+    procedure BroadcastReqCount; virtual;
+    procedure Release(FullRelease: Boolean); virtual;
     // properties
     property Index: Integer read fIndex write fIndex;
     property Render: TBitmap read fRender;
@@ -129,6 +143,11 @@ type
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
     property OnTitleUpdate: TNotifyEvent read fOnTitleUpdate write fOnTitleUpdate;
     property OnPicturesUpdate: TNotifyEvent read fOnPicturesUpdate write fOnPicturesUpdate;
+    property OnShopListUpdate: TNotifyEvent read fOnShopListUpdate write fOnShopListUpdate;
+    property OnShopListItemUpdate: TIntegerEvent read fOnShopListItemUpdate write fOnShopListItemUpdate;
+    property OnShopValuesUpdate: TIntegerEvent read fOnShopValuesUpdate write fOnShopValuesUpdate;
+    property OnShopAvailHistoryUpdate: TIntegerEvent read fOnShopAvailHistoryUpd write fOnShopAvailHistoryUpd;
+    property OnShopPriceHistoryUpdate: TIntegerEvent read fOnShopPriceHistoryUpd write fOnShopPriceHistoryUpd;
     // item data
     property TimeOfAddition: TDateTime read fTimeOfAddition;
     property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
@@ -528,6 +547,22 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.ClearSelectedHandler(Sender: TObject);
+var
+  Index,i:  Integer;
+begin
+If Sender is TILItemShop then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      For i := ShopLowIndex to ShopHighIndex do
+        If i <> Index then
+          fShops_[i].Selected := False
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.UpdateMainList;
 begin
 If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
@@ -560,6 +595,71 @@ begin
 If Assigned(fOnPicturesUpdate) and (fUpdateCounter <= 0) then
   fOnPicturesUpdate(Self);
 Include(fUpdated,iliufPictures);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopList;
+begin
+If Assigned(fOnShopListUpdate) and (fUpdateCounter <= 0) then
+  fOnShopListUpdate(Self);
+Include(fUpdated,iliufShopList);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopListItem(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopListItemUpdate) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopListItemUpdate(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopValues(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopValuesUpdate(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopAvailHistory(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopAvailHistoryUpd) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopAvailHistoryUpd(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopPriceHistory(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopPriceHistoryUpd) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopPriceHistoryUpd(Self,Index);
+  end;
 end;
 
 //==============================================================================
@@ -685,6 +785,8 @@ If fUpdateCounter <= 0 then
       UpdateTitle;
     If iliufPictures in fUpdated then
       UpdatePictures;
+    If iliufShopList in fUpdated then
+      UpdateShopList;
     fUpdated := [];
   end;
 end;
@@ -725,7 +827,22 @@ var
 begin
 Result := -1;
 For i := ShopLowIndex to ShopHighIndex do
-  If AnsiSameText(Shops[i].Name,Name) then
+  If AnsiSameText(fShops_[i].Name,Name) then
+    begin
+      Result := i;
+      Break{For i};
+    end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function TILItem_Base.ShopIndexOf(Shop: TILITemShop): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := ShopLowIndex to ShopHighIndex do
+  If fShops_[i] = Shop then
     begin
       Result := i;
       Break{For i};
@@ -737,9 +854,15 @@ end;
 Function TILItem_Base.ShopAdd: Integer;
 begin
 Grow;
-Result := HighIndex;
+Result := fShopCount;
 fShops_[Result] := TILItemShop.Create;
+fShops_[Result].OnClearSelected := ClearSelectedHandler;
+fShops_[Result].OnListUpdate := UpdateShopListItem;
+fShops_[Result].OnValuesUpdate := UpdateShopValues;
+fShops_[Result].OnAvailHistoryUpdate := UpdateShopAvailHistory;
+fShops_[Result].OnPriceHistoryUpdate := UpdateShopPriceHistory;
 Inc(fShopCount);
+UpdateShopList;
 end;
 
 //------------------------------------------------------------------------------
@@ -758,6 +881,7 @@ If Idx1 <> Idx2 then
     Temp := fShops_[Idx1];
     fShops_[Idx1] := fShops_[Idx2];
     fShops_[Idx2] := Temp;
+    UpdateShopList;
   end;
 end;
 
@@ -774,6 +898,7 @@ If (Index >= ShopLowIndex) and (Index <= ShopHighIndex) then
       fShops_[i] := fShops_[i + 1];
     Dec(fShopCount);
     Shrink;
+    UpdateShopList;
   end
 else raise Exception.CreateFmt('TILItem_Base.ShopDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -788,6 +913,7 @@ For i := ShopLowIndex to ShopHighIndex do
   FreeAndNil(fShops_[i]);
 SetLength(fShops_,0);
 fShopCount := 0;
+UpdateShopList;
 end;
 
 //------------------------------------------------------------------------------
@@ -811,6 +937,32 @@ begin
 Result := IL_SetItemFlagValue(fFlags,ItemFlag,NewValue);
 If Result <> NewValue then
   UpdateMainList;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.BroadcastReqCount;
+var
+  i:  Integer;
+begin
+For i := ShopLowIndex to ShopHighIndex do
+  fShops_[i].RequiredCount := fPieces;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.Release(FullRelease: Boolean);
+begin
+If FullRelease then
+  begin
+    fOnTitleUpdate := nil;
+    fOnPicturesUpdate := nil;
+  end;
+fOnShopListUpdate := nil;
+fOnShopListItemUpdate := nil;
+fOnShopValuesUpdate := nil;
+fOnShopAvailHistoryUpd := nil;
+fOnShopPriceHistoryUpd := nil;
 end;
 
 end.

@@ -1,6 +1,6 @@
 object fShopsForm: TfShopsForm
-  Left = 342
-  Top = 47
+  Left = 349
+  Top = 65
   BorderStyle = bsDialog
   Caption = 'Shops'
   ClientHeight = 660
@@ -38,7 +38,14 @@ object fShopsForm: TfShopsForm
     Font.Style = []
     ParentFont = False
   end
-  object lvShops: TListView
+  object Label3: TLabel
+    Left = 232
+    Top = 616
+    Width = 31
+    Height = 13
+    Caption = 'Label3'
+  end
+  object lvShops_: TListView
     Left = 8
     Top = 24
     Width = 905
@@ -73,7 +80,7 @@ object fShopsForm: TfShopsForm
     PopupMenu = pmnShops
     TabOrder = 0
     ViewStyle = vsReport
-    OnSelectItem = lvShopsSelectItem
+    OnSelectItem = lvShops_SelectItem
   end
   object gbShopDetails: TGroupBox
     Left = 8

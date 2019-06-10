@@ -137,7 +137,6 @@ with fRender,fRender.Canvas do
     Font.Size := 8;
     Font.Style := [];
     TempInt := 5;
-
     If ShopsSelected(SelShop) then
       begin
         If ShopCount > 1 then
@@ -259,7 +258,7 @@ end;
 procedure TILItem_Draw.ReDraw;
 begin
 ReDrawMain;
-UpdateMainList;
+inherited UpdateMainList;
 end;
 
 end.

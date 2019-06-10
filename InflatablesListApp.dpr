@@ -46,7 +46,10 @@ uses
   IL_ItemShopParsingSettings_IO_00000000 in 'source\IL_ItemShopParsingSettings_IO_00000000.pas',
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ShopsForm in 'ShopsForm.pas' {fShopsForm},
-  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm};
+  SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
+  TemplatesForm in 'TemplatesForm.pas' {fTemplatesForm},
+  OverviewForm in 'OverviewForm.pas' {fOverviewForm},
+  SelectionForm in 'SelectionForm.pas' {fSelectionForm};
 
 {$R *.res}
 
@@ -59,6 +62,9 @@ begin
   Application.CreateForm(TfSumsForm, fSumsForm);
   Application.CreateForm(TfShopsForm, fShopsForm);
   Application.CreateForm(TfSpecialsForm, fSpecialsForm);
+  Application.CreateForm(TfTemplatesForm, fTemplatesForm);
+  Application.CreateForm(TfOverviewForm, fOverviewForm);
+  Application.CreateForm(TfSelectionForm, fSelectionForm);
   //Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSumsForm, fSumsForm);
   //Application.CreateForm(TfSpecialsForm, fSpecialsForm);

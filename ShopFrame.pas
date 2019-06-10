@@ -106,7 +106,7 @@ implementation
 uses
   IL_Utils,
   InflatablesList_HTML_ElementFinder,
-  TextEditForm;
+  TextEditForm, TemplatesForm;
 
 const
   IL_SHOP_PREDEFNOTES: array[0..3] of String = (
@@ -486,8 +486,7 @@ end;
 
 procedure TfrmShopFrame.mniHI_RemoveClick(Sender: TObject);
 var
-  Index,i:  Integer;
-  Temp:     TListView;
+  Temp: TListView;
 begin
 If Assigned(fCurrentItemShop) and (Sender is TMenuItem) then
   If TPopupMenu(TMenuItem(Sender).GetParentMenu).PopupComponent is TListView then
@@ -677,20 +676,17 @@ end;
 
 procedure TfrmShopFrame.btnTemplatesClick(Sender: TObject);
 begin
-(*
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
     SaveItemShop;
-    fTemplatesForm.ShowTemplates(fCurrentItemShopPtr,False);
+    fTemplatesForm.ShowTemplates(fCurrentItemShop,False);
     // in case a template was deleted or added (must be before load, so proper item is selected]
     FillTemplatesList;
     LoadItemShop;
-    DoListItemChange;
     leShopItemURL.SetFocus;
     If Assigned(OnTemplatesChange) then
       OnTemplatesChange(Self);
   end;
-  *)
 end;
 
 end.

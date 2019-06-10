@@ -881,7 +881,8 @@ If Idx1 <> Idx2 then
     Temp := fShops_[Idx1];
     fShops_[Idx1] := fShops_[Idx2];
     fShops_[Idx2] := Temp;
-    UpdateShopList;
+    UpdateShopListItem(fShops_[Idx1]);
+    UpdateShopListItem(fShops_[Idx2]);
   end;
 end;
 

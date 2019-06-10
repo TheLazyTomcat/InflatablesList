@@ -491,8 +491,6 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItemShop_Base.UpdateAvailAndPriceHistory;
-var
-  i:  Integer;
 begin
 If fPrice > 0 then
   begin

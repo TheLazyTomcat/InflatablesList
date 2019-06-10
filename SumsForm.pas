@@ -210,7 +210,7 @@ var
 begin
 CDA_Clear(fSelectedShops);
 // enumerate all unique shops (by name)
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fIlManager[i].ShopsSelected(SelShop) then
     If not fIlManager[i].FilteredOut then
       If CDA_IndexOf(fSelectedShops,SelShop.Name,False) < 0 then
@@ -250,7 +250,7 @@ var
 begin
 CDA_Clear(fTextTags);
 // enumerate all unique text tags, case-sensitive
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     If Length(fIlManager[i].TextTag) > 0 then
       If CDA_IndexOf(fTextTags,fIlManager[i].TextTag,True) < 0 then
@@ -291,7 +291,7 @@ var
 begin
 FillChar(Sums,SizeOf(TILSumRec),0);
 // sum
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums.Items);
@@ -327,7 +327,7 @@ var
 begin
 FillChar(Sums,SizeOf(TILSumsByType),0);
 // sum
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].ItemType].Items);
@@ -366,7 +366,7 @@ var
 begin
 FillChar(Sums,SizeOf(TILSumsByManufacturer),0);
 // sum
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].Manufacturer].Items);
@@ -407,7 +407,7 @@ var
 begin
 SetLength(Sums,CDA_Count(fSelectedShops));
 // sum
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
       Index := -1;
@@ -466,7 +466,7 @@ var
 begin
 SetLength(Sums,CDA_Count(fTextTags));
 // sum
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
       Index := -1;

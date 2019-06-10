@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ExtCtrls, Spin,
   CountedDynArrayString,
-  InflatablesList;
+  IL_Manager;
 
 type
   TfOverviewForm = class(TForm)
@@ -46,7 +46,7 @@ implementation
 {$R *.dfm}
 
 uses
-  InflatablesList_Types;
+  IL_Types, IL_ItemShop;
 
 procedure TfOverviewForm.InitializeTable;
 var
@@ -55,8 +55,8 @@ var
 begin
 // get list of selected shops
 CDA_Clear(fSelShopList);
-For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If fILManager[i].ShopsSelected(SelShop) then
     If not CDA_CheckIndex(fSelShopList,CDA_IndexOf(fSelShopList,SelShop.Name)) then
       CDA_Add(fSelShopList,SelShop.Name);
 // sort the list
@@ -110,37 +110,40 @@ begin
 InitializeTable;
 // do sums
 SetLength(Sums,CDA_Count(fSelShopList) + 1);  // last entry is total sum
-For i := 0 to Pred(fILManager.ItemCount) do
-  If fILManager.ItemShopsSelected(fILManager[i],SelShop) then
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If fILManager[i].ShopsSelected(SelShop) then
     begin
       Index := CDA_IndexOf(fSelShopList,SelShop.Name);
       If CDA_CheckIndex(fSelShopList,Index) then
         begin
           // add to proper sum
           Inc(Sums[Index].Items);
-          Inc(Sums[Index].Count,fILManager[i].Count);
-          Inc(Sums[Index].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
-          Inc(Sums[Index].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[Index].Pieces,fILManager[i].Pieces);
+          Inc(Sums[Index].TotalWeight,fILManager[i].TotalWeight);
+          Inc(Sums[Index].TotalPrice,fILManager[i].TotalPrice);
           // add to total sum
           Inc(Sums[High(Sums)].Items);
-          Inc(Sums[High(Sums)].Count,fILManager[i].Count);
-          Inc(Sums[High(Sums)].TotalWeight,fILManager.ItemTotalWeight(fILManager[i]));
-          Inc(Sums[High(Sums)].TotalPrice,fILManager.ItemTotalPrice(fILManager[i]));
+          Inc(Sums[High(Sums)].Pieces,fILManager[i].Pieces);
+          Inc(Sums[High(Sums)].TotalWeight,fILManager[i].TotalWeight);
+          Inc(Sums[High(Sums)].TotalPrice,fILManager[i].TotalPrice);
         end;
     end;
 // fill the table
 For i := Low(Sums) to Pred(High(Sums)) do
   begin
     sgOverview.Cells[1,i + 1] := IntToStr(Sums[i].Items);
-    sgOverview.Cells[2,i + 1] := IntToStr(Sums[i].Count);
+    sgOverview.Cells[2,i + 1] := IntToStr(Sums[i].Pieces);
     sgOverview.Cells[3,i + 1] := Format('%g kg',[Sums[i].TotalWeight / 1000]);
     sgOverview.Cells[4,i + 1] := Format('%d Kè',[Sums[i].TotalPrice]);
   end;
 // last row (combined total)
-sgOverview.Cells[1,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Items);
-sgOverview.Cells[2,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Count);
-sgOverview.Cells[3,Pred(sgOverview.RowCount)] := Format('%g kg',[Sums[High(Sums)].TotalWeight / 1000]);
-sgOverview.Cells[4,Pred(sgOverview.RowCount)] := Format('%d Kè',[Sums[High(Sums)].TotalPrice]);
+If sgOverview.RowCount > 2 then
+  begin
+    sgOverview.Cells[1,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Items);
+    sgOverview.Cells[2,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Pieces);
+    sgOverview.Cells[3,Pred(sgOverview.RowCount)] := Format('%g kg',[Sums[High(Sums)].TotalWeight / 1000]);
+    sgOverview.Cells[4,Pred(sgOverview.RowCount)] := Format('%d Kè',[Sums[High(Sums)].TotalPrice]);
+  end;
 end;
 
 //------------------------------------------------------------------------------

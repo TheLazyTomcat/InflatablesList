@@ -4,9 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids,
+  Dialogs, Grids, StdCtrls,
   CountedDynArrayString,
-  InflatablesList, StdCtrls;
+  IL_Manager;
 
 type
   TfSelectionForm = class(TForm)
@@ -54,8 +54,8 @@ var
 begin
 // get list of all unique shops
 CDA_Clear(fShopList);
-For i := 0 to Pred(fILManager.ItemCount) do
-  For j := Low(fILManager[i].Shops) to High(fILManager[i].Shops) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     If not CDA_CheckIndex(fShopList,CDA_IndexOf(fShopList,fILManager[i].Shops[j].Name)) then
       CDA_Add(fShopList,fILManager[i].Shops[j].Name);
 CDA_Sort(fShopList);
@@ -133,7 +133,7 @@ If Sender is TDrawGrid then
           begin
             If (ARow > 0) and (ARow <= fILManager.ItemCount) and
                (ACol > CDA_Low(fShopList)) and ((ACol - 1) <= CDA_High(fShopList)) then
-              ShopIndex := fIlManager.ItemShopIndexOf(fIlManager[ARow - 1],CDA_GetItem(fShopList,ACol - 1));
+              ShopIndex := fIlManager[ARow - 1].ShopIndexOf(CDA_GetItem(fShopList,ACol - 1));
             // normal cells, select background color according to price and availability
             If ShopIndex >= 0 then
               begin

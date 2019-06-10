@@ -38,14 +38,7 @@ object fShopsForm: TfShopsForm
     Font.Style = []
     ParentFont = False
   end
-  object Label3: TLabel
-    Left = 232
-    Top = 616
-    Width = 31
-    Height = 13
-    Caption = 'Label3'
-  end
-  object lvShops_: TListView
+  object lvShops: TListView
     Left = 8
     Top = 24
     Width = 905
@@ -80,7 +73,7 @@ object fShopsForm: TfShopsForm
     PopupMenu = pmnShops
     TabOrder = 0
     ViewStyle = vsReport
-    OnSelectItem = lvShops_SelectItem
+    OnSelectItem = lvShopsSelectItem
   end
   object gbShopDetails: TGroupBox
     Left = 8

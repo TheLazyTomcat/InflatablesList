@@ -124,9 +124,9 @@ implementation
 
 uses
   AuxTypes, WinFileInfo,
-//  InflatablesList_Types,
   InflatablesList_Backup,
-  TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm;
+  TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm, TemplatesForm,
+  OverviewForm, SelectionForm;
 
 {$R *.dfm}
 
@@ -230,13 +230,13 @@ begin
 fSortForm.Initialize(fILManager);
 fSumsForm.Initialize(fILManager);
 fShopsForm.Initialize(fILManager);
-//fTemplatesForm.Initialize(fILManager);
+fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
 //fUpdateForm.Initialize(fILManager);
 //fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
-//fOverviewForm.Initialize(fILManager);
-//fSelectionForm.Initialize(fIlManager);
+fOverviewForm.Initialize(fILManager);
+fSelectionForm.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -645,14 +645,14 @@ end;
 
 procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
 begin
-//fOverviewForm.Show;
+fOverviewForm.Show;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
-//fSelectionForm.ShowTable;
+fSelectionForm.ShowTable;
 end;
 
 //------------------------------------------------------------------------------

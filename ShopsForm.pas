@@ -15,7 +15,7 @@ type
   TfShopsForm = class(TForm)
     lblShops: TLabel;
     lblLegend: TLabel;
-    lvShops_: TListView;
+    lvShops: TListView;
     gbShopDetails: TGroupBox;    
     lePriceLowest: TLabeledEdit;
     lePriceSelected: TLabeledEdit;
@@ -31,10 +31,9 @@ type
     mniSH_MoveUp: TMenuItem;
     mniSH_MoveDown: TMenuItem;
     frmShopFrame: TfrmShopFrame;
-    Label3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);    
-    procedure lvShops_SelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure lvShopsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure pmnShopsPopup(Sender: TObject);
     procedure mniSH_AddCommon;
     procedure mniSH_AddClick(Sender: TObject);
@@ -53,6 +52,7 @@ type
   protected
     procedure BuildAddFromSubMenu;
     procedure TemplateChangeHandler(Sender: TObject); // called by shop frame
+    procedure ShopsListSelect(ItemIndex: Integer);
     procedure UpdateList(Sender: TObject);
     procedure UpdateListItem(Sender: TObject; Index: Integer);
     procedure UpdateCurrentListItem;
@@ -76,7 +76,7 @@ implementation
 
 uses
   AuxTypes,
-  IL_Utils;
+  IL_Utils, TemplatesForm;
 
 {$R *.dfm}
 
@@ -118,23 +118,39 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfShopsForm.ShopsListSelect(ItemIndex: Integer);
+begin
+If (ItemIndex >= 0) and (ItemIndex < lvShops.Items.Count) then
+  begin
+    with lvShops.Items[ItemIndex] do
+      begin
+        Focused := True;
+        Selected := True;
+      end;
+    lvShops.ItemIndex := ItemIndex;      
+  end
+else lvShops.ItemIndex := -1;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfShopsForm.UpdateList(Sender: TObject);
 var
   i:  Integer;
 begin
 If Assigned(fCurrentItem) then
   begin
-    lvShops_.Items.BeginUpdate;
+    lvShops.Items.BeginUpdate;
     try
-      If lvShops_.Items.Count > fCurrentItem.ShopCount then
+      If lvShops.Items.Count > fCurrentItem.ShopCount then
         begin
-          For i := Pred(lvShops_.Items.Count) downto fCurrentItem.ShopCount do
-            lvShops_.Items.Delete(i);
+          For i := Pred(lvShops.Items.Count) downto fCurrentItem.ShopCount do
+            lvShops.Items.Delete(i);
         end
-      else If lvShops_.Items.Count < fCurrentItem.ShopCount then
+      else If lvShops.Items.Count < fCurrentItem.ShopCount then
         begin
-          For i := Succ(lvShops_.Items.Count) to fCurrentItem.ShopCount do
-            with lvShops_.Items.Add do
+          For i := Succ(lvShops.Items.Count) to fCurrentItem.ShopCount do
+            with lvShops.Items.Add do
               begin
                 Caption := '';
                 SubItems.Add('');
@@ -146,18 +162,18 @@ If Assigned(fCurrentItem) then
       For i := fCurrentItem.ShopLowIndex to fCurrentItem.ShopHighIndex do
         UpdateListItem(nil,i);
     finally
-      lvShops_.Items.EndUpdate;
+      lvShops.Items.EndUpdate;
     end;
   end
-else lvShops_.Clear;
+else lvShops.Clear;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.UpdateListItem(Sender: TObject; Index: Integer);
 begin
-If Assigned(fCurrentItem) and (Index >= 0) and (Index < lvShops_.Items.Count) then
-  with lvShops_.Items[Index] do
+If Assigned(fCurrentItem) and (Index >= 0) and (Index < lvShops.Items.Count) then
+  with lvShops.Items[Index] do
     begin
       Caption := Format('%s%s',[
         IL_BoolToStr(fCurrentItem.Shops[Index].Selected,'','*'),
@@ -183,8 +199,8 @@ end;
 
 procedure TfShopsForm.UpdateCurrentListItem;
 begin
-If lvShops_.ItemIndex >= 0 then
-  UpdateListItem(nil,lvShops_.ItemIndex);
+If lvShops.ItemIndex >= 0 then
+  UpdateListItem(nil,lvShops.ItemIndex);
 UpdateShopCounts;
 end;
 
@@ -206,21 +222,21 @@ end;
 
 procedure TfShopsForm.UpdateShopIndex;
 begin
-If lvShops_.ItemIndex < 0 then
+If lvShops.ItemIndex < 0 then
   begin
-    If lvShops_.Items.Count > 0 then
-      lblShops.Caption := Format('Shops [%d]:',[lvShops_.Items.Count])
+    If lvShops.Items.Count > 0 then
+      lblShops.Caption := Format('Shops [%d]:',[lvShops.Items.Count])
     else
       lblShops.Caption := 'Shops:';
   end
-else lblShops.Caption := Format('Shops [%d/%d]:',[lvShops_.ItemIndex + 1,lvShops_.Items.Count]);
+else lblShops.Caption := Format('Shops [%d/%d]:',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.UpdateAvailAndPrices(Sender: TObject; Index: Integer);
 begin
-If Assigned(fCurrentItem) and (Index = lvShops_.ItemIndex) then
+If Assigned(fCurrentItem) and (Index = lvShops.ItemIndex) then
   begin
     fCurrentItem.UpdatePriceAndAvail;
     // show prices
@@ -248,15 +264,15 @@ end;
 
 procedure TfShopsForm.UpdateCurrentAvailAndPrices;
 begin
-If lvShops_.ItemIndex >= 0 then
-  UpdateAvailAndPrices(nil,lvShops_.ItemIndex);
+If lvShops.ItemIndex >= 0 then
+  UpdateAvailAndPrices(nil,lvShops.ItemIndex);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.UpdateAvailHistory(Sender: TObject; Index: Integer);
 begin
-If Index = lvShops_.ItemIndex then
+If Index = lvShops.ItemIndex then
   frmShopFrame.UpdateAvailHistory;
 end;
 
@@ -264,7 +280,7 @@ end;
 
 procedure TfShopsForm.UpdatePriceHistory(Sender: TObject; Index: Integer);
 begin
-If Index = lvShops_.ItemIndex then
+If Index = lvShops.ItemIndex then
   frmShopFrame.UpdatePriceHistory;
 end;
 
@@ -282,10 +298,10 @@ procedure TfShopsForm.ListViewItemSelected;
 begin
 If Assigned(fCurrentItem) then
   begin
-    If (lvShops_.ItemIndex >= 0) then
+    If (lvShops.ItemIndex >= 0) then
       begin
-        frmShopFrame.SetItemShop(fCurrentItem.Shops[lvShops_.ItemIndex],True);
-        lvShops_.Selected.MakeVisible(False);
+        frmShopFrame.SetItemShop(fCurrentItem.Shops[lvShops.ItemIndex],True);
+        lvShops.Selected.MakeVisible(False);
       end
     else frmShopFrame.SetItemShop(nil,True);
   end;
@@ -305,7 +321,6 @@ end;
 
 procedure TfShopsForm.ShowShops(Item: TILItem);
 var
-  i:        Integer;
   OldAvail: Int32;
   OldPrice: UInt32;
 begin
@@ -317,10 +332,7 @@ If Assigned(Item) then
     fWndCaption := fCurrentItem.TitleStr + ' - Shops';
     // fill list
     UpdateList(nil);
-    If lvShops_.Items.Count > 0 then
-      lvShops_.ItemIndex := 0
-    else
-      lvShops_.ItemIndex := -1;
+    ShopsListSelect(0);
     ListViewItemSelected;
     UpdateCurrentAvailAndPrices;
     UpdateShopCounts;
@@ -345,7 +357,7 @@ procedure TfShopsForm.FormCreate(Sender: TObject);
 begin
 mniSH_MoveUp.ShortCut := Shortcut(VK_UP,[ssShift]);
 mniSH_MoveDown.ShortCut := Shortcut(VK_Down,[ssShift]);
-lvShops_.DoubleBuffered := True;
+lvShops.DoubleBuffered := True;
 frmShopFrame.OnTemplatesChange := TemplateChangeHandler;
 end;
 
@@ -353,27 +365,24 @@ end;
 
 procedure TfShopsForm.FormShow(Sender: TObject);
 begin
-lvShops_.SetFocus;
+lvShops.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopsForm.lvShops_SelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+procedure TfShopsForm.lvShopsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
 begin
 //this deffers reaction to change and prevents flickering
-label3.Caption := label3.Caption + ' ' + IntToStr(lvShops_.ItemIndex);
-//PostMessage(Handle,WM_USER_LVITEMSELECTED,Ord(Selected),0);
-If (lvShops_.ItemIndex <> Pred(lvShops_.Items.Count)) and Selected then
-  beep;
+PostMessage(Handle,WM_USER_LVITEMSELECTED,Ord(Selected),0);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.pmnShopsPopup(Sender: TObject);
 begin
-mniSH_Remove.Enabled := lvShops_.ItemIndex >= 0;
-mniSH_MoveUp.Enabled := lvShops_.ItemIndex > 0;
-mniSH_MoveDown.Enabled := (lvShops_.ItemIndex >= 0) and (lvShops_.ItemIndex < Pred(lvShops_.Items.Count));
+mniSH_Remove.Enabled := lvShops.ItemIndex >= 0;
+mniSH_MoveUp.Enabled := lvShops.ItemIndex > 0;
+mniSH_MoveDown.Enabled := (lvShops.ItemIndex >= 0) and (lvShops.ItemIndex < Pred(lvShops.Items.Count));
 end;
 
 //------------------------------------------------------------------------------
@@ -386,9 +395,7 @@ If Assigned(fCurrentItem) then
   begin
     Index := fCurrentItem.ShopAdd;  // this will also update the listing
     fCurrentItem.Shops[Index].RequiredCount := fCurrentItem.Pieces;
-    label3.Caption := label3.Caption + '/';
-    lvShops_.ItemIndex := Index;
-    label3.Caption := label3.Caption + '\';
+    ShopsListSelect(Index);
     ListViewItemSelected;
     UpdateShopCounts;
   end;
@@ -405,59 +412,38 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.mniSH_AddFromSubClick(Sender: TObject);
-var
-  i:  Integer;
 begin
-(*
-If Assigned(fCurrentItemPtr) and (Sender is TMenuItem) then
+If Assigned(fCurrentItem) and (Sender is TMenuItem) then
   begin
     mniSH_AddCommon;
     If lvShops.ItemIndex >= 0 then
       begin
         frmShopFrame.SaveItemShop;
         // copy the settings from template
-        with fCurrentItemPtr^.Shops[lvShops.ItemIndex],
-             fILManager.ShopTemplates[TMenuItem(Sender).Tag] do
-          begin
-            Untracked := ShopData.Untracked;
-            AltDownMethod := ShopData.AltDownMethod;
-            fCurrentItemPtr^.Shops[lvShops.ItemIndex].Name := ShopData.Name;  
-            ShopURL := ShopData.ShopURL;
-            // variables (copy only when destination is empty)
-            For i := Low(ParsingSettings.Variables.Vars) to High(ParsingSettings.Variables.Vars) do
-              If Length(ParsingSettings.Variables.Vars[i]) <= 0 then
-                ParsingSettings.Variables.Vars[i] := ShopData.ParsingSettings.Variables.Vars[i];
-            // other options
-            ParsingSettings.DisableParsErrs := ShopData.ParsingSettings.DisableParsErrs;
-            ParsingSettings.TemplateRef := fILManager.ShopTemplates[TMenuItem(Sender).Tag].Name;
-          end;
+        fILManager.ShopTemplates[TMenuItem(Sender).Tag].CopyTo(
+          fCurrentItem.Shops[lvShops.ItemIndex]);
         frmShopFrame.LoadItemShop;
         frmShopFrame.leShopItemURL.SetFocus;
       end;
-    UpdateCurrentListItem(nil);
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.mniSH_AddFromTemplateClick(Sender: TObject);
 begin
-(*
-If Assigned(fCurrentItemPtr) then
+If Assigned(fCurrentItem) then
   begin
     mniSH_AddCommon;
     If lvShops.ItemIndex >= 0 then  // should be valid after mniSH_AddCommon, but to be sure
       begin
         frmShopFrame.SaveItemShop;
-        fTemplatesForm.ShowTemplates(Addr(fCurrentItemPtr^.Shops[lvShops.ItemIndex]),True);
+        fTemplatesForm.ShowTemplates(fCurrentItem.Shops[lvShops.ItemIndex],True);
         frmShopFrame.LoadItemShop;
-        CreateAddFromSubMenu;
+        BuildAddFromSubMenu;
         frmShopFrame.leShopItemURL.SetFocus;
       end;
-    UpdateCurrentListItem(nil);
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------
@@ -466,28 +452,25 @@ procedure TfShopsForm.mniSH_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
-If Assigned(fCurrentItemPtr) and (lvShops.ItemIndex >= 0) then
+If Assigned(fCurrentItem) and (lvShops.ItemIndex >= 0) then
   If MessageDlg(Format('Are you sure you want to remove shop "%s"?',
-      [fCurrentItemPtr^.Shops[lvShops.ItemIndex].Name]),
+      [fCurrentItem.Shops[lvShops.ItemIndex].Name]),
       mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
-      Index := lvShops.ItemIndex;
       If lvShops.ItemIndex < Pred(lvShops.Items.Count) then
-        lvShops.ItemIndex := lvShops.ItemIndex + 1
+        Index := lvShops.ItemIndex
       else If lvShops.ItemIndex > 0 then
-        lvShops.ItemIndex := lvShops.ItemIndex - 1
+        Index := lvShops.ItemIndex - 1
       else
-        lvShops.ItemIndex := -1;
+        Index := -1;
+      frmShopFrame.SaveItemShop;
+      frmShopFrame.SetItemShop(nil,False);
+      fCurrentItem.ShopDelete(lvShops.ItemIndex);        
+      ShopsListSelect(Index);
       ListViewItemSelected;
-      lvShops.Items.Delete(Index);
-      fILManager.ItemShopDelete(fCurrentItemPtr^,Index);
-      If lvShops.ItemIndex >= 0 then
-        frmShopFrame.SetItemShop(Addr(fCurrentItemPtr^.Shops[lvShops.ItemIndex]),False);
-      RecalcAndShowPrices(nil);
-      UpdateShopsCounts;
+      UpdateCurrentAvailAndPrices;
+      UpdateShopCounts;
     end;
-    *)
 end;
 
 //------------------------------------------------------------------------------
@@ -496,18 +479,13 @@ procedure TfShopsForm.mniSH_MoveUpClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
-If Assigned(fCurrentItemPtr) and (lvShops.ItemIndex > 0) then
+If Assigned(fCurrentItem) and (lvShops.ItemIndex > 0) then
   begin
     Index := lvShops.ItemIndex;
-    fILManager.ItemShopExchange(fCurrentItemPtr^,Index,Index - 1);
-    frmShopFrame.SetItemShop(Addr(fCurrentItemPtr^.Shops[Index - 1]),False);
-    lvShops.ItemIndex := Index - 1;
+    fCurrentItem.ShopExchange(Index,Index - 1);
+    ShopsListSelect(Index - 1);
     ListViewItemSelected;
-    UpdateListItem(Index - 1);
-    UpdateListItem(Index);
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------
@@ -516,18 +494,13 @@ procedure TfShopsForm.mniSH_MoveDownClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-(*
-If Assigned(fCurrentItemPtr) and (lvShops.ItemIndex >= 0) and (lvShops.ItemIndex < Pred(lvShops.Items.Count)) then
+If Assigned(fCurrentItem) and (lvShops.ItemIndex >= 0) and (lvShops.ItemIndex < Pred(lvShops.Items.Count)) then
   begin
     Index := lvShops.ItemIndex;
-    fILManager.ItemShopExchange(fCurrentItemPtr^,Index,Index + 1);
-    frmShopFrame.SetItemShop(Addr(fCurrentItemPtr^.Shops[Index + 1]),False);
-    lvShops.ItemIndex := Index + 1;
+    fCurrentItem.ShopExchange(Index,Index + 1);
+    ShopsListSelect(Index + 1);
     ListViewItemSelected;
-    UpdateListItem(Index);
-    UpdateListItem(Index + 1);
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------

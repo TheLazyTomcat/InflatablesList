@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, Menus,
-  InflatablesList_Types, InflatablesList;
+  IL_Types, IL_ItemShop, IL_Manager;
 
 type
   TfTemplatesForm = class(TForm)
@@ -43,12 +43,12 @@ type
     procedure mniTL_ImportClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
   private
-    fILManager:       TILManager;
-    fAsInit:          Boolean;
-    fCurrentShopPtr:  PILItemShop;
+    fILManager:   TILManager;
+    fAsInit:      Boolean;
+    fCurrentShop: TILItemShop;
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowTemplates(CurrentShopPtr: PILItemShop; AsInit: Boolean);
+    procedure ShowTemplates(CurrentShop: TILItemShop; AsInit: Boolean);
   end;
 
 var
@@ -70,14 +70,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfTemplatesForm.ShowTemplates(CurrentShopPtr: PILItemShop; AsInit: Boolean);
+procedure TfTemplatesForm.ShowTemplates(CurrentShop: TILItemShop; AsInit: Boolean);
 var
   i:  Integer;
 begin
 fAsInit := AsInit;
-fCurrentShopPtr := CurrentShopPtr;
+fCurrentShop := CurrentShop;
 btnSave.Enabled := not AsInit;
-leName.Text := CurrentShopPtr^.Name;
+leName.Text := fCurrentShop.Name;
 // fill list of templates
 lbTemplates.Items.BeginUpdate;
 try
@@ -108,11 +108,11 @@ procedure TfTemplatesForm.btnSaveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-If Assigned(fCurrentShopPtr) then
+If Assigned(fCurrentShop) then
   begin
     If Length(leName.Text) > 0 then
       begin
-        Index := fILManager.ShopTemplateAdd(leName.Text,fCurrentShopPtr^);
+        Index := fILManager.ShopTemplateAdd(leName.Text,fCurrentShop);
         lbTemplates.Items.Add(fILManager.ShopTemplates[Index].Name);
         If lbTemplates.ItemIndex < 0 then
           begin
@@ -172,10 +172,10 @@ procedure TfTemplatesForm.mniTL_RenameClick(Sender: TObject);
 var
   NewName:  String;
 begin
-If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
+If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
   begin
     NewName := lbTemplates.Items[lbTemplates.ItemIndex];
-    If Dialogs.InputQuery('New template name','Enter new template name:',NewName) then
+    If InputQuery('New template name','Enter new template name:',NewName) then
       begin
         // following will also change all references to this template
         fILManager.ShopTemplateRename(lbTemplates.ItemIndex,NewName);
@@ -286,34 +286,20 @@ end;
 procedure TfTemplatesForm.btnLoadClick(Sender: TObject);
 var
   CanProceed: Boolean;
-  i:          Integer;
 begin
-If Assigned(fCurrentShopPtr) and (lbTemplates.ItemIndex >= 0) then
+If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
   begin
     If fAsInit then
       CanProceed := True
     else
-      CanProceed := MessageDlg(Format('Are you sure you want to replace current shop settings with template "%s"?',
+      CanProceed := MessageDlg(
+        Format('Are you sure you want to replace current shop settings with template "%s"?',
         [fILManager.ShopTemplates[lbTemplates.ItemIndex].Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes;
     If CanProceed then
-      with fILManager.ShopTemplates[lbTemplates.ItemIndex] do
-        begin
-          fCurrentShopPtr^.Untracked := ShopData.Untracked;
-          fCurrentShopPtr^.AltDownMethod := ShopData.AltDownMethod;
-          fCurrentShopPtr^.Name := ShopData.Name;
-          fCurrentShopPtr^.ShopURL := ShopData.ShopURL;
-          // variables (copy only when destination is empty)
-          For i := Low(fCurrentShopPtr^.ParsingSettings.Variables.Vars) to
-                   High(fCurrentShopPtr^.ParsingSettings.Variables.Vars) do
-            If Length(fCurrentShopPtr^.ParsingSettings.Variables.Vars[i]) <= 0 then
-              fCurrentShopPtr^.ParsingSettings.Variables.Vars[i] :=
-                ShopData.ParsingSettings.Variables.Vars[i];
-          // other options
-          fCurrentShopPtr^.ParsingSettings.DisableParsErrs := ShopData.ParsingSettings.DisableParsErrs;
-          fCurrentShopPtr^.ParsingSettings.TemplateRef := fILManager.ShopTemplates[lbTemplates.ItemIndex].Name;
-          // leave finder objects and extraction sett. untouched, reference will be used instead
-          Close;
-        end;
+      begin
+        fILManager.ShopTemplates[lbTemplates.ItemIndex].CopyTo(fCurrentShop);
+        Close;
+      end;
   end;
 end;
 

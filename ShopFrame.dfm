@@ -106,7 +106,7 @@ object frmShopFrame: TfrmShopFrame
       EditLabel.Width = 50
       EditLabel.Height = 13
       EditLabel.Caption = 'Shop URL:'
-      TabOrder = 2
+      TabOrder = 4
     end
     object btnShopURLOpen: TButton
       Left = 336
@@ -114,7 +114,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 25
       Height = 21
       Caption = '>'
-      TabOrder = 3
+      TabOrder = 5
       OnClick = btnShopURLOpenClick
     end
     object leShopItemURL: TLabeledEdit
@@ -125,7 +125,7 @@ object frmShopFrame: TfrmShopFrame
       EditLabel.Width = 48
       EditLabel.Height = 13
       EditLabel.Caption = 'Item URL:'
-      TabOrder = 4
+      TabOrder = 6
       OnChange = leShopItemURLChange
     end
     object btnShopItemURLOpen: TButton
@@ -134,7 +134,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 25
       Height = 21
       Caption = '>'
-      TabOrder = 5
+      TabOrder = 7
       OnClick = btnShopItemURLOpenClick
     end
     object seAvailable: TSpinEdit
@@ -144,7 +144,7 @@ object frmShopFrame: TfrmShopFrame
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 6
+      TabOrder = 8
       Value = 0
       OnChange = seAvailableChange
     end
@@ -155,7 +155,7 @@ object frmShopFrame: TfrmShopFrame
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
-      TabOrder = 9
+      TabOrder = 11
       Value = 0
       OnChange = sePriceChange
     end
@@ -165,7 +165,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 113
       Height = 25
       Caption = 'Update this shop'
-      TabOrder = 16
+      TabOrder = 18
       OnClick = btnUpdateClick
     end
     object lvAvailHistory: TListView
@@ -187,7 +187,7 @@ object frmShopFrame: TfrmShopFrame
       ReadOnly = True
       RowSelect = True
       PopupMenu = pmnHistory
-      TabOrder = 8
+      TabOrder = 10
       ViewStyle = vsReport
     end
     object lvPriceHistory: TListView
@@ -209,7 +209,7 @@ object frmShopFrame: TfrmShopFrame
       ReadOnly = True
       RowSelect = True
       PopupMenu = pmnHistory
-      TabOrder = 11
+      TabOrder = 13
       ViewStyle = vsReport
     end
     object leLastUpdateMsg: TLabeledEdit
@@ -221,7 +221,7 @@ object frmShopFrame: TfrmShopFrame
       EditLabel.Height = 13
       EditLabel.Caption = 'Last update message:'
       ReadOnly = True
-      TabOrder = 15
+      TabOrder = 17
     end
     object btnTemplates: TButton
       Left = 776
@@ -229,7 +229,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 113
       Height = 25
       Caption = 'Shop templates...'
-      TabOrder = 17
+      TabOrder = 19
       OnClick = btnTemplatesClick
     end
     object btnAvailToHistory: TButton
@@ -244,7 +244,7 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 9
       OnClick = btnAvailToHistoryClick
     end
     object btnPriceToHistory: TButton
@@ -259,7 +259,7 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
-      TabOrder = 10
+      TabOrder = 12
       OnClick = btnPriceToHistoryClick
     end
     object meNotes: TMemo
@@ -268,7 +268,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 521
       Height = 89
       ScrollBars = ssBoth
-      TabOrder = 13
+      TabOrder = 15
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -278,7 +278,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 521
       Height = 185
       Caption = 'Parsing'
-      TabOrder = 14
+      TabOrder = 16
       object bvlVarsSep: TBevel
         Left = 8
         Top = 100
@@ -434,7 +434,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 73
       Height = 17
       Caption = 'Untracked'
-      TabOrder = 18
+      TabOrder = 2
       OnClick = cbShopUntrackedClick
     end
     object cbShopAltDownMethod: TCheckBox
@@ -443,7 +443,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 161
       Height = 17
       Caption = 'Alternative download method'
-      TabOrder = 19
+      TabOrder = 3
     end
     object btnPredefNotes: TButton
       Left = 873
@@ -457,7 +457,7 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 14
       TabStop = False
       OnClick = btnPredefNotesClick
     end

@@ -48,6 +48,8 @@ procedure TILItemShopTemplate_IO_00000000.SaveTemplate_00000000(Stream: TStream)
 begin
 Stream_WriteString(Stream,fName);
 Stream_WriteString(Stream,fShopName);
+Stream_WriteBool(Stream,fUntracked);
+Stream_WriteBool(Stream,fAltDownMethod);
 Stream_WriteString(Stream,fShopURL);
 fParsingSettings.SaveToStream(Stream);
 end;
@@ -58,6 +60,8 @@ procedure TILItemShopTemplate_IO_00000000.LoadTemplate_00000000(Stream: TStream)
 begin
 fName := Stream_ReadString(Stream);
 fShopName := Stream_ReadString(Stream);
+fUntracked := Stream_ReadBool(Stream);
+fAltDownMethod := Stream_ReadBool(Stream);
 fShopURL := Stream_ReadString(Stream);
 fParsingSettings.LoadFromStream(Stream);
 end;

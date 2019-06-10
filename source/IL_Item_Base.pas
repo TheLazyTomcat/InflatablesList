@@ -67,7 +67,7 @@ type
     fAvailableSelected:     Int32;
     // shops
     fShopCount:             Integer;
-    fShops_:                 array of TILItemShop; {$message 'later remove the underscore'}
+    fShops:                 array of TILItemShop;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetPackagePicture(Value: TBitmap); virtual;
@@ -427,7 +427,7 @@ end;
 Function TILItem_Base.GetShop(Index: Integer): TILItemShop;
 begin
 If CheckIndex(Index) then
-  Result := fShops_[Index]
+  Result := fShops[Index]
 else
   raise Exception.CreateFmt('TILItem_Base.GetShop: Index (%d) out of bounds.',[Index]);
 end;
@@ -436,7 +436,7 @@ end;
 
 Function TILItem_Base.GetCapacity: Integer;
 begin
-Result := Length(fShops_);
+Result := Length(fShops);
 end;
 
 //------------------------------------------------------------------------------
@@ -447,8 +447,8 @@ var
 begin
 If Value < fShopCount then
   For i := Value to Pred(fShopCount) do
-    fShops_[i].Free;
-SetLength(fShops_,Value);
+    fShops[i].Free;
+SetLength(fShops,Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ fAvailableHighest := 0;
 fAvailableSelected := 0;
 // shops
 fShopCount := 0;
-SetLength(fShops_,0);
+SetLength(fShops,0);
 end;
 
 //------------------------------------------------------------------------------
@@ -518,9 +518,9 @@ If Assigned(fPackagePicture) then
   FreeAndNil(fPackagePicture);
 // remove shops  
 For i := LowIndex to HighIndex do
-  fShops_[i].Free;
+  fShops[i].Free;
 fShopCount := 0;
-SetLength(fShops_,0);
+SetLength(fShops,0);
 end;
 
 //------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ If Sender is TILItemShop then
     If CheckIndex(Index) then
       For i := ShopLowIndex to ShopHighIndex do
         If i <> Index then
-          fShops_[i].Selected := False
+          fShops[i].Selected := False
   end;
 end;
 
@@ -737,9 +737,9 @@ fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
 fAvailableSelected := Source.AvailableSelected;
 // copy shops
-SetLength(fShops_,Source.ShopCount);
-For i := Low(fShops_) to High(fShops_) do
-  fShops_[i] := TILItemShop.CreateAsCopy(Source[i]);
+SetLength(fShops,Source.ShopCount);
+For i := Low(fShops) to High(fShops) do
+  fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
 end;
 
 //------------------------------------------------------------------------------
@@ -795,7 +795,7 @@ end;
 
 Function TILItem_Base.LowIndex: Integer;
 begin
-Result := Low(fShops_);
+Result := Low(fShops);
 end;
 
 //------------------------------------------------------------------------------
@@ -827,7 +827,7 @@ var
 begin
 Result := -1;
 For i := ShopLowIndex to ShopHighIndex do
-  If AnsiSameText(fShops_[i].Name,Name) then
+  If AnsiSameText(fShops[i].Name,Name) then
     begin
       Result := i;
       Break{For i};
@@ -842,7 +842,7 @@ var
 begin
 Result := -1;
 For i := ShopLowIndex to ShopHighIndex do
-  If fShops_[i] = Shop then
+  If fShops[i] = Shop then
     begin
       Result := i;
       Break{For i};
@@ -855,12 +855,12 @@ Function TILItem_Base.ShopAdd: Integer;
 begin
 Grow;
 Result := fShopCount;
-fShops_[Result] := TILItemShop.Create;
-fShops_[Result].OnClearSelected := ClearSelectedHandler;
-fShops_[Result].OnListUpdate := UpdateShopListItem;
-fShops_[Result].OnValuesUpdate := UpdateShopValues;
-fShops_[Result].OnAvailHistoryUpdate := UpdateShopAvailHistory;
-fShops_[Result].OnPriceHistoryUpdate := UpdateShopPriceHistory;
+fShops[Result] := TILItemShop.Create;
+fShops[Result].OnClearSelected := ClearSelectedHandler;
+fShops[Result].OnListUpdate := UpdateShopListItem;
+fShops[Result].OnValuesUpdate := UpdateShopValues;
+fShops[Result].OnAvailHistoryUpdate := UpdateShopAvailHistory;
+fShops[Result].OnPriceHistoryUpdate := UpdateShopPriceHistory;
 Inc(fShopCount);
 UpdateShopList;
 end;
@@ -878,11 +878,11 @@ If Idx1 <> Idx2 then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
     If (Idx2 < ShopLowIndex) or (Idx2 > ShopHighIndex) then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
-    Temp := fShops_[Idx1];
-    fShops_[Idx1] := fShops_[Idx2];
-    fShops_[Idx2] := Temp;
-    UpdateShopListItem(fShops_[Idx1]);
-    UpdateShopListItem(fShops_[Idx2]);
+    Temp := fShops[Idx1];
+    fShops[Idx1] := fShops[Idx2];
+    fShops[Idx2] := Temp;
+    UpdateShopListItem(fShops[Idx1]);
+    UpdateShopListItem(fShops[Idx2]);
   end;
 end;
 
@@ -894,9 +894,9 @@ var
 begin
 If (Index >= ShopLowIndex) and (Index <= ShopHighIndex) then
   begin
-    FreeAndNil(fShops_[Index]);
+    FreeAndNil(fShops[Index]);
     For i := Index to Pred(ShopHighIndex) do
-      fShops_[i] := fShops_[i + 1];
+      fShops[i] := fShops[i + 1];
     Dec(fShopCount);
     Shrink;
     UpdateShopList;
@@ -911,8 +911,8 @@ var
   i:  Integer;
 begin
 For i := ShopLowIndex to ShopHighIndex do
-  FreeAndNil(fShops_[i]);
-SetLength(fShops_,0);
+  FreeAndNil(fShops[i]);
+SetLength(fShops,0);
 fShopCount := 0;
 UpdateShopList;
 end;
@@ -947,7 +947,7 @@ var
   i:  Integer;
 begin
 For i := ShopLowIndex to ShopHighIndex do
-  fShops_[i].RequiredCount := fPieces;
+  fShops[i].RequiredCount := fPieces;
 end;
 
 //------------------------------------------------------------------------------

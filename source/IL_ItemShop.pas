@@ -5,10 +5,10 @@ unit IL_ItemShop;
 interface
 
 uses
-  IL_ItemShop_Base;
+  IL_ItemShop_IO_00000000;
 
 type
-  TILItemShop = TILItemShop_Base;
+  TILItemShop = TILItemShop_IO_00000000;
 
 implementation
 

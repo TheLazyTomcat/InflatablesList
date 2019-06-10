@@ -1,4 +1,4 @@
-unit IL_ItemShopParsingSettings_IO;
+unit IL_ItemShop_IO;
 
 {$INCLUDE '.\IL_defs.inc'}
 
@@ -7,17 +7,17 @@ interface
 uses
   Classes,
   AuxTypes,
-  IL_ItemShopParsingSettings_Base;
+  IL_ItemShop_Base;
 
 const
-  IL_SHOPPARSSETT_SIGNATURE = UInt32($50534C49);  // ILSP
+  IL_ITEMSHOP_SIGNATURE = UInt32($53494C49);  // ILIS
 
-  IL_SHOPPARSSETT_STREAMSTRUCTURE_00000000 = UInt32($00000000);
+  IL_ITEMSHOP_STREAMSTRUCTURE_00000000 = UInt32($00000000);
 
-  IL_SHOPPARSSETT_STREAMSTRUCTURE_SAVE = IL_SHOPPARSSETT_STREAMSTRUCTURE_00000000;
+  IL_ITEMSHOP_STREAMSTRUCTURE_SAVE = IL_ITEMSHOP_STREAMSTRUCTURE_00000000;
 
 type
-  TILItemShopParsingSettings_IO = class(TILItemShopParsingSettings_Base)
+  TILItemShop_IO = class(TILITemShop_Base)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;
@@ -30,7 +30,7 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile(const FileName: String); virtual;
     procedure LoadFromFile(const FileName: String); virtual;
-  end;  
+  end;
 
 implementation
 
@@ -38,7 +38,7 @@ uses
   SysUtils,
   BinaryStreaming;
 
-procedure TILItemShopParsingSettings_IO.Save(Stream: TStream; Struct: UInt32);
+procedure TILItemShop_IO.Save(Stream: TStream; Struct: UInt32);
 begin
 InitSaveFunctions(Struct);
 fFNSaveToStream(Stream);
@@ -46,7 +46,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopParsingSettings_IO.Load(Stream: TStream; Struct: UInt32);
+procedure TILItemShop_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
@@ -54,26 +54,26 @@ end;
 
 //==============================================================================
 
-procedure TILItemShopParsingSettings_IO.SaveToStream(Stream: TStream);
+procedure TILItemShop_IO.SaveToStream(Stream: TStream);
 begin
-Stream_WriteUInt32(Stream,IL_SHOPPARSSETT_SIGNATURE);
-Stream_WriteUInt32(Stream,IL_SHOPPARSSETT_STREAMSTRUCTURE_SAVE);
-Save(Stream,IL_SHOPPARSSETT_STREAMSTRUCTURE_SAVE);
+Stream_WriteUInt32(Stream,IL_ITEMSHOP_SIGNATURE);
+Stream_WriteUInt32(Stream,IL_ITEMSHOP_STREAMSTRUCTURE_SAVE);
+Save(Stream,IL_ITEMSHOP_STREAMSTRUCTURE_SAVE);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopParsingSettings_IO.LoadFromStream(Stream: TStream);
+procedure TILItemShop_IO.LoadFromStream(Stream: TStream);
 begin
-If Stream_ReadUInt32(Stream) = IL_SHOPPARSSETT_SIGNATURE then
+If Stream_ReadUInt32(Stream) = IL_ITEMSHOP_SIGNATURE then
   Load(Stream,Stream_ReadUInt32(Stream))
 else
-  raise Exception.Create('TILItemShopParsingSettings_IO.LoadFromStream: Invalid stream.');
+  raise Exception.Create('TILItemShop_IO.LoadFromStream: Invalid stream.');
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopParsingSettings_IO.SaveToFile(const FileName: String);
+procedure TILItemShop_IO.SaveToFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin
@@ -88,7 +88,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopParsingSettings_IO.LoadFromFile(const FileName: String);
+procedure TILItemShop_IO.LoadFromFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin

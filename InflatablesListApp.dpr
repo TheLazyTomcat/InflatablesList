@@ -49,7 +49,14 @@ uses
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
   TemplatesForm in 'TemplatesForm.pas' {fTemplatesForm},
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
-  SelectionForm in 'SelectionForm.pas' {fSelectionForm};
+  SelectionForm in 'SelectionForm.pas' {fSelectionForm},
+  IL_ItemShop_IO in 'source\IL_ItemShop_IO.pas',
+  IL_ItemShop_IO_00000000 in 'source\IL_ItemShop_IO_00000000.pas',
+  IL_Item_IO in 'source\IL_Item_IO.pas',
+  IL_Item_IO_00000000 in 'source\IL_Item_IO_00000000.pas',
+  IL_Manager_IO in 'source\IL_Manager_IO.pas',
+  IL_Manager_IO_00000008 in 'source\IL_Manager_IO_00000008.pas',
+  IL_Manager_IO_Converter in 'source\IL_Manager_IO_Converter.pas';
 
 {$R *.res}
 

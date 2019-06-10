@@ -220,7 +220,7 @@ begin
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
     IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
-//fILManager.SaveToFileBuffered(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+fILManager.SaveToFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
 end;
 
 //==============================================================================
@@ -263,10 +263,8 @@ fILManager.OnListUpdate := InvalidateList;
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 // load list
-(*
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-*)
 sbStatusBar.Panels[1].Text := fILManager.FileName;
 // fill list
 lbList.Items.Clear;

@@ -137,7 +137,7 @@ If Sender is TDrawGrid then
             // normal cells, select background color according to price and availability
             If ShopIndex >= 0 then
               begin
-                Brush.Color := clWhite;{$message 'implement color selection'}
+                Brush.Color := clWhite;//{$message 'implement color selection'}
                 Rectangle(Rect);
                 // shop selected?
                 If fIlManager[ARow - 1].Shops[ShopIndex].Selected then

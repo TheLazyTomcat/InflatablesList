@@ -5,16 +5,16 @@ unit IL_Manager;
 interface
 
 uses
-  IL_Manager_Templates;
+  IL_Manager_IO_00000008;
 
 {
   inheritance chain:
 
-    base - sort - filter - templates - this
+    base - sort - filter - templates - IO - IO_vers - this
 }
 
 type
-  TILManager = TILManager_Templates;
+  TILManager = TILManager_IO_00000008;
 
 implementation
 

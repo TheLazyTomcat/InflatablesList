@@ -29,6 +29,7 @@ type
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
     procedure SortingProfileExchange(Idx1,Idx2: Integer); virtual;
     procedure SortingProfileDelete(Index: Integer); virtual;
+    procedure SortingProfileClear; virtual;
     procedure ItemSort(SortingProfile: Integer); overload; virtual;
     procedure ItemSort; overload; virtual;
     property ReversedSort: Boolean read fReversedSort write fReversedSort;
@@ -195,6 +196,13 @@ If (Index >= Low(fSortingProfiles)) and (Index <= High(fSortingProfiles)) then
     SetLength(fSortingProfiles,Length(fSortingProfiles) - 1);
   end
 else raise Exception.CreateFmt('TILManager_Sort.SortingProfileDelete: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Sort.SortingProfileClear;
+begin
+SetLength(fSortingProfiles,0);
 end;
 
 //------------------------------------------------------------------------------

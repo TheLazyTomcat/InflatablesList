@@ -201,10 +201,10 @@ begin
 // first make sure only one shop is selected
 Selected := False;
 For i := ShopLowIndex to ShopHighIndex do
-  If fShops_[i].Selected and not Selected then
+  If fShops[i].Selected and not Selected then
     Selected := True
   else
-    fShops_[i].Selected := False;
+    fShops[i].Selected := False;
 // get price and avail extremes (availability must be non-zero) and selected
 LowPrice := 0;
 HighPrice := 0;
@@ -214,21 +214,21 @@ fUnitPriceSelected := 0;
 fAvailableSelected := 0;
 For i := ShopLowIndex to ShopHighIndex do
   begin
-    If (fShops_[i].Available <> 0) and (fShops_[i].Price > 0) then
+    If (fShops[i].Available <> 0) and (fShops[i].Price > 0) then
       begin
-        If (fShops_[i].Price < LowPrice) or (LowPrice <= 0) then
-          LowPrice := fShops_[i].Price;
-        If (fShops_[i].Price > HighPrice) or (HighPrice <= 0) then
-          HighPrice := fShops_[i].Price;
-        If AvailIsLess(fShops_[i].Available,LowAvail) or (LowAvail <= 0) then
-          LowAvail := fShops_[i].Available;
-        If AvailIsMore(fShops_[i].Available,HighAvail) or (HighAvail <= 0) then
-          HighAvail := fShops_[i].Available;
+        If (fShops[i].Price < LowPrice) or (LowPrice <= 0) then
+          LowPrice := fShops[i].Price;
+        If (fShops[i].Price > HighPrice) or (HighPrice <= 0) then
+          HighPrice := fShops[i].Price;
+        If AvailIsLess(fShops[i].Available,LowAvail) or (LowAvail <= 0) then
+          LowAvail := fShops[i].Available;
+        If AvailIsMore(fShops[i].Available,HighAvail) or (HighAvail <= 0) then
+          HighAvail := fShops[i].Available;
       end;
-    If fShops_[i].Selected then
+    If fShops[i].Selected then
       begin
-        fUnitPriceSelected := fShops_[i].Price;
-        fAvailableSelected := fShops_[i].Available;
+        fUnitPriceSelected := fShops[i].Price;
+        fAvailableSelected := fShops[i].Available;
       end;
   end;
 fUnitPriceLowest := LowPrice;
@@ -278,7 +278,7 @@ var
 begin
 Result := 0;
 For i := ShopLowIndex to ShopHighIndex do
-  If (fShops_[i].Available <> 0) and (fShops_[i].Price > 0) then
+  If (fShops[i].Available <> 0) and (fShops[i].Price > 0) then
     Inc(Result); 
 end;
 
@@ -310,9 +310,9 @@ var
 begin
 Result := False;
 For i := ShopLowIndex to ShopHighIndex do
-  If fShops_[i].Selected then
+  If fShops[i].Selected then
     begin
-      Shop := fShops_[i];
+      Shop := fShops[i];
       Result := True;
     end;
 end;
@@ -325,8 +325,8 @@ var
 begin
 Result := ilisurSuccess;
 For i := ShopLowIndex to ShopHighIndex do
-  If fShops_[i].LastUpdateRes > Result then
-    Result := fShops_[i].LastUpdateRes;
+  If fShops[i].LastUpdateRes > Result then
+    Result := fShops[i].LastUpdateRes;
 end;
 
 end.

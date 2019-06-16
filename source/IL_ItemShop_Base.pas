@@ -83,6 +83,7 @@ type
     // properties
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
     property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
+    // events
     property OnClearSelected: TNotifyEvent read fOnClearSelected write fOnClearSelected;
     property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
     property OnValuesUpdate: TNotifyEvent read fOnValuesUpdate write fOnValuesUpdate;

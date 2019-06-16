@@ -1,11 +1,5 @@
 unit MainForm;
 
-{$message 'menu - add "Item shops...", "Update item shops..." and "Update item shops history"'}
-{$message 'make most menu shortcuts global (all except item/list manipulations)'}
-{$message 'propagate changes to price/avail to manager, add event to these (overview update)'}
-{$message 'specials - add second param'}
-{$message 'change section sigs to normal strings'}
-
 interface
 
 uses

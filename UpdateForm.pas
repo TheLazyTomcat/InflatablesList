@@ -112,22 +112,20 @@ procedure TfUpdateForm.MakeLog(Index: Integer);
 var
   TagStr: String;
 begin
-(*
-If not AnsiSameText(fLastItemName,fShopsToUpdate[Index].ItemName) then
+If not AnsiSameText(fLastItemName,fUpdateList[Index].ItemTitle) then
   begin
     If meLog.Lines.Count > 0 then
       meLog.Lines.Add('');
-    meLog.Lines.Add(fShopsToUpdate[Index].ItemName + sLineBreak);
-    fLastItemName := fShopsToUpdate[Index].ItemName;
+    meLog.Lines.Add(fUpdateList[Index].ItemTitle + sLineBreak);
+    fLastItemName := fUpdateList[Index].ItemTitle;
   end;
-If fShopsToUpdate[Index].ItemShopPtr^.Selected then
+If fUpdateList[Index].ItemShop.Selected then
   TagStr := '  * '
 else
   TagStr := '    ';
-meLog.Lines.Add(Format('%s%s %s... %s',[TagStr,fShopsToUpdate[Index].ItemShopPtr^.Name,
-  StringOfChar('.',fMaxShopNameLen - Length(fShopsToUpdate[Index].ItemShopPtr^.Name)),
-  fShopsToUpdate[Index].ItemShopPtr^.LastUpdateMsg]));
-*)
+meLog.Lines.Add(Format('%s%s %s... %s',[TagStr,fUpdateList[Index].ItemShop.Name,
+  StringOfChar('.',fMaxShopNameLen - Length(fUpdateList[Index].ItemShop.Name)),
+  fUpdateList[Index].ItemShop.LastUpdateMsg]));
 end;
 
 //------------------------------------------------------------------------------
@@ -136,39 +134,39 @@ procedure TfUpdateForm.ContinueProcessing;
 var
   Index:  Integer;
 begin
-(*
 If Assigned(fUpdater) and fCanContinue then
-  while (fProcessedIndex <= High(fShopsToUpdate)) and
+  while (fProcessedIndex <= High(fUpdateList)) and
     (fUpdater.GetActiveTaskCount < fUpdater.MaxConcurrentTasks) do
     begin
       Index := fUpdater.AddTask(
-        TILUpdateTask.Create(fILManager,fShopsToUpdate[fProcessedIndex].ItemShopPtr^,fProcessedIndex));
+        TILUpdateTask.Create(fILManager,fUpdateList[fProcessedIndex].ItemShop,fProcessedIndex));
       fUpdater.StartTask(Index);
       Inc(fProcessedIndex);
     end;
-*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
+var
+  TempStr:  String;
 begin
-(*
 Inc(fDoneCount);
 // retrieve results from the task
 with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
   begin
-    fShopsToUpdate[ProcessingIndex].ItemShopPtr^.Available := ItemShop.Available;
-    fShopsToUpdate[ProcessingIndex].ItemShopPtr^.Price := ItemShop.Price;
-    fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateRes := ItemShop.LastUpdateRes;
-    fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg := ItemShop.LastUpdateMsg;
-    UniqueString(fShopsToUpdate[ProcessingIndex].ItemShopPtr^.LastUpdateMsg);
-    fShopsToUpdate[ProcessingIndex].Done := True;
+    fUpdateList[ProcessingIndex].ItemShop.Available := ItemShop.Available;
+    fUpdateList[ProcessingIndex].ItemShop.Price := ItemShop.Price;
+    fUpdateList[ProcessingIndex].ItemShop.LastUpdateRes := ItemShop.LastUpdateRes;
+    TempStr := ItemShop.LastUpdateMsg;
+    UniqueString(TempStr);
+    fUpdateList[ProcessingIndex].ItemShop.LastUpdateMsg := TempStr;
+    fUpdateList[ProcessingIndex].Done := True;
   end;
 // log
-while fLoggedIndex <= High(fShopsToUpdate) do
+while fLoggedIndex <= High(fUpdateList) do
   begin
-  If fShopsToUpdate[fLoggedIndex].Done then
+  If fUpdateList[fLoggedIndex].Done then
     begin
       MakeLog(fLoggedIndex);
       Inc(fLoggedIndex);
@@ -176,14 +174,14 @@ while fLoggedIndex <= High(fShopsToUpdate) do
   else Break{while...};
   end;
 //progress
-If fDoneCount < Length(fShopsToUpdate) then
+If fDoneCount < Length(fUpdateList) then
   begin
     // show progress
-    If Length(fShopsToUpdate) > 0 then
-      pbProgress.Position := Trunc((fDoneCount / Length(fShopsToUpdate)) * pbProgress.Max)
+    If Length(fUpdateList) > 0 then
+      pbProgress.Position := Trunc((fDoneCount / Length(fUpdateList)) * pbProgress.Max)
     else
       pbProgress.Position := pbProgress.Max;
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fShopsToUpdate) - fDoneCount]);
+    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fUpdateList) - fDoneCount]);
   end
 else
   begin
@@ -192,7 +190,6 @@ else
     btnAction.Tag := 2;
     btnAction.Caption := 'Done';
   end;
-  *)
 end;
 
 //==============================================================================
@@ -210,20 +207,19 @@ procedure TfUpdateForm.ShowUpdate(UpdateList: TILItemShopUpdateList);
 var
   i:  Integer;
 begin
-(*
-If Length(ShopsToUpdate) > 0 then
+If Length(UpdateList) > 0 then
   begin
     // init form
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(ShopsToUpdate)]);
+    pnlInfo.Caption := Format('%d item shops ready for update',[Length(UpdateList)]);
     btnAction.Tag := 0;
     btnAction.Caption := 'Start';
     pbProgress.Position := 0;
     meLog.Clear;
     // init list of shops for processing
-    fShopsToUpdate := ShopsToUpdate;
-    SetLength(fShopsToUpdate,Length(fShopsToUpdate));
-    For i := Low(fShopsToUpdate) to High(fShopsToUpdate) do
-      fShopsToUpdate[i].Done := False;  // should be false atm, but to be sure
+    fUpdateList := UpdateList;
+    SetLength(fUpdateList,Length(fUpdateList));
+    For i := Low(fUpdateList) to High(fUpdateList) do
+      fUpdateList[i].Done := False;  // should be false atm, but to be sure
     // init processing vars
     fProcessedIndex := 0;
     fLoggedIndex := 0;
@@ -231,9 +227,9 @@ If Length(ShopsToUpdate) > 0 then
     fLastItemName := '';
     // calculate indentation correction
     fMaxShopNameLen := 0;
-    For i := Low(fShopsToUpdate) to High(fShopsToUpdate) do
-      If Length(fShopsToUpdate[i].ItemShopPtr^.Name) > fMaxShopNameLen then
-        fMaxShopNameLen := Length(fShopsToUpdate[i].ItemShopPtr^.Name);
+    For i := Low(fUpdateList) to High(fUpdateList) do
+      If Length(fUpdateList[i].ItemShop.Name) > fMaxShopNameLen then
+        fMaxShopNameLen := Length(fUpdateList[i].ItemShop.Name);
     // create updater and show the window
     tmrUpdate.Enabled := True;
     fUpdater := TCNTSManager.Create(True);
@@ -251,7 +247,6 @@ If Length(ShopsToUpdate) > 0 then
       meLog.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'list.update.log');
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
-*)
 end;
 
 //==============================================================================

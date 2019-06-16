@@ -19,6 +19,7 @@ implementation
 
 procedure TILManager_IO_Converter.Convert_7_to_8(Stream: TStream);
 begin
+// at this point, stream position is just after structure selection
 {$message 'implement'}
 end;
 

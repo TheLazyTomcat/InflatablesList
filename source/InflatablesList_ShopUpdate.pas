@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types,
+  IL_Types, IL_ItemShop_Base,
   InflatablesList_HTML_Document, InflatablesList_HTML_ElementFinder;
 
 type
@@ -25,16 +25,16 @@ type
 
   TILShopUpdater = class(TObject)
   private
-    fShopData:    TILItemShop;
+    fShopData:      TILItemShop_Base;
     // internals
-    fDownStream:  TMemoryStream;
+    fDownStream:    TMemoryStream;
     // results
-    fDownResCode: Integer;
-    fDownSize:    Int64;
-    fErrorString: String;
-    fAvailable:   Int32;
-    fPrice:       UInt32;
-    fOptions:     TILCMDManagerOptions;
+    fDownResCode:   Integer;
+    fDownSize:      Int64;
+    fErrorString:   String;
+    fAvailable:     Int32;
+    fPrice:         UInt32;
+    fStaticOptions: TILStaticManagerOptions;
   protected
     procedure InitializeResults; virtual;
     Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements; virtual;
@@ -48,7 +48,7 @@ type
     Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
     Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
   public
-    constructor Create(ShopData: TILItemShop; Options: TILCMDManagerOptions);
+    constructor Create(ShopData: TILItemShop_Base; StaticOptions: TILStaticManagerOptions);
     destructor Destroy; override;
     Function Run(AlternativeDownload: Boolean): TILShopUpdaterResult; virtual;
     property DownloadResultCode: Integer read fDownResCode;
@@ -56,7 +56,7 @@ type
     property ErrorString: String read fErrorString;
     property Available: Int32 read fAvailable;
     property Price: UInt32 read fPrice;
-    property Options: TILCMDManagerOptions read fOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions;
   end;
 
 implementation
@@ -64,8 +64,8 @@ implementation
 uses
   SysUtils, StrUtils,
   CRC32,
-  InflatablesList, CountedDynArrayObject,
-  InflatablesList_Utils,
+  CountedDynArrayObject,
+  IL_Utils,
   InflatablesList_HTML_Download, InflatablesList_HTML_Parser;
 
 procedure TILShopUpdater.InitializeResults;
@@ -202,9 +202,8 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := Low(fShopData.ParsingSettings.Available.Extraction) to
-         High(fShopData.ParsingSettings.Available.Extraction) do
-  with fShopData.ParsingSettings.Available.Extraction[i] do
+For i := 0 to Pred(fShopData.ParsingSettings.AvailExtractionSettingsCount) do
+  with fShopData.ParsingSettings.AvailExtractionSettingsPtrs[i]^ do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin
@@ -249,9 +248,8 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := Low(fShopData.ParsingSettings.Price.Extraction) to
-         High(fShopData.ParsingSettings.Price.Extraction) do
-  with fShopData.ParsingSettings.Price.Extraction[i] do
+For i := 0 to Pred(fShopData.ParsingSettings.PriceExtractionSettingsCount) do
+  with fShopData.ParsingSettings.PriceExtractionSettingsPtrs[i]^ do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin
@@ -282,13 +280,13 @@ end;
 
 //==============================================================================
 
-constructor TILShopUpdater.Create(ShopData: TILItemShop; Options: TILCMDManagerOptions);
+constructor TILShopUpdater.Create(ShopData: TILItemShop_Base; StaticOptions: TILStaticManagerOptions);
 begin
 inherited Create;
-TILManager.ItemShopCopy(ShopData,fShopData);
+fShopData := TILItemShop_Base.CreateAsCopy(ShopData);
 fDownStream := TMemoryStream.Create;
 InitializeResults;
-fOptions := Options;
+fStaticOptions := StaticOptions;
 end;
 
 //------------------------------------------------------------------------------
@@ -296,7 +294,7 @@ end;
 destructor TILShopUpdater.Destroy;
 begin
 fDownStream.Free;
-TILManager.ItemShopFinalize(fShopData);
+fShopData.Free;
 inherited;
 end;
 
@@ -313,7 +311,7 @@ var
 
   Function CallDownload: Boolean;
   begin
-    If not fOptions.LoadPages or not FileExists(OfflineFile) then
+    If not fStaticOptions.LoadPages or not FileExists(OfflineFile) then
       begin
         If AlternativeDownload then
           Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
@@ -334,17 +332,17 @@ OfflineFile := ExtractFilePath(ParamStr(0)) + 'saved_pages\' +
   AnsiUpperCase(CRC32ToStr(StringCRC32(fShopData.ItemURL))) + '.txt';
 If Length(fShopData.ItemURL) > 0 then
   begin
-    If (TILElementFinder(fShopData.ParsingSettings.Available.Finder).StageCount > 0) and
-       (TILElementFinder(fShopData.ParsingSettings.Price.Finder).StageCount > 0) then
+    If (fShopData.ParsingSettings.AvailFinder.StageCount > 0) and
+       (fShopData.ParsingSettings.PriceFinder.StageCount > 0) then
       try
         InitializeResults;
         // download
         fDownStream.Clear;
         If CallDownload then
           begin
-            If fOptions.TestCode then
+            If fStaticOptions.TestCode then
               fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'page.txt');
-            If fOptions.SavePages then
+            If fStaticOptions.SavePages then
               begin
                 ForceDirectories(ExtractFilePath(ParamStr(0)) + 'saved_pages');
                 fDownStream.SaveToFile(OfflineFile);
@@ -354,12 +352,12 @@ If Length(fShopData.ItemURL) > 0 then
             Parser := TILHTMLParser.Create(fDownStream);
             try
               try
-                Parser.RaiseParseErrors := not fShopData.ParsingSettings.DisableParsErrs;
+                Parser.RaiseParseErrors := not fShopData.ParsingSettings.DisableParsingErrors;
                 // parse
                 Parser.Run;
                 Document := Parser.GetDocument;
                 try
-                  If fOptions.TestCode then
+                  If fStaticOptions.TestCode then
                     begin
                       ElementList := TStringList.Create;
                       try
@@ -370,15 +368,11 @@ If Length(fShopData.ItemURL) > 0 then
                       end;
                     end;
                   // prepare finders
-                  TILElementFinder(fShopData.ParsingSettings.Available.Finder).
-                    Prepare(Addr(fShopData.ParsingSettings.Variables));
-                  TILElementFinder(fShopData.ParsingSettings.Price.Finder).
-                    Prepare(Addr(fShopData.ParsingSettings.Variables));
+                  fShopData.ParsingSettings.AvailFinder.Prepare(fShopData.ParsingSettings.VariablesRec);
+                  fShopData.ParsingSettings.PriceFinder.Prepare(fShopData.ParsingSettings.VariablesRec);
                   // search
-                  AvailNodes := FindElementNode(Document,
-                    TILElementFinder(fShopData.ParsingSettings.Available.Finder));
-                  PriceNodes := FindElementNode(Document,
-                    TILElementFinder(fShopData.ParsingSettings.Price.Finder));
+                  AvailNodes := FindElementNode(Document,fShopData.ParsingSettings.AvailFinder);
+                  PriceNodes := FindElementNode(Document,fShopData.ParsingSettings.PriceFinder);
                   // process found nodes
                   If (Length(AvailNodes) > 0) and (Length(PriceNodes) > 0) then
                     begin

@@ -232,7 +232,7 @@ If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
         fList[i] := TILItem.Create(fDataProvider);
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
-        fList[i].NoPictures := fOptions.NoPictures;
+        fList[i].StaticOptions := fStaticOptions;
         fList[i].OnMainListUpdate := OnItemListUpdate;
         fList[i].OnSmallListUpdate := OnItemListUpdate;
       end;

@@ -76,7 +76,7 @@ implementation
 
 uses
   AuxTypes,
-  IL_Utils, TemplatesForm;
+  IL_Utils, TemplatesForm, UpdateForm;
 
 {$R *.dfm}
 
@@ -508,31 +508,25 @@ end;
 procedure TfShopsForm.btnUpdateAllClick(Sender: TObject);
 var
   i:    Integer;
-  //Temp: TILItemShopUpdates;
+  Temp: TILItemShopUpdateList;
 begin
-(*
-If Assigned(fCurrentItemPtr) then
+If Assigned(fCurrentItem) then
   begin
-    If Length(fCurrentItemPtr^.Shops) > 0 then
+    If fCurrentItem.ShopCount > 0 then
       begin
         frmShopFrame.SaveItemShop;
-        SetLength(Temp,Length(fCurrentItemPtr^.Shops));
+        SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
-            Temp[i].ItemName := Format('[#%d] %s',[fCurrentItemPtr^.Index,fILManager.ItemTitleStr(fCurrentItemPtr^)]);
-            Temp[i].ItemShopPtr := Addr(fCurrentItemPtr^.Shops[i]);
-            Temp[i].ItemShopPtr^.RequiredCount := fCurrentItemPtr^.Count;
+            Temp[i].ItemTitle := Format('[#%d] %s',[fCurrentItem.Index,fCurrentItem.TitleStr]);
+            Temp[i].ItemShop := fCurrentItem.Shops[i];
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
-        For i := 0 to Pred(lvShops.Items.Count) do
-          UpdateListItem(i);
         frmShopFrame.LoadItemShop;
-        RecalcAndShowPrices(nil);
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------

@@ -16,7 +16,7 @@ type
 type
   TILFinderBaseClass = class(TObject)
   protected
-    fVariablesPtr:  PILItemShopParsingVariables;
+    fVariables:     TILItemShopParsingVariables;
     fStringPrefix:  String; // not saved
     fStringSuffix:  String; // not saved
     fIndex:         Integer;
@@ -26,9 +26,9 @@ type
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILFinderBaseClass);
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); virtual;
+    procedure Prepare(Variables: TILItemShopParsingVariables); virtual;
     Function AsString(Decorate: Boolean = True): String; virtual;
-    property VariablesPtr: PILItemShopParsingVariables read fVariablesPtr;
+    property Variables: TILItemShopParsingVariables read fVariables;
     property StringPrefix: String read fStringPrefix write fStringPrefix;
     property StringSuffix: String read fStringSuffix write fStringSuffix;
     property Index: Integer read fIndex write fIndex;
@@ -98,7 +98,7 @@ type
     constructor CreateAsCopy(Source: TILTextComparatorGroup);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
     Function AddComparator(Negate: Boolean = False; Operator: TILSearchOperator = ilsoAND): TILTextComparator; virtual;
@@ -134,7 +134,7 @@ type
     constructor CreateAsCopy(Source: TILAttributeComparator);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     procedure Compare(TagAttribute: TILTagAttribute); override;
     procedure SaveToStream(Stream: TStream); override;
@@ -158,7 +158,7 @@ type
     constructor CreateAsCopy(Source: TILAttributeComparatorGroup);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
     Function AddComparator(Negate: Boolean = False; Operator: TILSearchOperator = ilsoAND): TILAttributeComparator; virtual;
@@ -189,7 +189,7 @@ type
     constructor CreateAsCopy(Source: TILElementComparator);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     procedure Compare(Element: TILHTMLElementNode); virtual;
     procedure SaveToStream(Stream: TStream); virtual;
@@ -215,7 +215,7 @@ type
     constructor CreateAsCopy(Source: TILElementFinderStage);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     Function IndexOf(Item: TObject): Integer; virtual;
     Function AddComparator: TILElementComparator; virtual;
@@ -243,7 +243,7 @@ type
     constructor Create;
     constructor CreateAsCopy(Source: TILElementFinder);
     destructor Destroy; override;
-    procedure Prepare(VariablesPtr: PILItemShopParsingVariables); override;
+    procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     Function StageIndexOf(Stage: TObject): Integer; virtual;
     Function StageAdd: TILElementFinderStage; virtual;
@@ -351,9 +351,12 @@ end;
 //==============================================================================
 
 constructor TILFinderBaseClass.Create;
+var
+  i:  Integer;
 begin
 inherited Create;
-fVariablesPtr := nil;
+For i := Low(fVariables.Vars) to High(fVariables.Vars) do
+  fVariables.Vars[i] := '';
 fStringPrefix := '';
 fStringSuffix := '';
 fIndex := -1;
@@ -365,7 +368,7 @@ end;
 constructor TILFinderBaseClass.CreateAsCopy(Source: TILFinderBaseClass);
 begin
 Create;
-fVariablesPtr := Source.VariablesPtr;
+fVariables := Source.Variables;
 fStringPrefix := Source.StringPrefix;
 fStringSuffix := Source.StringSuffix;
 fIndex := Source.Index;
@@ -374,9 +377,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILFinderBaseClass.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILFinderBaseClass.Prepare(Variables: TILItemShopParsingVariables);
 begin
-fVariablesPtr := VariablesPtr;
+fVariables := Variables;
 end;
 
 //------------------------------------------------------------------------------
@@ -506,28 +509,24 @@ procedure TILTextComparator.Compare(const Text: String);
 var
   Temp: String;
 begin
-If Assigned(fVariablesPtr) then
+If (fVariableIdx >= Low(fVariables.Vars)) and (fVariableIdx <= High(fVariables.Vars)) then
+  Temp := fVariables.Vars[fVariableIdx]
+else
+  Temp := fStr;
+If fCaseSensitive then
   begin
-    If (fVariableIdx >= Low(fVariablesPtr^.Vars)) and (fVariableIdx <= High(fVariablesPtr^.Vars)) then
-      Temp := fVariablesPtr^.Vars[fVariableIdx]
+    If fAllowPartial then
+      fResult := AnsiContainsStr(Text,Temp)
     else
-      Temp := fStr;
-    If fCaseSensitive then
-      begin
-        If fAllowPartial then
-          fResult := AnsiContainsStr(Text,Temp)
-        else
-          fResult := AnsiSameStr(Text,Temp);
-      end
-    else
-      begin
-        If fAllowPartial then
-          fResult := AnsiContainsText(Text,Temp)
-        else
-          fResult := AnsiSameText(Text,Temp);
-      end;
+      fResult := AnsiSameStr(Text,Temp);
   end
-else fResult := False;
+else
+  begin
+    If fAllowPartial then
+      fResult := AnsiContainsText(Text,Temp)
+    else
+      fResult := AnsiSameText(Text,Temp);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -688,13 +687,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILTextComparatorGroup.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILTextComparatorGroup.Prepare(Variables: TILItemShopParsingVariables);
 var
   i:  Integer;
 begin
-inherited Prepare(VariablesPtr);
+inherited Prepare(Variables);
 For i := Low(fItems) to High(fItems) do
-  fItems[i].Prepare(VariablesPtr);
+  fItems[i].Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------
@@ -944,11 +943,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILAttributeComparator.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILAttributeComparator.Prepare(Variables: TILItemShopParsingVariables);
 begin
-inherited Prepare(VariablesPtr);
-fName.Prepare(VariablesPtr);
-fValue.Prepare(VariablesPtr);
+inherited Prepare(Variables);
+fName.Prepare(Variables);
+fValue.Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------
@@ -1143,13 +1142,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILAttributeComparatorGroup.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILAttributeComparatorGroup.Prepare(Variables: TILItemShopParsingVariables);
 var
   i:  Integer;
 begin
-inherited Prepare(VariablesPtr);
+inherited Prepare(Variables);
 For i := Low(fItems) to High(fItems) do
-  fItems[i].Prepare(VariablesPtr);
+  fItems[i].Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------
@@ -1371,12 +1370,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILElementComparator.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILElementComparator.Prepare(Variables: TILItemShopParsingVariables);
 begin
-inherited Prepare(VariablesPtr);
-fTagName.Prepare(VariablesPtr);
-fAttributes.Prepare(VariablesPtr);
-fText.Prepare(VariablesPtr);
+inherited Prepare(Variables);
+fTagName.Prepare(Variables);
+fAttributes.Prepare(Variables);
+fText.Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------
@@ -1525,13 +1524,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILElementFinderStage.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILElementFinderStage.Prepare(Variables: TILItemShopParsingVariables);
 var
   i:  Integer;
 begin
-inherited Prepare(VariablesPtr);
+inherited Prepare(Variables);
 For i := Low(fItems) to High(fItems) do
-  fItems[i].Prepare(VariablesPtr);
+  fItems[i].Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------
@@ -1724,13 +1723,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILElementFinder.Prepare(VariablesPtr: PILItemShopParsingVariables);
+procedure TILElementFinder.Prepare(Variables: TILItemShopParsingVariables);
 var
   i:  Integer;
 begin
-inherited Prepare(VariablesPtr);
+inherited Prepare(Variables);
 For i := Low(fStages) to High(fStages) do
-  fStages[i].Prepare(VariablesPtr);
+  fStages[i].Prepare(Variables);
 end;
 
 //------------------------------------------------------------------------------

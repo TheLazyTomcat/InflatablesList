@@ -19,7 +19,7 @@ type
     fUpdated:       Boolean;
     // cmd options
     fCMDLineParser: TCLPParser;
-    fOptions:       TILCMDManagerOptions;
+    fStaticOptions: TILStaticManagerOptions;  // not changed at runtime
     // main list
     fList:          array of TILItem;
     fCount:         Integer;
@@ -62,7 +62,7 @@ type
     // properties
     property DataProvider: TILDataProvider read fDataProvider;
     property FileName: String read fFileName;
-    property Options: TILCMDManagerOptions read fOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     // events
@@ -136,10 +136,10 @@ fUpdateCounter := 0;
 fUpdated := False;
 // cmd-line options
 fCMDLineParser := TCLPParser.Create;
-fOptions.NoPictures := fCMDLineParser.CommandPresent('no_pics');
-fOptions.TestCode := fCMDLineParser.CommandPresent('test_code');
-fOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
-fOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
+fStaticOptions.NoPictures := fCMDLineParser.CommandPresent('no_pics');
+fStaticOptions.TestCode := fCMDLineParser.CommandPresent('test_code');
+fStaticOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
+fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
 // list
 fCount := 0;
 SetLength(fList,0);
@@ -240,7 +240,7 @@ Grow;
 Result := fCount;
 fList[Result] := TILItem.Create(fDataProvider);
 fList[Result].Index := Result;
-fList[Result].NoPictures := fOptions.NoPictures;
+fList[Result].StaticOptions := fStaticOptions;
 fList[Result].OnMainListUpdate := OnItemListUpdate;
 fList[Result].OnSmallListUpdate := OnItemListUpdate;
 Inc(fCount);
@@ -256,7 +256,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     Result := fCount;
     fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
     fList[Result].Index := Result;
-    fList[Result].NoPictures := fOptions.NoPictures;
+    // static options are copied in item constructor
     fList[Result].OnMainListUpdate := OnItemListUpdate;
     fList[Result].OnSmallListUpdate := OnItemListUpdate;
     Inc(fCount);

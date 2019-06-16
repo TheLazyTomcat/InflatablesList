@@ -179,6 +179,7 @@ try
   fShopTemplates[Result] := TILItemShopTemplate.Create;
   try
     fShopTemplates[Result].LoadFromFile(FileName);
+    fShopTemplates[Result].StaticOptions := fStaticOptions;
   except
     fShopTemplates[Result].Free;
     SetLength(fShopTemplates,Length(fShopTemplates) - 1);

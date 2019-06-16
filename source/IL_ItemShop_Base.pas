@@ -17,6 +17,7 @@ type
     fUpdateCounter:   Integer;
     fUpdated:         Boolean;
     fOnClearSelected: TNotifyEvent;
+    fStaticOptions:   TILStaticManagerOptions;
     // events
     fOnListUpdate:    TNotifyEvent;
     fOnValuesUpdate:  TNotifyEvent;
@@ -77,8 +78,11 @@ type
     procedure PriceHistoryClear; virtual;
     procedure AvailPriceHistoryAdd; virtual;
     procedure UpdateAvailAndPriceHistory; virtual;
+    // other methods
+    procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
     // properties
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
     property OnClearSelected: TNotifyEvent read fOnClearSelected write fOnClearSelected;
     property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
     property OnValuesUpdate: TNotifyEvent read fOnValuesUpdate write fOnValuesUpdate;
@@ -99,8 +103,8 @@ type
     property PriceHistoryEntries[Index: Integer]: TILItemShopHistoryEntry read GetPriceHistoryEntry;
     property Notes: String read fNotes write SetNotes;
     property ParsingSettings: TILItemShopParsingSettings read fParsingSettings;
-    property LastUpdateRes: TILItemShopUpdateResult read fLastUpdateRes;
-    property LastUpdateMsg: String read fLastUpdateMsg;
+    property LastUpdateRes: TILItemShopUpdateResult read fLastUpdateRes write fLastUpdateRes;
+    property LastUpdateMsg: String read fLastUpdateMsg write fLastUpdateMsg;
   end;
 
 implementation
@@ -265,6 +269,7 @@ SetLength(fAvailHistory,0);
 SetLength(fPriceHistory,0);
 fNotes := '';
 fParsingSettings := TILItemShopParsingSettings.Create;
+fParsingSettings.StaticOptions := fStaticOptions;
 fLastUpdateRes := ilisurSuccess;
 fLastUpdateMsg := '';
 end;
@@ -343,6 +348,7 @@ var
   i:  Integer;
 begin
 inherited Create;
+fStaticOptions := Source.StaticOptions;
 // copy data...
 fSelected := Source.Selected;
 fUntracked := Source.Untracked;
@@ -511,6 +517,15 @@ else
           (fPriceHistory[High(fPriceHistory)].Value <> Int32(fPrice))) then
       AvailPriceHistoryAdd;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.ReplaceParsingSettings(Source: TILItemShopParsingSettings);
+begin
+fParsingSettings.Free;
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
+fParsingSettings.StaticOptions := fStaticOptions;
 end;
 
 end.

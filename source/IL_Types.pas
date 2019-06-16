@@ -219,14 +219,14 @@ type
 //- command-line options -------------------------------------------------------
 
 type
-  TILCMDManagerOptions = record
+  TILStaticManagerOptions = record
     NoPictures: Boolean;
     TestCode:   Boolean;
     SavePages:  Boolean;
     LoadPages:  Boolean;
   end;
 
-Function IL_ThreadSafeCopy(const Value: TILCMDManagerOptions): TILCMDManagerOptions;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 
 implementation
 
@@ -813,7 +813,7 @@ end;
 //==============================================================================
 //- command-line options -------------------------------------------------------
 
-Function IL_ThreadSafeCopy(const Value: TILCMDManagerOptions): TILCMDManagerOptions;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 begin
 Result := Value;
 // no need to do anything more atm.

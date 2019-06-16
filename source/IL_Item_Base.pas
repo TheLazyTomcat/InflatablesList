@@ -19,6 +19,7 @@ type
     fFilteredOut:           Boolean;
     fUpdateCounter:         Integer;
     fUpdated:               TILItemUpdatedFlags;
+    fStaticOptions:         TILStaticManagerOptions;
     // events
     fOnMainListUpdate:      TNotifyEvent;
     fOnSmallListUpdate:     TNotifyEvent;
@@ -138,6 +139,7 @@ type
     property Index: Integer read fIndex write fIndex;
     property Render: TBitmap read fRender;
     property FilteredOut: Boolean read fFilteredOut;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
     // events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
@@ -687,6 +689,7 @@ var
   i:  Integer;
 begin
 Create(DataProvider);
+fStaticOptions := Source.StaticOptions;
 // do not copy time of addition, leave it as is (actual time)
 If CopyPics then
   begin
@@ -856,6 +859,7 @@ begin
 Grow;
 Result := fShopCount;
 fShops[Result] := TILItemShop.Create;
+fShops[Result].StaticOptions := fStaticOptions;
 fShops[Result].OnClearSelected := ClearSelectedHandler;
 fShops[Result].OnListUpdate := UpdateShopListItem;
 fShops[Result].OnValuesUpdate := UpdateShopValues;

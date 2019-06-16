@@ -11,7 +11,6 @@ uses
 type
   TILItem_Draw = class(TILItem_Utils)
   protected
-    fNoPictures:  Boolean;
     fMainWidth:   Integer;
     fMainHeight:  Integer;
     fMainFont:    TFont;
@@ -23,7 +22,6 @@ type
     procedure Initialize; override;
     procedure ReinitDrawSize(MainList: TListBox); virtual;
     procedure ReDraw; virtual;
-    property NoPictures: Boolean read fNoPictures write fNoPictures;
   end;
 
 implementation
@@ -181,7 +179,7 @@ with fRender,fRender.Canvas do
       end;
 
     // main picture
-    If Assigned(fItemPicture) and not fNoPictures then
+    If Assigned(fItemPicture) and not StaticOptions.NoPictures then
       Draw(fMainWidth - 102,2,fItemPicture)
     else
       Draw(fMainWidth - 102,2,fDataProvider.ItemDefaultPictures[fItemType]);
@@ -228,7 +226,6 @@ end;
 procedure TILItem_Draw.Initialize;
 begin
 inherited;
-fNoPictures := False;
 fMainWidth := 0;
 fMainHeight := 0;
 fMainFont := nil;

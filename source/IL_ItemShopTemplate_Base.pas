@@ -5,11 +5,14 @@ unit IL_ItemShopTemplate_Base;
 interface
 
 uses
-  IL_ItemShopParsingSettings, IL_ItemShop;
+  IL_Types, IL_ItemShopParsingSettings, IL_ItemShop;
 
 type
   TILItemShopTemplate_Base = class(TObject)
   protected
+    // internals
+    fStaticOptions:   TILStaticManagerOptions;
+    // data
     fName:            String;
     fShopName:        String;
     fUntracked:       Boolean;
@@ -23,6 +26,7 @@ type
     constructor Create(BaseOn: TILItemShop); overload;
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
     property Name: String read fName write fName;
     property ShopName: String read fShopName write fShopName;
     property Untracked: Boolean read fUntracked write fUntracked;
@@ -38,6 +42,10 @@ uses
 
 procedure TILItemShopTemplate_Base.Initialize;
 begin
+fStaticOptions.NoPictures := False;
+fStaticOptions.TestCode := False;
+fStaticOptions.SavePages := False;
+fStaticOptions.LoadPages := False;
 fName := '';
 fShopName := '';
 fUntracked := False;
@@ -66,6 +74,7 @@ end;
 constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
 inherited Create;
+fStaticOptions := BaseOn.StaticOptions;
 fName := '';
 fShopName := BaseOn.Name;
 UniqueString(fShopName);

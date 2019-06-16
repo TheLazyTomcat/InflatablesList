@@ -12,8 +12,9 @@ uses
 type
   TILItemShopParsingSettings_Base = class(TObject)
   protected
-    // internals, used only in parsing process (not saved)
+    // internals
     fRequiredCount:   UInt32;
+    fStaticOptions:   TILStaticManagerOptions;
     // data
     fVariables:       TILItemShopParsingVariables;
     fTemplateRef:     String;
@@ -48,9 +49,11 @@ type
     procedure PriceExtractionSettingsClear; virtual;
     // properties
     property RequiredCount: UInt32 read fRequiredCount write fRequiredCount;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
     // data
     property VariableCount: Integer read GetVariableCount;
     property Variables[Index: Integer]: String read GetVariable write SetVariable;
+    property VariablesRec: TILItemShopParsingVariables read fVariables;
     property TemplateReference: String read fTemplateRef write fTemplateRef;
     property DisableParsingErrors: Boolean read fDisableParsErrs write fDisableParsErrs;
     property AvailExtractionSettingsCount: Integer read GetAvailExtrSettCount;
@@ -156,6 +159,10 @@ end;
 procedure TILItemShopParsingSettings_Base.Initialize;
 begin
 fRequiredCount := 1;
+fStaticOptions.NoPictures := False;
+fStaticOptions.TestCode := False;
+fStaticOptions.SavePages := False;
+fStaticOptions.LoadPages := False;
 InitializeData;
 end;
 
@@ -183,6 +190,7 @@ begin
 inherited Create;
 // copy fields
 fRequiredCount := Source.RequiredCount;
+fStaticOptions := Source.StaticOptions;
 // copy data
 For i := Low(fVariables.Vars) to High(fVariables.Vars) do
   begin

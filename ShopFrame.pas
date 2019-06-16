@@ -590,26 +590,11 @@ end;
 
 procedure TfrmShopFrame.btnParsCopyToLocalClick(Sender: TObject);
 begin
-(*
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   If MessageDlg('Are you sure you want to replace existing finder objects with the ones from selected template?',
     mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    with fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ShopData.ParsingSettings do
-      begin
-        fCurrentItemShopPtr^.ParsingSettings.Available.Extraction := Available.Extraction;
-        fCurrentItemShopPtr^.ParsingSettings.Price.Extraction := Price.Extraction;
-        SetLength(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction,
-          Length(fCurrentItemShopPtr^.ParsingSettings.Available.Extraction));
-        SetLength(fCurrentItemShopPtr^.ParsingSettings.Price.Extraction,
-          Length(fCurrentItemShopPtr^.ParsingSettings.Price.Extraction));
-        FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Available.Finder);
-        FreeAndNil(fCurrentItemShopPtr^.ParsingSettings.Price.Finder);
-        fCurrentItemShopPtr^.ParsingSettings.Available.Finder :=
-          TILElementFinder.CreateAsCopy(TILElementFinder(Available.Finder));
-        fCurrentItemShopPtr^.ParsingSettings.Price.Finder :=
-          TILElementFinder.CreateAsCopy(TILElementFinder(Price.Finder));
-      end;
-      *)
+    fCurrentItemShop.ReplaceParsingSettings(
+      fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ParsingSettings);
 end;
 
 //------------------------------------------------------------------------------
@@ -634,25 +619,24 @@ end;
 
 procedure TfrmShopFrame.btnUpdateClick(Sender: TObject);
 var
-  //Temp:   TILItemShop;
+  Temp:   TILItemShop;
   Result: Boolean;
 begin
-(*
-If Assigned(fCurrentItemShopPtr) then
+If Assigned(fCurrentItemShop) then
   begin
     SaveItemShop;
     Screen.Cursor := crHourGlass;
     try
-      fILManager.ItemShopCopyForUpdate(fCurrentItemShopPtr^,Temp);
+      Temp := TILItemShop.CreateAsCopy(fCurrentItemShop);
       try
-        Result := fILManager.ItemShopUpdate(Temp,fILManager.Options);
+        Result := Temp.Update;
         // retrieve results
-        fCurrentItemShopPtr^.Available := Temp.Available;
-        fCurrentItemShopPtr^.Price := Temp.Price;
-        fCurrentItemShopPtr^.LastUpdateRes := Temp.LastUpdateRes;
-        fCurrentItemShopPtr^.LastUpdateMsg := Temp.LastUpdateMsg;
+        fCurrentItemShop.Available := Temp.Available;
+        fCurrentItemShop.Price := Temp.Price;
+        fCurrentItemShop.LastUpdateRes := Temp.LastUpdateRes;
+        fCurrentItemShop.LastUpdateMsg := Temp.LastUpdateMsg;
       finally
-        fILManager.ItemShopFinalize(Temp);
+        FreeAndNil(Temp);
       end;
     finally
       Screen.Cursor := crDefault;
@@ -662,10 +646,7 @@ If Assigned(fCurrentItemShopPtr) then
     else
       MessageDlg('Update failed - see last update message for details.',mtInformation,[mbOK],0);
     LoadItemShop;
-    DoListItemChange;
-    DoPriceChange;    
   end;
-  *)
 end;
 
 //------------------------------------------------------------------------------

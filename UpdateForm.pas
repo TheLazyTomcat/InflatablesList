@@ -6,9 +6,17 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin,
   ConcurrentTasks,
-  InflatablesList_Types, InflatablesList;
+  IL_Types, IL_ItemShop, IL_Item, IL_Manager;
 
 type
+  TILItemShopUpdateItem = record
+    ItemTitle:  String;
+    ItemShop:   TILItemShop;
+    Done:       Boolean;
+  end;
+
+  TILItemShopUpdateList = array of TILItemShopUpdateItem;
+
   TfUpdateForm = class(TForm)
     pnlInfo: TPanel;
     btnAction: TButton;
@@ -26,7 +34,7 @@ type
     procedure tmrUpdateTimer(Sender: TObject);
   private
     fILManager:       TILManager;
-    fShopsToUpdate:   TILItemShopUpdates;
+    fUpdateList:      TILItemShopUpdateList;
     fUpdater:         TCNTSManager;
     fCanContinue:     Boolean;
     fProcessedIndex:  Integer;  // index of next item to be processed
@@ -40,7 +48,7 @@ type
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowUpdate(ShopsToUpdate: TILItemShopUpdates);
+    procedure ShowUpdate(UpdateList: TILItemShopUpdateList);
   end;
 
 var
@@ -60,7 +68,6 @@ type
   private
     fProcessingIndex: Integer;
     fItemShop:        TILItemShop;
-    fOptions:         TILCMDManagerOptions;
   public
     constructor Create(ILManager: TILManager; ItemShop: TILItemShop; ProcessingIndex: Integer);
     destructor Destroy; override;
@@ -75,15 +82,14 @@ constructor TILUpdateTask.Create(ILManager: TILManager; ItemShop: TILItemShop; P
 begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
-ILManager.ItemShopCopyForUpdate(ItemShop,fItemShop);
-fOptions := IL_ThreadSafeCopy(ILManager.Options)
+fItemShop := TILItemShop.CreateAsCopy(ItemShop);
 end;
 
 //------------------------------------------------------------------------------
 
 destructor TILUpdateTask.Destroy;
 begin
-TILManager.ItemShopFinalize(fItemShop);
+fItemShop.Free;
 inherited;
 end;
 
@@ -92,7 +98,7 @@ end;
 Function TILUpdateTask.Main: Boolean;
 begin
 If not Terminated then
-  Result := TILManager.ItemShopUpdate(fItemShop,fOptions)
+  Result := fItemShop.Update
 else
   Result := False;
 Cycle;
@@ -106,6 +112,7 @@ procedure TfUpdateForm.MakeLog(Index: Integer);
 var
   TagStr: String;
 begin
+(*
 If not AnsiSameText(fLastItemName,fShopsToUpdate[Index].ItemName) then
   begin
     If meLog.Lines.Count > 0 then
@@ -120,6 +127,7 @@ else
 meLog.Lines.Add(Format('%s%s %s... %s',[TagStr,fShopsToUpdate[Index].ItemShopPtr^.Name,
   StringOfChar('.',fMaxShopNameLen - Length(fShopsToUpdate[Index].ItemShopPtr^.Name)),
   fShopsToUpdate[Index].ItemShopPtr^.LastUpdateMsg]));
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -128,6 +136,7 @@ procedure TfUpdateForm.ContinueProcessing;
 var
   Index:  Integer;
 begin
+(*
 If Assigned(fUpdater) and fCanContinue then
   while (fProcessedIndex <= High(fShopsToUpdate)) and
     (fUpdater.GetActiveTaskCount < fUpdater.MaxConcurrentTasks) do
@@ -137,12 +146,14 @@ If Assigned(fUpdater) and fCanContinue then
       fUpdater.StartTask(Index);
       Inc(fProcessedIndex);
     end;
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
 begin
+(*
 Inc(fDoneCount);
 // retrieve results from the task
 with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
@@ -181,6 +192,7 @@ else
     btnAction.Tag := 2;
     btnAction.Caption := 'Done';
   end;
+  *)
 end;
 
 //==============================================================================
@@ -194,10 +206,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfUpdateForm.ShowUpdate(ShopsToUpdate: TILItemShopUpdates);
+procedure TfUpdateForm.ShowUpdate(UpdateList: TILItemShopUpdateList);
 var
   i:  Integer;
 begin
+(*
 If Length(ShopsToUpdate) > 0 then
   begin
     // init form
@@ -238,6 +251,7 @@ If Length(ShopsToUpdate) > 0 then
       meLog.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'list.update.log');
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
+*)
 end;
 
 //==============================================================================

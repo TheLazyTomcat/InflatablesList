@@ -182,6 +182,7 @@ For i := ShopLowIndex to ShopHighIndex do
   begin
     fShops[i] := TILItemShop.Create;
     fShops[i].LoadFromStream(Stream);
+    fShops[i].StaticOptions := fStaticOptions;
     fShops[i].OnClearSelected := ClearSelectedHandler;
     fShops[i].OnListUpdate := UpdateShopListItem;
     fShops[i].OnValuesUpdate := UpdateShopValues;

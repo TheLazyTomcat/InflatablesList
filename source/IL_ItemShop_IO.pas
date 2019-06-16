@@ -7,17 +7,17 @@ interface
 uses
   Classes,
   AuxTypes,
-  IL_ItemShop_Base;
+  IL_ItemShop_Update;
 
 const
-  IL_ITEMSHOP_SIGNATURE = UInt32($53494C49);  // ILIS
+  IL_ITEMSHOP_SIGNATURE = UInt32($504F4853);  // SHOP
 
   IL_ITEMSHOP_STREAMSTRUCTURE_00000000 = UInt32($00000000);
 
   IL_ITEMSHOP_STREAMSTRUCTURE_SAVE = IL_ITEMSHOP_STREAMSTRUCTURE_00000000;
 
 type
-  TILItemShop_IO = class(TILITemShop_Base)
+  TILItemShop_IO = class(TILITemShop_Update)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;

@@ -59,7 +59,10 @@ uses
   IL_Manager_IO_Converter in 'source\IL_Manager_IO_Converter.pas',
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
   ExtractionFrame in 'ExtractionFrame.pas' {frmExtractionFrame: TFrame},
-  ParsingForm in 'ParsingForm.pas' {fParsingForm};
+  ParsingForm in 'ParsingForm.pas' {fParsingForm},
+  IL_ItemShop_Update in 'source\IL_ItemShop_Update.pas',
+  UpdateForm in 'UpdateForm.pas' {fUpdateForm},
+  InflatablesList_ShopUpdate in 'source\InflatablesList_ShopUpdate.pas';
 
 {$R *.res}
 
@@ -76,6 +79,7 @@ begin
   Application.CreateForm(TfOverviewForm, fOverviewForm);
   Application.CreateForm(TfSelectionForm, fSelectionForm);
   Application.CreateForm(TfParsingForm, fParsingForm);
+  Application.CreateForm(TfUpdateForm, fUpdateForm);
   //Application.CreateForm(TfSortForm, fSortForm);
   //Application.CreateForm(TfSumsForm, fSumsForm);
   //Application.CreateForm(TfSpecialsForm, fSpecialsForm);

@@ -163,7 +163,7 @@ implementation
 uses
   AuxTypes,
   IL_Types, IL_Utils, IL_ItemShop,
-  TextEditForm, ShopsForm;
+  TextEditForm, ShopsForm, UpdateForm;
 
 {$R *.dfm}
 
@@ -212,7 +212,7 @@ procedure TfrmItemFrame.UpdatePictures(Sender: TObject);
 begin
 imgPictureA.Tag := 0;
 imgPictureB.Tag := 0;
-If Assigned(fCurrentItem) and not fILManager.Options.NoPictures then
+If Assigned(fCurrentItem) and not fILManager.StaticOptions.NoPictures then
   begin
     If Assigned(fCurrentItem.ItemPicture) and Assigned(fCurrentItem.PackagePicture) then
       begin
@@ -1055,39 +1055,35 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnUpdateShopsClick(Sender: TObject);
-(*
 var
   i:        Integer;
-  Temp:     TILItemShopUpdates;
+  Temp:     TILItemShopUpdateList;
   OldAvail: Int32;
   OldPrice: UInt32;
-*)
 begin
-(*
 If Assigned(fCurrentItem) then
   begin
-    If fILManager.ItemShopsCount(fCurrentItem) > 0 then
+    If fCurrentItem.ShopCount > 0 then
       begin
         SaveItem;
-        SetLength(Temp,fILManager.ItemShopsCount(fCurrentItem));
+        fCurrentItem.BroadcastReqCount;
+        SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
-            Temp[i].ItemName := Format('[#%d] %s',[fCurrentItem.Index,fILManager.ItemTitleStr(fCurrentItem)]);
-            Temp[i].ItemShopPtr := Addr(fCurrentItem.Shops[i]);
-            Temp[i].ItemShopPtr^.RequiredCount := fCurrentItem.Count;
+            Temp[i].ItemTitle := Format('[#%d] %s',[fCurrentItem.Index,fCurrentItem.TitleStr]);
+            Temp[i].ItemShop := fCurrentItem.Shops[i];
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
         OldAvail := fCurrentItem.AvailableSelected;
         OldPrice := fCurrentItem.UnitPriceSelected;
-        fILManager.ItemUpdatePriceAndAvail(fCurrentItem);
-        fILManager.ItemFlagPriceAndAvail(fCurrentItem,OldPrice,OldAvail);
+        fCurrentItem.UpdatePriceAndAvail;
+        fCurrentItem.FlagPriceAndAvail(OldPrice,OldAvail);
         LoadItem;
-        DoListItemChange;
+        fCurrentItem.ReDraw;
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
-*)
 end;
 
 //------------------------------------------------------------------------------

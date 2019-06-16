@@ -2,12 +2,15 @@ unit MainForm;
 
 {$message 'menu - add "Item shops...", "Update item shops..." and "Update item shops history"'}
 {$message 'make most menu shortcuts global (all except item/list manipulations)'}
+{$message 'propagate changes to price/avail to manager, add event to these (overview update)'}
+{$message 'specials - add second param'}
+{$message 'change section sigs to normal strings'}
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, XPMan, ActnList,
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, ActnList, XPMan,
   ItemFrame,
   IL_Manager;
 
@@ -124,9 +127,9 @@ implementation
 
 uses
   AuxTypes, WinFileInfo,
-  InflatablesList_Backup,
+  IL_Types, InflatablesList_Backup, IL_ItemShop,
   TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm, TemplatesForm,
-  OverviewForm, SelectionForm, ParsingForm;
+  OverviewForm, SelectionForm, ParsingForm, UpdateForm;
 
 {$R *.dfm}
 
@@ -139,12 +142,12 @@ procedure TfMainForm.FillCopyright;
 begin
 with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
 try
-  sbStatusBar.Panels[2].Text := Format('%s, version %s%s %d.%d.%d.%d %s',[
+  sbStatusBar.Panels[2].Text := Format('%s, version %d.%d.%d %s%s #%d %s',[
     VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
-    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
+    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
     {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
 finally
@@ -232,7 +235,7 @@ fSumsForm.Initialize(fILManager);
 fShopsForm.Initialize(fILManager);
 fTemplatesForm.Initialize(fILManager);
 fTextEditForm.Initialize(fILManager);
-//fUpdateForm.Initialize(fILManager);
+fUpdateForm.Initialize(fILManager);
 fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
@@ -541,34 +544,30 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted, OnlySelected: Boolean);
-(*
 var
   i,j,k:    Integer;
-  Temp:     TILItemShopUpdates;
+  Temp:     TILItemShopUpdateList;
   OldAvail: Int32;
   OldPrice: UInt32;
-*)
 begin
-(*
 frmItemFrame.SaveItem;
 // preallocate array
 k := 0;
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-    For j := Low(fILManager[i].Shops) to High(fILManager[i].Shops) do
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       If fILManager[i].Shops[j].Selected or not OnlySelected then
         Inc(k);
 SetLength(Temp,k);
 // fill the array
 k := 0;
-For i := 0 to Pred(fILManager.ItemCount) do
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-    For j := Low(fILManager[i].Shops) to High(fILManager[i].Shops) do
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       If fILManager[i].Shops[j].Selected or not OnlySelected then
         begin
-          Temp[k].ItemName := Format('[#%d] %s',[i,fILManager.ItemTitleStr(fILManager[i])]);
-          Temp[k].ItemShopPtr := Addr(fILManager.ItemPtrs[i]^.Shops[j]);
-          Temp[k].ItemShopPtr^.RequiredCount := fILManager.ItemPtrs[i]^.Count;
+          Temp[k].ItemTitle := Format('[#%d] %s',[i,fILManager[i].TitleStr]);
+          Temp[k].ItemShop := fILManager[i].Shops[j];
           Temp[k].Done := False;
           Inc(k);
         end;
@@ -577,21 +576,18 @@ If Length(Temp) > 0 then
     // update
     fUpdateForm.ShowUpdate(Temp);
     // recalc prices
-    For i := 0 to Pred(fILManager.ItemCount) do
+    For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       If ilifWanted in fILManager[i].Flags then
         begin
           OldAvail := fILManager[i].AvailableSelected;
           OldPrice := fILManager[i].UnitPriceSelected;
-          fILManager.ItemUpdatePriceAndAvail(fILManager.ItemPtrs[i]^);
-          fILManager.ItemFlagPriceAndAvail(fILManager.ItemPtrs[i]^,OldPrice,OldAvail);
+          fILManager[i].UpdatePriceAndAvail;
+          fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
         end;
     // show changes
     frmItemFrame.LoadItem;
-    fILManager.ItemRedraw;
-    lbList.Invalidate;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
-*)
 end;
 
 //------------------------------------------------------------------------------

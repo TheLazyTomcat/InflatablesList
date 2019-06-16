@@ -102,8 +102,12 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
+  //prealloc
+  FileStream.Size := fCount + (45 * 1024); {~45Kib per item}
   SaveToStream(FileStream);
+  FileStream.Size := FileStream.Position;  
   FileStream.SaveToFile(FileName);
+  fFileName := FileName;
 finally
   FileStream.Free;
 end;
@@ -120,6 +124,7 @@ try
   FileStream.LoadFromFile(FileName);
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
+  fFileName := FileName;
 finally
   FileStream.Free;
 end;

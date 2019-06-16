@@ -80,16 +80,6 @@ begin
   Application.CreateForm(TfSelectionForm, fSelectionForm);
   Application.CreateForm(TfParsingForm, fParsingForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
-  //Application.CreateForm(TfSortForm, fSortForm);
-  //Application.CreateForm(TfSumsForm, fSumsForm);
-  //Application.CreateForm(TfSpecialsForm, fSpecialsForm);
-  //Application.CreateForm(TfShopsForm, fShopsForm);
-  //Application.CreateForm(TfParsingForm, fParsingForm);
-  //Application.CreateForm(TfTemplatesForm, fTemplatesForm);
-  //Application.CreateForm(TfUpdateForm, fUpdateForm);
-  //Application.CreateForm(TfTextEditForm, fTextEditForm);
-  //Application.CreateForm(TfOverviewForm, fOverviewForm);
-  //Application.CreateForm(TfSelectionForm, fSelectionForm);
   fMainForm.InitOtherForms;
   Application.Run;
 end.

@@ -1,58 +1,57 @@
-unit InflatablesList_Item_IO_00000000;
+unit InflatablesList_Item_IO_00000001;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  Classes, Graphics,
+  Classes,
   AuxTypes,
-  InflatablesList_Item_IO;
+  InflatablesList_Item_IO_00000000;
 
 type
-  TILItem_IO_00000000 = class(TILItem_IO)
+  TILItem_IO_00000001 = class(TILItem_IO_00000000)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItem_00000000(Stream: TStream); virtual;
-    procedure LoadItem_00000000(Stream: TStream); virtual;
-    procedure SavePicture_00000000(Stream: TStream; Pic: TBitmap); virtual;
-    procedure LoadPicture_00000000(Stream: TStream; out Pic: TBitmap); virtual;
+    procedure SaveItem_00000001(Stream: TStream); virtual;
+    procedure LoadItem_00000001(Stream: TStream); virtual;
   end;
 
 implementation
 
 uses
-  SysUtils,
+  SysUtils, Graphics,
   BinaryStreaming,
   InflatablesList_Types,
+  InflatablesList_Item_IO,  
   InflatablesList_ItemShop;
 
-procedure TILItem_IO_00000000.InitSaveFunctions(Struct: UInt32);
+procedure TILItem_IO_00000001.InitSaveFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000000 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000001 then
   begin
-    fFNSaveToStream := SaveItem_00000000;
+    fFNSaveToStream := SaveItem_00000001;
     fFNSavePicture := SavePicture_00000000;
   end
-else raise Exception.CreateFmt('TILItem_IO_00000000.InitSaveFunctions: Invalid stream structure (%.8x).',[Struct]);
+else inherited InitSaveFunctions(Struct);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000000.InitLoadFunctions(Struct: UInt32);
+procedure TILItem_IO_00000001.InitLoadFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000000 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000001 then
   begin
-    fFNLoadFromStream := LoadItem_00000000;
+    fFNLoadFromStream := LoadItem_00000001;
     fFNLoadPicture := LoadPicture_00000000;
   end
-else raise Exception.CreateFmt('TILItem_IO_00000000.InitLoadFunctions: Invalid stream structure (%.8x).',[Struct]);
+else inherited InitLoadFunctions(Struct);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000000.SaveItem_00000000(Stream: TStream);
+procedure TILItem_IO_00000001.SaveItem_00000001(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -73,10 +72,12 @@ Stream_WriteString(Stream,fTextTag);
 // extended specs
 Stream_WriteUInt32(Stream,fWantedLevel);
 Stream_WriteString(Stream,fVariant);
+Stream_WriteInt32(Stream,IL_ItemMaterialToNum(fMaterial));
 Stream_WriteUInt32(Stream,fSizeX);
 Stream_WriteUInt32(Stream,fSizeY);
 Stream_WriteUInt32(Stream,fSizeZ);
 Stream_WriteUInt32(Stream,fUnitWeight);
+Stream_WriteUInt32(Stream,fMaterialThickness);
 // others
 Stream_WriteString(Stream,fNotes);
 Stream_WriteString(Stream,fReviewURL);
@@ -98,7 +99,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000000.LoadItem_00000000(Stream: TStream);
+procedure TILItem_IO_00000001.LoadItem_00000001(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -119,10 +120,12 @@ fTextTag := Stream_ReadString(Stream);
 // extended specs
 fWantedLevel := Stream_ReadUInt32(Stream);
 fVariant := Stream_ReadString(Stream);
+fMaterial := IL_NumToItemMaterial(Stream_ReadInt32(Stream));
 fSizeX := Stream_ReadUInt32(Stream);
 fSizeY := Stream_ReadUInt32(Stream);
 fSizeZ := Stream_ReadUInt32(Stream);
 fUnitWeight := Stream_ReadUInt32(Stream);
+fMaterialThickness := Stream_ReadUInt32(Stream);
 // other info
 fNotes := Stream_ReadString(Stream);
 fReviewURL := Stream_ReadString(Stream);
@@ -151,53 +154,6 @@ For i := ShopLowIndex to ShopHighIndex do
     fShops[i].OnAvailHistoryUpdate := UpdateShopAvailHistory;
     fShops[i].OnPriceHistoryUpdate := UpdateShopPriceHistory;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_IO_00000000.SavePicture_00000000(Stream: TStream; Pic: TBitmap);
-var
-  TempStream: TMemoryStream;
-begin
-If Assigned(Pic) then
-  begin
-    TempStream := TMemoryStream.Create;
-    try
-      Pic.SaveToStream(TempStream);
-      Stream_WriteUInt32(Stream,TempStream.Size);
-      Stream.CopyFrom(TempStream,0);
-    finally
-      TempStream.Free;
-    end;
-  end
-else Stream_WriteUInt32(Stream,0);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_IO_00000000.LoadPicture_00000000(Stream: TStream; out Pic: TBitmap);
-var
-  Size:       UInt32;
-  TempStream: TMemoryStream;
-begin
-Size := Stream_ReadUInt32(Stream);
-If Size > 0 then
-  begin
-    TempStream := TMemoryStream.Create;
-    try
-      TempStream.CopyFrom(Stream,Size);
-      TempStream.Seek(0,soBeginning);
-      Pic := TBitmap.Create;
-      try
-        Pic.LoadFromStream(TempStream);
-      except
-        FreeAndNil(Pic);
-      end;
-    finally
-      TempStream.Free;
-    end;
-  end
-else Pic := nil;
 end;
 
 end.

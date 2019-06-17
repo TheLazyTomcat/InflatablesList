@@ -292,6 +292,11 @@ object fMainForm: TfMainForm
     object N8: TMenuItem
       Caption = '-'
     end
+    object mniLM_Notes: TMenuItem
+      Caption = 'Notes...'
+      ShortCut = 16462
+      OnClick = mniLM_NotesClick
+    end
     object mniLM_Save: TMenuItem
       Caption = 'Save now'
       ShortCut = 16467
@@ -395,6 +400,11 @@ object fMainForm: TfMainForm
       Caption = 'acSelection'
       ShortCut = 16468
       OnExecute = acSelectionExecute
+    end
+    object acNotes: TAction
+      Caption = 'acNotes'
+      ShortCut = 16462
+      OnExecute = acNotesExecute
     end
     object acSave: TAction
       Caption = 'acSave'

@@ -19,7 +19,7 @@ uses
   InflatablesList_HTML_Preprocessor in 'source\InflatablesList_HTML_Preprocessor.pas',
   InflatablesList_HTML_Tokenizer in 'source\InflatablesList_HTML_Tokenizer.pas',
   InflatablesList_HTML_Parser in 'source\InflatablesList_HTML_Parser.pas',
-  InflatablesList_ShopUpdate in 'source\InflatablesList_ShopUpdate.pas',    
+  InflatablesList_ShopUpdate in 'source\InflatablesList_ShopUpdate.pas',
   InflatablesList_Item_Base in 'source\InflatablesList_Item_Base.pas',
   InflatablesList_Item_Utils in 'source\InflatablesList_Item_Utils.pas',
   InflatablesList_Item_Draw in 'source\InflatablesList_Item_Draw.pas',
@@ -63,7 +63,9 @@ uses
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
-  UpdateForm in 'UpdateForm.pas' {fUpdateForm};
+  UpdateForm in 'UpdateForm.pas' {fUpdateForm},
+  InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
+  InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas';
 
 {$R *.res}
 

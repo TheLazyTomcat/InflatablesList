@@ -49,6 +49,9 @@ type
 
   TILItemFlags = set of TILItemFlag;
 
+  TILItemMaterial = (ilimUnknown,ilimPVC,ilimFlockedPVC,ilimLatex,ilimSilicone,
+                     ilimGumoTex,ilimPolyester,ilimOther);
+
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 Function IL_NumToItemType(Num: Int32): TILItemType;
 
@@ -59,6 +62,9 @@ Function IL_SetItemFlagValue(var ItemFlags: TILItemFlags; ItemFlag: TILItemFlag;
 
 Function IL_EncodeItemFlags(ItemFlags: TILItemFlags): UInt32;
 Function IL_DecodeItemFlags(Flags: UInt32): TILItemFlags;
+
+Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
+Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
@@ -469,6 +475,41 @@ IL_SetItemFlagValue(Result,ilifPriceChange,GetFlagState(Flags,$00000400));
 IL_SetItemFlagValue(Result,ilifAvailChange,GetFlagState(Flags,$00000800));
 IL_SetItemFlagValue(Result,ilifNotAvailable,GetFlagState(Flags,$00001000));
 IL_SetItemFlagValue(Result,ilifLost,GetFlagState(Flags,$00002000));
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
+begin
+case Material of
+  ilimOther:      Result := 1;
+  ilimPVC:        Result := 2;
+  ilimFlockedPVC: Result := 3;
+  ilimLatex:      Result := 4;
+  ilimSilicone:   Result := 5;
+  ilimGumoTex:    Result := 6;
+  ilimPolyester:  Result := 7;
+else
+ {ilimUnknown}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
+begin
+case Num of
+  1:  Result := ilimOther;
+  2:  Result := ilimPVC;
+  3:  Result := ilimFlockedPVC;
+  4:  Result := ilimLatex;
+  5:  Result := ilimSilicone;
+  6:  Result := ilimGumoTex;
+  7:  Result := ilimPolyester;
+else
+  Result := ilimUnknown;
+end;
 end;
 
 //==============================================================================

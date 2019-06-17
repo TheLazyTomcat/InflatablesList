@@ -25,6 +25,8 @@ type
     // main list
     fList:          array of TILItem;
     fCount:         Integer;
+    // other data
+    fNotes:         String;
     // events
     fOnListUpdate:  TNotifyEvent;
     Function GetCapacity: Integer; override;
@@ -68,6 +70,7 @@ type
     property StaticOptions: TILStaticManagerOptions read fStaticOptions;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
+    property Notes: String read fNotes write fNotes;
     // events
     property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
   end;
@@ -146,6 +149,7 @@ fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
 // list
 fCount := 0;
 SetLength(fList,0);
+fNotes := '';
 end;
 
 //------------------------------------------------------------------------------

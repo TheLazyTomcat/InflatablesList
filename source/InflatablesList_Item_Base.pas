@@ -49,12 +49,14 @@ type
     fFlags:                 TILItemFlags;
     fTextTag:               String;
     // extended specs
-    fWantedLevel:           UInt32;   // 0..7
-    fVariant:               String;   // color, pattern, ...
-    fSizeX:                 UInt32;   // length (diameter if applicable)
-    fSizeY:                 UInt32;   // width (inner diameter if applicable)
-    fSizeZ:                 UInt32;   // height
-    fUnitWeight:            UInt32;   // [g]
+    fWantedLevel:           UInt32;           // 0..7
+    fVariant:               String;           // color, pattern, ...
+    fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
+    fSizeX:                 UInt32;           // length (diameter if applicable)
+    fSizeY:                 UInt32;           // width (inner diameter if applicable)
+    fSizeZ:                 UInt32;           // height
+    fUnitWeight:            UInt32;           // [g]
+    fMaterialThickness:     UInt32;           // [um] - micrometers
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
@@ -85,10 +87,12 @@ type
     procedure SetTextTag(const Value: String); virtual;
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
+    procedure SetMaterial(Value: TILItemMaterial); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
     procedure SetSizeZ(Value: UInt32); virtual;
     procedure SetUnitWeight(Value: UInt32); virtual;
+    procedure SetMaterialThickness(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetItemPictureFile(const Value: String); virtual;
@@ -167,10 +171,12 @@ type
     property TextTag: String read fTextTag write SetTextTag;
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
+    property Material: TILItemMaterial read fMaterial write SetMaterial;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
     property SizeZ: UInt32 read fSizeZ write SetSizeZ;
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
+    property MaterialThickness: UInt32 read fMaterialThickness write SetMaterialThickness;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
@@ -341,6 +347,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.SetMaterial(Value: TILItemMaterial);
+begin
+If fMaterial <> Value then
+  begin
+    fMaterial := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.SetSizeX(Value: UInt32);
 begin
 If fSizeX <> Value then
@@ -379,6 +395,16 @@ begin
 If fUnitWeight <> Value then
   begin
     fUnitWeight := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetMaterialThickness(Value: UInt32);
+begin
+If fMaterialThickness <> Value then
+  begin
+    fMaterialThickness := Value;
   end;
 end;
 
@@ -497,10 +523,12 @@ fTextTag := '';
 // ext. specs
 fWantedLevel := 0;
 fVariant := '';
+fMaterial := ilimUnknown;
 fSizeX := 0;
 fSizeY := 0;
 fSizeZ := 0;
 fUnitWeight := 0;
+fMaterialThickness := 0;
 // other info
 fNotes := '';
 fReviewURL := '';

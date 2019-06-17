@@ -44,6 +44,7 @@ type
     procedure Finalize; virtual;
   public
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
+    class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
     class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
     class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
     class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
@@ -85,6 +86,10 @@ const
     ('neznámý','kruh','kruh s madly','míè','rider','lehátko','lehátko/køeslo',
      'køeslo','sedátko','matrace','ostrov','postel','èlun','hraèka','rukávky',
      'balonek','ostatní');
+
+  IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
+    ('neznámý','polyvinylchlorid (PVC)','povloèkované PVC','latex','silokon',
+     'gumotextílie','polyester (PT)','ostatní');
 
   IL_DATA_ITEMFLAGICON_RESNAMES: array[TILItemFlag] of String = (
     'flag_icon_owned','flag_icon_wanted','flag_icon_ordered','flag_icon_boxed',
@@ -368,6 +373,16 @@ If (ItemType >= Low(TILItemType)) and (ItemType <= High(TILItemType)) then
   Result := IL_DATA_ITEMTYPE_STRS[ItemType]
 else
   raise Exception.CreateFmt('TILDataProvider.GetItemTypeString: Invalid item type (%d).',[Ord(ItemType)]);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILDataProvider.GetItemMaterialString(ItemMaterial: TILItemMaterial): String;
+begin
+If (ItemMaterial >= Low(TILItemMaterial)) and (ItemMaterial <= High(TILItemMaterial)) then
+  Result := IL_DATA_ITEMMATERIAL_STRS[ItemMaterial]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetItemMaterialString: Invalid item material (%d).',[Ord(ItemMaterial)]);
 end;
 
 //------------------------------------------------------------------------------

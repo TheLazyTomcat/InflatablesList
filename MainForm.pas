@@ -52,6 +52,7 @@ type
     mniLM_Overview: TMenuItem;
     mniLM_Selection: TMenuItem;
     N8: TMenuItem;
+    mniLM_Notes: TMenuItem;    
     mniLM_Save: TMenuItem;
     mniLM_Specials: TMenuItem;
     N9: TMenuItem;
@@ -79,7 +80,8 @@ type
     acUpdateShopsHistory: TAction;
     acSums: TAction;
     acOverview: TAction;
-    acSelection: TAction;    
+    acSelection: TAction;
+    acNotes: TAction;       
     acSave: TAction;
     acSpecials: TAction;    
     acExit: TAction;
@@ -126,6 +128,7 @@ type
     procedure mniLM_OverviewClick(Sender: TObject);
     procedure mniLM_SelectionClick(Sender: TObject);
     // ---
+    procedure mniLM_NotesClick(Sender: TObject);
     procedure mniLM_SaveClick(Sender: TObject);
     procedure mniLM_SpecialsClick(Sender: TObject);
     // ---
@@ -159,6 +162,7 @@ type
     procedure acSumsExecute(Sender: TObject);
     procedure acOverviewExecute(Sender: TObject);
     procedure acSelectionExecute(Sender: TObject);
+    procedure acNotesExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
     procedure acSpecialsExecute(Sender: TObject);    
     procedure acExitExecute(Sender: TObject);
@@ -964,6 +968,17 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_NotesClick(Sender: TObject);
+var
+  Temp: String;
+begin
+Temp := fILManager.Notes;
+fTextEditForm.ShowTextEditor('Inflatables list notes',Temp,False);
+fILManager.Notes := Temp;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
 begin
 Screen.Cursor := crHourGlass;
@@ -1218,6 +1233,13 @@ end;
 procedure TfMainForm.acSelectionExecute(Sender: TObject);
 begin
 mniLM_Selection.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acNotesExecute(Sender: TObject);
+begin
+mniLM_Notes.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

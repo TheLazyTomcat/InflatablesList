@@ -5,16 +5,16 @@ unit InflatablesList_Manager;
 interface
 
 uses
-  InflatablesList_Manager_IO_00000008;
+  InflatablesList_Manager_IO_00000009;
 
 {
   inheritance chain:
 
-    base - sort - filter - templates - IO - IO_vers - converter - this
+    base - sort - filter - templates - IO - converter - IO_vers - this
 }
 
 type
-  TILManager = TILManager_IO_00000008;
+  TILManager = TILManager_IO_00000009;
 
 implementation
 

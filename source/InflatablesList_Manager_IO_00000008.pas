@@ -85,6 +85,7 @@ fFNLoadShopTemplates(Stream);
 fFNLoadFilterSettings(Stream);
 fFNLoadItems(Stream);
 end;
+
 //------------------------------------------------------------------------------
 
 procedure TILManager_IO_00000008.SaveSortingSettings_00000008(Stream: TStream);

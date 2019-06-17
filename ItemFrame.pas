@@ -59,6 +59,8 @@ type
     lblWantedLevel: TLabel;
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
+    lblMaterial: TLabel;
+    cmbMaterial: TComboBox;    
     lblSizeX: TLabel;
     seSizeX: TSpinEdit;
     lblSizeY: TLabel;
@@ -67,6 +69,8 @@ type
     seSizeZ: TSpinEdit;
     lblUnitWeight: TLabel;
     seUnitWeight: TSpinEdit;
+    lblThickness: TLabel;
+    seThickness: TSpinEdit;    
     lblNotes: TLabel;
     meNotes: TMemo;
     lblNotesEdit: TLabel;    
@@ -372,10 +376,12 @@ If Assigned(fCurrentItem) then
       // extended specs
       fCurrentItem.WantedLevel := seWantedLevel.Value;
       fCurrentItem.Variant := leVariant.Text;
+      fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
       fCurrentItem.SizeX := seSizeX.Value;
       fCurrentItem.SizeY := seSizeY.Value;
       fCurrentItem.SizeZ := seSizeZ.Value;
       fCurrentItem.UnitWeight := seUnitWeight.Value;
+      fCurrentItem.MaterialThickness := seThickness.Value;
       // others
       fCurrentItem.Notes := meNotes.Text;
       fCurrentItem.ReviewURL := leReviewURL.Text;
@@ -427,10 +433,12 @@ If Assigned(fCurrentItem) then
       // extended specs
       seWantedLevel.Value := fCurrentItem.WantedLevel;
       leVariant.Text := fCurrentItem.Variant;
+      cmbMaterial.ItemIndex := Ord(fCurrentItem.Material);
       seSizeX.Value := fCurrentItem.SizeX;
       seSizeY.Value := fCurrentItem.SizeY;
       seSizeZ.Value := fCurrentItem.SizeZ;
       seUnitWeight.Value := fCurrentItem.UnitWeight;
+      seThickness.Value := fCurrentItem.MaterialThickness;
       // others
       meNotes.Text := fCurrentItem.Notes;
       leReviewURL.Text := fCurrentItem.ReviewURL;
@@ -481,10 +489,12 @@ try
   // ext. specs
   seWantedLevel.Value := 0;
   leVariant.Text := '';
+  cmbMaterial.ItemIndex := 0; 
   seSizeX.Value := 0;
   seSizeY.Value := 0;
   seSizeZ.Value := 0;
   seUnitWeight.Value := 0;
+  seThickness.Value := 0;
   // other info
   meNotes.Text := '';
   leReviewURL.Text := '';
@@ -533,6 +543,15 @@ try
     cmbManufacturer.Items.Add(fILManager.DataProvider.ItemManufacturers[TILItemManufacturer(i)].Str);
 finally
   cmbManufacturer.Items.EndUpdate;
+end;
+// material
+cmbMaterial.Items.BeginUpdate;
+try
+  cmbMaterial.Items.Clear;
+  For i := Ord(Low(TILItemMaterial)) to Ord(High(TILItemMaterial)) do
+    cmbMaterial.Items.Add(fILManager.DataProvider.GetItemMaterialString(TILItemMaterial(i)));
+finally
+  cmbMaterial.Items.EndUpdate;
 end;
 SetItem(nil,True);
 fLastSmallPicDir := '';

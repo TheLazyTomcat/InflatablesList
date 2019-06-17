@@ -5,7 +5,7 @@ unit InflatablesList_Item_IO;
 interface
 
 uses
-  Classes,
+  Classes, Graphics,
   AuxTypes,
   InflatablesList_Item_Comp;
 
@@ -13,14 +13,17 @@ const
   IL_ITEM_SIGNATURE = UInt32($4D455449);  // ITEM
 
   IL_ITEM_STREAMSTRUCTURE_00000000 = UInt32($00000000);
+  IL_ITEM_STREAMSTRUCTURE_00000001 = UInt32($00000001);
 
-  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000000;
+  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000001;
 
 type
   TILItem_IO = class(TILItem_Comp)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;
+    fFNSavePicture:     procedure(Stream: TStream; Pic: TBitmap) of object;
+    fFNLoadPicture:     procedure(Stream: TStream; out Pic: TBitmap) of object;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;

@@ -162,6 +162,7 @@ begin
 UpdateOverview;
 tmrUpdate.Interval := seUpdateInterval.Value;
 tmrUpdate.Enabled := True;
+BringToFront;
 end;
 
 //------------------------------------------------------------------------------

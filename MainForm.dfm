@@ -164,6 +164,19 @@ object fMainForm: TfMainForm
     object N2: TMenuItem
       Caption = '-'
     end
+    object mnilLM_ItemShops: TMenuItem
+      Caption = 'Item shops...'
+      ShortCut = 16464
+      OnClick = mnilLM_ItemShopsClick
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object mniLM_Find: TMenuItem
+      Caption = 'Find...'
+      ShortCut = 16454
+      OnClick = mniLM_FindClick
+    end
     object mniLM_FindPrev: TMenuItem
       Caption = 'Find previous'
       ShortCut = 8306
@@ -174,12 +187,22 @@ object fMainForm: TfMainForm
       ShortCut = 114
       OnClick = mniLM_FindNextClick
     end
-    object N3: TMenuItem
+    object N4: TMenuItem
       Caption = '-'
     end
     object mniLM_SortSett: TMenuItem
       Caption = 'Sorting settings...'
       OnClick = mniLM_SortSettClick
+    end
+    object mniLM_SortRev: TMenuItem
+      Caption = 'Reversed sort'
+      ShortCut = 16466
+      OnClick = mniLM_SortRevClick
+    end
+    object mniLM_Sort: TMenuItem
+      Caption = 'Sort'
+      ShortCut = 16463
+      OnClick = mniLM_SortClick
     end
     object mniLM_SortBy: TMenuItem
       Caption = 'Sort by profile'
@@ -193,43 +216,46 @@ object fMainForm: TfMainForm
         Caption = 'actual'
         OnClick = mniLM_SortByClick
       end
-      object N8: TMenuItem
+      object N1_1: TMenuItem
         Tag = -100
         Caption = '-'
       end
     end
-    object mniLM_Sort: TMenuItem
-      Caption = 'Sort'
-      ShortCut = 16463
-      OnClick = mniLM_SortClick
-    end
-    object mniLM_SortRev: TMenuItem
-      Caption = 'Reversed sort'
-      OnClick = mniLM_SortRevClick
-    end
-    object N4: TMenuItem
+    object N5: TMenuItem
       Caption = '-'
     end
-    object mniLN_UpdateAll: TMenuItem
-      Caption = 'Update all shops...'
+    object mniLM_UpdateItem: TMenuItem
+      Caption = 'Update item shops...'
       ShortCut = 16469
-      OnClick = mniLN_UpdateAllClick
+      OnClick = mniLM_UpdateItemClick
     end
-    object mniLN_UpdateWanted: TMenuItem
-      Caption = 'Update all shops (only wanted items)...'
-      OnClick = mniLN_UpdateWantedClick
+    object mniLM_UpdateAll: TMenuItem
+      Caption = 'Update all shops...'
+      ShortCut = 49237
+      OnClick = mniLM_UpdateAllClick
+    end
+    object mniLM_UpdateWanted: TMenuItem
+      Caption = 'Update shops of wanted items...'
+      OnClick = mniLM_UpdateWantedClick
     end
     object mniLN_UpdateSelected: TMenuItem
-      Caption = 'Update all shops (only selected shops)...'
-      ShortCut = 49237
+      Caption = 'Update selected shops...'
       OnClick = mniLN_UpdateSelectedClick
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
+    object mniLN_UpdateItemShopHistory: TMenuItem
+      Caption = 'Update item shops history'
+      ShortCut = 16456
+      OnClick = mniLN_UpdateItemShopHistoryClick
     end
     object mniLN_UpdateShopsHistory: TMenuItem
       Caption = 'Update all shops history'
-      ShortCut = 16456
+      ShortCut = 49224
       OnClick = mniLN_UpdateShopsHistoryClick
     end
-    object N5: TMenuItem
+    object N7: TMenuItem
       Caption = '-'
     end
     object mniLM_Sums: TMenuItem
@@ -248,7 +274,7 @@ object fMainForm: TfMainForm
       ShortCut = 16468
       OnClick = mniLM_SelectionClick
     end
-    object N6: TMenuItem
+    object N8: TMenuItem
       Caption = '-'
     end
     object mniLM_Save: TMenuItem
@@ -261,7 +287,7 @@ object fMainForm: TfMainForm
       ShortCut = 16462
       OnClick = mniLM_SpecialsClick
     end
-    object N7: TMenuItem
+    object N9: TMenuItem
       Caption = '-'
     end
     object mniLM_Exit: TMenuItem
@@ -274,10 +300,15 @@ object fMainForm: TfMainForm
   end
   object alShortcuts: TActionList
     Left = 64
-    object acSearch: TAction
-      Caption = 'acSearch'
+    object acItemShops: TAction
+      Caption = 'acItemShops'
+      ShortCut = 16464
+      OnExecute = acItemShopsExecute
+    end
+    object acFind: TAction
+      Caption = 'acFind'
       ShortCut = 16454
-      OnExecute = acSearchExecute
+      OnExecute = acFindExecute
     end
     object acFindPrev: TAction
       Caption = 'acFindPrev'
@@ -289,10 +320,76 @@ object fMainForm: TfMainForm
       ShortCut = 114
       OnExecute = acFindNextExecute
     end
+    object acSortSett: TAction
+      Caption = 'acSortSett'
+      OnExecute = acSortSettExecute
+    end
+    object acSortRev: TAction
+      Caption = 'acSortRev'
+      ShortCut = 16466
+      OnExecute = acSortRevExecute
+    end
+    object acSort: TAction
+      Caption = 'acSort'
+      ShortCut = 16463
+      OnExecute = acSortExecute
+    end
+    object acSortBy: TAction
+      Caption = 'acSortBy'
+      OnExecute = acSortByExecute
+    end
+    object acUpdateItem: TAction
+      Caption = 'acUpdateItem'
+      ShortCut = 16469
+      OnExecute = acUpdateItemExecute
+    end
+    object acUpdateAll: TAction
+      Caption = 'acUpdateAll'
+      ShortCut = 49237
+      OnExecute = acUpdateAllExecute
+    end
+    object acUpdateWanted: TAction
+      Caption = 'acUpdateWanted'
+      OnExecute = acUpdateWantedExecute
+    end
+    object acUpdateSelected: TAction
+      Caption = 'acUpdateSelected'
+      OnExecute = acUpdateSelectedExecute
+    end
+    object acUpdateItemShopHistory: TAction
+      Caption = 'acUpdateItemShopHistory'
+      ShortCut = 16456
+      OnExecute = acUpdateItemShopHistoryExecute
+    end
+    object acUpdateShopsHistory: TAction
+      Caption = 'acUpdateShopsHistory'
+      ShortCut = 49224
+      OnExecute = acUpdateShopsHistoryExecute
+    end
+    object acSums: TAction
+      Caption = 'acSums'
+      ShortCut = 16461
+      OnExecute = acSumsExecute
+    end
+    object acOverview: TAction
+      Caption = 'acOverview'
+      ShortCut = 16471
+      OnExecute = acOverviewExecute
+    end
+    object acSelection: TAction
+      Caption = 'acSelection'
+      ShortCut = 16468
+      OnExecute = acSelectionExecute
+    end
     object acSave: TAction
       Caption = 'acSave'
       ShortCut = 16467
       OnExecute = acSaveExecute
+    end
+    object acSpecials: TAction
+      Caption = 'acSpecials'
+      ShortCut = 16462
+      OnExecute = acSpecialsExecute
     end
     object acExit: TAction
       Caption = 'acExit'

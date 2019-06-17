@@ -153,6 +153,7 @@ type
     procedure FrameClear;
   public
     OnShowSelectedItem: TNotifyEvent;
+    OnFocusList:        TNotifyEvent;
     procedure Initialize(ILManager: TILManager);
     procedure SaveItem;
     procedure LoadItem;
@@ -1084,6 +1085,8 @@ If Assigned(fCurrentItem) then
         fCurrentItem.FlagPriceAndAvail(OldPrice,OldAvail);
         LoadItem;
         fCurrentItem.ReDraw;
+        If Assigned(OnFocusList) then
+          OnFocusList(Self);
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
@@ -1101,6 +1104,8 @@ If Assigned(fCurrentItem) then
     // load potential changes
     LoadItem;
     fCurrentItem.ReDraw;
+    If Assigned(OnFocusList) then
+      OnFocusList(Self);
   end;
 end;
 

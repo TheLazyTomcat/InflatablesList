@@ -108,6 +108,7 @@ type
     procedure BuildSortBySubmenu;
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
+    procedure FocusList(Sender: TObject);
     procedure UpdateIndexAndCount;
     procedure SaveList;
   public
@@ -194,7 +195,15 @@ If lbList.ItemIndex >= 0 then
       lbList.TopIndex := lbList.ItemIndex
     else If lbList.ItemIndex >= (lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight)) then
       lbList.TopIndex := Succ(lbList.ItemIndex - (lbList.ClientHeight div lbList.ItemHeight));
+    lbList.SetFocus;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FocusList(Sender: TObject);
+begin
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -260,6 +269,7 @@ fILManager.OnListUpdate := InvalidateList;
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
+frmItemFrame.OnFocusList := FocusList;
 // load list
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
@@ -301,6 +311,7 @@ end;
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
 fILManager.ReinitDrawSize(lbList);
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -490,6 +501,7 @@ else
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
 BuildSortBySubmenu;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -593,6 +605,7 @@ end;
 procedure TfMainForm.mniLN_UpdateAllClick(Sender: TObject);
 begin
 mniLN_UpdateCommon(False,False);
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -600,6 +613,7 @@ end;
 procedure TfMainForm.mniLN_UpdateWantedClick(Sender: TObject);
 begin
 mniLN_UpdateCommon(True,False);
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -607,6 +621,7 @@ end;
 procedure TfMainForm.mniLN_UpdateSelectedClick(Sender: TObject);
 begin
 mniLN_UpdateCommon(False,True);
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -631,6 +646,7 @@ procedure TfMainForm.mniLM_SumsClick(Sender: TObject);
 begin
 frmItemFrame.SaveItem;
 fSumsForm.ShowSums;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -638,6 +654,7 @@ end;
 procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
 begin
 fOverviewForm.Show;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -645,6 +662,7 @@ end;
 procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
 fSelectionForm.ShowTable;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -668,6 +686,7 @@ begin
 frmItemFrame.SaveItem;
 fSpecialsForm.ShowModal;
 frmItemFrame.LoadItem;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------

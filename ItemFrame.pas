@@ -381,7 +381,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.SizeY := seSizeY.Value;
       fCurrentItem.SizeZ := seSizeZ.Value;
       fCurrentItem.UnitWeight := seUnitWeight.Value;
-      fCurrentItem.MaterialThickness := seThickness.Value;
+      fCurrentItem.Thickness := seThickness.Value;
       // others
       fCurrentItem.Notes := meNotes.Text;
       fCurrentItem.ReviewURL := leReviewURL.Text;
@@ -438,7 +438,7 @@ If Assigned(fCurrentItem) then
       seSizeY.Value := fCurrentItem.SizeY;
       seSizeZ.Value := fCurrentItem.SizeZ;
       seUnitWeight.Value := fCurrentItem.UnitWeight;
-      seThickness.Value := fCurrentItem.MaterialThickness;
+      seThickness.Value := fCurrentItem.Thickness;
       // others
       meNotes.Text := fCurrentItem.Notes;
       leReviewURL.Text := fCurrentItem.ReviewURL;

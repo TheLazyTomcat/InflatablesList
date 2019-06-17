@@ -77,7 +77,7 @@ Stream_WriteUInt32(Stream,fSizeX);
 Stream_WriteUInt32(Stream,fSizeY);
 Stream_WriteUInt32(Stream,fSizeZ);
 Stream_WriteUInt32(Stream,fUnitWeight);
-Stream_WriteUInt32(Stream,fMaterialThickness);
+Stream_WriteUInt32(Stream,fThickness);
 // others
 Stream_WriteString(Stream,fNotes);
 Stream_WriteString(Stream,fReviewURL);
@@ -125,7 +125,7 @@ fSizeX := Stream_ReadUInt32(Stream);
 fSizeY := Stream_ReadUInt32(Stream);
 fSizeZ := Stream_ReadUInt32(Stream);
 fUnitWeight := Stream_ReadUInt32(Stream);
-fMaterialThickness := Stream_ReadUInt32(Stream);
+fThickness := Stream_ReadUInt32(Stream);
 // other info
 fNotes := Stream_ReadString(Stream);
 fReviewURL := Stream_ReadString(Stream);

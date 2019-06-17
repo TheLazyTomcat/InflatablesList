@@ -56,7 +56,7 @@ type
     fSizeY:                 UInt32;           // width (inner diameter if applicable)
     fSizeZ:                 UInt32;           // height
     fUnitWeight:            UInt32;           // [g]
-    fMaterialThickness:     UInt32;           // [um] - micrometers
+    fThickness:             UInt32;           // [um] - micrometers
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
@@ -92,7 +92,7 @@ type
     procedure SetSizeY(Value: UInt32); virtual;
     procedure SetSizeZ(Value: UInt32); virtual;
     procedure SetUnitWeight(Value: UInt32); virtual;
-    procedure SetMaterialThickness(Value: UInt32); virtual;
+    procedure SetThickness(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetItemPictureFile(const Value: String); virtual;
@@ -176,7 +176,7 @@ type
     property SizeY: UInt32 read fSizeY write SetSizeY;
     property SizeZ: UInt32 read fSizeZ write SetSizeZ;
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
-    property MaterialThickness: UInt32 read fMaterialThickness write SetMaterialThickness;
+    property Thickness: UInt32 read fThickness write SetThickness;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
@@ -400,11 +400,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetMaterialThickness(Value: UInt32);
+procedure TILItem_Base.SetThickness(Value: UInt32);
 begin
-If fMaterialThickness <> Value then
+If fThickness <> Value then
   begin
-    fMaterialThickness := Value;
+    fThickness := Value;
   end;
 end;
 
@@ -523,12 +523,12 @@ fTextTag := '';
 // ext. specs
 fWantedLevel := 0;
 fVariant := '';
-fMaterial := ilimUnknown;
+fMaterial := ilimtUnknown;
 fSizeX := 0;
 fSizeY := 0;
 fSizeZ := 0;
 fUnitWeight := 0;
-fMaterialThickness := 0;
+fThickness := 0;
 // other info
 fNotes := '';
 fReviewURL := '';

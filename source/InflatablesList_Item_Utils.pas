@@ -83,11 +83,11 @@ Function TILItem_Utils.TotalSize: Int64;
 var
   szX,szY,szZ:  UInt32;
 begin
-If fSizeX = 0 then szX := 1
+If (fSizeX = 0) and ((fSizeY <> 0) or (fSizeZ <> 0)) then szX := 1
   else szX := fSizeX;
-If fSizeY = 0 then szY := 1
+If (fSizeY = 0) and ((fSizeX <> 0) or (fSizeZ <> 0)) then szY := 1
   else szY := fSizeY;
-If fSizeZ = 0 then szZ := 1
+If (fSizeZ = 0) and ((fSizeX <> 0) or (fSizeY <> 0)) then szZ := 1
   else szZ := fSizeZ;
 Result := Int64(szX) * Int64(szY) * Int64(szZ);
 end;

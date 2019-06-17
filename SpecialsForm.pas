@@ -10,11 +10,12 @@ uses
 type
   TfSpecialsForm = class(TForm)
     pnlWarning: TPanel;
-    leParam: TLabeledEdit;
+    leParam_1: TLabeledEdit;
     btnClearTextTags: TButton;
     btnClearParsing: TButton;
     btnSetAltDownMethod: TButton;
     btnUpdateAllAPF: TButton;
+    leParam_2: TLabeledEdit;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
@@ -76,7 +77,7 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    If AnsiSameText(fILManager[i][j].Name,leParam.Text) then
+    If AnsiSameText(fILManager[i][j].Name,leParam_1.Text) then
       fILManager[i][j].AltDownMethod := True;
 end;
 

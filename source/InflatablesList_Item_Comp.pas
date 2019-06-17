@@ -72,11 +72,11 @@ case ItemValueTag of
                             Result := IL_NegateValue(+1,Reversed)
                           else If not(Item.ItemType in [ilitUnknown,ilitOther]) then
                             Result := IL_NegateValue(-1,Reversed)
-                          // both are either unknown or other, push others to the end...
-                          else If fItemType = ilitUnknown then
-                            Result := IL_NegateValue(-1,Reversed)
-                          else If Item.ItemType = ilitUnknown then
+                          // both are either unknown or other, push unknown to the end...
+                          else If fItemType = ilitOther then
                             Result := IL_NegateValue(+1,Reversed)
+                          else If Item.ItemType = ilitOther then
+                            Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,17 +142,64 @@ case ItemValueTag of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtVariant:           Result := IL_CompareText(fVariant,Item.Variant);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtMaterial:          If not(fMaterial in [ilimtUnknown,ilimtOther]) and not(Item.Material in [ilimtUnknown,ilimtOther]) then
+                            Result := IL_CompareText(
+                              fDataProvider.GetItemMaterialString(fMaterial),
+                              fDataProvider.GetItemMaterialString(Item.Material))
+                          // push others and unknowns to the end
+                          else If not(fMaterial in [ilimtUnknown,ilimtOther]) then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If not(Item.Material in [ilimtUnknown,ilimtOther]) then
+                            Result := IL_NegateValue(-1,Reversed)
+                          // both are either unknown or other, push unknown to the end...
+                          else If fMaterial = ilimtOther then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If Item.Material = ilimtOther then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSizeX:             Result := IL_CompareUInt32(fSizeX,Item.SizeX);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSizeY:             Result := IL_CompareUInt32(fSizeY,Item.SizeY);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSizeZ:             Result := IL_CompareUInt32(fSizeZ,Item.SizeZ);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtTotalSize:         Result := IL_CompareInt64(TotalSize,Item.TotalSize);
+  ilivtTotalSize:         If (TotalSize > 0) and (Item.TotalSize > 0) then
+                            Result := IL_CompareInt64(TotalSize,Item.TotalSize)
+                          else If TotalSize > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with 0 total size to the end
+                          else If Item.TotalSize > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtUnitWeight:        Result := IL_CompareUInt32(fUnitWeight,Item.UnitWeight);
+  ilivtUnitWeight:        If (fUnitWeight > 0) and (Item.UnitWeight > 0) then
+                            Result := IL_CompareUInt32(fUnitWeight,Item.UnitWeight)
+                          else If fUnitWeight > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
+                          else If Item.UnitWeight > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtTotalWeight:       Result := IL_CompareUInt32(TotalWeight,Item.TotalWeight);
+  ilivtTotalWeight:       If (TotalWeight > 0) and (Item.TotalWeight > 0) then
+                            Result := IL_CompareUInt32(TotalWeight,Item.TotalWeight)
+                          else If TotalWeight > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
+                          else If Item.TotalWeight > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtThickness:         If (fThickness > 0) and (Item.Thickness > 0) then
+                            Result := IL_CompareUInt32(fThickness,Item.Thickness)
+                          else If fThickness > 0 then
+                            Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
+                          else If Item.Thickness > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
 
   // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtNotes:             Result := IL_CompareText(fNotes,Item.Notes);

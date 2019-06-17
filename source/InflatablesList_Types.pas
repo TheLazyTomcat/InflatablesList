@@ -49,8 +49,8 @@ type
 
   TILItemFlags = set of TILItemFlag;
 
-  TILItemMaterial = (ilimUnknown,ilimPVC,ilimFlockedPVC,ilimLatex,ilimSilicone,
-                     ilimGumoTex,ilimPolyester,ilimOther);
+  TILItemMaterial = (ilimtUnknown,ilimtPVC,ilimtFlockedPVC,ilimtLatex,
+                     ilimtSilicone,ilimtGumoTex,ilimtPolyester,ilimtOther);
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 Function IL_NumToItemType(Num: Int32): TILItemType;
@@ -141,9 +141,9 @@ type
     ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
     ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,
-    ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
-    ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
-    ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
+    ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
+    ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
+    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
     ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
     ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
     ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
@@ -482,13 +482,13 @@ end;
 Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
 begin
 case Material of
-  ilimOther:      Result := 1;
-  ilimPVC:        Result := 2;
-  ilimFlockedPVC: Result := 3;
-  ilimLatex:      Result := 4;
-  ilimSilicone:   Result := 5;
-  ilimGumoTex:    Result := 6;
-  ilimPolyester:  Result := 7;
+  ilimtOther:      Result := 1;
+  ilimtPVC:        Result := 2;
+  ilimtFlockedPVC: Result := 3;
+  ilimtLatex:      Result := 4;
+  ilimtSilicone:   Result := 5;
+  ilimtGumoTex:    Result := 6;
+  ilimtPolyester:  Result := 7;
 else
  {ilimUnknown}
   Result := 0;
@@ -500,15 +500,15 @@ end;
 Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 begin
 case Num of
-  1:  Result := ilimOther;
-  2:  Result := ilimPVC;
-  3:  Result := ilimFlockedPVC;
-  4:  Result := ilimLatex;
-  5:  Result := ilimSilicone;
-  6:  Result := ilimGumoTex;
-  7:  Result := ilimPolyester;
+  1:  Result := ilimtOther;
+  2:  Result := ilimtPVC;
+  3:  Result := ilimtFlockedPVC;
+  4:  Result := ilimtLatex;
+  5:  Result := ilimtSilicone;
+  6:  Result := ilimtGumoTex;
+  7:  Result := ilimtPolyester;
 else
-  Result := ilimUnknown;
+  Result := ilimtUnknown;
 end;
 end;
 
@@ -676,6 +676,8 @@ case ItemValueTag of
   ilivtWorstUpdateResult: Result := 49;
   ilivtUsefulShopCount:   Result := 50;
   ilivtUsefulShopRatio:   Result := 51;
+  ilivtMaterial:          Result := 52;
+  ilivtThickness:         Result := 53;
 else
   {ilivtNone}
   Result := 0;
@@ -739,6 +741,8 @@ case Num of
   49: Result := ilivtWorstUpdateResult;
   50: Result := ilivtUsefulShopCount;
   51: Result := ilivtUsefulShopRatio;
+  52: Result := ilivtMaterial;
+  53: Result := ilivtThickness;
 else
   Result := ilivtNone;
 end;

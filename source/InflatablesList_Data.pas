@@ -1,12 +1,12 @@
-unit IL_Data;
+unit InflatablesList_Data;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Graphics,
-  IL_Types;
+  InflatablesList_Types;
 
 type
   TILItemManufacturerInfo = record

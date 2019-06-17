@@ -1,13 +1,13 @@
-unit IL_Manager_IO_00000008;
+unit InflatablesList_Manager_IO_00000008;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_Manager_IO, IL_Manager_IO_Converter;
+  InflatablesList_Manager_IO, InflatablesList_Manager_IO_Converter;
 
 type
   TILManager_IO_00000008 = class(TILManager_IO_Converter)
@@ -31,7 +31,7 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
-  IL_Types, IL_Item, IL_ItemShopTemplate;
+  InflatablesList_Types, InflatablesList_Item, InflatablesList_ItemShopTemplate;
 
 procedure TILManager_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin

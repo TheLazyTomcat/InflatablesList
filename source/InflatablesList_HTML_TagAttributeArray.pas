@@ -7,7 +7,7 @@ interface
 
 uses
   AuxTypes, CountedDynArrays,
-  IL_Types;
+  InflatablesList_Types;
 
 type
   TILTagAttribute = record

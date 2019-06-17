@@ -1,11 +1,11 @@
-unit IL_ItemShop_Update;
+unit InflatablesList_ItemShop_Update;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  IL_ItemShop_Base;
+  InflatablesList_ItemShop_Base;
 
 const
   // how many times to repeat update when it fails in certain way
@@ -22,7 +22,7 @@ implementation
 uses
   SysUtils,
   AuxTypes,
-  IL_Types, InflatablesList_ShopUpdate;
+  InflatablesList_Types, InflatablesList_ShopUpdate;
 
 Function TILITemShop_Update.Update: Boolean;
 var

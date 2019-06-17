@@ -1,6 +1,6 @@
 unit InflatablesList_HTML_Utils;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 

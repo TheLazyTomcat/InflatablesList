@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, Menus,
-  IL_Types, IL_ItemShop, IL_Manager;
+  InflatablesList_Types, InflatablesList_ItemShop, InflatablesList_Manager;
 
 type
   TfTemplatesForm = class(TForm)

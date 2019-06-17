@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin,
   ConcurrentTasks,
-  IL_Types, IL_ItemShop, IL_Item, IL_Manager;
+  InflatablesList_Types, InflatablesList_Item, InflatablesList_ItemShop,
+  InflatablesList_Manager;
 
 type
   TILItemShopUpdateItem = record

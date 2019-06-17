@@ -1,12 +1,12 @@
-unit IL_ItemShopParsingSettings_Base;
+unit InflatablesList_ItemShopParsingSettings_Base;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   AuxTypes,
-  IL_Types,
+  InflatablesList_Types,
   InflatablesList_HTML_ElementFinder;
 
 type

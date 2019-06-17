@@ -1,13 +1,13 @@
-unit IL_Manager_IO;
+unit InflatablesList_Manager_IO;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_Manager_Templates;
+  InflatablesList_Manager_Templates;
 
 const
   IL_LISTFILE_SIGNATURE = UInt32($4C464E49);  // signature of the list file

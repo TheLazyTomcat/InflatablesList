@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes, CountedDynArrayObject,
-  IL_Types,
+  InflatablesList_Types,
   InflatablesList_HTML_UnicodeCharArray, InflatablesList_HTML_TagAttributeArray;
 
 type

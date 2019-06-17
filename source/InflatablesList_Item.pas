@@ -1,11 +1,11 @@
-unit IL_Item;
+unit InflatablesList_Item;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  IL_Item_IO_00000000;
+  InflatablesList_Item_IO_00000000;
 
 {
   inheritance chain:

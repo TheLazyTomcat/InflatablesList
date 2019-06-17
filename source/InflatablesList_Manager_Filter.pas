@@ -1,11 +1,11 @@
-unit IL_Manager_Filter;
+unit InflatablesList_Manager_Filter;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  IL_Types, IL_Manager_Sort;
+  InflatablesList_Types, InflatablesList_Manager_Sort;
 
 type
   TILManager_Filter = class(TILManager_Sort)

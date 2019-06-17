@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, StdCtrls, Spin, ComCtrls, Menus,
-  IL_Types, IL_ItemShop, IL_Manager;
+  InflatablesList_Types, InflatablesList_ItemShop, InflatablesList_Manager;
 
 type
   TfrmShopFrame = class(TFrame)
@@ -104,9 +104,8 @@ implementation
 {$R *.dfm}
 
 uses
-  IL_Utils,
-  InflatablesList_HTML_ElementFinder,
-  TextEditForm, TemplatesForm, ParsingForm;
+  InflatablesList_Utils, InflatablesList_HTML_ElementFinder,
+  TextEditForm, ParsingForm, TemplatesForm;
 
 const
   IL_SHOP_PREDEFNOTES: array[0..3] of String = (

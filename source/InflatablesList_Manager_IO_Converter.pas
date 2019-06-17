@@ -1,13 +1,13 @@
-unit IL_Manager_IO_Converter;
+unit InflatablesList_Manager_IO_Converter;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_Manager_IO;
+  InflatablesList_Manager_IO;
 
 type
   TILManager_IO_Converter = class(TILManager_IO)
@@ -28,9 +28,9 @@ implementation
 uses
   SysUtils,
   BinaryStreaming, MemoryBuffer,
-  IL_Types, InflatablesList_HTML_ElementFinder,
-  IL_Item_IO, IL_ItemShop_IO, IL_ItemShopParsingSettings_IO,
-  IL_ItemShopTemplate_IO;
+  InflatablesList_Types, InflatablesList_HTML_ElementFinder,
+  InflatablesList_Item_IO, InflatablesList_ItemShop_IO,
+  InflatablesList_ItemShopParsingSettings_IO, InflatablesList_ItemShopTemplate_IO;
 
 procedure TILManager_IO_Converter.Convert_7_to_8_SortSett(Stream: TStream);
 var

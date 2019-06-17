@@ -1,12 +1,12 @@
-unit IL_Item_Draw;
+unit InflatablesList_Item_Draw;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Graphics, StdCtrls,
-  IL_Item_Utils;
+  InflatablesList_Item_Utils;
 
 type
   TILItem_Draw = class(TILItem_Utils)
@@ -29,7 +29,7 @@ implementation
 uses
   SysUtils, Classes,
   AuxTypes,
-  IL_Types, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_ItemShop;
 
 procedure TILItem_Draw.ReDrawMain;
 const

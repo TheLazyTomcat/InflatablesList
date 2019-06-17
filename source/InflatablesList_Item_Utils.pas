@@ -1,12 +1,12 @@
-unit IL_Item_Utils;
+unit InflatablesList_Item_Utils;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   AuxTypes,
-  IL_Types, IL_Item_Base, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_Item_Base, InflatablesList_ItemShop;
 
 type
   TILItem_Utils = class(TILItem_Base)

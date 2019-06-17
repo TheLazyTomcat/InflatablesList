@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ExtCtrls,
   CountedDynArrayString,
-  IL_Manager;
+  InflatablesList_Manager;
 
 type
   TfSumsForm = class(TForm)
@@ -82,7 +82,7 @@ implementation
 {$R *.dfm}
 
 uses
-  IL_Types, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_ItemShop;
 
 procedure WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
 begin

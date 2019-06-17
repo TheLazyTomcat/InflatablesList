@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, StdCtrls, ExtCtrls,
-  IL_Types, IL_Manager;
+  InflatablesList_Types, InflatablesList_Manager;
 
 type
   TfrmExtractionFrame = class(TFrame)

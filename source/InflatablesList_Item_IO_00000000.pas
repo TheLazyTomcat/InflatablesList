@@ -1,13 +1,13 @@
-unit IL_Item_IO_00000000;
+unit InflatablesList_Item_IO_00000000;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_Item_IO;
+  InflatablesList_Item_IO;
 
 type
   TILItem_IO_00000000 = class(TILItem_IO)
@@ -23,7 +23,7 @@ implementation
 uses
   SysUtils, Graphics,
   BinaryStreaming,
-  IL_Types, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_ItemShop;
 
 procedure TILItem_IO_00000000.InitSaveFunctions(Struct: UInt32);
 begin

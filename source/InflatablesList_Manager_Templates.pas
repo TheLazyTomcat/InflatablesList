@@ -1,12 +1,13 @@
-unit IL_Manager_Templates;
+unit InflatablesList_Manager_Templates;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   AuxTypes,
-  IL_Types, IL_ItemShop, IL_ItemShopTemplate, IL_Manager_Filter;
+  InflatablesList_Types, InflatablesList_ItemShop,
+  InflatablesList_ItemShopTemplate, InflatablesList_Manager_Filter;
 
 type
   TILManager_Templates = class(TILManager_Filter)

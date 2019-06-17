@@ -1,13 +1,13 @@
-unit IL_Manager_Base;
+unit InflatablesList_Manager_Base;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   StdCtrls,
   AuxClasses, SimpleCmdLineParser,
-  IL_Types, IL_Data, IL_Item;
+  InflatablesList_Types, InflatablesList_Data, InflatablesList_Item;
 
 type
   TILManager_Base = class(TCustomListObject)
@@ -73,7 +73,7 @@ implementation
 
 uses
   SysUtils,
-  IL_Utils;
+  InflatablesList_Utils;
 
 Function TILManager_Base.GetCapacity: Integer;
 begin

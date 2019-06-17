@@ -1,11 +1,11 @@
-unit IL_Manager_Sort;
+unit InflatablesList_Manager_Sort;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  IL_Types, IL_Manager_Base;
+  InflatablesList_Types, InflatablesList_Manager_Base;
 
 type
   TILManager_Sort = class(TILManager_Base)
@@ -45,7 +45,7 @@ implementation
 uses
   SysUtils,
   ListSorters,
-  IL_Utils;
+  InflatablesList_Utils;
 
 Function TILManager_Sort.GetSortProfileCount: Integer;
 begin

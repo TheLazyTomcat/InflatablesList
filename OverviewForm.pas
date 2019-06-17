@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ExtCtrls, Spin,
   CountedDynArrayString,
-  IL_Manager;
+  InflatablesList_Manager;
 
 type
   TfOverviewForm = class(TForm)
@@ -46,7 +46,7 @@ implementation
 {$R *.dfm}
 
 uses
-  IL_Types, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_ItemShop;
 
 procedure TfOverviewForm.InitializeTable;
 var

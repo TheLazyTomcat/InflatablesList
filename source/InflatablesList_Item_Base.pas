@@ -1,13 +1,13 @@
-unit IL_Item_Base;
+unit InflatablesList_Item_Base;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Graphics,
   AuxTypes, AuxClasses,
-  IL_Types, IL_Data, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_Data, InflatablesList_ItemShop;
 
 type
   TILItem_Base = class(TCustomListObject)

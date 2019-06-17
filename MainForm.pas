@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, ActnList, XPMan,
   ItemFrame,
-  IL_Manager;
+  InflatablesList_Manager;
 
 type
   TfMainForm = class(TForm)
@@ -121,9 +121,9 @@ implementation
 
 uses
   AuxTypes, WinFileInfo,
-  IL_Types, InflatablesList_Backup, IL_ItemShop,
-  TextEditForm, SortForm, SumsForm, ShopsForm, SpecialsForm, TemplatesForm,
-  OverviewForm, SelectionForm, ParsingForm, UpdateForm;
+  InflatablesList_Types, InflatablesList_Backup, InflatablesList_ItemShop,
+  TextEditForm, ShopsForm, ParsingForm, TemplatesForm,SortForm, SumsForm,
+  SpecialsForm, OverviewForm, SelectionForm, UpdateForm;
 
 {$R *.dfm}
 
@@ -224,16 +224,16 @@ end;
 
 procedure TfMainForm.InitOtherForms;
 begin
+fTextEditForm.Initialize(fILManager);
+fShopsForm.Initialize(fILManager);
+fParsingForm.Initialize(fILManager);
+fTemplatesForm.Initialize(fILManager);
 fSortForm.Initialize(fILManager);
 fSumsForm.Initialize(fILManager);
-fShopsForm.Initialize(fILManager);
-fTemplatesForm.Initialize(fILManager);
-fTextEditForm.Initialize(fILManager);
-fUpdateForm.Initialize(fILManager);
-fParsingForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);
+fUpdateForm.Initialize(fILManager);
 end;
 
 //==============================================================================

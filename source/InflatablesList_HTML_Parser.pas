@@ -37,7 +37,7 @@ implementation
 uses
   SysUtils,
   StrRect,
-  IL_Types,
+  InflatablesList_Types,
   InflatablesList_HTML_UnicodeTagAttributeArray,
   InflatablesList_HTML_Preprocessor;
 

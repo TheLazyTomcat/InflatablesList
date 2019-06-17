@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls,
-  IL_Manager;
+  InflatablesList_Manager;
 
 type
   TfTextEditForm = class(TForm)

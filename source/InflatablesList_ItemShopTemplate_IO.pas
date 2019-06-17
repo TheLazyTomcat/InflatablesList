@@ -1,23 +1,23 @@
-unit IL_Item_IO;
+unit InflatablesList_ItemShopTemplate_IO;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_Item_Comp;
+  InflatablesList_ItemShopTemplate_Base;
 
 const
-  IL_ITEM_SIGNATURE = UInt32($4D455449);  // ITEM
+  IL_SHOPTEMPLATE_SIGNATURE = UInt32($4C504D54);  // TMPL
 
-  IL_ITEM_STREAMSTRUCTURE_00000000 = UInt32($00000000);
+  IL_SHOPTEMPLATE_STREAMSTRUCTURE_00000000 = UInt32($00000000);
 
-  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000000;
+  IL_SHOPTEMPLATE_STREAMSTRUCTURE_SAVE = IL_SHOPTEMPLATE_STREAMSTRUCTURE_00000000;
 
 type
-  TILItem_IO = class(TILItem_Comp)
+  TILItemShopTemplate_IO = class(TILItemShopTemplate_Base)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;
@@ -29,7 +29,7 @@ type
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile(const FileName: String); virtual;
-    procedure LoadFromFile(const FileName: String); virtual;  
+    procedure LoadFromFile(const FileName: String); virtual;
   end;
 
 implementation
@@ -38,7 +38,7 @@ uses
   SysUtils,
   BinaryStreaming;
 
-procedure TILItem_IO.Save(Stream: TStream; Struct: UInt32);
+procedure TILItemShopTemplate_IO.Save(Stream: TStream; Struct: UInt32);
 begin
 InitSaveFunctions(Struct);
 fFNSaveToStream(Stream);
@@ -46,7 +46,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.Load(Stream: TStream; Struct: UInt32);
+procedure TILItemShopTemplate_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
@@ -54,26 +54,26 @@ end;
 
 //==============================================================================
 
-procedure TILItem_IO.SaveToStream(Stream: TStream);
+procedure TILItemShopTemplate_IO.SaveToStream(Stream: TStream);
 begin
-Stream_WriteUInt32(Stream,IL_ITEM_SIGNATURE);
-Stream_WriteUInt32(Stream,IL_ITEM_STREAMSTRUCTURE_SAVE);
-Save(Stream,IL_ITEM_STREAMSTRUCTURE_SAVE);
+Stream_WriteUInt32(Stream,IL_SHOPTEMPLATE_SIGNATURE);
+Stream_WriteUInt32(Stream,IL_SHOPTEMPLATE_STREAMSTRUCTURE_SAVE);
+Save(Stream,IL_SHOPTEMPLATE_STREAMSTRUCTURE_SAVE);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.LoadFromStream(Stream: TStream);
+procedure TILItemShopTemplate_IO.LoadFromStream(Stream: TStream);
 begin
-If Stream_ReadUInt32(Stream) = IL_ITEM_SIGNATURE then
+If Stream_ReadUInt32(Stream) = IL_SHOPTEMPLATE_SIGNATURE then
   Load(Stream,Stream_ReadUInt32(Stream))
 else
-  raise Exception.Create('TILItem_IO.LoadFromStream: Invalid stream.');
+  raise Exception.Create('TILItemShopTemplate_IO.LoadFromStream: Invalid stream.');
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.SaveToFile(const FileName: String);
+procedure TILItemShopTemplate_IO.SaveToFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin
@@ -88,7 +88,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.LoadFromFile(const FileName: String);
+procedure TILItemShopTemplate_IO.LoadFromFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin

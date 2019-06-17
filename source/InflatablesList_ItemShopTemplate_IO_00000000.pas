@@ -1,13 +1,13 @@
-unit IL_ItemShopTemplate_IO_00000000;
+unit InflatablesList_ItemShopTemplate_IO_00000000;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
   Classes,
   AuxTypes,
-  IL_ItemShopTemplate_IO;
+  InflatablesList_ItemShopTemplate_IO;
 
 type
   TILItemShopTemplate_IO_00000000 = class(TILItemShopTemplate_IO)

@@ -1,11 +1,12 @@
-unit IL_ItemShopTemplate_Base;
+unit InflatablesList_ItemShopTemplate_Base;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  IL_Types, IL_ItemShopParsingSettings, IL_ItemShop;
+  InflatablesList_Types, InflatablesList_ItemShop,
+  InflatablesList_ItemShopParsingSettings;
 
 type
   TILItemShopTemplate_Base = class(TObject)

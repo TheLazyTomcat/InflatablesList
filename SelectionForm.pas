@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls,
   CountedDynArrayString,
-  IL_Manager;
+  InflatablesList_Manager;
 
 type
   TfSelectionForm = class(TForm)

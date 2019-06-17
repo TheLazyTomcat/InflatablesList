@@ -1,6 +1,6 @@
-unit IL_Types;
+unit InflatablesList_Types;
 
-{$INCLUDE '.\IL_defs.inc'}
+{$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 

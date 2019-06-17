@@ -45,7 +45,7 @@ If not fUntracked then
   begin
     TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
     Result := False;
-    Updater := TILShopUpdater.Create(Self,IL_ThreadSafeCopy(fStaticOptions));
+    Updater := TILShopUpdater.Create(Self,fStaticOptions);
     try
       repeat
         UpdaterResult := Updater.Run(fAltDownMethod);

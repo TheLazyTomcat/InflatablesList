@@ -40,6 +40,7 @@ type
     fLastUpdateRes:   TILItemShopUpdateResult;
     fLastUpdateMsg:   String;
     procedure SetRequiredCount(Value: UInt32); virtual;
+    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
     // data getters and setters
     procedure SetSelected(Value: Boolean); virtual;
     procedure SetUntracked(Value: Boolean); virtual;
@@ -82,7 +83,7 @@ type
     procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
     // properties
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
     // events
     property OnClearSelected: TNotifyEvent read fOnClearSelected write fOnClearSelected;
     property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
@@ -117,6 +118,14 @@ procedure TILItemShop_Base.SetRequiredCount(Value: UInt32);
 begin
 fRequiredCount := Value;
 fParsingSettings.RequiredCount := Value;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+begin
+fStaticOptions := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticOptions := Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -349,7 +358,8 @@ var
   i:  Integer;
 begin
 inherited Create;
-fStaticOptions := Source.StaticOptions;
+fRequiredCount := Source.RequiredCount;
+fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
 // copy data...
 fSelected := Source.Selected;
 fUntracked := Source.Untracked;
@@ -523,10 +533,17 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItemShop_Base.ReplaceParsingSettings(Source: TILItemShopParsingSettings);
+var
+  Variables:  TILItemShopParsingVariables;
+  i:          Integer;
 begin
+Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
+fParsingSettings.RequiredCount := fRequiredCount;
 fParsingSettings.StaticOptions := fStaticOptions;
+For i := 0 to Pred(fParsingSettings.VariableCount) do
+  fParsingSettings.Variables[i] := Variables.Vars[i];
 end;
 
 end.

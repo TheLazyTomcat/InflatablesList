@@ -69,6 +69,7 @@ type
     // shops
     fShopCount:             Integer;
     fShops:                 array of TILItemShop;
+    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetPackagePicture(Value: TBitmap); virtual;
@@ -139,7 +140,7 @@ type
     property Index: Integer read fIndex write fIndex;
     property Render: TBitmap read fRender;
     property FilteredOut: Boolean read fFilteredOut;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
     // events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
@@ -187,6 +188,13 @@ implementation
 
 uses
   SysUtils;
+
+procedure TILItem_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+begin
+fStaticOptions := IL_ThreadSafeCopy(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetItemPicture(Value: TBitmap);
 begin
@@ -689,7 +697,7 @@ var
   i:  Integer;
 begin
 Create(DataProvider);
-fStaticOptions := Source.StaticOptions;
+fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
 // do not copy time of addition, leave it as is (actual time)
 If CopyPics then
   begin

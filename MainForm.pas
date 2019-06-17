@@ -548,10 +548,13 @@ frmItemFrame.SaveItem;
 // preallocate array
 k := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      If fILManager[i].Shops[j].Selected or not OnlySelected then
-        Inc(k);
+  begin
+    fILManager[i].BroadcastReqCount;
+    If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
+      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+        If fILManager[i].Shops[j].Selected or not OnlySelected then
+          Inc(k);
+  end;
 SetLength(Temp,k);
 // fill the array
 k := 0;
@@ -560,7 +563,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       If fILManager[i].Shops[j].Selected or not OnlySelected then
         begin
-          Temp[k].ItemTitle := Format('[#%d] %s',[i,fILManager[i].TitleStr]);
+          Temp[k].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
           Temp[k].ItemShop := fILManager[i].Shops[j];
           Temp[k].Done := False;
           Inc(k);

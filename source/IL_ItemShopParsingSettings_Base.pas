@@ -23,6 +23,7 @@ type
     fAvailFinder:     TILElementFinder;
     fPriceExtrSetts:  TILItemShopParsingExtrSettList;
     fPriceFinder:     TILElementFinder;
+    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
     // data getters and setters
     Function GetVariableCount: Integer; virtual;
     Function GetVariable(Index: Integer): String; virtual;
@@ -49,7 +50,7 @@ type
     procedure PriceExtractionSettingsClear; virtual;
     // properties
     property RequiredCount: UInt32 read fRequiredCount write fRequiredCount;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
     // data
     property VariableCount: Integer read GetVariableCount;
     property Variables[Index: Integer]: String read GetVariable write SetVariable;
@@ -68,6 +69,13 @@ implementation
 
 uses
   SysUtils;
+
+procedure TILItemShopParsingSettings_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+begin
+fStaticOptions := IL_ThreadSafeCopy(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILItemShopParsingSettings_Base.GetVariableCount: Integer;
 begin
@@ -190,7 +198,7 @@ begin
 inherited Create;
 // copy fields
 fRequiredCount := Source.RequiredCount;
-fStaticOptions := Source.StaticOptions;
+fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
 // copy data
 For i := Low(fVariables.Vars) to High(fVariables.Vars) do
   begin

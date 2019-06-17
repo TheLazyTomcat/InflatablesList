@@ -79,10 +79,15 @@ type
 //==============================================================================
 
 constructor TILUpdateTask.Create(ILManager: TILManager; ItemShop: TILItemShop; ProcessingIndex: Integer);
+var
+  Index:  Integer;
 begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
 fItemShop := TILItemShop.CreateAsCopy(ItemShop);
+Index := ILManager.ShopTemplateIndexOf(fItemShop.ParsingSettings.TemplateReference);
+If Index >= 0 then
+  fItemShop.ReplaceParsingSettings(ILManager.ShopTemplates[Index].ParsingSettings);
 end;
 
 //------------------------------------------------------------------------------

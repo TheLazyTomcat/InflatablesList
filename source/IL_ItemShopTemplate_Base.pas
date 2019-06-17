@@ -19,6 +19,7 @@ type
     fAltDownMethod:   Boolean;
     fShopURL:         String;
     fParsingSettings: TILItemShopParsingSettings;
+    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -26,7 +27,7 @@ type
     constructor Create(BaseOn: TILItemShop); overload;
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write fStaticOptions;
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
     property Name: String read fName write fName;
     property ShopName: String read fShopName write fShopName;
     property Untracked: Boolean read fUntracked write fUntracked;
@@ -39,6 +40,13 @@ implementation
 
 uses
   SysUtils;
+
+procedure TILItemShopTemplate_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+begin
+fStaticOptions := IL_ThreadSafeCopy(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILItemShopTemplate_Base.Initialize;
 begin
@@ -74,7 +82,7 @@ end;
 constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
 inherited Create;
-fStaticOptions := BaseOn.StaticOptions;
+fStaticOptions := IL_ThreadSafeCopy(BaseOn.StaticOptions);
 fName := '';
 fShopName := BaseOn.Name;
 UniqueString(fShopName);

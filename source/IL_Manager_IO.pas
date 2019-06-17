@@ -67,12 +67,12 @@ end;
 procedure TILManager_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 If Struct = IL_LISTFILE_STREAMSTRUCTURE_00000007 then
-  Convert_7_to_8(Stream)
-else
   begin
-    InitLoadFunctions(Struct);
-    fFNLoadFromStream(Stream);
+    Convert_7_to_8(Stream);
+    Struct := IL_LISTFILE_STREAMSTRUCTURE_00000008;
   end;
+InitLoadFunctions(Struct);
+fFNLoadFromStream(Stream);
 end;
 
 //==============================================================================
@@ -103,7 +103,8 @@ begin
 FileStream := TMemoryStream.Create;
 try
   //prealloc
-  FileStream.Size := fCount + (45 * 1024); {~45Kib per item}
+  FileStream.Size := fCount * (45 * 1024); {~45Kib per item}
+  FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;  
   FileStream.SaveToFile(FileName);

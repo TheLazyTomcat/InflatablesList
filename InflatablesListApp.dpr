@@ -1,6 +1,7 @@
 program InflatablesListApp;
 
 uses
+  FastMM4,
   Forms,
   MainForm in 'MainForm.pas' {fMainForm},
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},

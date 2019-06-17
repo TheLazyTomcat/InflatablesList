@@ -193,8 +193,6 @@ with fRender,fRender.Canvas do
         Polygon([Point(fMainWidth - 15,0),Point(fMainWidth,0),Point(fMainWidth,15)]);
       end;
   end;
-beep;
-sleep(100);
 end;
 
 //------------------------------------------------------------------------------

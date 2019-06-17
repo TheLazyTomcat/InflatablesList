@@ -230,9 +230,10 @@ If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
     For i := ItemLowIndex to ItemHighIndex do
       begin
         fList[i] := TILItem.Create(fDataProvider);
+        // StaticOptions must be set must be before load so it is propagated to item shops
+        fList[i].StaticOptions := fStaticOptions;
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
-        fList[i].StaticOptions := fStaticOptions;
         fList[i].OnMainListUpdate := OnItemListUpdate;
         fList[i].OnSmallListUpdate := OnItemListUpdate;
       end;

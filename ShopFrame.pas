@@ -583,7 +583,7 @@ begin
 If (Sender is TMenuItem) and Assigned(fCurrentItemShop) then
   If (TMenuItem(Sender).Tag >= Low(IL_SHOP_PREDEFNOTES)) and
      (TMenuItem(Sender).Tag <= High(IL_SHOP_PREDEFNOTES)) then
-    meNotes.Text := meNotes.Text + IL_SHOP_PREDEFNOTES[TMenuItem(Sender).Tag];
+    meNotes.Lines.Add(IL_SHOP_PREDEFNOTES[TMenuItem(Sender).Tag]);
 end;
 
 //------------------------------------------------------------------------------
@@ -620,6 +620,7 @@ end;
 procedure TfrmShopFrame.btnUpdateClick(Sender: TObject);
 var
   Temp:   TILItemShop;
+  Index:  Integer;
   Result: Boolean;
 begin
 If Assigned(fCurrentItemShop) then
@@ -629,6 +630,10 @@ If Assigned(fCurrentItemShop) then
     try
       Temp := TILItemShop.CreateAsCopy(fCurrentItemShop);
       try
+        Index := fILManager.ShopTemplateIndexOf(Temp.ParsingSettings.TemplateReference);
+        // resolve reference
+        If Index >= 0 then
+          Temp.ReplaceParsingSettings(fILManager.ShopTemplates[Index].ParsingSettings);
         Result := Temp.Update;
         // retrieve results
         fCurrentItemShop.Available := Temp.Available;

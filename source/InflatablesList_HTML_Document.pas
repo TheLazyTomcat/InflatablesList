@@ -8,7 +8,8 @@ uses
   Classes,
   AuxTypes, CountedDynArrayObject,
   InflatablesList_Types,
-  InflatablesList_HTML_UnicodeCharArray, InflatablesList_HTML_TagAttributeArray;
+  InflatablesList_HTML_UnicodeCharArray,
+  InflatablesList_HTML_TagAttributeArray;
 
 type
   TILHTMLElementNode = class(TObject)

@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Manager_IO, InflatablesList_Manager_IO_Converter;
+  InflatablesList_Manager_IO_Converter;
 
 type
   TILManager_IO_00000008 = class(TILManager_IO_Converter)
@@ -31,7 +31,10 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
-  InflatablesList_Types, InflatablesList_Item, InflatablesList_ItemShopTemplate;
+  InflatablesList_Types,
+  InflatablesList_Item,
+  InflatablesList_ItemShopTemplate,
+  InflatablesList_Manager_IO;
 
 procedure TILManager_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin

@@ -7,8 +7,10 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_HTML_Document,
-  InflatablesList_HTML_ElementFinder, InflatablesList_ItemShop_Base;
+  InflatablesList_Types,
+  InflatablesList_HTML_Document,
+  InflatablesList_HTML_ElementFinder,
+  InflatablesList_ItemShop_Base;
 
 type
   TILShopUpdaterResult = (
@@ -64,7 +66,8 @@ implementation
 uses
   SysUtils, StrUtils,
   CRC32, CountedDynArrayObject,
-  InflatablesList_Utils, InflatablesList_HTML_Download,
+  InflatablesList_Utils,
+  InflatablesList_HTML_Download,
   InflatablesList_HTML_Parser;
 
 procedure TILShopUpdater.InitializeResults;

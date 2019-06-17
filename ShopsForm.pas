@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin, Menus,
   ShopFrame,
-  InflatablesList_Types, InflatablesList_Item, InflatablesList_Manager;
+  InflatablesList_Item,
+  InflatablesList_Manager;
 
 const
   WM_USER_LVITEMSELECTED = WM_USER + 234;
@@ -76,8 +77,8 @@ implementation
 
 uses
   AuxTypes,
-  InflatablesList_Utils,
-  TemplatesForm, UpdateForm;
+  TemplatesForm, UpdateForm,
+  InflatablesList_Utils;
 
 {$R *.dfm}
 

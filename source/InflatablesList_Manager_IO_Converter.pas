@@ -28,9 +28,12 @@ implementation
 uses
   SysUtils,
   BinaryStreaming, MemoryBuffer,
-  InflatablesList_Types, InflatablesList_HTML_ElementFinder,
-  InflatablesList_Item_IO, InflatablesList_ItemShop_IO,
-  InflatablesList_ItemShopParsingSettings_IO, InflatablesList_ItemShopTemplate_IO;
+  InflatablesList_Types,
+  InflatablesList_HTML_ElementFinder,
+  InflatablesList_Item_IO,
+  InflatablesList_ItemShop_IO,
+  InflatablesList_ItemShopParsingSettings_IO,
+  InflatablesList_ItemShopTemplate_IO;
 
 procedure TILManager_IO_Converter.Convert_7_to_8_SortSett(Stream: TStream);
 var

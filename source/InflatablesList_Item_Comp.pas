@@ -5,7 +5,8 @@ unit InflatablesList_Item_Comp;
 interface
 
 uses
-  InflatablesList_Types, InflatablesList_Item_Draw;
+  InflatablesList_Types,
+  InflatablesList_Item_Draw;
 
 type
   TILItem_Comp = class(TILItem_Draw)
@@ -20,7 +21,8 @@ implementation
 uses
   SysUtils, StrUtils,
   AuxTypes, BitOps,
-  InflatablesList_Utils, InflatablesList_ItemShop;
+  InflatablesList_Utils,
+  InflatablesList_ItemShop;
 
 Function TILItem_Comp.Contains(const Text: String): Boolean;
 var

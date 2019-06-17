@@ -7,7 +7,8 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_ItemShopParsingSettings;
+  InflatablesList_Types,
+  InflatablesList_ItemShopParsingSettings;
 
 type
   TILItemShop_Base = class(TObject)

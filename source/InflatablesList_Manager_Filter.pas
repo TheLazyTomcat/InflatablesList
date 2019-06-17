@@ -5,7 +5,8 @@ unit InflatablesList_Manager_Filter;
 interface
 
 uses
-  InflatablesList_Types, InflatablesList_Manager_Sort;
+  InflatablesList_Types,
+  InflatablesList_Manager_Sort;
 
 type
   TILManager_Filter = class(TILManager_Sort)

@@ -82,7 +82,8 @@ implementation
 {$R *.dfm}
 
 uses
-  InflatablesList_Types, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_ItemShop;
 
 procedure WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
 begin

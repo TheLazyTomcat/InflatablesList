@@ -33,8 +33,7 @@ implementation
 {$R *.dfm}
 
 uses
-  AuxTypes,
-  InflatablesList_HTML_ElementFinder;
+  AuxTypes;
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin

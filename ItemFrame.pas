@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, StdCtrls, Spin, Menus,
-  InflatablesList_Item, InflatablesList_Manager;
+  InflatablesList_Item,
+  InflatablesList_Manager;
 
 type
   TfrmItemFrame = class(TFrame)
@@ -162,8 +163,10 @@ implementation
 
 uses
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Utils, InflatablesList_ItemShop,
-  TextEditForm, ShopsForm, UpdateForm;
+  TextEditForm, ShopsForm, UpdateForm,
+  InflatablesList_Types,
+  InflatablesList_Utils,
+  InflatablesList_ItemShop;
 
 {$R *.dfm}
 

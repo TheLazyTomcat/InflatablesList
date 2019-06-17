@@ -23,7 +23,8 @@ implementation
 uses
   SysUtils, Graphics,
   BinaryStreaming,
-  InflatablesList_Types, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_ItemShop;
 
 procedure TILItem_IO_00000000.InitSaveFunctions(Struct: UInt32);
 begin

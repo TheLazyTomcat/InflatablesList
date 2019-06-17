@@ -7,7 +7,8 @@ interface
 uses
   Classes,
   AuxTypes, CountedDynArrayObject,
-  InflatablesList_HTML_Tokenizer, InflatablesList_HTML_Document;
+  InflatablesList_HTML_Tokenizer,
+  InflatablesList_HTML_Document;
 
 type
   TILHTMLParser = class(TObject)

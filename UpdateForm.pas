@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin,
   ConcurrentTasks,
-  InflatablesList_Types, InflatablesList_Item, InflatablesList_ItemShop,
+  InflatablesList_ItemShop,
   InflatablesList_Manager;
 
 type

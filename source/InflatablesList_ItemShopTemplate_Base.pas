@@ -5,7 +5,8 @@ unit InflatablesList_ItemShopTemplate_Base;
 interface
 
 uses
-  InflatablesList_Types, InflatablesList_ItemShop,
+  InflatablesList_Types,
+  InflatablesList_ItemShop,
   InflatablesList_ItemShopParsingSettings;
 
 type

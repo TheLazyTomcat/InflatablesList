@@ -46,7 +46,8 @@ implementation
 {$R *.dfm}
 
 uses
-  InflatablesList_Types, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_ItemShop;
 
 procedure TfOverviewForm.InitializeTable;
 var

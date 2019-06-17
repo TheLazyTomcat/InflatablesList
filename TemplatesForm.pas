@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, Menus,
-  InflatablesList_Types, InflatablesList_ItemShop, InflatablesList_Manager;
+  InflatablesList_ItemShop,
+  InflatablesList_Manager;
 
 type
   TfTemplatesForm = class(TForm)
@@ -57,9 +58,6 @@ var
 implementation
 
 {$R *.dfm}
-
-uses
-  InflatablesList_HTML_ElementFinder;
 
 procedure TfTemplatesForm.Initialize(ILManager: TILManager);
 begin

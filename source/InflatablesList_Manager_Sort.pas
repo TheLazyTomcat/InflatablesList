@@ -5,7 +5,8 @@ unit InflatablesList_Manager_Sort;
 interface
 
 uses
-  InflatablesList_Types, InflatablesList_Manager_Base;
+  InflatablesList_Types,
+  InflatablesList_Manager_Base;
 
 type
   TILManager_Sort = class(TILManager_Base)

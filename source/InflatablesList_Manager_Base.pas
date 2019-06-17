@@ -7,7 +7,9 @@ interface
 uses
   StdCtrls,
   AuxClasses, SimpleCmdLineParser,
-  InflatablesList_Types, InflatablesList_Data, InflatablesList_Item;
+  InflatablesList_Types,
+  InflatablesList_Data,
+  InflatablesList_Item;
 
 type
   TILManager_Base = class(TCustomListObject)

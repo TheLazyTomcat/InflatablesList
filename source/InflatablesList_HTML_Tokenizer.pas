@@ -215,7 +215,8 @@ implementation
 uses
   SysUtils,
   StrRect,
-  InflatablesList_HTML_Utils, InflatablesList_HTML_Common,
+  InflatablesList_HTML_Utils,
+  InflatablesList_HTML_Common,
   InflatablesList_HTML_NamedCharRefs;
 
 type

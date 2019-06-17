@@ -29,7 +29,8 @@ implementation
 uses
   SysUtils, Classes,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_ItemShop;
 
 procedure TILItem_Draw.ReDrawMain;
 const

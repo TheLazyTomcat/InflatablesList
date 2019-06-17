@@ -121,9 +121,10 @@ implementation
 
 uses
   AuxTypes, WinFileInfo,
-  InflatablesList_Types, InflatablesList_Backup, InflatablesList_ItemShop,
-  TextEditForm, ShopsForm, ParsingForm, TemplatesForm,SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, UpdateForm;
+  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm,
+  InflatablesList_Types,
+  InflatablesList_Backup;
 
 {$R *.dfm}
 

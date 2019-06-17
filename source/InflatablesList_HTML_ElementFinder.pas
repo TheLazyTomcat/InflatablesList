@@ -8,7 +8,8 @@ uses
   Classes,
   AuxTypes,
   InflatablesList_Types,
-  InflatablesList_HTML_TagAttributeArray, InflatablesList_HTML_Document;
+  InflatablesList_HTML_TagAttributeArray,
+  InflatablesList_HTML_Document;
 
 type
   TILSearchOperator = (ilsoAND,ilsoOR,ilsoXOR);

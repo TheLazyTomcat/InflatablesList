@@ -6,8 +6,9 @@ interface
 
 uses
   AuxTypes,
-  InflatablesList_Types, InflatablesList_ItemShop,
-  InflatablesList_ItemShopTemplate, InflatablesList_Manager_Filter;
+  InflatablesList_ItemShop,
+  InflatablesList_ItemShopTemplate,
+  InflatablesList_Manager_Filter;
 
 type
   TILManager_Templates = class(TILManager_Filter)

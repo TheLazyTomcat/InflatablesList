@@ -22,7 +22,8 @@ implementation
 uses
   SysUtils,
   AuxTypes,
-  InflatablesList_Types, InflatablesList_ShopUpdate;
+  InflatablesList_Types,
+  InflatablesList_ShopUpdate;
 
 Function TILITemShop_Update.Update: Boolean;
 var

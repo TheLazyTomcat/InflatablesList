@@ -7,7 +7,9 @@ interface
 uses
   Graphics,
   AuxTypes, AuxClasses,
-  InflatablesList_Types, InflatablesList_Data, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_Data,
+  InflatablesList_ItemShop;
 
 type
   TILItem_Base = class(TCustomListObject)

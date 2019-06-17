@@ -6,8 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Menus,
   ComparatorFrame, ExtractionFrame,
-  InflatablesList_Types, InflatablesList_HTML_ElementFinder,
-  InflatablesList_ItemShopParsingSettings, InflatablesList_Manager;
+  InflatablesList_Types,
+  InflatablesList_HTML_ElementFinder,
+  InflatablesList_ItemShopParsingSettings,
+  InflatablesList_Manager;
 
 type
   TILItemShopParsingEntry = record

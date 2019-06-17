@@ -6,7 +6,9 @@ interface
 
 uses
   AuxTypes,
-  InflatablesList_Types, InflatablesList_Item_Base, InflatablesList_ItemShop;
+  InflatablesList_Types,
+  InflatablesList_Item_Base,
+  InflatablesList_ItemShop;
 
 type
   TILItem_Utils = class(TILItem_Base)

@@ -5,8 +5,7 @@ unit InflatablesList_HTML_Common;
 interface
 
 uses
-  SysUtils,
-  AuxTypes;
+  SysUtils;
 
 type
   EILParseError = class(Exception);

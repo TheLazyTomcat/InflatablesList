@@ -52,6 +52,7 @@ type
     Function ItemAddEmpty: Integer; virtual;
     Function ItemAddCopy(SrcIndex: Integer): Integer; virtual;
     procedure ItemExchange(Idx1,Idx2: Integer); virtual;
+    procedure ItemMove(Src,Dst: Integer); virtual;
     procedure ItemDelete(Index: Integer); virtual;
     procedure ItemClear; virtual;
     // searching
@@ -288,6 +289,38 @@ If Idx1 <> Idx2 then
         fList[Idx1].Index := Idx1;
         fList[Idx2].Index := Idx2;
       end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemMove(Src,Dst: Integer);
+var
+  Temp: TILItem;
+  i:    Integer;
+begin
+If Src <> Dst then
+  begin
+    // sanity checks
+    If (Src < ItemLowIndex) or (Src > ItemHighIndex) then
+      raise Exception.CreateFmt('TILManager_Base.ItemMove: Source index (%d) out of bounds.',[Src]);
+    If (Dst < ItemLowIndex) or (Dst > ItemHighIndex) then
+      raise Exception.CreateFmt('TILManager_Base.ItemMove: Destination index (%d) out of bounds.',[Dst]);
+    Temp := fList[Src];
+    If Src < Dst then
+      begin
+        // move items down one place
+        For i := Src to Pred(Dst) do
+          fList[i] := fList[i + 1];
+      end
+    else
+      begin
+        // move items up one place
+        For i := Src downto Succ(Dst) do
+          fList[i] := fList[i - 1];
+      end;
+    fList[Dst] := Temp;
+    ReIndex;      
   end;
 end;
 

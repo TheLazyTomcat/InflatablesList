@@ -14,6 +14,7 @@ type
     lbProfiles: TListBox;
     btnProfileLoad: TButton;
     btnLoadDefault: TButton;
+    btnClear: TButton;    
     btnProfileSave: TButton;
     pmnProfiles: TPopupMenu;
     pmi_PR_Add: TMenuItem;
@@ -42,6 +43,7 @@ type
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure btnProfileLoadClick(Sender: TObject);
     procedure btnLoadDefaultClick(Sender: TObject);
+    procedure btnClearClick(Sender: TObject);    
     procedure btnProfileSaveClick(Sender: TObject);
     procedure pmnProfilesPopup(Sender: TObject);
     procedure pmi_PR_AddClick(Sender: TObject);
@@ -217,6 +219,21 @@ end;
 procedure TfSortForm.btnLoadDefaultClick(Sender: TObject);
 begin
 fLocalSortSett := fILManager.DefaultSortingSettings;
+FillSortByList(False);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSortForm.btnClearClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+fLocalSortSett.Count := 0;
+For i := Low(fLocalSortSett.Items) to High(fLocalSortSett.Items) do
+  begin
+    fLocalSortSett.Items[i].ItemValueTag := ilivtNone;
+    fLocalSortSett.Items[i].Reversed := False;
+  end;
 FillSortByList(False);
 end;
 

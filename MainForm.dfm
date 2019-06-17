@@ -145,6 +145,10 @@ object fMainForm: TfMainForm
     object N1: TMenuItem
       Caption = '-'
     end
+    object mniLM_MoveBeginning: TMenuItem
+      Caption = 'Move item to the beginning'
+      OnClick = mniLM_MoveBeginningClick
+    end
     object mniLM_MoveUp: TMenuItem
       Caption = 'Move item up'
       OnClick = mniLM_MoveUpClick
@@ -152,6 +156,10 @@ object fMainForm: TfMainForm
     object mniLM_MoveDown: TMenuItem
       Caption = 'Move item down'
       OnClick = mniLM_MoveDownClick
+    end
+    object mniLM_MoveEnd: TMenuItem
+      Caption = 'Move item to the end'
+      OnClick = mniLM_MoveEndClick
     end
     object N2: TMenuItem
       Caption = '-'
@@ -250,6 +258,7 @@ object fMainForm: TfMainForm
     end
     object mniLM_Specials: TMenuItem
       Caption = 'Special functions...'
+      ShortCut = 16462
       OnClick = mniLM_SpecialsClick
     end
     object N7: TMenuItem

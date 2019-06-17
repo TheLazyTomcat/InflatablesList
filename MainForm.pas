@@ -21,8 +21,10 @@ type
     mniLM_Remove: TMenuItem;
     mniLM_Clear: TMenuItem;
     N1: TMenuItem;
+    mniLM_MoveBeginning: TMenuItem;
     mniLM_MoveUp: TMenuItem;
     mniLM_MoveDown: TMenuItem;
+    mniLM_MoveEnd: TMenuItem;    
     N2: TMenuItem;
     mniLM_FindPrev: TMenuItem;
     mniLM_FindNext: TMenuItem;
@@ -100,6 +102,8 @@ type
     procedure acFindNextExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
     procedure acExitExecute(Sender: TObject);
+    procedure mniLM_MoveBeginningClick(Sender: TObject);
+    procedure mniLM_MoveEndClick(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
     fILManager:   TILManager;
@@ -255,8 +259,10 @@ begin
 // prepare form
 sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
+mniLM_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssCtrl,ssShift]);
 mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
+mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssCtrl,ssShift]);
 mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLM_SortRev.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssAlt]);
 mniLN_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
@@ -321,8 +327,11 @@ begin
 mniLM_AddCopy.Enabled := lbList.ItemIndex >= 0;
 mniLM_Remove.Enabled := lbList.ItemIndex >= 0;
 mniLM_Clear.Enabled := lbList.Count > 0;
+
+mniLM_MoveBeginning.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveUp.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniLM_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 end;
 
 //------------------------------------------------------------------------------
@@ -429,7 +438,7 @@ procedure TfMainForm.mniLM_MoveDownClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-If lbList.ItemIndex < Pred(lbList.Count) then
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
   begin
     Index := lbList.ItemIndex;
     lbList.Items.Exchange(Index,Index + 1);
@@ -837,6 +846,38 @@ end;
 procedure TfMainForm.acExitExecute(Sender: TObject);
 begin
 mniLM_Exit.OnClick(nil);
+end;
+
+procedure TfMainForm.mniLM_MoveBeginningClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Move(Index,0);
+    fILManager.ItemMove(Index,0);
+    lbList.ItemIndex := 0;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+procedure TfMainForm.mniLM_MoveEndClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Move(Index,Pred(lbList.Count));
+    fILManager.ItemMove(Index,Pred(lbList.Count));
+    lbList.ItemIndex := Pred(lbList.Count);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
 end;
 
 end.

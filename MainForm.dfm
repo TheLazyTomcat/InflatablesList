@@ -164,10 +164,25 @@ object fMainForm: TfMainForm
     object N2: TMenuItem
       Caption = '-'
     end
-    object mnilLM_ItemShops: TMenuItem
+    object mniLM_ItemShops: TMenuItem
       Caption = 'Item shops...'
       ShortCut = 16464
-      OnClick = mnilLM_ItemShopsClick
+      OnClick = mniLM_ItemShopsClick
+    end
+    object mniLM_ItemExport: TMenuItem
+      Caption = 'Export item...'
+      ShortCut = 16453
+      OnClick = mniLM_ItemExportClick
+    end
+    object mniLM_ItemExportMulti: TMenuItem
+      Caption = 'Export multiple items...'
+      ShortCut = 49221
+      OnClick = mniLM_ItemExportMultiClick
+    end
+    object mniLM_ItemImport: TMenuItem
+      Caption = 'Import items...'
+      ShortCut = 16457
+      OnClick = mniLM_ItemImportClick
     end
     object N3: TMenuItem
       Caption = '-'
@@ -284,7 +299,7 @@ object fMainForm: TfMainForm
     end
     object mniLM_Specials: TMenuItem
       Caption = 'Special functions...'
-      ShortCut = 16462
+      ShortCut = 16453
       OnClick = mniLM_SpecialsClick
     end
     object N9: TMenuItem
@@ -388,7 +403,7 @@ object fMainForm: TfMainForm
     end
     object acSpecials: TAction
       Caption = 'acSpecials'
-      ShortCut = 16462
+      ShortCut = 16453
       OnExecute = acSpecialsExecute
     end
     object acExit: TAction

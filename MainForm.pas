@@ -26,7 +26,10 @@ type
     mniLM_MoveDown: TMenuItem;
     mniLM_MoveEnd: TMenuItem;
     N2: TMenuItem;
-    mnilLM_ItemShops: TMenuItem;
+    mniLM_ItemShops: TMenuItem;
+    mniLM_ItemExport: TMenuItem;
+    mniLM_ItemExportMulti: TMenuItem;
+    mniLM_ItemImport: TMenuItem;
     N3: TMenuItem;
     mniLM_Find: TMenuItem;
     mniLM_FindPrev: TMenuItem;
@@ -95,7 +98,10 @@ type
     procedure mniLM_MoveDownClick(Sender: TObject);
     procedure mniLM_MoveEndClick(Sender: TObject);
     // ---
-    procedure mnilLM_ItemShopsClick(Sender: TObject);
+    procedure mniLM_ItemShopsClick(Sender: TObject);
+    procedure mniLM_ItemExportClick(Sender: TObject);
+    procedure mniLM_ItemExportMultiClick(Sender: TObject);
+    procedure mniLM_ItemImportClick(Sender: TObject);
     // ---
     procedure mniLM_FindClick(Sender: TObject);
     procedure mniLM_FindPrevClick(Sender: TObject);
@@ -387,7 +393,9 @@ mniLM_MoveBeginning.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveUp.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 mniLM_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mnilLM_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniLM_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniLM_ItemExport.Enabled := lbList.ItemIndex >= 0;
+mniLM_ItemExportMulti.Enabled := lbList.Count > 0;
 mniLM_UpdateItem.Enabled := lbList.ItemIndex >= 0;
 mniLN_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
 end;
@@ -546,7 +554,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mnilLM_ItemShopsClick(Sender: TObject);
+procedure TfMainForm.mniLM_ItemShopsClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   begin
@@ -558,6 +566,27 @@ If lbList.ItemIndex >= 0 then
     fILManager[lbList.ItemIndex].ReDraw;
     lbList.SetFocus;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ItemExportClick(Sender: TObject);
+begin
+//
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ItemExportMultiClick(Sender: TObject);
+begin
+//
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ItemImportClick(Sender: TObject);
+begin
+//
 end;
 
 //------------------------------------------------------------------------------
@@ -1076,7 +1105,7 @@ end;
 
 procedure TfMainForm.acItemShopsExecute(Sender: TObject);
 begin
-mnilLM_ItemShops.OnClick(nil);
+mniLM_ItemShops.OnClick(nil);
 end;
  
 //------------------------------------------------------------------------------

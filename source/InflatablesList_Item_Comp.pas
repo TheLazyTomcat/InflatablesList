@@ -128,6 +128,8 @@ case ItemValueTag of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtFlagLost:          Result := IL_CompareBool(ilifLost in fFlags,ilifLost in Item.Flags);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtFlagDiscarded:     Result := IL_CompareBool(ilifDiscarded in fFlags,ilifDiscarded in Item.Flags);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtTextTag:           Result := IL_CompareText(fTextTag,Item.TextTag);
 
   // extended specs  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -324,6 +326,7 @@ If FilterSettings.Flags <> [] then
     CheckItemFlag($00000800,ilifAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
     CheckItemFlag($00001000,ilifNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
     CheckItemFlag($00002000,ilifLost,ilffLostSet,ilffLostClr);
+    CheckItemFlag($00004000,ilifDiscarded,ilffDiscardedSet,ilffDiscardedClr);
   end;
 StateSet := False;
 State := False; // will be later set to true value

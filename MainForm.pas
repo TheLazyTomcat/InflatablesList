@@ -109,10 +109,10 @@ type
     procedure mniLM_FindPrevClick(Sender: TObject);
     procedure mniLM_FindNextClick(Sender: TObject);
     // ---
+    procedure mniLM_SortCommon(Profile: Integer);
     procedure mniLM_SortSettClick(Sender: TObject);
     procedure mniLM_SortRevClick(Sender: TObject);
     procedure mniLM_SortClick(Sender: TObject);
-    procedure mniLM_SortCommon(Profile: Integer);
     procedure mniLM_SortByClick(Sender: TObject);
     // ---
     procedure mniLN_UpdateCommon(UpdateList: TILItemShopUpdateList);
@@ -638,6 +638,27 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
+begin
+frmItemFrame.SaveItem;
+frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
+Screen.Cursor := crHourGlass;
+try
+  fILManager.ItemSort(Profile);
+finally
+  Screen.Cursor := crDefault;
+end;
+If lbList.ItemIndex >= 0 then
+  begin
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    frmItemFrame.LoadItem;
+  end;
+lbList.Invalidate;
+UpdateIndexAndCount;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_SortSettClick(Sender: TObject);
 begin
 frmItemFrame.SaveItem;
@@ -676,27 +697,7 @@ end;
 procedure TfMainForm.mniLM_SortClick(Sender: TObject);
 begin
 mniLM_SortCommon(-1);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
-begin
-frmItemFrame.SaveItem;
-frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
-Screen.Cursor := crHourGlass;
-try
-  fILManager.ItemSort(Profile);
-finally
-  Screen.Cursor := crDefault;
-end;
-If lbList.ItemIndex >= 0 then
-  begin
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    frmItemFrame.LoadItem;
-  end;
-lbList.Invalidate;
-UpdateIndexAndCount;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
@@ -704,61 +705,14 @@ end;
 procedure TfMainForm.mniLM_SortByClick(Sender: TObject);
 begin
 If Sender is TMenuItem then
-  mniLM_SortCommon(TMenuItem(Sender).Tag);
+  begin
+    mniLM_SortCommon(TMenuItem(Sender).Tag);
+    lbList.SetFocus;
+  end;
 end;
 
 //------------------------------------------------------------------------------
-(*
-procedure TfMainForm.mniLN_UpdateCommon(OnlyWanted,OnlySelected: Boolean);
-var
-  i,j,k:    Integer;
-  Temp:     TILItemShopUpdateList;
-  OldAvail: Int32;
-  OldPrice: UInt32;
-begin
-frmItemFrame.SaveItem;
-// preallocate array
-k := 0;
-For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    fILManager[i].BroadcastReqCount;
-    If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-        If fILManager[i].Shops[j].Selected or not OnlySelected then
-          Inc(k);
-  end;
-SetLength(Temp,k);
-// fill the array
-k := 0;
-For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If (ilifWanted in fILManager[i].Flags) or not OnlyWanted then
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      If fILManager[i].Shops[j].Selected or not OnlySelected then
-        begin
-          Temp[k].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
-          Temp[k].ItemShop := fILManager[i].Shops[j];
-          Temp[k].Done := False;
-          Inc(k);
-        end;
-If Length(Temp) > 0 then
-  begin
-    // update
-    fUpdateForm.ShowUpdate(Temp);
-    // recalc prices
-    For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-      If ilifWanted in fILManager[i].Flags then
-        begin
-          OldAvail := fILManager[i].AvailableSelected;
-          OldPrice := fILManager[i].UnitPriceSelected;
-          fILManager[i].UpdatePriceAndAvail;
-          fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
-        end;
-    // show changes
-    frmItemFrame.LoadItem;
-  end
-else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
-end;
-*)
+
 procedure TfMainForm.mniLN_UpdateCommon(UpdateList: TILItemShopUpdateList);
 var
   i:        Integer;

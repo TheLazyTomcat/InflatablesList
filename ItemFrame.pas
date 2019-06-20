@@ -54,6 +54,7 @@ type
     cbFlagAvailChange: TCheckBox;
     cbFlagNotAvailable: TCheckBox;
     cbFlagLost: TCheckBox;
+    cbFlagDiscarded: TCheckBox;    
     bvlTextTagSep: TBevel;
     leTextTag: TLabeledEdit;
     lblWantedLevel: TLabel;
@@ -372,6 +373,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.SetFlagValue(ilifAvailChange,cbFlagAvailChange.Checked);
       fCurrentItem.SetFlagValue(ilifNotAvailable,cbFlagNotAvailable.Checked);
       fCurrentItem.SetFlagValue(ilifLost,cbFlagLost.Checked);
+      fCurrentItem.SetFlagValue(ilifDiscarded,cbFlagDiscarded.Checked);
       fCurrentItem.TextTag := leTextTag.Text;
       // extended specs
       fCurrentItem.WantedLevel := seWantedLevel.Value;
@@ -429,6 +431,7 @@ If Assigned(fCurrentItem) then
       cbFlagAvailChange.Checked := ilifAvailChange in fCurrentItem.Flags;
       cbFlagNotAvailable.Checked := ilifNotAvailable in fCurrentItem.Flags;
       cbFlagLost.Checked := ilifLost in fCurrentItem.Flags;
+      cbFlagDiscarded.Checked := ilifDiscarded in fCurrentItem.Flags;
       leTextTag.Text := fCurrentItem.TextTag;
       // extended specs
       seWantedLevel.Value := fCurrentItem.WantedLevel;
@@ -485,6 +488,8 @@ try
   cbFlagPriceChange.Checked := False;
   cbFlagAvailChange.Checked := False;
   cbFlagNotAvailable.Checked := False;
+  cbFlagLost.Checked := False;
+  cbFlagDiscarded.Checked := False;
   leTextTag.Text := '';
   // ext. specs
   seWantedLevel.Value := 0;
@@ -876,6 +881,7 @@ If Sender is TCheckBox then
           12: fCurrentItem.SetFlagValue(ilifAvailChange,cbFlagAvailChange.Checked);
           13: fCurrentItem.SetFlagValue(ilifNotAvailable,cbFlagNotAvailable.Checked);
           14: fCurrentItem.SetFlagValue(ilifLost,cbFlagLost.Checked);
+          15: fCurrentItem.SetFlagValue(ilifDiscarded,cbFlagDiscarded.Checked);
         else
           Exit;
         end;

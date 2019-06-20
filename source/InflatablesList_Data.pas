@@ -96,7 +96,7 @@ const
     'flag_icon_elsewhere','flag_icon_untested','flag_icon_testing',
     'flag_icon_tested','flag_icon_damaged','flag_icon_repaired',
     'flag_icon_pricechange','flag_icon_availchange','flag_icon_notavailable',
-    'flag_icon_lost');
+    'flag_icon_lost','flag_icon_lost'); {$message 'add discarded flag icon'}
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Main picture (is present)','Package picture (is present)',
@@ -105,7 +105,7 @@ const
     'Owned (flag)','Wanted (flag)','Ordered (flag)','Boxed (flag)',
     'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
     'Damaged (flag)','Repaired (flag)','Price change (flag)',
-    'Availability change (flag)','Not available (flag)','Lost (flag)',
+    'Availability change (flag)','Not available (flag)','Lost (flag)','Discarded (flag)',
     'Textual tag','Wanted level (flagged)','Variant (color, pattern, type, ...)',
     'Material type','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
     'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',

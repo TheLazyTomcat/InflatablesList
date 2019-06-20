@@ -28,6 +28,8 @@ type
     cbFlagPriceChange: TCheckBox;
     cbFlagAvailChange: TCheckBox;
     cbFlagNotAvailable: TCheckBox;
+    cbFlagLost: TCheckBox;
+    cbFlagDiscarded: TCheckBox;    
     bvlLegengSep: TBevel;
     cbStateUnchecked: TCheckBox;
     cbStateChecked: TCheckBox;
@@ -44,7 +46,6 @@ type
     lblSumsByTextTag: TLabel;
     sgSumsByTextTag: TStringGrid;
     btnClose: TButton;
-    cbFlagLost: TCheckBox;
     procedure CommonFilterCheckBoxClick(Sender: TObject);
     procedure CommonStateCheckBoxClick(Sender: TObject);
     procedure CommonDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
@@ -556,6 +557,7 @@ try
   SetFlagCheckBoxState(cbFlagAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
   SetFlagCheckBoxState(cbFlagNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
   SetFlagCheckBoxState(cbFlagLost,ilffLostSet,ilffLostClr);
+  SetFlagCheckBoxState(cbFlagDiscarded,ilffDiscardedSet,ilffDiscardedClr);
 finally
   fFillingFilter := False;
 end;
@@ -602,6 +604,7 @@ GetFlagCheckBoxState(cbFlagPriceChange,ilffPriceChangeSet,ilffPriceChangeClr);
 GetFlagCheckBoxState(cbFlagAvailChange,ilffAvailChangeSet,ilffAvailChangeClr);
 GetFlagCheckBoxState(cbFlagNotAvailable,ilffNotAvailableSet,ilffNotAvailableClr);
 GetFlagCheckBoxState(cbFlagLost,ilffLostSet,ilffLostClr);
+GetFlagCheckBoxState(cbFlagDiscarded,ilffDiscardedSet,ilffDiscardedClr);
 fILManager.FilterSettings := TempFilterSettings;
 end;
 

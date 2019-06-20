@@ -545,7 +545,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 268435455
       MinValue = 0
-      TabOrder = 21
+      TabOrder = 22
       Value = 0
       OnChange = seUnitPriceDefaultChange
     end
@@ -561,7 +561,7 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
       ScrollBars = ssBoth
-      TabOrder = 14
+      TabOrder = 15
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -584,7 +584,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 79
       EditLabel.Height = 13
       EditLabel.Caption = 'Item picture file:'
-      TabOrder = 17
+      TabOrder = 18
       OnChange = leItemPictureFileChange
     end
     object leVariant: TLabeledEdit
@@ -617,7 +617,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 97
       EditLabel.Height = 13
       EditLabel.Caption = 'Package picture file:'
-      TabOrder = 19
+      TabOrder = 20
       OnChange = lePackagePictureFileChange
     end
     object gbFlagsTags: TGroupBox
@@ -773,7 +773,7 @@ object frmItemFrame: TfrmItemFrame
         EditLabel.Height = 13
         EditLabel.Caption = 'Text tag:'
         MaxLength = 10
-        TabOrder = 14
+        TabOrder = 15
         OnChange = leTextTagChange
       end
       object cbFlagLost: TCheckBox
@@ -784,6 +784,16 @@ object frmItemFrame: TfrmItemFrame
         Height = 17
         Caption = 'Lost'
         TabOrder = 13
+        OnClick = CommonFlagClick
+      end
+      object cbFlagDiscarded: TCheckBox
+        Tag = 15
+        Left = 384
+        Top = 48
+        Width = 73
+        Height = 17
+        Caption = 'Discarded'
+        TabOrder = 14
         OnClick = CommonFlagClick
       end
     end
@@ -813,7 +823,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Update shops...'
-      TabOrder = 22
+      TabOrder = 23
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
@@ -822,7 +832,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Shops...'
-      TabOrder = 23
+      TabOrder = 24
       OnClick = btnShopsClick
     end
     object btnBrowseItemPictureFile: TButton
@@ -831,7 +841,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 25
       Height = 21
       Caption = '...'
-      TabOrder = 18
+      TabOrder = 19
       OnClick = btnBrowseItemPictureFileClick
     end
     object btnBrowsePackagePictureFile: TButton
@@ -840,7 +850,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 25
       Height = 21
       Caption = '...'
-      TabOrder = 20
+      TabOrder = 21
       OnClick = btnBrowsePackagePictureFileClick
     end
     object sePieces: TSpinEdit
@@ -862,7 +872,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 61
       EditLabel.Height = 13
       EditLabel.Caption = 'Review URL:'
-      TabOrder = 15
+      TabOrder = 16
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
@@ -871,7 +881,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 25
       Height = 21
       Caption = '>'
-      TabOrder = 16
+      TabOrder = 17
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
@@ -901,7 +911,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 24
+      TabOrder = 14
       Value = 0
     end
   end

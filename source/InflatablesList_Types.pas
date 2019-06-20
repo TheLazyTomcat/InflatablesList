@@ -45,7 +45,8 @@ type
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
                  ilifUntested,ilifTesting,ilifTested,ilifDamaged,ilifRepaired,
-                 ilifPriceChange,ilifAvailChange,ilifNotAvailable,ilifLost);
+                 ilifPriceChange,ilifAvailChange,ilifNotAvailable,ilifLost,
+                 ilifDiscarded);
 
   TILItemFlags = set of TILItemFlag;
 
@@ -140,7 +141,7 @@ type
     ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtID,
     ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
-    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,
+    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,
     ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
     ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
     ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
@@ -182,7 +183,8 @@ type
     ilffTestingSet,ilffTestingClr,ilffTestedSet,ilffTestedClr,
     ilffDamagedSet,ilffDamagedClr,ilffRepairedSet,ilffRepairedClr,
     ilffPriceChangeSet,ilffPriceChangeClr,ilffAvailChangeSet,ilffAvailChangeClr,
-    ilffNotAvailableSet,ilffNotAvailableClr,ilffLostSet,ilffLostClr);
+    ilffNotAvailableSet,ilffNotAvailableClr,ilffLostSet,ilffLostClr,
+    ilffDiscardedSet,ilffDiscardedClr);
 
   TILFilterFlags = set of TILFilterFlag;
 
@@ -454,6 +456,7 @@ SetFlagStateValue(Result,$00000400,ilifPriceChange in ItemFlags);
 SetFlagStateValue(Result,$00000800,ilifAvailChange in ItemFlags);
 SetFlagStateValue(Result,$00001000,ilifNotAvailable in ItemFlags);
 SetFlagStateValue(Result,$00002000,ilifLost in ItemFlags);
+SetFlagStateValue(Result,$00004000,ilifDiscarded in ItemFlags);
 end;
  
 //------------------------------------------------------------------------------
@@ -475,6 +478,7 @@ IL_SetItemFlagValue(Result,ilifPriceChange,GetFlagState(Flags,$00000400));
 IL_SetItemFlagValue(Result,ilifAvailChange,GetFlagState(Flags,$00000800));
 IL_SetItemFlagValue(Result,ilifNotAvailable,GetFlagState(Flags,$00001000));
 IL_SetItemFlagValue(Result,ilifLost,GetFlagState(Flags,$00002000));
+IL_SetItemFlagValue(Result,ilifDiscarded,GetFlagState(Flags,$00004000));
 end;
 
 //------------------------------------------------------------------------------
@@ -678,6 +682,7 @@ case ItemValueTag of
   ilivtUsefulShopRatio:   Result := 51;
   ilivtMaterial:          Result := 52;
   ilivtThickness:         Result := 53;
+  ilivtFlagDiscarded:     Result := 54;
 else
   {ilivtNone}
   Result := 0;
@@ -743,6 +748,7 @@ case Num of
   51: Result := ilivtUsefulShopRatio;
   52: Result := ilivtMaterial;
   53: Result := ilivtThickness;
+  54: Result := ilivtFlagDiscarded;
 else
   Result := ilivtNone;
 end;
@@ -818,6 +824,8 @@ SetFlagStateValue(Result,$01000000,ilffNotAvailableSet in FilterFlags);
 SetFlagStateValue(Result,$02000000,ilffNotAvailableClr in FilterFlags);
 SetFlagStateValue(Result,$04000000,ilffLostSet in FilterFlags);
 SetFlagStateValue(Result,$08000000,ilffLostClr in FilterFlags);
+SetFlagStateValue(Result,$10000000,ilffDiscardedSet in FilterFlags);
+SetFlagStateValue(Result,$20000000,ilffDiscardedClr in FilterFlags);
 end;
 
 //------------------------------------------------------------------------------
@@ -853,6 +861,8 @@ IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableSet,GetFlagState(Flags,$010
 IL_SetFilterSettingsFlagValue(Result,ilffNotAvailableClr,GetFlagState(Flags,$02000000));
 IL_SetFilterSettingsFlagValue(Result,ilffLostSet,GetFlagState(Flags,$04000000));
 IL_SetFilterSettingsFlagValue(Result,ilffLostClr,GetFlagState(Flags,$08000000));
+IL_SetFilterSettingsFlagValue(Result,ilffDiscardedSet,GetFlagState(Flags,$10000000));
+IL_SetFilterSettingsFlagValue(Result,ilffDiscardedClr,GetFlagState(Flags,$20000000));
 end;
 
 //==============================================================================

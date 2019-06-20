@@ -304,7 +304,7 @@ object fMainForm: TfMainForm
     end
     object mniLM_Specials: TMenuItem
       Caption = 'Special functions...'
-      ShortCut = 16453
+      ShortCut = 16460
       OnClick = mniLM_SpecialsClick
     end
     object N9: TMenuItem
@@ -413,7 +413,7 @@ object fMainForm: TfMainForm
     end
     object acSpecials: TAction
       Caption = 'acSpecials'
-      ShortCut = 16453
+      ShortCut = 16460
       OnExecute = acSpecialsExecute
     end
     object acExit: TAction

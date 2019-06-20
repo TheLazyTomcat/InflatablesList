@@ -87,7 +87,7 @@ Stream_WriteUInt32(fConvertStream,Cntr);
 For i := 0 to Pred(Cntr) do
   begin
     Stream_WriteUInt32(fConvertStream,IL_SHOPTEMPLATE_SIGNATURE);
-    Stream_WriteUInt32(fConvertStream,IL_SHOPTEMPLATE_STREAMSTRUCTURE_SAVE);
+    Stream_WriteUInt32(fConvertStream,IL_SHOPTEMPLATE_STREAMSTRUCTURE_00000000);
     // data
     Stream_WriteString(fConvertStream,Stream_ReadString(Stream)); // template name
     Stream_ReadBool(Stream);                                      // * selected
@@ -154,7 +154,7 @@ var
   i:    Integer;
 begin
 Stream_WriteUInt32(fConvertStream,IL_ITEM_SIGNATURE);
-Stream_WriteUInt32(fConvertStream,IL_ITEM_STREAMSTRUCTURE_SAVE);
+Stream_WriteUInt32(fConvertStream,IL_ITEM_STREAMSTRUCTURE_00000000);
 // data
 Stream_WriteFloat64(fConvertStream,Stream_ReadFloat64(Stream));   // TimeOfAddition
 // pictures...
@@ -229,7 +229,7 @@ var
   i:    Integer;
 begin
 Stream_WriteUInt32(fConvertStream,IL_ITEMSHOP_SIGNATURE);
-Stream_WriteUInt32(fConvertStream,IL_ITEMSHOP_STREAMSTRUCTURE_SAVE);
+Stream_WriteUInt32(fConvertStream,IL_ITEMSHOP_STREAMSTRUCTURE_00000000);
 // data
 Stream_WriteBool(fConvertStream,Stream_ReadBool(Stream));     // Selected
 Stream_WriteBool(fConvertStream,Stream_ReadBool(Stream));     // Untracked
@@ -270,7 +270,7 @@ var
   Finder: TILElementFinder;
 begin
 Stream_WriteUInt32(fConvertStream,IL_SHOPPARSSETT_SIGNATURE);
-Stream_WriteUInt32(fConvertStream,IL_SHOPPARSSETT_STREAMSTRUCTURE_SAVE);
+Stream_WriteUInt32(fConvertStream,IL_SHOPPARSSETT_STREAMSTRUCTURE_00000000);
 // data (structure is the same as in 7)
 // variables
 For i := Low(PILItemShopParsingVariables(nil).Vars) to High(PILItemShopParsingVariables(nil).Vars) do

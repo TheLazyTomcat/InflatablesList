@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 289
-  Top = 130
+  Left = -17
+  Top = 127
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'

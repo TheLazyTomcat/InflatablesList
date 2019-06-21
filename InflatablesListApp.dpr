@@ -65,7 +65,8 @@ uses
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
-  UpdateForm in 'UpdateForm.pas' {fUpdateForm};
+  UpdateForm in 'UpdateForm.pas' {fUpdateForm},
+  ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm};
 
 {$R *.res}
 
@@ -83,6 +84,7 @@ begin
   Application.CreateForm(TfOverviewForm, fOverviewForm);
   Application.CreateForm(TfSelectionForm, fSelectionForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
+  Application.CreateForm(TfItemSelectForm, fItemSelectForm);
   fMainForm.InitOtherForms;
   Application.Run;
 end.

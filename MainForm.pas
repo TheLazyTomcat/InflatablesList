@@ -207,9 +207,9 @@ var
 implementation
 
 uses
-  WinFileInfo, BitOps,
+  WinFileInfo, BitOps, CountedDynArrayInteger,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
-  SumsForm, SpecialsForm, OverviewForm, SelectionForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
   InflatablesList_Types,
   InflatablesList_Backup;
 
@@ -333,6 +333,7 @@ fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
+fItemSelectForm.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -624,15 +625,56 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ItemExportMultiClick(Sender: TObject);
+var
+  Indices:    TCountedDynArrayInteger;
+  IndicesArr: array of Integer;
+  i:          Integer;
 begin
-{$message 'implement'}
+If diaItemsExport.Execute then
+  begin
+    frmItemFrame.SaveItem;
+    CDA_Init(Indices);
+    fItemSelectForm.ShowItemSelect('Select items for export',Indices);
+    If CDA_Count(Indices) > 0 then
+      begin
+        SetLength(IndicesArr,CDA_Count(Indices));
+        For i := Low(IndicesArr) to High(IndicesArr) do
+          IndicesArr[i] := CDA_GetItem(Indices,i);
+        fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
+        MessageDlg(Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
+      end;
+    lbList.SetFocus;
+  end;
 end;
  
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ItemImportClick(Sender: TObject);
+var
+  Index:  Integer;
+  Cntr,i: Integer;
 begin
-{$message 'implement'}
+If diaItemsImport.Execute then
+  begin
+    Index := lbList.ItemIndex;
+    If Index >= 0 then
+      frmItemFrame.SetItem(fILManager[Index],False);
+    Cntr := fILManager.ItemsImport(diaItemsImport.FileName);
+    If Cntr > 0 then
+      begin
+        Index := lbList.Count;
+        For i := 1 to Cntr do
+          lbList.Items.Add(IntToStr(lbList.Count));
+        lbList.ItemIndex := Index;
+        fILManager.ReinitDrawSize(lbList);
+      end;
+    lbList.OnClick(nil);
+    UpdateIndexAndCount;
+    If Cntr > 0 then
+      MessageDlg(Format('%d items imported.',[Cntr]),mtInformation,[mbOK],0)
+    else
+      MessageDlg('No item imported.',mtInformation,[mbOK],0)
+  end;
 end;
 
 //------------------------------------------------------------------------------

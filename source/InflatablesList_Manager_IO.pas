@@ -49,7 +49,7 @@ type
   public
     // items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
-    Function ItemsImport(const FileName: String): Integer; virtual; abstract;
+    Function ItemsImport(const FileName: String): Integer; virtual;
     // normal io  
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
@@ -61,7 +61,8 @@ implementation
 
 uses
   SysUtils,
-  BinaryStreaming;
+  BinaryStreaming,
+  InflatablesList_Item;
 
 procedure TILManager_IO.Save(Stream: TStream; Struct: UInt32);
 begin
@@ -106,6 +107,46 @@ try
     fList[Indices[i]].SaveToStream(FileStream);
   // save to file
   FileStream.SaveToFile(FileName);
+finally
+  FileStream.Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_IO.ItemsImport(const FileName: String): Integer;
+var
+  FileStream: TMemoryStream;
+  i:          Integer;
+begin
+Result := 0;
+FileStream := TMemoryStream.Create;
+try
+  FileStream.LoadFromFile(FileName);
+  FileStream.Seek(0,soBeginning);
+  // now the reading itself...
+  If Stream_ReadUInt32(FileStream) = IL_ITEMEXPORT_SIGNATURE then
+    begin
+      Result := Stream_ReadUInt32(FileStream);
+      If Result > 0 then
+        begin
+          SetCapacity(Capacity + Result);
+          For i := 0 to Pred(Result) do
+            begin
+              fList[fCount + i] := TILItem.Create(fDataProvider);
+              fList[fCount + i].StaticOptions := fStaticOptions;
+              fList[fCount + i].LoadFromStream(FileStream);
+              fList[fCount + i].ResetTimeOfAddition;
+              fList[fCount + i].Index := i;
+              fList[fCount + i].OnMainListUpdate := MainListUpdateHandler;
+              fList[fCount + i].OnSmallListUpdate := SmallListUpdateHandler;
+              fList[fCount + i].OnOverviewListUpdate := OverviewUpdateHandler;
+            end;
+          fCount := fCount + Result;
+          DoUpdate;
+        end;
+    end
+  else raise Exception.Create('TILItem_IO.ItemsImport: Invalid stream.');
 finally
   FileStream.Free;
 end;

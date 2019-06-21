@@ -148,6 +148,7 @@ type
     procedure ShopDelete(Index: Integer); virtual;
     procedure ShopClear; virtual;
     // data helpers
+    procedure ResetTimeOfAddition; virtual;
     procedure SwitchPictures; virtual;
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
     procedure BroadcastReqCount; virtual;
@@ -999,6 +1000,13 @@ For i := ShopLowIndex to ShopHighIndex do
 SetLength(fShops,0);
 fShopCount := 0;
 UpdateShopList;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.ResetTimeOfAddition;
+begin
+fTimeOfAddition := Now;
 end;
 
 //------------------------------------------------------------------------------

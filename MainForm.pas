@@ -6,6 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, ActnList, XPMan,
   ItemFrame, UpdateForm,
+  AuxTypes,
   InflatablesList_Manager;
 
 type
@@ -14,7 +15,7 @@ type
     gbDetails: TGroupBox;
     sbStatusBar: TStatusBar;
     frmItemFrame: TfrmItemFrame;
-    oXPManifest: TXPManifest;    
+    oXPManifest: TXPManifest;
     pmnListMenu: TPopupMenu;
     mniLM_Add: TMenuItem;
     mniLM_AddCopy: TMenuItem;    
@@ -43,10 +44,10 @@ type
     mniLM_UpdateItem: TMenuItem;
     mniLM_UpdateAll: TMenuItem;
     mniLM_UpdateWanted: TMenuItem;
-    mniLN_UpdateSelected: TMenuItem;
+    mniLM_UpdateSelected: TMenuItem;
     N6: TMenuItem;
-    mniLN_UpdateItemShopHistory: TMenuItem;    
-    mniLN_UpdateShopsHistory: TMenuItem;
+    mniLM_UpdateItemShopHistory: TMenuItem;
+    mniLM_UpdateShopsHistory: TMenuItem;
     N7: TMenuItem;
     mniLM_Sums: TMenuItem;
     mniLM_Overview: TMenuItem;
@@ -65,13 +66,15 @@ type
     btnFindNext: TButton;
     alShortcuts: TActionList;
     acItemShops: TAction;
+    acItemExport: TAction;
+    acItemExportMulti: TAction;
+    acItemImport: TAction;
     acFind: TAction;
     acFindPrev: TAction;
     acFindNext: TAction;
     acSortSett: TAction;
     acSortRev: TAction;
     acSort: TAction;
-    acSortBy: TAction;
     acUpdateItem: TAction;
     acUpdateAll: TAction;
     acUpdateWanted: TAction;
@@ -85,9 +88,22 @@ type
     acSave: TAction;
     acSpecials: TAction;    
     acExit: TAction;
+    acSortBy_0: TAction;
+    acSortBy_1: TAction;
+    acSortBy_2: TAction;
+    acSortBy_3: TAction;
+    acSortBy_4: TAction;
+    acSortBy_5: TAction;
+    acSortBy_6: TAction;
+    acSortBy_7: TAction;
+    acSortBy_8: TAction;
+    acSortBy_9: TAction;
+    diaItemsImport: TOpenDialog;
+    diaItemsExport: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FormShow(Sender: TObject);    
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);      
     procedure pmnListMenuPopup(Sender: TObject);
     // ---
     procedure mniLM_AddClick(Sender: TObject);
@@ -119,10 +135,10 @@ type
     procedure mniLM_UpdateItemClick(Sender: TObject);
     procedure mniLM_UpdateAllClick(Sender: TObject);
     procedure mniLM_UpdateWantedClick(Sender: TObject);
-    procedure mniLN_UpdateSelectedClick(Sender: TObject);
+    procedure mniLM_UpdateSelectedClick(Sender: TObject);
     // ---
-    procedure mniLN_UpdateItemShopHistoryClick(Sender: TObject);    
-    procedure mniLN_UpdateShopsHistoryClick(Sender: TObject);
+    procedure mniLM_UpdateItemShopHistoryClick(Sender: TObject);
+    procedure mniLM_UpdateShopsHistoryClick(Sender: TObject);
     // ---
     procedure mniLM_SumsClick(Sender: TObject);
     procedure mniLM_OverviewClick(Sender: TObject);
@@ -146,13 +162,15 @@ type
     procedure btnFindNextClick(Sender: TObject);
     // ---
     procedure acItemShopsExecute(Sender: TObject);
+    procedure acItemExportExecute(Sender: TObject);
+    procedure acItemExportMultiExecute(Sender: TObject);
+    procedure acItemImportExecute(Sender: TObject);    
     procedure acFindExecute(Sender: TObject);
     procedure acFindPrevExecute(Sender: TObject);
     procedure acFindNextExecute(Sender: TObject);
     procedure acSortSettExecute(Sender: TObject);
     procedure acSortRevExecute(Sender: TObject);
     procedure acSortExecute(Sender: TObject);
-    procedure acSortByExecute(Sender: TObject);
     procedure acUpdateItemExecute(Sender: TObject);
     procedure acUpdateAllExecute(Sender: TObject);
     procedure acUpdateWantedExecute(Sender: TObject);
@@ -166,9 +184,11 @@ type
     procedure acSaveExecute(Sender: TObject);
     procedure acSpecialsExecute(Sender: TObject);    
     procedure acExitExecute(Sender: TObject);
+    procedure acSortByCommonExecute(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
     fILManager:   TILManager;
+    fActionMask:  UInt32;
   protected
     procedure FillCopyright;
     procedure BuildSortBySubmenu;
@@ -187,7 +207,7 @@ var
 implementation
 
 uses
-  AuxTypes, WinFileInfo,
+  WinFileInfo, BitOps,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm,
   InflatablesList_Types,
@@ -221,26 +241,29 @@ end;
 
 procedure TfMainForm.BuildSortBySubmenu;
 var
-  i:    Integer;
-  Temp: TMenuItem;
+  i:      Integer;
+  MITemp: TMenuItem;
 begin
+// remove menu items
 For i := Pred(mniLM_SortBy.Count) downto 0 do
   If mniLM_SortBy[i].Tag >= 0 then
     begin
-      Temp := mniLM_SortBy[i];
+      MITemp := mniLM_SortBy[i];
       mniLM_SortBy.Delete(i);
-      FreeAndNil(Temp);
+      FreeAndNil(MITemp);
     end;
+fActionMask := 0;
 For i := 0 to Pred(fILManager.SortingProfileCount) do
   begin
-    Temp := TMenuItem.Create(Self);
-    Temp.Name := Format('mniLM_SB_Profile%d',[i]);
-    Temp.Caption := fILManager.SortingProfiles[i].Name;
-    Temp.OnClick := mniLM_SortByClick;
-    Temp.Tag := i;
+    MITemp := TMenuItem.Create(Self);
+    MITemp.Name := Format('mniLM_SB_Profile%d',[i]);
+    MITemp.Caption := fILManager.SortingProfiles[i].Name;
+    MITemp.OnClick := mniLM_SortByClick;
+    MITemp.Tag := i;
     If i <= 9 then
-      Temp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
-    mniLM_SortBy.Add(Temp);
+      MITemp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
+    mniLM_SortBy.Add(MITemp);
+    BitSetTo(fActionMask,Byte(i),True);
   end;
 end;
 
@@ -328,16 +351,22 @@ mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
 mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssCtrl,ssShift]);
 mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLM_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
-mniLN_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
+mniLM_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 acSortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 acUpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 acUpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
+// shortcuts of sort-by actions
+For i := 0 to Pred(ComponentCount) do
+  If Components[i] is TAction then
+    If AnsiSameText(TAction(Components[i]).Category,'sorting_by') then
+      TAction(Components[i]).ShortCut :=
+        ShortCut(Ord('0') + ((TAction(Components[i]).Tag + 1) mod 10),[ssCtrl]);
 FillCopyright;
 eSearchFor.OnExit(nil);
 // prepare variables/fields
 fSaveOnExit := True;
 fILManager := TILManager.Create;
-fILManager.OnListUpdate := InvalidateList;
+fILManager.OnMainListUpdate := InvalidateList;
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
@@ -388,6 +417,14 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+fOverviewForm.Disconnect;
+end;
+
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.pmnListMenuPopup(Sender: TObject);
 begin
 mniLM_AddCopy.Enabled := lbList.ItemIndex >= 0;
@@ -401,7 +438,7 @@ mniLM_ItemShops.Enabled := lbList.ItemIndex >= 0;
 mniLM_ItemExport.Enabled := lbList.ItemIndex >= 0;
 mniLM_ItemExportMulti.Enabled := lbList.Count > 0;
 mniLM_UpdateItem.Enabled := lbList.ItemIndex >= 0;
-mniLN_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
+mniLM_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -576,21 +613,26 @@ end;
 
 procedure TfMainForm.mniLM_ItemExportClick(Sender: TObject);
 begin
-//
+If lbList.ItemIndex >= 0 then
+  If diaItemsExport.Execute then
+    begin
+      frmItemFrame.SaveItem;
+      fILManager.ItemsExport(diaItemsExport.FileName,[lbList.ItemIndex]);
+    end;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ItemExportMultiClick(Sender: TObject);
 begin
-//
+{$message 'implement'}
 end;
  
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ItemImportClick(Sender: TObject);
 begin
-//
+{$message 'implement'}
 end;
 
 //------------------------------------------------------------------------------
@@ -829,7 +871,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLN_UpdateSelectedClick(Sender: TObject);
+procedure TfMainForm.mniLM_UpdateSelectedClick(Sender: TObject);
 var
   List: TILItemShopUpdateList;
   i,j:  Integer;
@@ -863,7 +905,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLN_UpdateItemShopHistoryClick(Sender: TObject);
+procedure TfMainForm.mniLM_UpdateItemShopHistoryClick(Sender: TObject);
 var
   i:  Integer;
 begin
@@ -882,7 +924,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLN_UpdateShopsHistoryClick(Sender: TObject);
+procedure TfMainForm.mniLM_UpdateShopsHistoryClick(Sender: TObject);
 var
   i,j:  Integer;
 begin
@@ -1076,6 +1118,27 @@ procedure TfMainForm.acItemShopsExecute(Sender: TObject);
 begin
 mniLM_ItemShops.OnClick(nil);
 end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemExportExecute(Sender: TObject);
+begin
+mniLM_ItemExport.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemExportMultiExecute(Sender: TObject);
+begin
+mniLM_ItemExportMulti.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemImportExecute(Sender: TObject);
+begin
+mniLM_ItemImport.OnClick(nil);
+end;
  
 //------------------------------------------------------------------------------
 
@@ -1121,13 +1184,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.acSortByExecute(Sender: TObject);
-begin
-{$message 'implement'}
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfMainForm.acUpdateItemExecute(Sender: TObject);
 begin
 mniLM_UpdateItem.OnClick(nil);
@@ -1151,21 +1207,21 @@ end;
 
 procedure TfMainForm.acUpdateSelectedExecute(Sender: TObject);
 begin
-mniLN_UpdateSelected.OnClick(nil);
+mniLM_UpdateSelected.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.acUpdateItemShopHistoryExecute(Sender: TObject);
 begin
-mniLN_UpdateItemShopHistory.OnClick(nil);
+mniLM_UpdateItemShopHistory.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.acUpdateShopsHistoryExecute(Sender: TObject);
 begin
-mniLN_UpdateShopsHistory.OnClick(nil);
+mniLM_UpdateShopsHistory.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -1215,6 +1271,18 @@ end;
 procedure TfMainForm.acExitExecute(Sender: TObject);
 begin
 mniLM_Exit.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortByCommonExecute(Sender: TObject);
+begin
+If Sender is TAction then
+  If BT(fActionMask,Byte(TAction(Sender).Tag)) then
+    begin
+      mniLM_SortCommon(TAction(Sender).Tag);
+      lbList.SetFocus;
+    end;
 end;
 
 end.

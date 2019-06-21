@@ -66,7 +66,7 @@ with fRender,fRender.Canvas do
     Pen.Style := psClear;
     Brush.Style := bsSolid;
     Brush.Color := clWhite;
-    Rectangle(0,0,Width,Height);
+    Rectangle(0,0,Width + 1,Height + 1);
 
     // wanted level strip
     Pen.Style := psClear;

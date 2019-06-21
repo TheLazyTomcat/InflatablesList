@@ -12,30 +12,24 @@ type
   TfOverviewForm = class(TForm)
     sgOverview: TStringGrid;
     cbStayOnTop: TCheckBox;
-    cbAutoUpdate: TCheckBox;
-    lblUpdateInterval: TLabel;
-    seUpdateInterval: TSpinEdit;
-    btnUpdate: TButton;
-    tmrUpdate: TTimer; 
+    btnUpdate: TButton; 
     procedure FormShow(Sender: TObject);
-    procedure FormHide(Sender: TObject);    
     procedure sgOverviewDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure cbStayOnTopClick(Sender: TObject);
-    procedure cbAutoUpdateClick(Sender: TObject);
-    procedure seUpdateIntervalChange(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
-    procedure tmrUpdateTimer(Sender: TObject);
   private
     { Private declarations }
     fILManager:   TILManager;
     fSelShopList: TStringCountedDynArray;
+    procedure OnOverviewUpdate(Sender: TObject);
   protected
     procedure InitializeTable;
     procedure UpdateOverview;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Disconnect;
   end;
 
 var
@@ -48,6 +42,13 @@ implementation
 uses
   InflatablesList_Types,
   InflatablesList_ItemShop;
+
+procedure TfOverviewForm.OnOverviewUpdate(Sender: TObject);
+begin
+UpdateOverview;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfOverviewForm.InitializeTable;
 var
@@ -152,7 +153,15 @@ end;
 procedure TfOverviewForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+fILManager.OnOverviewUpdate := OnOverviewUpdate;
 CDA_Init(fSelShopList);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfOverviewForm.Disconnect;
+begin
+fILManager.OnOverviewUpdate := nil;
 end;
 
 //==============================================================================
@@ -160,16 +169,7 @@ end;
 procedure TfOverviewForm.FormShow(Sender: TObject);
 begin
 UpdateOverview;
-tmrUpdate.Interval := seUpdateInterval.Value;
-tmrUpdate.Enabled := True;
 BringToFront;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfOverviewForm.FormHide(Sender: TObject);
-begin
-tmrUpdate.Enabled := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -267,31 +267,9 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfOverviewForm.cbAutoUpdateClick(Sender: TObject);
-begin
-// nothing implemented atm.
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfOverviewForm.seUpdateIntervalChange(Sender: TObject);
-begin
-tmrUpdate.Interval := seUpdateInterval.Value;
-end;
-  
-//------------------------------------------------------------------------------
-
 procedure TfOverviewForm.btnUpdateClick(Sender: TObject);
 begin
 UpdateOverview;
 end;
  
-//------------------------------------------------------------------------------
-
-procedure TfOverviewForm.tmrUpdateTimer(Sender: TObject);
-begin
-If cbAutoUpdate.Checked then
-  UpdateOverview;
-end;
-
 end.

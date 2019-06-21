@@ -109,7 +109,7 @@ procedure TILItemShopTemplate_Base.CopyTo(Shop: TILItemShop);
 var
   i:  Integer;
 begin
-Shop.BeginListUpdate;
+Shop.BeginUpdate;
 try
   Shop.Name := fShopName;
   Shop.Untracked := fUntracked;
@@ -122,7 +122,7 @@ try
   Shop.ParsingSettings.TemplateReference := fParsingSettings.TemplateReference;
   Shop.ParsingSettings.DisableParsingErrors := fParsingSettings.DisableParsingErrors;
 finally
-  Shop.EndListUpdate;
+  Shop.EndUpdate;
 end;
 end;
 

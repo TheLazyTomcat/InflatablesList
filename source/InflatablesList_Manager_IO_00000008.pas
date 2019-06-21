@@ -238,8 +238,9 @@ If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
         fList[i].StaticOptions := fStaticOptions;
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
-        fList[i].OnMainListUpdate := OnItemListUpdate;
-        fList[i].OnSmallListUpdate := OnItemListUpdate;
+        fList[i].OnMainListUpdate := MainListUpdateHandler;
+        fList[i].OnSmallListUpdate := SmallListUpdateHandler;
+        fList[i].OnOverviewListUpdate := OverviewUpdateHandler;
       end;
   end
 else raise Exception.Create('TILManager_IO_00000008.LoadItems_00000008: Invalid stream.');

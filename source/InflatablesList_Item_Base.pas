@@ -12,6 +12,11 @@ uses
   InflatablesList_ItemShop;
 
 type
+  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufOverview,iliufTitle,
+                        iliufPictures,iliufShopList);
+
+  TILItemUpdatedFlags = set of TILItemUpdatedFlag;
+
   TILItem_Base = class(TCustomListObject)
   protected
     fDataProvider:          TILDataProvider;
@@ -23,15 +28,16 @@ type
     fUpdated:               TILItemUpdatedFlags;
     fStaticOptions:         TILStaticManagerOptions;
     // events
-    fOnMainListUpdate:      TNotifyEvent;
-    fOnSmallListUpdate:     TNotifyEvent;
+    fOnMainListUpdate:      TNotifyEvent;   // internal
+    fOnSmallListUpdate:     TNotifyEvent;   // internal
+    fOnOverviewUpdate:      TNotifyEvent;   // internal
     fOnTitleUpdate:         TNotifyEvent;
     fOnPicturesUpdate:      TNotifyEvent;
     fOnShopListUpdate:      TNotifyEvent;
-    fOnShopListItemUpdate:  TIntegerEvent;
-    fOnShopValuesUpdate:    TIntegerEvent;
-    fOnShopAvailHistoryUpd: TIntegerEvent;
-    fOnShopPriceHistoryUpd: TIntegerEvent;
+    fOnShopListItemUpdate:  TIntegerEvent;  // forwarded from item shop
+    fOnShopValuesUpdate:    TIntegerEvent;  // forwarded from item shop
+    fOnShopAvailHistoryUpd: TIntegerEvent;  // forwarded from item shop
+    fOnShopPriceHistoryUpd: TIntegerEvent;  // forwarded from item shop
     // item data...
     // general read-only info
     fTimeOfAddition:        TDateTime;
@@ -108,16 +114,20 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
+    // handlers for item shop events
     procedure ClearSelectedHandler(Sender: TObject); virtual;
+    procedure UpdateOverviewHandler(Sender: TObject); virtual;
+    procedure UpdateShopListItemHandler(Sender: TObject); virtual;
+    procedure UpdateShopValuesHandler(Sender: TObject); virtual;
+    procedure UpdateShopAvailHistoryHandler(Sender: TObject); virtual;
+    procedure UpdateShopPriceHistoryHandler(Sender: TObject); virtual;
+    // event callers
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
+    procedure UpdateOverview; virtual;
     procedure UpdateTitle; virtual;
     procedure UpdatePictures; virtual;
     procedure UpdateShopList; virtual;
-    procedure UpdateShopListItem(Sender: TObject); virtual;
-    procedure UpdateShopValues(Sender: TObject); virtual;
-    procedure UpdateShopAvailHistory(Sender: TObject); virtual;
-    procedure UpdateShopPriceHistory(Sender: TObject); virtual;
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
@@ -150,6 +160,7 @@ type
     // events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
+    property OnOverviewListUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
     property OnTitleUpdate: TNotifyEvent read fOnTitleUpdate write fOnTitleUpdate;
     property OnPicturesUpdate: TNotifyEvent read fOnPicturesUpdate write fOnPicturesUpdate;
     property OnShopListUpdate: TNotifyEvent read fOnShopListUpdate write fOnShopListUpdate;
@@ -261,6 +272,7 @@ If fPieces <> Value then
   begin
     fPieces := Value;
     UpdateMainList;
+    UpdateOverview;
     UpdateTitle;
   end;
 end;
@@ -603,6 +615,69 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.UpdateOverviewHandler(Sender: TObject);
+begin
+UpdateOverview;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopListItemHandler(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopListItemUpdate) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopListItemUpdate(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopValuesHandler(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopValuesUpdate(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopAvailHistoryHandler(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopAvailHistoryUpd) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopAvailHistoryUpd(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopPriceHistoryHandler(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If Assigned(fOnShopPriceHistoryUpd) and (Sender is TILItemShop) then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      fOnShopPriceHistoryUpd(Self,Index);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.UpdateMainList;
 begin
 If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
@@ -617,6 +692,15 @@ begin
 If Assigned(fOnSmallListUpdate) and (fUpdateCounter <= 0) then
   fOnSmallListUpdate(Self);
 Include(fUpdated,iliufSmallList);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateOverview;
+begin
+If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
+  fOnOverviewUpdate(Self);
+Include(fUpdated,iliufOverview);
 end;
 
 //------------------------------------------------------------------------------
@@ -644,62 +728,6 @@ begin
 If Assigned(fOnShopListUpdate) and (fUpdateCounter <= 0) then
   fOnShopListUpdate(Self);
 Include(fUpdated,iliufShopList);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.UpdateShopListItem(Sender: TObject);
-var
-  Index:  Integer;
-begin
-If Assigned(fOnShopListItemUpdate) and (Sender is TILItemShop) then
-  begin
-    Index := ShopIndexOf(TILItemShop(Sender));
-    If CheckIndex(Index) then
-      fOnShopListItemUpdate(Self,Index);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.UpdateShopValues(Sender: TObject);
-var
-  Index:  Integer;
-begin
-If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
-  begin
-    Index := ShopIndexOf(TILItemShop(Sender));
-    If CheckIndex(Index) then
-      fOnShopValuesUpdate(Self,Index);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.UpdateShopAvailHistory(Sender: TObject);
-var
-  Index:  Integer;
-begin
-If Assigned(fOnShopAvailHistoryUpd) and (Sender is TILItemShop) then
-  begin
-    Index := ShopIndexOf(TILItemShop(Sender));
-    If CheckIndex(Index) then
-      fOnShopAvailHistoryUpd(Self,Index);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.UpdateShopPriceHistory(Sender: TObject);
-var
-  Index:  Integer;
-begin
-If Assigned(fOnShopPriceHistoryUpd) and (Sender is TILItemShop) then
-  begin
-    Index := ShopIndexOf(TILItemShop(Sender));
-    If CheckIndex(Index) then
-      fOnShopPriceHistoryUpd(Self,Index);
-  end;
 end;
 
 //==============================================================================
@@ -758,10 +786,12 @@ UniqueString(fTextTag);
 fWantedLevel := Source.WantedLevel;
 fVariant := Source.Variant;
 UniqueString(fVariant);
+fMaterial := Source.Material;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;
 fSizeZ := Source.SizeZ;
 fUnitWeight := Source.UnitWeight;
+fThickness := Source.Thickness;
 fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;
@@ -779,8 +809,17 @@ fAvailableHighest := Source.AvailableHighest;
 fAvailableSelected := Source.AvailableSelected;
 // copy shops
 SetLength(fShops,Source.ShopCount);
+fShopCount := Source.ShopCount;
 For i := Low(fShops) to High(fShops) do
-  fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
+  begin
+    fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
+    fShops[i].OnClearSelected := ClearSelectedHandler;
+    fShops[i].OnOverviewUpdate := UpdateOverviewHandler;
+    fShops[i].OnListUpdate := UpdateShopListItemHandler;
+    fShops[i].OnValuesUpdate := UpdateShopValuesHandler;
+    fShops[i].OnAvailHistoryUpdate := UpdateShopAvailHistoryHandler;
+    fShops[i].OnPriceHistoryUpdate := UpdateShopPriceHistoryHandler;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -822,6 +861,8 @@ If fUpdateCounter <= 0 then
       UpdateMainList;
     If iliufSmallList in fUpdated then
       UpdateSmallList;
+    If iliufOverview in fUpdated then
+      UpdateOverview;
     If iliufTitle in fUpdated then
       UpdateTitle;
     If iliufPictures in fUpdated then
@@ -899,10 +940,11 @@ Result := fShopCount;
 fShops[Result] := TILItemShop.Create;
 fShops[Result].StaticOptions := fStaticOptions;
 fShops[Result].OnClearSelected := ClearSelectedHandler;
-fShops[Result].OnListUpdate := UpdateShopListItem;
-fShops[Result].OnValuesUpdate := UpdateShopValues;
-fShops[Result].OnAvailHistoryUpdate := UpdateShopAvailHistory;
-fShops[Result].OnPriceHistoryUpdate := UpdateShopPriceHistory;
+fShops[Result].OnOverviewUpdate := UpdateOverviewHandler;
+fShops[Result].OnListUpdate := UpdateShopListItemHandler;
+fShops[Result].OnValuesUpdate := UpdateShopValuesHandler;
+fShops[Result].OnAvailHistoryUpdate := UpdateShopAvailHistoryHandler;
+fShops[Result].OnPriceHistoryUpdate := UpdateShopPriceHistoryHandler;
 Inc(fShopCount);
 UpdateShopList;
 end;
@@ -923,8 +965,8 @@ If Idx1 <> Idx2 then
     Temp := fShops[Idx1];
     fShops[Idx1] := fShops[Idx2];
     fShops[Idx2] := Temp;
-    UpdateShopListItem(fShops[Idx1]);
-    UpdateShopListItem(fShops[Idx2]);
+    UpdateShopListItemHandler(fShops[Idx1]);
+    UpdateShopListItemHandler(fShops[Idx2]);
   end;
 end;
 

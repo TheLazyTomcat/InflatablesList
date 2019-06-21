@@ -14,28 +14,33 @@ uses
 type
   TILManager_Base = class(TCustomListObject)
   protected
-    fDataProvider:  TILDataProvider;
-    fFileName:      String;
-    fSorting:       Boolean;
-    fUpdateCounter: Integer;
-    fUpdated:       Boolean;
+    fDataProvider:      TILDataProvider;
+    fFileName:          String;
+    fSorting:           Boolean;
+    fUpdateCounter:     Integer;
+    fUpdated:           Boolean;
     // cmd options
-    fCMDLineParser: TCLPParser;
-    fStaticOptions: TILStaticManagerOptions;  // not changed at runtime
+    fCMDLineParser:     TCLPParser;
+    fStaticOptions:     TILStaticManagerOptions;  // not changed at runtime
     // main list
-    fList:          array of TILItem;
-    fCount:         Integer;
+    fList:              array of TILItem;
+    fCount:             Integer;
     // other data
-    fNotes:         String;
+    fNotes:             String;
     // events
-    fOnListUpdate:  TNotifyEvent;
+    fOnMainListUpdate:  TNotifyEvent;
+    fOnSmallListUpdate: TNotifyEvent;
+    fOnOverviewUpdate:  TNotifyEvent;
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
     Function GetItem(Index: Integer): TILITem; virtual;
     // items event handling
-    procedure OnItemListUpdate(Sender: TObject); virtual;
+    procedure MainListUpdateHandler(Sender: TObject); virtual;
+    procedure SmallListUpdateHandler(Sender: TObject); virtual;
+    procedure OverviewUpdateHandler(Sender: TObject); virtual;
+    procedure DoUpdate; virtual;
     // inits/finals
     procedure Initialize; virtual;
     procedure Finalize; virtual;
@@ -72,7 +77,9 @@ type
     property Items[Index: Integer]: TILItem read GetItem; default;
     property Notes: String read fNotes write fNotes;
     // events
-    property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
+    property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
+    property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
+    property OnOverviewUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
   end;
 
 implementation
@@ -124,11 +131,38 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.OnItemListUpdate(Sender: TObject);
+procedure TILManager_Base.MainListUpdateHandler(Sender: TObject);
 begin
-If Assigned(fOnListUpdate) and (fUpdateCounter <= 0) then
-  fOnListUpdate(Self);
+If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
+  fOnMainListUpdate(Self);
 fUpdated := True;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SmallListUpdateHandler(Sender: TObject);
+begin
+If Assigned(fOnSmallListUpdate) and (fUpdateCounter <= 0) then
+  fOnSmallListUpdate(Self);
+fUpdated := True;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.OverviewUpdateHandler(Sender: TObject);
+begin
+If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
+  fOnOverviewUpdate(Self);
+fUpdated := True;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.DoUpdate;
+begin
+MainListUpdateHandler(nil);
+SmallListUpdateHandler(nil);
+OverviewUpdateHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -205,8 +239,12 @@ Dec(fUpdateCounter);
 If fUpdateCounter <= 0 then
   begin
     fUpdateCounter := 0;
-    If fUpdated and Assigned(fOnListUpdate) then
-      fOnListUpdate(Self);
+    If fUpdated then
+      begin
+        MainListUpdateHandler(nil);
+        SmallListUpdateHandler(nil);
+        OverviewUpdateHandler(nil);
+      end;
     fUpdated := False;
   end;
 end;
@@ -248,9 +286,11 @@ Result := fCount;
 fList[Result] := TILItem.Create(fDataProvider);
 fList[Result].Index := Result;
 fList[Result].StaticOptions := fStaticOptions;
-fList[Result].OnMainListUpdate := OnItemListUpdate;
-fList[Result].OnSmallListUpdate := OnItemListUpdate;
+fList[Result].OnMainListUpdate := MainListUpdateHandler;
+fList[Result].OnSmallListUpdate := SmallListUpdateHandler;
+fList[Result].OnOverviewListUpdate := OverviewUpdateHandler;
 Inc(fCount);
+DoUpdate;
 end;
 
 //------------------------------------------------------------------------------
@@ -264,9 +304,11 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
     fList[Result].Index := Result;
     // static options are copied in item constructor
-    fList[Result].OnMainListUpdate := OnItemListUpdate;
-    fList[Result].OnSmallListUpdate := OnItemListUpdate;
+    fList[Result].OnMainListUpdate := MainListUpdateHandler;
+    fList[Result].OnSmallListUpdate := SmallListUpdateHandler;
+    fList[Result].OnOverviewListUpdate := OverviewUpdateHandler;
     Inc(fCount);
+    DoUpdate;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;
@@ -292,6 +334,7 @@ If Idx1 <> Idx2 then
         // full reindex not needed
         fList[Idx1].Index := Idx1;
         fList[Idx2].Index := Idx2;
+        DoUpdate;
       end;
   end;
 end;
@@ -324,7 +367,8 @@ If Src <> Dst then
           fList[i] := fList[i - 1];
       end;
     fList[Dst] := Temp;
-    ReIndex;      
+    ReIndex;
+    DoUpdate;
   end;
 end;
 
@@ -342,6 +386,7 @@ If (Index >= ItemLowIndex) and (Index <= ItemHighIndex) then
     Dec(fCount);
     ReIndex;
     Shrink;
+    DoUpdate;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -356,6 +401,7 @@ For i := ItemLowIndex to ItemHighIndex do
   FreeAndNil(fList[i]);
 fCount := 0;
 Shrink;
+DoUpdate;
 end;
 
 //------------------------------------------------------------------------------

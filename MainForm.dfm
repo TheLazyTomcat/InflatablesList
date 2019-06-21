@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 16
-  Top = 47
+  Left = 289
+  Top = 130
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
@@ -15,6 +15,7 @@ object fMainForm: TfMainForm
   KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
@@ -253,22 +254,22 @@ object fMainForm: TfMainForm
       Caption = 'Update shops of wanted items...'
       OnClick = mniLM_UpdateWantedClick
     end
-    object mniLN_UpdateSelected: TMenuItem
+    object mniLM_UpdateSelected: TMenuItem
       Caption = 'Update selected shops...'
-      OnClick = mniLN_UpdateSelectedClick
+      OnClick = mniLM_UpdateSelectedClick
     end
     object N6: TMenuItem
       Caption = '-'
     end
-    object mniLN_UpdateItemShopHistory: TMenuItem
+    object mniLM_UpdateItemShopHistory: TMenuItem
       Caption = 'Update item shops history'
       ShortCut = 16456
-      OnClick = mniLN_UpdateItemShopHistoryClick
+      OnClick = mniLM_UpdateItemShopHistoryClick
     end
-    object mniLN_UpdateShopsHistory: TMenuItem
+    object mniLM_UpdateShopsHistory: TMenuItem
       Caption = 'Update all shops history'
       ShortCut = 49224
-      OnClick = mniLN_UpdateShopsHistoryClick
+      OnClick = mniLM_UpdateShopsHistoryClick
     end
     object N7: TMenuItem
       Caption = '-'
@@ -321,105 +322,210 @@ object fMainForm: TfMainForm
   object alShortcuts: TActionList
     Left = 64
     object acItemShops: TAction
+      Category = 'item'
       Caption = 'acItemShops'
       ShortCut = 16464
       OnExecute = acItemShopsExecute
     end
+    object acItemExport: TAction
+      Category = 'item'
+      Caption = 'acItemExport'
+      ShortCut = 16453
+      OnExecute = acItemExportExecute
+    end
+    object acItemExportMulti: TAction
+      Category = 'item'
+      Caption = 'acItemExportMulti'
+      ShortCut = 49221
+      OnExecute = acItemExportMultiExecute
+    end
+    object acItemImport: TAction
+      Category = 'item'
+      Caption = 'acItemImport'
+      ShortCut = 16457
+      OnExecute = acItemImportExecute
+    end
     object acFind: TAction
+      Category = 'search'
       Caption = 'acFind'
       ShortCut = 16454
       OnExecute = acFindExecute
     end
     object acFindPrev: TAction
+      Category = 'search'
       Caption = 'acFindPrev'
       ShortCut = 8306
       OnExecute = acFindPrevExecute
     end
     object acFindNext: TAction
+      Category = 'search'
       Caption = 'acFindNext'
       ShortCut = 114
       OnExecute = acFindNextExecute
     end
     object acSortSett: TAction
+      Category = 'sorting'
       Caption = 'acSortSett'
       OnExecute = acSortSettExecute
     end
     object acSortRev: TAction
+      Category = 'sorting'
       Caption = 'acSortRev'
       ShortCut = 16466
       OnExecute = acSortRevExecute
     end
     object acSort: TAction
+      Category = 'sorting'
       Caption = 'acSort'
       ShortCut = 16463
       OnExecute = acSortExecute
     end
-    object acSortBy: TAction
-      Caption = 'acSortBy'
-      OnExecute = acSortByExecute
-    end
     object acUpdateItem: TAction
+      Category = 'update'
       Caption = 'acUpdateItem'
       ShortCut = 16469
       OnExecute = acUpdateItemExecute
     end
     object acUpdateAll: TAction
+      Category = 'update'
       Caption = 'acUpdateAll'
       ShortCut = 49237
       OnExecute = acUpdateAllExecute
     end
     object acUpdateWanted: TAction
+      Category = 'update'
       Caption = 'acUpdateWanted'
       OnExecute = acUpdateWantedExecute
     end
     object acUpdateSelected: TAction
+      Category = 'update'
       Caption = 'acUpdateSelected'
       OnExecute = acUpdateSelectedExecute
     end
     object acUpdateItemShopHistory: TAction
+      Category = 'update'
       Caption = 'acUpdateItemShopHistory'
       ShortCut = 16456
       OnExecute = acUpdateItemShopHistoryExecute
     end
     object acUpdateShopsHistory: TAction
+      Category = 'update'
       Caption = 'acUpdateShopsHistory'
       ShortCut = 49224
       OnExecute = acUpdateShopsHistoryExecute
     end
     object acSums: TAction
+      Category = 'global'
       Caption = 'acSums'
       ShortCut = 16461
       OnExecute = acSumsExecute
     end
     object acOverview: TAction
+      Category = 'global'
       Caption = 'acOverview'
       ShortCut = 16471
       OnExecute = acOverviewExecute
     end
     object acSelection: TAction
+      Category = 'global'
       Caption = 'acSelection'
       ShortCut = 16468
       OnExecute = acSelectionExecute
     end
     object acNotes: TAction
+      Category = 'global'
       Caption = 'acNotes'
       ShortCut = 16462
       OnExecute = acNotesExecute
     end
     object acSave: TAction
+      Category = 'global'
       Caption = 'acSave'
       ShortCut = 16467
       OnExecute = acSaveExecute
     end
     object acSpecials: TAction
+      Category = 'global'
       Caption = 'acSpecials'
       ShortCut = 16460
       OnExecute = acSpecialsExecute
     end
     object acExit: TAction
+      Category = 'global'
       Caption = 'acExit'
       ShortCut = 16472
       OnExecute = acExitExecute
     end
+    object acSortBy_0: TAction
+      Category = 'sorting_by'
+      Caption = 'acSortBy_0'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_1: TAction
+      Tag = 1
+      Category = 'sorting_by'
+      Caption = 'acSortBy_1'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_2: TAction
+      Tag = 2
+      Category = 'sorting_by'
+      Caption = 'acSortBy_2'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_3: TAction
+      Tag = 3
+      Category = 'sorting_by'
+      Caption = 'acSortBy_3'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_4: TAction
+      Tag = 4
+      Category = 'sorting_by'
+      Caption = 'acSortBy_4'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_5: TAction
+      Tag = 5
+      Category = 'sorting_by'
+      Caption = 'acSortBy_5'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_6: TAction
+      Tag = 6
+      Category = 'sorting_by'
+      Caption = 'acSortBy_6'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_7: TAction
+      Tag = 7
+      Category = 'sorting_by'
+      Caption = 'acSortBy_7'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_8: TAction
+      Tag = 8
+      Category = 'sorting_by'
+      Caption = 'acSortBy_8'
+      OnExecute = acSortByCommonExecute
+    end
+    object acSortBy_9: TAction
+      Tag = 9
+      Category = 'sorting_by'
+      Caption = 'acSortBy_9'
+      OnExecute = acSortByCommonExecute
+    end
+  end
+  object diaItemsImport: TOpenDialog
+    Filter = 'Exported items (*.lei)|*.lei|All files (*.*)|*.*'
+    Title = 'Items import'
+    Left = 128
+  end
+  object diaItemsExport: TSaveDialog
+    DefaultExt = 'LEI'
+    Filter = 'Exported items (*.lei)|*.lei|All files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Title = 'Items export'
+    Left = 96
   end
 end

@@ -34,7 +34,7 @@ object fSpecialsForm: TfSpecialsForm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 7
   end
   object btnClearTextTags: TButton
     Left = 8
@@ -91,5 +91,14 @@ object fSpecialsForm: TfSpecialsForm
     EditLabel.Height = 13
     EditLabel.Caption = 'Parameter 2:'
     TabOrder = 1
+  end
+  object btnSetMaterialToPVC: TButton
+    Left = 8
+    Top = 128
+    Width = 145
+    Height = 25
+    Caption = 'Material => PVC for all'
+    TabOrder = 6
+    OnClick = btnSetMaterialToPVCClick
   end
 end

@@ -16,10 +16,12 @@ type
     btnSetAltDownMethod: TButton;
     btnUpdateAllAPF: TButton;
     leParam_2: TLabeledEdit;
+    btnSetMaterialToPVC: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
     procedure btnUpdateAllAPFClick(Sender: TObject);
+    procedure btnSetMaterialToPVCClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -34,7 +36,8 @@ implementation
 {$R *.dfm}
 
 uses
-  AuxTypes;
+  AuxTypes,
+  InflatablesList_Types;
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin
@@ -79,6 +82,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     If AnsiSameText(fILManager[i][j].Name,leParam_1.Text) then
       fILManager[i][j].AltDownMethod := True;
+Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -96,6 +100,18 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].UpdatePriceAndAvail;
     fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
   end;
+Close;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnSetMaterialToPVCClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  fILManager[i].Material := ilimtPVC;
+Close;
 end;
 
 end.

@@ -124,15 +124,6 @@ Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
 Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
 
 //==============================================================================
-//- item -----------------------------------------------------------------------
-
-type
-  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufTitle,iliufPictures,
-                        iliufShopList);
-
-  TILItemUpdatedFlags = set of TILItemUpdatedFlag;
-
-//==============================================================================
 //- sorting --------------------------------------------------------------------  
 
 type

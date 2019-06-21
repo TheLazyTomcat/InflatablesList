@@ -35,6 +35,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);    
     procedure lvShopsSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure lvShopsDblClick(Sender: TObject);
     procedure pmnShopsPopup(Sender: TObject);
     procedure mniSH_AddCommon;
     procedure mniSH_AddClick(Sender: TObject);
@@ -45,7 +46,7 @@ type
     procedure mniSH_MoveDownClick(Sender: TObject);
     procedure btnUpdateAllClick(Sender: TObject);
     procedure btnUpdateHistoryClick(Sender: TObject);
-    procedure btnCloseClick(Sender: TObject);
+    procedure btnCloseClick(Sender: TObject); 
   private
     fWndCaption:  String;
     fILManager:   TILManager;
@@ -376,6 +377,17 @@ procedure TfShopsForm.lvShopsSelectItem(Sender: TObject; Item: TListItem; Select
 begin
 //this deffers reaction to change and prevents flickering
 PostMessage(Handle,WM_USER_LVITEMSELECTED,Ord(Selected),0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.lvShopsDblClick(Sender: TObject);
+begin
+If (lvShops.ItemIndex >= 0) and Assigned(fCurrentItem) then
+  begin
+    fCurrentItem[lvShops.ItemIndex].Selected := True;
+    frmShopFrame.LoadItemShop;
+  end;
 end;
 
 //------------------------------------------------------------------------------

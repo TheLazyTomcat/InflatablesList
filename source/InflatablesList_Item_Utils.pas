@@ -26,6 +26,7 @@ type
     Function TotalPrice: UInt32; virtual;
     procedure UpdatePriceAndAvail; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
+    procedure UpdateAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     Function ShopsUsefulCount: Integer; virtual;
     Function ShopsUsefulRatio: Double; virtual;
     Function ShopsCountStr: String; virtual;
@@ -237,6 +238,8 @@ fUnitPriceLowest := LowPrice;
 fUnitPriceHighest := HighPrice;
 fAvailableLowest := LowAvail;
 fAvailableHighest := HighAvail;
+UpdateMainList;
+UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -269,7 +272,21 @@ If (ilifWanted in fFlags) and (fShopCount > 0) then
         If (fAvailableSelected <> OldAvail) then
           Include(fFlags,ilifAvailChange);
       end;
+    UpdateMainList;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Utils.UpdateAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32);
+begin
+BeginUpdate;
+try
+  UpdatePriceAndAvail;
+  FlagPriceAndAvail(OldPrice,OldAvail);
+finally
+  EndUpdate;
+end;
 end;
 
 //------------------------------------------------------------------------------

@@ -73,6 +73,7 @@ object fShopsForm: TfShopsForm
     PopupMenu = pmnShops
     TabOrder = 0
     ViewStyle = vsReport
+    OnDblClick = lvShopsDblClick
     OnSelectItem = lvShopsSelectItem
   end
   object gbShopDetails: TGroupBox

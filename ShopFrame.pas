@@ -191,7 +191,7 @@ procedure TfrmShopFrame.SaveItemShop;
 begin
 If Assigned(fCurrentItemShop) then
   begin
-    fCurrentItemShop.BeginListUpdate;
+    fCurrentItemShop.BeginUpdate;
     try
       fCurrentItemShop.Selected := cbShopSelected.Checked;
       fCurrentItemShop.Untracked := cbShopUntracked.Checked;
@@ -217,7 +217,7 @@ If Assigned(fCurrentItemShop) then
         fCurrentItemShop.ParsingSettings.TemplateReference := '';
       fCurrentItemShop.ParsingSettings.DisableParsingErrors := cbParsDisableErrs.Checked;
     finally
-      fCurrentItemShop.EndListUpdate;
+      fCurrentItemShop.EndUpdate;
     end;
   end;
 end;

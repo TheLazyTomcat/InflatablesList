@@ -26,6 +26,7 @@ uses
   InflatablesList_Item_Comp in 'source\InflatablesList_Item_Comp.pas',
   InflatablesList_Item_IO in 'source\InflatablesList_Item_IO.pas',
   InflatablesList_Item_IO_00000000 in 'source\InflatablesList_Item_IO_00000000.pas',
+  InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ItemShop_Base in 'source\InflatablesList_ItemShop_Base.pas',
   InflatablesList_ItemShop_Update in 'source\InflatablesList_ItemShop_Update.pas',
@@ -46,6 +47,7 @@ uses
   InflatablesList_Manager_Templates in 'source\InflatablesList_Manager_Templates.pas',
   InflatablesList_Manager_IO in 'source\InflatablesList_Manager_IO.pas',
   InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',
+  InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_Converter in 'source\InflatablesList_Manager_IO_Converter.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
   Forms,
@@ -63,9 +65,7 @@ uses
   SpecialsForm in 'SpecialsForm.pas' {fSpecialsForm},
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
-  UpdateForm in 'UpdateForm.pas' {fUpdateForm},
-  InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
-  InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas';
+  UpdateForm in 'UpdateForm.pas' {fUpdateForm};
 
 {$R *.res}
 

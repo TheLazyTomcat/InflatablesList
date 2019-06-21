@@ -26,6 +26,8 @@ const
 
   IL_LISTFILE_STREAMSTRUCTURE_SAVE = IL_LISTFILE_STREAMSTRUCTURE_00000009;
 
+  IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
+
 type
   TILManager_IO = class(TILManager_Templates)
   protected
@@ -45,6 +47,10 @@ type
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
   public
+    // items export/import
+    procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
+    Function ItemsImport(const FileName: String): Integer; virtual; abstract;
+    // normal io  
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile(const FileName: String); virtual;
@@ -77,6 +83,35 @@ fFNLoadFromStream(Stream);
 end;
 
 //==============================================================================
+
+procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
+var
+  i:          Integer;
+  FileStream: TMemoryStream;
+begin
+// check indices
+For i := Low(Indices) to High(Indices) do
+  If not CheckIndex(Indices[i]) then
+    raise Exception.CreateFmt('TILManager_Base.ItemsExport: Index %d (%d) out of bounds.',[i,Indices[i]]);
+FileStream := TMemoryStream.Create;
+try
+  // pre-allocate
+  FileStream.Size := Length(Indices) * (45 * 1024); // ~45Kib per item
+  FileStream.Seek(0,soBeginning);
+  // save signature and count
+  Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
+  Stream_WriteUInt32(FileStream,Length(Indices));
+  // now write individual items in the order they are in the indices array
+  For i := Low(Indices) to High(Indices) do
+    fList[Indices[i]].SaveToStream(FileStream);
+  // save to file
+  FileStream.SaveToFile(FileName);
+finally
+  FileStream.Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILManager_IO.SaveToStream(Stream: TStream);
 begin

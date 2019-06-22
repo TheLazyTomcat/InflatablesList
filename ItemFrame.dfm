@@ -464,7 +464,7 @@ object frmItemFrame: TfrmItemFrame
       OnMouseLeave = lblNotesEditMouseLeave
     end
     object lblMaterial: TLabel
-      Left = 424
+      Left = 384
       Top = 296
       Width = 42
       Height = 13
@@ -590,7 +590,7 @@ object frmItemFrame: TfrmItemFrame
     object leVariant: TLabeledEdit
       Left = 128
       Top = 312
-      Width = 289
+      Width = 249
       Height = 21
       EditLabel.Width = 163
       EditLabel.Height = 13
@@ -896,9 +896,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seUnitWeightChange
     end
     object cmbMaterial: TComboBox
-      Left = 424
+      Left = 384
       Top = 312
-      Width = 145
+      Width = 185
       Height = 21
       Style = csDropDownList
       ItemHeight = 13

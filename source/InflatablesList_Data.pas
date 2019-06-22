@@ -87,9 +87,17 @@ const
      'køeslo','sedátko','matrace','ostrov','postel','èlun','hraèka','rukávky',
      'balonek','ostatní');
 
+(*
+  TILItemMaterial = (ilimtUnknown,ilimtPolyvinylchloride{PVC},ilimtPolyester{PES},
+                     ilimtPolyetylene{PE},ilimtPolypropylene{PP},
+                     ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
+                     ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
+*)
+
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
-    ('neznámý','polyvinylchlorid (PVC)','povloèkované PVC','latex','silokon',
-     'gumotextílie','polyester (PT)','ostatní');
+    ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
+     'polypropylen (PP)','akrylonitrilbutadienstyren (ABS)','polystyren (PS)',
+     'povloèkované PVC','latex','silokon','gumotextílie','ostatní');
 
   IL_DATA_ITEMFLAGICON_RESNAMES: array[TILItemFlag] of String = (
     'flag_icon_owned','flag_icon_wanted','flag_icon_ordered','flag_icon_boxed',

@@ -110,7 +110,7 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  fILManager[i].Material := ilimtPVC;
+  fILManager[i].Material := ilimtPolyvinylchloride;
 Close;
 end;
 

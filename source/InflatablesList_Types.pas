@@ -50,8 +50,10 @@ type
 
   TILItemFlags = set of TILItemFlag;
 
-  TILItemMaterial = (ilimtUnknown,ilimtPVC,ilimtFlockedPVC,ilimtLatex,
-                     ilimtSilicone,ilimtGumoTex,ilimtPolyester,ilimtOther);
+  TILItemMaterial = (ilimtUnknown,ilimtPolyvinylchloride{PVC},ilimtPolyester{PES},
+                     ilimtPolyetylene{PE},ilimtPolypropylene{PP},
+                     ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
+                     ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 Function IL_NumToItemType(Num: Int32): TILItemType;
@@ -474,16 +476,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+
 Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
 begin
 case Material of
-  ilimtOther:      Result := 1;
-  ilimtPVC:        Result := 2;
-  ilimtFlockedPVC: Result := 3;
-  ilimtLatex:      Result := 4;
-  ilimtSilicone:   Result := 5;
-  ilimtGumoTex:    Result := 6;
-  ilimtPolyester:  Result := 7;
+  ilimtOther:                         Result := 1;
+  ilimtPolyvinylchloride:             Result := 2;
+  ilimtFlockedPVC:                    Result := 3;
+  ilimtLatex:                         Result := 4;
+  ilimtSilicone:                      Result := 5;
+  ilimtGumoTex:                       Result := 6;
+  ilimtPolyester:                     Result := 7;
+  ilimtPolyetylene:                   Result := 8;
+  ilimtPolypropylene:                 Result := 9;
+  ilimtAcrylonitrileButadieneStyrene: Result := 10;
+  ilimtPolystyren:                    Result := 11;
 else
  {ilimUnknown}
   Result := 0;
@@ -496,12 +503,16 @@ Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 begin
 case Num of
   1:  Result := ilimtOther;
-  2:  Result := ilimtPVC;
+  2:  Result := ilimtPolyvinylchloride;
   3:  Result := ilimtFlockedPVC;
   4:  Result := ilimtLatex;
   5:  Result := ilimtSilicone;
   6:  Result := ilimtGumoTex;
   7:  Result := ilimtPolyester;
+  8:  Result := ilimtPolyetylene;
+  9:  Result := ilimtPolypropylene;
+  10: Result := ilimtAcrylonitrileButadieneStyrene;
+  11: Result := ilimtPolystyren;
 else
   Result := ilimtUnknown;
 end;

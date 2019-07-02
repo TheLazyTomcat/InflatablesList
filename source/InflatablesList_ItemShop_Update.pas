@@ -61,9 +61,9 @@ If not fUntracked then
           ilurNoLink:           SetValues('No item link',ilisurDataFail,0,0);
           ilurNoData:           SetValues('Insufficient search data',ilisurDataFail,0,0);
           // when download fails, keep old price (assumes the item vent unavailable)
-          ilurFailDown:         SetValues(Format('Download failed (code: %d)',[Updater.DownloadResultCode]),ilisurCritical,0,fPrice);
+          ilurFailDown:         SetValues(Format('Download failed (code: %d)',[Updater.DownloadResultCode]),ilisurDownload,0,fPrice);
           // when parsing fails, keep old values (assumes bad download or internal exception)
-          ilurFailParse:        SetValues(Format('Parsing failed (%s)',[Updater.ErrorString]),ilisurCritical,fAvailable,fPrice);
+          ilurFailParse:        SetValues(Format('Parsing failed (%s)',[Updater.ErrorString]),ilisurParsing,fAvailable,fPrice);
           // following assumes the item is unavailable
           ilurFailAvailSearch:  SetValues('Search of available count failed',ilisurSoftFail,0,Updater.Price);
           // following assumes the item is unavailable, keep old price

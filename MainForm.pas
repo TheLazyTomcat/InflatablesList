@@ -836,11 +836,12 @@ If lbList.ItemIndex >= 0 then
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     For i := fILManager[lbList.ItemIndex].ShopLowIndex to fILManager[lbList.ItemIndex].ShopHighIndex do
       begin
-        List[i].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[lbList.ItemIndex].TitleStr]);
+        List[i].ItemTitle := Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
         List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
         List[i].Done := False;
       end;
     mniLN_UpdateCommon(List);
+    {$message 'optimize, all shops are updated whereas only one is needed'}
     lbList.SetFocus;
   end;
 end;

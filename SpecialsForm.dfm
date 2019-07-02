@@ -101,4 +101,13 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 6
     OnClick = btnSetMaterialToPVCClick
   end
+  object btnClearACPCFlags: TButton
+    Left = 160
+    Top = 128
+    Width = 145
+    Height = 25
+    Caption = 'Clr. avail + price ch. flags'
+    TabOrder = 8
+    OnClick = btnClearACPCFlagsClick
+  end
 end

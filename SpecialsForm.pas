@@ -17,11 +17,13 @@ type
     btnUpdateAllAPF: TButton;
     leParam_2: TLabeledEdit;
     btnSetMaterialToPVC: TButton;
+    btnClearACPCFlags: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
     procedure btnUpdateAllAPFClick(Sender: TObject);
     procedure btnSetMaterialToPVCClick(Sender: TObject);
+    procedure btnClearACPCFlagsClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -112,6 +114,20 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].Material := ilimtPolyvinylchloride;
 Close;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnClearACPCFlagsClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  begin
+    fILManager[i].SetFlagValue(ilifPriceChange,False);
+    fILManager[i].SetFlagValue(ilifAvailChange,False)
+  end;
+Close
 end;
 
 end.

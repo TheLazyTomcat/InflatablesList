@@ -78,7 +78,7 @@ const
     'Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
 
   IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
-    'man_logo_bestway','man_logo_others'{$message 'later replace by real logo'},'man_logo_intex','man_logo_happypeople',
+    'man_logo_bestway','man_logo_crivit','man_logo_intex','man_logo_happypeople',
     'man_logo_mondo','man_logo_polygroup','man_logo_summerwaves','man_logo_swimline',
     'man_logo_vetroplus','man_logo_wehncke','man_logo_wiky','man_logo_others');
 

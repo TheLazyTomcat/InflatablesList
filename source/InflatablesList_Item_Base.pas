@@ -50,6 +50,7 @@ type
     fPieces:                UInt32;
     fManufacturer:          TILItemManufacturer;
     fManufacturerStr:       String;
+    fTextID:                String;
     fID:                    Int32;
     // flags, tags
     fFlags:                 TILItemFlags;
@@ -88,6 +89,7 @@ type
     procedure SetPieces(Value: UInt32); virtual;
     procedure SetManufacturer(Value: TILItemManufacturer); virtual;
     procedure SetManufacturerStr(const Value: String); virtual;
+    procedure SetTextID(const Value: String); virtual;
     procedure SetID(Value: Int32); virtual;
     procedure SetFlags(Value: TILItemFlags); virtual;
     procedure SetTextTag(const Value: String); virtual;
@@ -179,6 +181,7 @@ type
     property Manufacturer: TILItemManufacturer read fManufacturer write SetManufacturer;
     property ManufacturerStr: String read fManufacturerStr write SetManufacturerStr;
     property ID: Int32 read fID write SetID;
+    property TextID: String read fTextID write SetTextID;
     property Flags: TILItemFlags read fFlags write SetFlags;
     property TextTag: String read fTextTag write SetTextTag;
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
@@ -297,6 +300,18 @@ begin
 If not AnsiSameStr(fManufacturerStr,Value) then
   begin
     fManufacturerStr := Value;
+    UpdateMainList;
+    UpdateTitle;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetTextID(const Value: String);
+begin
+If not AnsiSameStr(fTextID,Value) then
+  begin
+    fTextID := Value;
     UpdateMainList;
     UpdateTitle;
   end;
@@ -529,6 +544,7 @@ fItemTypeSpec := '';
 fPieces := 1;
 fManufacturer := ilimOthers;
 fManufacturerStr := '';
+fTextID := '';
 fID := 0;
 // flags
 fFlags := [];
@@ -780,6 +796,7 @@ fPieces := Source.Pieces;
 fManufacturer := Source.Manufacturer;
 fManufacturerStr := Source.ManufacturerStr;
 UniqueString(fManufacturerStr);
+fTextID := Source.TextID;
 fID := Source.ID;
 fFlags := Source.Flags;
 fTextTag := Source.TextTag;

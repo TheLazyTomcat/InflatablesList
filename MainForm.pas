@@ -23,8 +23,10 @@ type
     mniLM_Clear: TMenuItem;
     N1: TMenuItem;
     mniLM_MoveBeginning: TMenuItem;
+    mniLM_MoveUpBy: TMenuItem;
     mniLM_MoveUp: TMenuItem;
     mniLM_MoveDown: TMenuItem;
+    mniLM_MoveDownBy: TMenuItem;    
     mniLM_MoveEnd: TMenuItem;
     N2: TMenuItem;
     mniLM_ItemShops: TMenuItem;
@@ -112,8 +114,10 @@ type
     procedure mniLM_ClearClick(Sender: TObject);
     // ---
     procedure mniLM_MoveBeginningClick(Sender: TObject);
+    procedure mniLM_MoveUpByClick(Sender: TObject);
     procedure mniLM_MoveUpClick(Sender: TObject);
     procedure mniLM_MoveDownClick(Sender: TObject);
+    procedure mniLM_MoveDownByClick(Sender: TObject);    
     procedure mniLM_MoveEndClick(Sender: TObject);
     // ---
     procedure mniLM_ItemShopsClick(Sender: TObject);
@@ -151,6 +155,7 @@ type
     procedure mniLM_ExitClick(Sender: TObject);
     // ---
     procedure lbListClick(Sender: TObject);
+    procedure lbListDblClick(Sender: TObject);    
     procedure lbListMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure lbListDrawItem(Control: TWinControl; Index: Integer;
@@ -346,10 +351,12 @@ begin
 sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
 // build shortcuts
-mniLM_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssCtrl,ssShift]);
+mniLM_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssShift,ssAlt]);
+mniLM_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
 mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
-mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssCtrl,ssShift]);
+mniLM_MoveDownBy.ShortCut := ShortCut(VK_DOWN,[ssShift,ssCtrl]);
+mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssShift,ssAlt]);
 mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniLM_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 mniLM_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
@@ -423,7 +430,6 @@ begin
 fOverviewForm.Disconnect;
 end;
 
-
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.pmnListMenuPopup(Sender: TObject);
@@ -432,8 +438,10 @@ mniLM_AddCopy.Enabled := lbList.ItemIndex >= 0;
 mniLM_Remove.Enabled := lbList.ItemIndex >= 0;
 mniLM_Clear.Enabled := lbList.Count > 0;
 mniLM_MoveBeginning.Enabled := lbList.ItemIndex > 0;
+mniLM_MoveUpBy.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveUp.Enabled := lbList.ItemIndex > 0;
 mniLM_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniLM_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 mniLM_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 mniLM_ItemShops.Enabled := lbList.ItemIndex >= 0;
 mniLM_ItemExport.Enabled := lbList.ItemIndex >= 0;
@@ -542,6 +550,29 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_MoveUpByClick(Sender: TObject);
+var
+  Index:  Integer;
+  NewPos: Integer;
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    Index := lbList.ItemIndex;
+    If (Index - 10) >= 0 then
+      NewPos := Index - 10
+    else
+      NewPos := 0;
+    lbList.Items.Move(Index,NewPos);
+    fILManager.ItemMove(Index,NewPos);
+    lbList.ItemIndex := NewPos;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_MoveUpClick(Sender: TObject);
 var
   Index:  Integer;
@@ -570,6 +601,29 @@ If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
     lbList.Items.Exchange(Index,Index + 1);
     fILManager.ItemExchange(Index,Index + 1);
     lbList.ItemIndex := Index + 1;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_MoveDownByClick(Sender: TObject);
+var
+  Index:  Integer;
+  NewPos: Integer;
+begin
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    Index := lbList.ItemIndex;
+    If (Index + 10) < lbList.Count then
+      NewPos := Index + 10
+    else
+      NewPos := Pred(lbList.Count);
+    lbList.Items.Move(Index,NewPos);
+    fILManager.ItemMove(Index,NewPos);
+    lbList.ItemIndex := NewPos;
     frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     lbList.Invalidate;
     UpdateIndexAndCount;
@@ -630,42 +684,37 @@ var
   IndicesArr: array of Integer;
   i:          Integer;
 begin
-If diaItemsExport.Execute then
-  begin
-    frmItemFrame.SaveItem;
-    CDA_Init(Indices);
-    fItemSelectForm.ShowItemSelect('Select items for export',Indices);
-    If CDA_Count(Indices) > 0 then
-      begin
-        SetLength(IndicesArr,CDA_Count(Indices));
-        For i := Low(IndicesArr) to High(IndicesArr) do
-          IndicesArr[i] := CDA_GetItem(Indices,i);
-        fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
-        MessageDlg(Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
-      end;
-    lbList.SetFocus;
-  end;
+frmItemFrame.SaveItem;
+CDA_Init(Indices);
+fItemSelectForm.ShowItemSelect('Select items for export',Indices);
+If CDA_Count(Indices) > 0 then
+  If diaItemsExport.Execute then
+    begin
+      SetLength(IndicesArr,CDA_Count(Indices));
+      For i := Low(IndicesArr) to High(IndicesArr) do
+        IndicesArr[i] := CDA_GetItem(Indices,i);
+      fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
+      MessageDlg(Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
+      lbList.SetFocus;
+    end;
 end;
  
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_ItemImportClick(Sender: TObject);
 var
-  Index:  Integer;
   Cntr,i: Integer;
 begin
 If diaItemsImport.Execute then
   begin
-    Index := lbList.ItemIndex;
-    If Index >= 0 then
-      frmItemFrame.SetItem(fILManager[Index],False);
+    If lbList.ItemIndex >= 0 then
+      frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     Cntr := fILManager.ItemsImport(diaItemsImport.FileName);
     If Cntr > 0 then
       begin
-        Index := lbList.Count;
         For i := 1 to Cntr do
           lbList.Items.Add(IntToStr(lbList.Count));
-        lbList.ItemIndex := Index;
+        lbList.ItemIndex := Pred(lbList.Count);
         fILManager.ReinitDrawSize(lbList);
       end;
     lbList.OnClick(nil);
@@ -1058,6 +1107,13 @@ If lbList.ItemIndex >= 0 then
 else
   frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.lbListDblClick(Sender: TObject);
+begin
+mniLM_ItemShops.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

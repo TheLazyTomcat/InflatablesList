@@ -37,6 +37,7 @@ type
     lblManufacturer: TLabel;
     cmbManufacturer: TComboBox;
     leManufacturerString: TLabeledEdit;
+    leTextID: TLabeledEdit;
     lblID: TLabel;
     seID: TSpinEdit;
     gbFlagsTags: TGroupBox;
@@ -120,6 +121,7 @@ type
     procedure sePiecesChange(Sender: TObject);
     procedure cmbManufacturerChange(Sender: TObject);
     procedure leManufacturerStringChange(Sender: TObject);
+    procedure leTextIDChange(Sender: TObject);
     procedure seIDChange(Sender: TObject);
     procedure CommonFlagClick(Sender: TObject);
     procedure leTextTagChange(Sender: TObject);
@@ -357,6 +359,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.Count := sePieces.Value;
       fCurrentItem.Manufacturer := TILItemManufacturer(cmbManufacturer.ItemIndex);
       fCurrentItem.ManufacturerStr := leManufacturerString.Text;
+      fCurrentItem.TextID := leTextID.Text;
       fCurrentItem.ID := seID.Value;
       // tags, flags
       fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
@@ -415,6 +418,7 @@ If Assigned(fCurrentItem) then
       sePieces.Value := fCurrentItem.Pieces;
       cmbManufacturer.ItemIndex := Ord(fCurrentItem.Manufacturer);
       leManufacturerString.Text := fCurrentItem.ManufacturerStr;
+      leTextID.Text := fCurrentItem.TextID;
       seID.Value := fCurrentItem.ID;
       // tags, flags
       cbFlagOwned.Checked := ilifOwned in fCurrentItem.Flags;
@@ -473,6 +477,7 @@ try
   cmbManufacturer.ItemIndex := 0;
   cmbManufacturer.OnChange(nil);
   leManufacturerString.Text := '';
+  leTextID.Text := '';
   seID.Value := 0;
   // flags
   cbFlagOwned.Checked := False;
@@ -839,6 +844,14 @@ procedure TfrmItemFrame.leManufacturerStringChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.ManufacturerStr := leManufacturerString.Text;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.leTextIDChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.TextID := leTextID.Text;
 end;
 
 //------------------------------------------------------------------------------

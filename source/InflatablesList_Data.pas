@@ -74,12 +74,12 @@ uses
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
-    'Bestway','Intex','HappyPeople','Mondo','Polygroup','Summer Waves',
+    'Bestway','Crivit','Intex','HappyPeople','Mondo','Polygroup','Summer Waves',
     'Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
 
   IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
-    'man_logo_bestway','man_logo_intex','man_logo_happypeople','man_logo_mondo',
-    'man_logo_polygroup','man_logo_summerwaves','man_logo_swimline',
+    'man_logo_bestway','man_logo_others'{$message 'later replace by real logo'},'man_logo_intex','man_logo_happypeople',
+    'man_logo_mondo','man_logo_polygroup','man_logo_summerwaves','man_logo_swimline',
     'man_logo_vetroplus','man_logo_wehncke','man_logo_wiky','man_logo_others');
 
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
@@ -109,7 +109,7 @@ const
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Main picture (is present)','Package picture (is present)',
     'Time of addition','Item type','Item type specifier','Count','Manufacturer',
-    'Manufacturer string','Numerical ID',
+    'Manufacturer string','Textual ID','Numerical ID','ID string',
     'Owned (flag)','Wanted (flag)','Ordered (flag)','Boxed (flag)',
     'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
     'Damaged (flag)','Repaired (flag)','Price change (flag)',

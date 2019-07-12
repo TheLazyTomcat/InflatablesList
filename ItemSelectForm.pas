@@ -37,7 +37,7 @@ implementation
 procedure TfItemSelectForm.UpdateIndex;
 begin
 If clbItems.Count > 0 then
-  lblItems.Caption := Format('Items(%d/%d):',[clbItems.ItemIndex + 1,clbItems.Count])
+  lblItems.Caption := Format('Items (%d/%d):',[clbItems.ItemIndex + 1,clbItems.Count])
 else
   lblItems.Caption := 'Items:';
 end;

@@ -97,7 +97,11 @@ case ItemValueTag of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtManufacturerStr:   Result := IL_CompareText(fManufacturerStr,Item.ManufacturerStr);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtTextID:            Result := IL_CompareText(fTextID,Item.TextID);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtID:                Result := IL_CompareInt32(fID,Item.ID);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtIDStr:             Result := IL_CompareText(IDStr,Item.IDStr);
 
   // flags = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtFlagOwned:         Result := IL_CompareBool(ilifOwned in fFlags,ilifOwned in Item.Flags);

@@ -39,8 +39,8 @@ type
                  ilitIsland,ilitBed,ilitBoat,ilitToy,ilitWings,ilitBalloon,
                  ilitOther);
 
-  TILItemManufacturer = (ilimBestway,ilimIntex,ilimHappyPeople,ilimMondo,
-                         ilimPolygroup,ilimSummerWaves,ilimSwimline,
+  TILItemManufacturer = (ilimBestway,ilimCrivit{Lidl},ilimIntex,ilimHappyPeople,
+                         ilimMondo,ilimPolygroup,ilimSummerWaves,ilimSwimline,
                          ilimVetroPlus,ilimWehncke,ilimWIKY,ilimOthers);
 
   TILItemFlag = (ilifOwned,ilifWanted,ilifOrdered,ilifBoxed,ilifElsewhere,
@@ -132,7 +132,7 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 type
   TILItemValueTag = (
     ilivtNone,ilivtMainPicture,ilivtPackagePicture,ilivtTimeOfAdd,ilivtItemType,
-    ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtID,
+    ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,
     ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
     ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,
@@ -394,6 +394,7 @@ case ItemManufacturer of
   ilimVetroPlus:    Result := 8;
   ilimPolygroup:    Result := 9;
   ilimSummerWaves:  Result := 10;
+  ilimCrivit:       Result := 11;
 else
   {ilimOthers}
   Result := 0;
@@ -415,6 +416,7 @@ case Num of
   8:  Result := ilimVetroPlus;
   9:  Result := ilimPolygroup;
   10: Result := ilimSummerWaves;
+  11: Result := ilimCrivit;
 else
   Result := ilimOthers;
 end;
@@ -689,6 +691,8 @@ case ItemValueTag of
   ilivtMaterial:          Result := 52;
   ilivtThickness:         Result := 53;
   ilivtFlagDiscarded:     Result := 54;
+  ilivtTextID:            Result := 55;
+  ilivtIDStr:             Result := 56;
 else
   {ilivtNone}
   Result := 0;
@@ -755,6 +759,8 @@ case Num of
   52: Result := ilivtMaterial;
   53: Result := ilivtThickness;
   54: Result := ilivtFlagDiscarded;
+  55: Result := ilivtTextID;
+  56: Result := ilivtIDStr;
 else
   Result := ilivtNone;
 end;

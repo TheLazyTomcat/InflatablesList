@@ -15,6 +15,7 @@ type
   public
     Function TitleStr: String; virtual;
     Function TypeStr: String; virtual;
+    Function IDStr: String; virtual;
     Function TotalSize: Int64; virtual;
     Function SizeStr: String; virtual;
     Function TotalWeight: UInt32; virtual;
@@ -49,12 +50,12 @@ If fManufacturer = ilimOthers then
       Result :='<unknown_manuf>';
   end
 else Result := fDataProvider.ItemManufacturers[fManufacturer].Str;
-If fID <> 0 then
+If Length(IDStr) <> 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s %d',[Result,fID])
+      Result := Format('%s %s',[Result,IDStr])
     else
-      Result := IntToStr(fID);
+      Result := IDStr;
   end;
 end;
 
@@ -76,6 +77,20 @@ else
     else
       Result := '<unknown_type>';
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Utils.IDStr: String;
+begin
+If Length(fTextID) <= 0 then
+  begin
+    If fID <> 0 then
+      Result := IntToStr(fID)
+    else
+      Result := '';
+  end
+else Result := fTextID;
 end;
 
 //------------------------------------------------------------------------------

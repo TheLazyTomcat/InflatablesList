@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 80
-  Top = 100
+  Left = 14
+  Top = 104
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
@@ -71,6 +71,7 @@ object fMainForm: TfMainForm
     PopupMenu = pmnListMenu
     TabOrder = 0
     OnClick = lbListClick
+    OnDblClick = lbListDblClick
     OnDrawItem = lbListDrawItem
     OnMouseDown = lbListMouseDown
   end
@@ -150,6 +151,10 @@ object fMainForm: TfMainForm
       Caption = 'Move item to the beginning'
       OnClick = mniLM_MoveBeginningClick
     end
+    object mniLM_MoveUpBy: TMenuItem
+      Caption = 'Move item up by 10 places'
+      OnClick = mniLM_MoveUpByClick
+    end
     object mniLM_MoveUp: TMenuItem
       Caption = 'Move item up'
       OnClick = mniLM_MoveUpClick
@@ -157,6 +162,10 @@ object fMainForm: TfMainForm
     object mniLM_MoveDown: TMenuItem
       Caption = 'Move item down'
       OnClick = mniLM_MoveDownClick
+    end
+    object mniLM_MoveDownBy: TMenuItem
+      Caption = 'Move item down by 10 places'
+      OnClick = mniLM_MoveDownByClick
     end
     object mniLM_MoveEnd: TMenuItem
       Caption = 'Move item to the end'

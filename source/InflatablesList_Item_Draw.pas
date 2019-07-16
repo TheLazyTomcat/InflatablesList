@@ -71,7 +71,10 @@ with fRender,fRender.Canvas do
     // wanted level strip
     Pen.Style := psClear;
     Brush.Style := bsSolid;
-    Brush.Color := $00F7F7F7;
+    If ilifDiscarded in fFlags then
+      Brush.Color := $00D0D0D0
+    else
+      Brush.Color := $00F7F7F7;
     Rectangle(0,0,WL_STRIP_WIDTH,fMainHeight);
     If ilifWanted in fFlags then
       begin

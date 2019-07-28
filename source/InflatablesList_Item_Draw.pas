@@ -41,6 +41,20 @@ var
   ItemFlag: TILItemFlag;
   SelShop:  TILItemShop;
 
+  procedure SetCanvas(BStyle: TBrushStyle = bsClear; BColor: TColor = clWhite;
+                      PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
+                      FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 10);
+  begin
+    // reset brush, pen and font to default settings
+    fRender.Canvas.Brush.Style := BStyle;
+    fRender.Canvas.Brush.Color := BColor;
+    fRender.Canvas.Pen.Style := PStyle;
+    fRender.Canvas.Pen.Color := PColor;
+    fRender.Canvas.Font.Style := FTStyle;
+    fRender.Canvas.Font.Color := FTColor;
+    fRender.Canvas.Font.Size := FTSize;
+  end;
+
   procedure DrawWantedLevelStrip(Canvas: TCanvas);
   const
     WL_STRIP_COLORS: array[0..7] of TColor =
@@ -63,18 +77,11 @@ with fRender,fRender.Canvas do
     Font := fMainFont;
 
     // background
-    Pen.Style := psClear;
-    Brush.Style := bsSolid;
-    Brush.Color := clWhite;
+    SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
 
     // wanted level strip
-    Pen.Style := psClear;
-    Brush.Style := bsSolid;
-    If ilifDiscarded in fFlags then
-      Brush.Color := $00D0D0D0
-    else
-      Brush.Color := $00F7F7F7;
+    SetCanvas(bsSolid,$00F7F7F7,psClear);
     Rectangle(0,0,WL_STRIP_WIDTH,fMainHeight);
     If ilifWanted in fFlags then
       begin
@@ -90,17 +97,17 @@ with fRender,fRender.Canvas do
       end;
 
     // title + count
-    Brush.Style := bsClear;
-    Font.Size := 12;
-    Font.Style := Font.Style + [fsBold];
+    If ilifDiscarded in fFlags then
+      SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12)
+    else
+      SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
     If fPieces > 1 then
       TextOut(WL_STRIP_WIDTH + 5,5,Format('%s (%dx)',[TitleStr,fPieces]))
     else
       TextOut(WL_STRIP_WIDTH + 5,5,TitleStr);
 
     // type + size
-    Font.Size := 10;
-    Font.Style := Font.Style - [fsBold];
+    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
     TempStr := SizeStr;
     If Length(TempStr) > 0 then
       TextOut(WL_STRIP_WIDTH + 5,30,Format('%s - %s',[TypeStr,TempStr]))
@@ -108,9 +115,11 @@ with fRender,fRender.Canvas do
       TextOut(WL_STRIP_WIDTH + 5,30,TypeStr);
 
     // variant/color
+    SetCanvas;
     TextOut(WL_STRIP_WIDTH + 5,50,fVariant);
 
     // flag icons
+    SetCanvas;
     TempInt := WL_STRIP_WIDTH + 5;
     For ItemFlag := Low(TILItemFlag) to High(TILItemFlag) do
       If ItemFlag in fFlags then
@@ -121,6 +130,7 @@ with fRender,fRender.Canvas do
         end;
 
     // review icon
+    SetCanvas;
     If Length(fReviewURL) > 0 then
       begin
         Draw(TempInt,fMainHeight - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
@@ -128,16 +138,15 @@ with fRender,fRender.Canvas do
       end;
 
     // text tag
+    SetCanvas;
     If Length(fTextTag) > 0 then
       begin
-        Font.Size := 8;
-        Font.Style := Font.Style + [fsBold];
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
         TextOut(TempInt,fMainHeight - 25,fTextTag);
       end;
 
     // selected shop and available count
-    Font.Size := 8;
-    Font.Style := [];
+    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
     TempInt := 5;
     If ShopsSelected(SelShop) then
       begin
@@ -160,8 +169,7 @@ with fRender,fRender.Canvas do
       end;
 
     // prices
-    Font.Size := 12;
-    Font.Style := Font.Style + [fsBold];
+    SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
     If TotalPrice > 0 then
       begin
         If fPieces > 1 then
@@ -171,8 +179,7 @@ with fRender,fRender.Canvas do
         TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
       end;
 
-    Font.Size := 10;
-    Font.Style := Font.Style - [fsBold];
+    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
     If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
       begin
         If fPieces > 1 then
@@ -191,9 +198,7 @@ with fRender,fRender.Canvas do
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then
       begin
-        Pen.Style := psClear;
-        Brush.Style := bsSolid;
-        Brush.Color := IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult);
+        SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
         Polygon([Point(fMainWidth - 15,0),Point(fMainWidth,0),Point(fMainWidth,15)]);
       end;
   end;

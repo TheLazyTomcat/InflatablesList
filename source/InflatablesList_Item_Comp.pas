@@ -73,12 +73,16 @@ case ItemValueTag of
                           else If not(Item.ItemType in [ilitUnknown,ilitOther]) then
                             Result := IL_NegateValue(-1,Reversed)
                           // both are either unknown or other, push unknown to the end...
-                          else If fItemType = ilitOther then
-                            Result := IL_NegateValue(+1,Reversed)
-                          else If Item.ItemType = ilitOther then
-                            Result := IL_NegateValue(-1,Reversed)
-                          else
-                            Result := 0;
+                          else If fItemType <> Item.ItemType then
+                            begin
+                              If fItemType = ilitOther then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else If Item.ItemType = ilitOther then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;
+                            end
+                          else Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtItemTypeSpec:      Result := IL_CompareText(fItemTypeSpec,Item.ItemTypeSpec);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,12 +162,16 @@ case ItemValueTag of
                           else If not(Item.Material in [ilimtUnknown,ilimtOther]) then
                             Result := IL_NegateValue(-1,Reversed)
                           // both are either unknown or other, push unknown to the end...
-                          else If fMaterial = ilimtOther then
-                            Result := IL_NegateValue(+1,Reversed)
-                          else If Item.Material = ilimtOther then
-                            Result := IL_NegateValue(-1,Reversed)
-                          else
-                            Result := 0;
+                          else If fMaterial <> Item.Material then
+                            begin
+                              If fMaterial = ilimtOther then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else If Item.Material = ilimtOther then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;
+                            end
+                          else Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSizeX:             Result := IL_CompareUInt32(fSizeX,Item.SizeX);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

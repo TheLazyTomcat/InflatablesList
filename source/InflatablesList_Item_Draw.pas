@@ -97,14 +97,17 @@ with fRender,fRender.Canvas do
       end;
 
     // title + count
-    If ilifDiscarded in fFlags then
-      SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12)
-    else
-      SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
     If fPieces > 1 then
-      TextOut(WL_STRIP_WIDTH + 5,5,Format('%s (%dx)',[TitleStr,fPieces]))
+      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
     else
-      TextOut(WL_STRIP_WIDTH + 5,5,TitleStr);
+      TempStr := TitleStr;
+    If ilifDiscarded in fFlags then
+      begin
+        SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
+        Rectangle(WL_STRIP_WIDTH - 1,0,WL_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+      end
+    else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
+    TextOut(WL_STRIP_WIDTH + 5,5,TempStr);
 
     // type + size
     SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);

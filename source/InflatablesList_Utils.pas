@@ -24,6 +24,7 @@ Function IL_CompareInt64(A,B: Int64): Integer;
 Function IL_CompareFloat(A,B: Double): Integer;
 Function IL_CompareDateTime(A,B: TDateTime): Integer;
 Function IL_CompareText(const A,B: String): Integer;
+Function IL_CompareGUID(const A,B: TGUID): Integer;
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -157,6 +158,20 @@ end;
 Function IL_CompareText(const A,B: String): Integer;
 begin
 Result := AnsiCompareText(A,B);
+If Result <> 0 then
+  begin
+    If Result > 0 then
+      Result := -1
+    else
+      Result := +1;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_CompareGUID(const A,B: TGUID): Integer;
+begin
+Result := AnsiCompareText(GUIDToString(A),GUIDToString(B));
 If Result <> 0 then
   begin
     If Result > 0 then

@@ -56,6 +56,7 @@ var
 begin
 case ItemValueTag of
   // internals = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  ilivtUniqueID:          Result := IL_CompareGUID(fUniqueID,Item.UniqueID);
   ilivtTimeOfAdd:         Result := IL_CompareDateTime(fTimeOfAddition,Item.TimeOfAddition);
 
   // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

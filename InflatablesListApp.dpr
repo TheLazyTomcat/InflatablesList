@@ -67,7 +67,8 @@ uses
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
-  InflatablesList_Item_IO_00000002 in 'source\InflatablesList_Item_IO_00000002.pas';
+  InflatablesList_Item_IO_00000002 in 'source\InflatablesList_Item_IO_00000002.pas',
+  InflatablesList_Item_IO_00000003 in 'source\InflatablesList_Item_IO_00000003.pas';
 
 {$R *.res}
 

@@ -107,8 +107,8 @@ const
     'flag_icon_lost','flag_icon_discarded');
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
-    '<none>','Main picture (is present)','Package picture (is present)',
-    'Time of addition','Item type','Item type specifier','Count','Manufacturer',
+    '<none>','Unique identifier (UID)','Time of addition','Main picture (is present)',
+    'Package picture (is present)','Item type','Item type specifier','Count','Manufacturer',
     'Manufacturer string','Textual ID','Numerical ID','ID string',
     'Owned (flag)','Wanted (flag)','Ordered (flag)','Boxed (flag)',
     'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',

@@ -40,6 +40,7 @@ type
     fOnShopPriceHistoryUpd: TIntegerEvent;  // forwarded from item shop
     // item data...
     // general read-only info
+    fUniqueID:              TGUID;
     fTimeOfAddition:        TDateTime;
     // stored pictures
     fItemPicture:           TBitmap;  // 96 x 96 px, white background
@@ -172,6 +173,7 @@ type
     property OnShopAvailHistoryUpdate: TIntegerEvent read fOnShopAvailHistoryUpd write fOnShopAvailHistoryUpd;
     property OnShopPriceHistoryUpdate: TIntegerEvent read fOnShopPriceHistoryUpd write fOnShopPriceHistoryUpd;
     // item data
+    property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
     property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
     property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
@@ -535,6 +537,7 @@ end;
 
 procedure TILItem_Base.InitializeData;
 begin
+CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
 fItemPicture := nil;

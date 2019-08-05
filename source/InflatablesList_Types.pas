@@ -131,7 +131,7 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 
 type
   TILItemValueTag = (
-    ilivtNone,ilivtMainPicture,ilivtPackagePicture,ilivtTimeOfAdd,ilivtItemType,
+    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtPackagePicture,ilivtItemType,
     ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,
     ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
@@ -693,6 +693,7 @@ case ItemValueTag of
   ilivtFlagDiscarded:     Result := 54;
   ilivtTextID:            Result := 55;
   ilivtIDStr:             Result := 56;
+  ilivtUniqueID:          Result := 57;
 else
   {ilivtNone}
   Result := 0;
@@ -761,6 +762,7 @@ case Num of
   54: Result := ilivtFlagDiscarded;
   55: Result := ilivtTextID;
   56: Result := ilivtIDStr;
+  57: Result := ilivtUniqueID;
 else
   Result := ilivtNone;
 end;

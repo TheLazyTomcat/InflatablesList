@@ -29,6 +29,8 @@ type
     mniPM_RemovePackagePic: TMenuItem;
     N2: TMenuItem;
     mniPM_Switch: TMenuItem;
+    lblUniqueID: TLabel;
+    lblTimeOfAddition: TLabel;
     lblItemType: TLabel;
     cmbItemType: TComboBox;
     leItemTypeSpecification: TLabeledEdit;
@@ -87,21 +89,19 @@ type
     seUnitPriceDefault: TSpinEdit;
     btnUpdateShops: TButton;
     btnShops: TButton;
-    lblTimeOfCreationTitle: TLabel;
-    lblTimeOfCreation: TLabel;
-    lblTotalWeightTitle: TLabel;
-    lblTotalWeight: TLabel;
     lblSelectedShopTitle: TLabel;
     lblSelectedShop: TLabel;
     lblShopCountTitle: TLabel;
     lblShopCount: TLabel;
+    lblAvailPiecesTitle: TLabel;
+    lblAvailPieces: TLabel;
+    lblTotalWeightTitle: TLabel;
+    lblTotalWeight: TLabel;
     lblUnitPriceLowestTitle: TLabel;
     lblUnitPriceLowest: TLabel;
     lblUnitPriceSelectedTitle: TLabel;
     lblUnitPriceSelected: TLabel;
     shpUnitPriceSelectedBcgr: TShape;
-    lblAvailPiecesTitle: TLabel;
-    lblAvailPieces: TLabel;
     lblTotalPriceLowestTitle: TLabel;
     lblTotalPriceLowest: TLabel;
     lblTotalPriceSelectedTitle: TLabel;
@@ -154,7 +154,8 @@ type
     procedure UpdateTitle(Sender: TObject);
     procedure UpdateManufacturerLogo(Sender: TObject);
     procedure UpdatePictures(Sender: TObject);
-    procedure ProcessAndShowReadOnlyInfo; 
+    procedure ProcessAndShowReadOnlyInfo;
+    procedure ShowSelectedShop(const SelectedShop: String);
     procedure FrameSave;
     procedure FrameLoad;
     procedure FrameClear;
@@ -274,9 +275,9 @@ If Assigned(fCurrentItem) then
       lblTotalWeight.Caption := '-';
     // selected shop
     If fCurrentItem.ShopsSelected(SelectedShop) then
-      lblSelectedShop.Caption := SelectedShop.Name
+      ShowSelectedShop(SelectedShop.Name)
     else
-      lblSelectedShop.Caption := '';
+      ShowSelectedShop('');
     // number of shops
     lblShopCount.Caption := fCurrentItem.ShopsCountStr;
     // available pieces
@@ -326,7 +327,7 @@ else
   begin
     // ignore time of creation, it is set in loading
     lblTotalWeight.Caption := '-';
-    lblSelectedShop.Caption := '';
+    ShowSelectedShop('');
     lblShopCount.Caption := '0';
     lblUnitPriceLowest.Caption := '-';
     lblUnitPriceSelected.Caption := '-';
@@ -336,6 +337,18 @@ else
     lblTotalPriceSelected.Caption := '-';
     shpTotalPriceSelectedBcgr.Visible := False;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.ShowSelectedShop(const SelectedShop: String);
+begin
+If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
+  (lblAvailPieces.BoundsRect.Right - lblSelectedShopTitle.BoundsRect.Right - 8) then
+  lblSelectedShop.Left := lblAvailPieces.BoundsRect.Right - lblSelectedShopTitle.Canvas.TextWidth(SelectedShop)
+else
+  lblSelectedShop.Left := lblSelectedShopTitle.BoundsRect.Right + 8;
+lblSelectedShop.Caption := SelectedShop;
 end;
 
 //------------------------------------------------------------------------------
@@ -408,7 +421,8 @@ If Assigned(fCurrentItem) then
     fInitializing := True;
     try
       // internals
-      lblTimeOfCreation.Caption := FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItem.TimeOfAddition);
+      lblUniqueID.Caption := GUIDToString(fCurrentItem.UniqueID);
+      lblTimeOfAddition.Caption := FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItem.TimeOfAddition);
       // basic specs
       UpdateTitle(nil);
       UpdateManufacturerLogo(nil);      
@@ -513,7 +527,7 @@ try
   seUnitPriceDefault.Value := 0;
   // read-only things
   lblTotalWeight.Caption := '-';
-  lblSelectedShop.Caption := '';
+  ShowSelectedShop('');
   lblShopCount.Caption := '0';
   lblUnitPriceLowest.Caption := '-';
   lblUnitPriceSelected.Caption := '-';

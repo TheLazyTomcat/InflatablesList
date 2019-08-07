@@ -84,15 +84,8 @@ const
 
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
     ('neznámý','kruh','kruh s madly','míè','rider','lehátko','lehátko/køeslo',
-     'køeslo','sedátko','matrace','ostrov','postel','èlun','hraèka','rukávky',
-     'balonek','ostatní');
-
-(*
-  TILItemMaterial = (ilimtUnknown,ilimtPolyvinylchloride{PVC},ilimtPolyester{PES},
-                     ilimtPolyetylene{PE},ilimtPolypropylene{PP},
-                     ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
-                     ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
-*)
+     'køeslo','sedátko','matrace','ostrov','ostrov/rider','postel','èlun',
+     'hraèka','rukávky','balonek','ostatní');
 
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
     ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
@@ -127,8 +120,8 @@ const
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
     'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles','def_pic_ball',
     'def_pic_rider','def_pic_lounger','def_pic_lounger_chair','def_pic_chair',
-    'def_pic_seat','def_pic_mattress','def_pic_island','def_pic_bed',
-    'def_pic_boat','def_pic_toy','def_pic_wings','def_pic_balloon',
+    'def_pic_seat','def_pic_mattress','def_pic_island','def_pic_island',
+    'def_pic_bed','def_pic_boat','def_pic_toy','def_pic_wings','def_pic_balloon',
     'def_pic_others');
 
   IL_DATA_SHOPPARSING_EXTRACTFROM: array[TILItemShopParsingExtrFrom] of String = (

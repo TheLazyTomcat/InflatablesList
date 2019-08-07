@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 14
-  Top = 104
+  Left = 32
+  Top = 41
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
@@ -32,7 +32,7 @@ object fMainForm: TfMainForm
       Left = 8
       Top = 16
       Width = 569
-      Height = 613
+      Height = 620
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11

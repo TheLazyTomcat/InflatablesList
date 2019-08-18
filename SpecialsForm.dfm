@@ -110,4 +110,13 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 8
     OnClick = btnClearACPCFlagsClick
   end
+  object btnReplaceInPicPaths: TButton
+    Left = 312
+    Top = 128
+    Width = 145
+    Height = 25
+    Caption = 'Pictures path P1 => P2'
+    TabOrder = 9
+    OnClick = btnReplaceInPicPathsClick
+  end
 end

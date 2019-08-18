@@ -18,12 +18,14 @@ type
     leParam_2: TLabeledEdit;
     btnSetMaterialToPVC: TButton;
     btnClearACPCFlags: TButton;
+    btnReplaceInPicPaths: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
     procedure btnUpdateAllAPFClick(Sender: TObject);
     procedure btnSetMaterialToPVCClick(Sender: TObject);
     procedure btnClearACPCFlagsClick(Sender: TObject);
+    procedure btnReplaceInPicPathsClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -38,6 +40,7 @@ implementation
 {$R *.dfm}
 
 uses
+  StrUtils,
   AuxTypes,
   InflatablesList_Types;
 
@@ -126,6 +129,20 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
     fILManager[i].SetFlagValue(ilifPriceChange,False);
     fILManager[i].SetFlagValue(ilifAvailChange,False)
+  end;
+Close
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnReplaceInPicPathsClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  begin
+    fILManager[i].ItemPictureFile := AnsiReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+    fILManager[i].PackagePictureFile := AnsiReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
   end;
 Close
 end;

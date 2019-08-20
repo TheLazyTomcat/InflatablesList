@@ -1,7 +1,11 @@
 unit InflatablesList_HTML_UnicodeTagAttributeArray;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
+
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
+
+{$DEFINE CDA_FuncOverride_ItemUnique}
+{$DEFINE CDA_FuncOverride_ItemCompare}
 
 interface
 
@@ -16,22 +20,25 @@ type
   end;
   PILUnicodeTagAttribute = ^TILUnicodeTagAttribute;
 
-  TILUnicodeTagAttributeCountedDynArray = record
-    Arr:    array of TILUnicodeTagAttribute;
-    SigA:   UInt32;
-    Count:  Integer;
-    Data:   PtrInt;
-    SigB:   UInt32;
-  end;
-  PILUnicodeTagAttributeCountedDynArray = ^TILUnicodeTagAttributeCountedDynArray;
-
   TCDABaseType = TILUnicodeTagAttribute;
-  PCDABaseType = PILUnicodeTagAttribute;
+  PCDABaseType = ^TCDABaseType;
 
-  TCDAArrayType = TILUnicodeTagAttributeCountedDynArray;
-  PCDAArrayType = PILUnicodeTagAttributeCountedDynArray;
+  TCountedDynArrayUnicodeTagAttribute = record
+  {$DEFINE CDA_Structure}
+    {$INCLUDE '.\CountedDynArrays.inc'}
+  {$UNDEF CDA_Structure}
+  end;
+  PCountedDynArrayUnicodeTagAttribute = ^TCountedDynArrayUnicodeTagAttribute;
 
-{$DEFINE CDA_DisableFunc_ItemUnique}
+  // aliases
+  TCountedDynArrayOfUnicodeTagAttribute = TCountedDynArrayUnicodeTagAttribute;
+  PCountedDynArrayOfUnicodeTagAttribute = PCountedDynArrayUnicodeTagAttribute;
+
+  TUnicodeTagAttributeCountedDynArray = TCountedDynArrayUnicodeTagAttribute;
+  PUnicodeTagAttributeCountedDynArray = PCountedDynArrayUnicodeTagAttribute;
+
+  TCDAArrayType = TCountedDynArrayUnicodeTagAttribute;
+  PCDAArrayType = PCountedDynArrayUnicodeTagAttribute;
 
 {$DEFINE CDA_Interface}
 {$INCLUDE '.\CountedDynArrays.inc'}
@@ -44,7 +51,7 @@ uses
   ListSorters,
   InflatablesList_HTML_Utils;
 
-Function CDA_CompareFunc(const A,B: TCDABaseType): Integer;
+Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin
 Result := -IL_UnicodeCompareString(A.Name,B.Name,False);
 end;

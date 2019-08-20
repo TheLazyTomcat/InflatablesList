@@ -7,22 +7,42 @@
 -------------------------------------------------------------------------------}
 {===============================================================================
 
-  Counted dynamic arrays
+  Counted Dynamic Arrays
 
     Counted dynamic array of Integer values
 
-  ©František Milt 2019-05-13
+  Version 1.2.1 (2019-08-19)
+  
+  Last changed 2019-08-19
 
-  Version 1.1.0
+  ©2018-2019 František Milt
+
+  Contacts:
+    František Milt: frantisek.milt@gmail.com
+
+  Support:
+    If you find this code useful, please consider supporting its author(s) by
+    making a small donation using the following link(s):
+
+      https://www.paypal.me/FMilt
+
+  Changelog:
+    For detailed changelog and history please refer to this git repository:
+
+      github.com/TheLazyTomcat/Lib.AuxClasses
 
   Dependencies:
     AuxTypes    - github.com/TheLazyTomcat/Lib.AuxTypes
+    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses    
     ListSorters - github.com/TheLazyTomcat/Lib.ListSorters
+    StrRect     - github.com/TheLazyTomcat/Lib.StrRect
 
 ===============================================================================}
 unit CountedDynArrayInteger;
 
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
+
+{$DEFINE CDA_FuncOverride_ItemCompare}
 
 interface
 
@@ -35,13 +55,15 @@ type
   PCDABaseType = ^TCDABaseType;
 
   TCountedDynArrayInteger = record
-    Arr:    array of TCDABaseType;
-    SigA:   UInt32;
-    Count:  Integer;
-    Data:   PtrInt;
-    SigB:   UInt32;
+  {$DEFINE CDA_Structure}
+    {$INCLUDE '.\CountedDynArrays.inc'}
+  {$UNDEF CDA_Structure}
   end;
   PCountedDynArrayInteger = ^TCountedDynArrayInteger;
+
+  // aliases
+  TCountedDynArrayOfInteger = TCountedDynArrayInteger;
+  PCountedDynArrayOfInteger = PCountedDynArrayInteger;
 
   TIntegerCountedDynArray = TCountedDynArrayInteger;
   PIntegerCountedDynArray = PCountedDynArrayInteger;
@@ -59,23 +81,9 @@ uses
   SysUtils,
   ListSorters;
 
-{$IFDEF FPC_DisableWarns}
-  {$DEFINE FPCDWM}
-  {$DEFINE W5024:={$WARN 5024 OFF}} // Parameter "$1" not used 
-  {$PUSH}{$WARN 2005 OFF} // Comment level $1 found
-  {$IF Defined(FPC) and (FPC_FULLVERSION >= 30000)}
-    {$DEFINE W5093:={$WARN 5093 OFF}} // Function result variable of a managed type does not seem to initialized
-    {$DEFINE W5094:={$WARN 5094 OFF}} // Function result variable of a managed type does not seem to initialized
-    {$DEFINE W5060:=}
-  {$ELSE}
-    {$DEFINE W5093:=}
-    {$DEFINE W5094:=}
-    {$DEFINE W5060:={$WARN 5060 OFF}} // Function result variable does not seem to be initialized
-  {$IFEND}
-  {$POP}
-{$ENDIF}
+{$INCLUDE '.\CountedDynArrays_msgdis.inc'}
 
-Function CDA_CompareFunc(A,B: TCDABaseType): Integer; {$IFDEF CanInline} inline; {$ENDIF}
+Function CDA_ItemCompare(A,B: TCDABaseType): Integer; {$IFDEF CanInline} inline; {$ENDIF}
 begin
 Result := Integer(B - A);
 end;

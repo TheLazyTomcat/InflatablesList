@@ -6,11 +6,13 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, Spin,
   ConcurrentTasks,
+  InflatablesList_Item,
   InflatablesList_ItemShop,
   InflatablesList_Manager;
 
 type
   TILItemShopUpdateItem = record
+    Item:       TILItem;
     ItemTitle:  String;
     ItemShop:   TILItemShop;
     Done:       Boolean;
@@ -49,7 +51,7 @@ type
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowUpdate(UpdateList: TILItemShopUpdateList);
+    procedure ShowUpdate(var UpdateList: TILItemShopUpdateList);
   end;
 
 var
@@ -209,7 +211,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfUpdateForm.ShowUpdate(UpdateList: TILItemShopUpdateList);
+procedure TfUpdateForm.ShowUpdate(var UpdateList: TILItemShopUpdateList);
 var
   i:  Integer;
 begin
@@ -251,6 +253,8 @@ If Length(UpdateList) > 0 then
     tmrUpdate.Enabled := False;
     If meLog.Lines.Count > 0 then
       meLog.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'list.update.log');
+    // return the changed list (done flag is read)
+    UpdateList := fUpdateList;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;

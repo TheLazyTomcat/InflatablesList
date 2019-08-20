@@ -14,13 +14,19 @@ type
     fMainWidth:   Integer;
     fMainHeight:  Integer;
     fMainFont:    TFont;
+    fSmallWidth:  Integer;
+    fSmallHeight: Integer;
+    fSmallFont:   TFont;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
+    procedure RenderSmallItemPicture; override;
+    procedure RenderSmallPackagePicture; override;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
   public
     procedure Initialize; override;
-    procedure ReinitDrawSize(MainList: TListBox); virtual;
+    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
+    procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); virtual;
     procedure ReDraw; virtual;
   end;
 
@@ -30,6 +36,7 @@ uses
   SysUtils, Classes,
   AuxTypes,
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_ItemShop;
 
 procedure TILItem_Draw.ReDrawMain;
@@ -210,7 +217,118 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.ReDrawSmall;
+const
+  WL_STRIP_WIDTH  = 20;
+var
+  TempStr:  String;
+
+  procedure SetCanvas(BStyle: TBrushStyle = bsClear; BColor: TColor = clWhite;
+                      PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
+                      FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 8);
+  begin
+    // reset brush, pen and font to default settings
+    fRenderSmall.Canvas.Brush.Style := BStyle;
+    fRenderSmall.Canvas.Brush.Color := BColor;
+    fRenderSmall.Canvas.Pen.Style := PStyle;
+    fRenderSmall.Canvas.Pen.Color := PColor;
+    fRenderSmall.Canvas.Font.Style := FTStyle;
+    fRenderSmall.Canvas.Font.Color := FTColor;
+    fRenderSmall.Canvas.Font.Size := FTSize;
+  end;
+
 begin
+with fRenderSmall,fRenderSmall.Canvas do
+  begin
+    Font := fSmallFont;
+
+    // background
+    SetCanvas(bsSolid,clWhite,psClear);
+    Rectangle(0,0,Width + 1,Height + 1);
+
+    // title + count
+    If fPieces > 1 then
+      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
+    else
+      TempStr := TitleStr;
+    If ilifDiscarded in fFlags then
+      begin
+        SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);
+        Rectangle(WL_STRIP_WIDTH - 1,0,WL_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+      end
+    else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,10);
+    TextOut(WL_STRIP_WIDTH + 5,2,TempStr); 
+
+    // type + size
+    SetCanvas;
+    TempStr := SizeStr;
+    If Length(TempStr) > 0 then
+      TextOut(WL_STRIP_WIDTH + 5,20,Format('%s - %s',[TypeStr,TempStr]))
+    else
+      TextOut(WL_STRIP_WIDTH + 5,20,TypeStr);
+
+    // variant/color
+    SetCanvas;
+    TextOut(WL_STRIP_WIDTH + 5,35,fVariant);
+
+    // lowest price
+    SetCanvas;
+    If fUnitPriceLowest > 0 then
+      begin
+        TempStr := Format('%d Kè',[fUnitPriceLowest]);
+        TextOut(fSmallWidth - 64 - TextWidth(TempStr),20,TempStr);
+      end;
+
+    // text tag
+    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clGrayText);
+    If Length(fTextTag) > 0 then
+      TextOut(fSmallWidth - 64 - TextWidth(fTextTag),35,fTextTag);
+
+    // picture
+    If Assigned(fItemPictureSmall) and not StaticOptions.NoPictures then
+      Draw(fSmallWidth - 54,2,fItemPictureSmall)
+    else
+      Draw(fSmallWidth - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.RenderSmallItemPicture;
+begin
+If Assigned(fItemPicture) then
+  begin
+    If not Assigned(fItemPictureSmall) then
+      begin
+        fItemPictureSmall := TBitmap.Create;
+        fItemPictureSmall.PixelFormat := pf24bit;
+        fItemPictureSmall.Width := 48;
+        fItemPictureSmall.Height := 48;
+      end;
+    IL_PicShrink(fItemPicture,fItemPictureSmall);
+  end
+else
+  If Assigned(fItemPictureSmall) then
+    FreeAndNil(fItemPictureSmall);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.RenderSmallPackagePicture;
+begin
+If Assigned(fPackagePicture) then
+  begin
+    If not Assigned(fPackagePictureSmall) then
+      begin
+        fPackagePictureSmall := TBitmap.Create;
+        fPackagePictureSmall.PixelFormat := pf24bit;
+        fPackagePictureSmall.Width := 48;
+        fPackagePictureSmall.Height := 48;
+      end;
+    IL_PicShrink(fPackagePicture,fPackagePictureSmall);
+  end
+else
+  If Assigned(fPackagePictureSmall) then
+    FreeAndNil(fPackagePictureSmall);
 end;
 
 //------------------------------------------------------------------------------
@@ -239,13 +357,18 @@ inherited;
 fMainWidth := 0;
 fMainHeight := 0;
 fMainFont := nil;
+fSmallWidth := 0;
+fSmallHeight := 0;
+fSmallFont := nil;
 fRender.Width := fMainWidth;
 fRender.Height := fMainHeight;
+fRenderSmall.Width := fSmallWidth;
+fRenderSmall.Height := fSmallHeight;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox);
+procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
 begin
 If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) then
   begin
@@ -255,9 +378,34 @@ If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) 
     fRender.Width := fMainWidth;
     fRender.Height := fMainHeight;
     ReDrawMain;
-    inherited UpdateMainList; // so redraw is not called again
+    inherited UpdateMainList;   // so redraw is not called again
   end;
-// implement for small
+If (fSmallWidth <> SmallList.ClientWidth) or (fSmallHeight <> SmallList.ItemHeight) then
+  begin
+    fSmallWidth := SmallList.ClientWidth;
+    fSmallHeight := SmallList.ItemHeight;
+    fSmallFont := SmallList.Font;
+    fRenderSmall.Width := fSmallWidth;
+    fRenderSmall.Height := fSmallHeight;
+    ReDrawSmall;
+    inherited UpdateSmallList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); 
+begin
+If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
+  begin
+    fSmallWidth := SmallWidth;
+    fSmallHeight := SmallHeight;
+    fSmallFont := SmallFont;
+    fRenderSmall.Width := fSmallWidth;
+    fRenderSmall.Height := fSmallHeight;
+    ReDrawSmall;
+    inherited UpdateSmallList;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -266,6 +414,8 @@ procedure TILItem_Draw.ReDraw;
 begin
 ReDrawMain;
 inherited UpdateMainList;
+ReDrawSmall;
+inherited UpdateSmallList;
 end;
 
 end.

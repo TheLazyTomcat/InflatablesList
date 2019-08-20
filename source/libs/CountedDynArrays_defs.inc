@@ -1,3 +1,15 @@
+{$IF defined(CPU64) or defined(CPU64BITS)}
+  {$DEFINE 64bit}
+{$ELSEIF defined(CPU16)}
+  {$DEFINE 16bit}
+{$ELSE}
+  {$DEFINE 32bit}
+{$IFEND}
+
+{$IF Defined(WINDOWS) or Defined(MSWINDOWS)}
+  {$DEFINE Windows}
+{$IFEND}
+
 {$IFDEF FPC}
   {$MODE ObjFPC}{$H+}
   {$MODESWITCH CLASSICPROCVARS+}
@@ -14,115 +26,143 @@
 {$ENDIF}
 
 //------------------------------------------------------------------------------
-// do not touch following...
+// do not touch following defines...
 
+{$UNDEF CDA_Structure}
 {$UNDEF CDA_Interface}
 {$UNDEF CDA_Implemantation}
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-{$UNDEF CDA_DisableFunc_ItemCompareSortFunc}
-{$UNDEF CDA_DisableFunc_ItemExchangeSortFunc}
-{$UNDEF CDA_DisableFunc_ItemFinal}
-{$UNDEF CDA_DisableFunc_ItemUnique}
-
-{$UNDEF CDA_DisableFunc_Valid}
-{$UNDEF CDA_DisableFunc_Validate}
-{$UNDEF CDA_DisableFunc_Init}
-{$UNDEF CDA_DisableFunc_ArrayPtr}
-
-{$UNDEF CDA_DisableFunc_Length}
-{$UNDEF CDA_DisableFunc_Capacity}
-{$UNDEF CDA_DisableFunc_FreeCapacity}
-{$UNDEF CDA_DisableFunc_Count}
-
-{$UNDEF CDA_DisableFunc_Low}
-{$UNDEF CDA_DisableFunc_High}
-{$UNDEF CDA_DisableFunc_CheckIndex}
-
-{$UNDEF CDA_DisableFunc_SetLength}
-{$UNDEF CDA_DisableFunc_SetCapacity}
-
-{$UNDEF CDA_DisableFunc_Grow}
-{$UNDEF CDA_DisableFunc_Shrink}
-
-{$UNDEF CDA_DisableFunc_UniqueArray}
-{$UNDEF CDA_DisableFunc_CopyP}
-{$UNDEF CDA_DisableFunc_Copy}
-
-{$UNDEF CDA_DisableFunc_GetData}
-{$UNDEF CDA_DisableFunc_SetData}
-
-{$UNDEF CDA_DisableFunc_GetItem}
-{$UNDEF CDA_DisableFunc_GetItemPtr}
-{$UNDEF CDA_DisableFunc_SetItem}
-
-{$UNDEF CDA_DisableFunc_First}
-{$UNDEF CDA_DisableFunc_Last}
-
-{$UNDEF CDA_DisableFunc_IndexOf}
-{$UNDEF CDA_DisableFunc_Add}
-{$UNDEF CDA_DisableFunc_Insert}
-{$UNDEF CDA_DisableFunc_Exchange}
-{$UNDEF CDA_DisableFunc_Move}
-{$UNDEF CDA_DisableFunc_Remove}
-{$UNDEF CDA_DisableFunc_Delete}
-{$UNDEF CDA_DisableFunc_Clear}
-
-{$UNDEF CDA_DisableFunc_Same}
-{$UNDEF CDA_DisableFunc_Reverse}
-{$UNDEF CDA_DisableFunc_Sort}
+{$UNDEF CDA_ConstBaseType}
+{$UNDEF CDA_CaseSensitiveBaseType}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-{$UNDEF CDA_HideFunc_ItemCompareSortFunc}
-{$UNDEF CDA_HideFunc_ItemExchangeSortFunc}
-{$UNDEF CDA_HideFunc_ItemFinal}
-{$UNDEF CDA_HideFunc_ItemUnique}
+{$UNDEF CDA_FuncOverride_ItemInit}
+{$UNDEF CDA_FuncOverride_ItemFinal}
+{$UNDEF CDA_FuncOverride_ItemUnique}
+{$UNDEF CDA_FuncOverride_ItemCompare}
 
-{$UNDEF CDA_HideFunc_Valid}
-{$UNDEF CDA_HideFunc_Validate}
-{$UNDEF CDA_HideFunc_Init}
-{$UNDEF CDA_HideFunc_ArrayPtr}
+{$UNDEF CDA_FuncOverride_SortFunc_ItemCompare}
+{$UNDEF CDA_FuncOverride_SortFunc_ItemCompareStabilized}
+{$UNDEF CDA_FuncOverride_SortFunc_ItemExchange}
+{$UNDEF CDA_FuncOverride_SortFunc_ItemExchangeStabilized}
 
-{$UNDEF CDA_HideFunc_Length}
-{$UNDEF CDA_HideFunc_Capacity}
-{$UNDEF CDA_HideFunc_FreeCapacity}
-{$UNDEF CDA_HideFunc_Count}
+{$UNDEF CDA_FuncOverride_Valid}
+{$UNDEF CDA_FuncOverride_Validate}
+{$UNDEF CDA_FuncOverride_Init}
 
-{$UNDEF CDA_HideFunc_Low}
-{$UNDEF CDA_HideFunc_High}
-{$UNDEF CDA_HideFunc_CheckIndex}
+{$UNDEF CDA_FuncOverride_GetUserData}
+{$UNDEF CDA_FuncOverride_SetUserData}
 
-{$UNDEF CDA_HideFunc_SetLength}
-{$UNDEF CDA_HideFunc_SetCapacity}
+{$UNDEF CDA_FuncOverride_Length}
+{$UNDEF CDA_FuncOverride_Capacity}
+{$UNDEF CDA_FuncOverride_CapacityFree}
+{$UNDEF CDA_FuncOverride_Count}
 
-{$UNDEF CDA_HideFunc_Grow}
-{$UNDEF CDA_HideFunc_Shrink}
+{$UNDEF CDA_FuncOverride_SetLength}
+{$UNDEF CDA_FuncOverride_SetCapacity}
+{$UNDEF CDA_FuncOverride_SetCount}
 
-{$UNDEF CDA_HideFunc_UniqueArray}
-{$UNDEF CDA_HideFunc_CopyP}
-{$UNDEF CDA_HideFunc_Copy}
+{$UNDEF CDA_FuncOverride_Grow}
+{$UNDEF CDA_FuncOverride_Shrink}
 
-{$UNDEF CDA_HideFunc_GetData}
-{$UNDEF CDA_HideFunc_SetData}
+{$UNDEF CDA_FuncOverride_UniqueArray}
+{$UNDEF CDA_FuncOverride_CopyP}
+{$UNDEF CDA_FuncOverride_Copy}
 
-{$UNDEF CDA_HideFunc_GetItem}
-{$UNDEF CDA_HideFunc_GetItemPtr}
-{$UNDEF CDA_HideFunc_SetItem}
+{$UNDEF CDA_FuncOverride_Low}
+{$UNDEF CDA_FuncOverride_High}
+{$UNDEF CDA_FuncOverride_CheckIndex}
 
-{$UNDEF CDA_HideFunc_First}
-{$UNDEF CDA_HideFunc_Last}
+{$UNDEF CDA_FuncOverride_GetItem}
+{$UNDEF CDA_FuncOverride_GetItemPtr}
+{$UNDEF CDA_FuncOverride_SetItem}
 
-{$UNDEF CDA_HideFunc_IndexOf}
-{$UNDEF CDA_HideFunc_Add}
-{$UNDEF CDA_HideFunc_Insert}
-{$UNDEF CDA_HideFunc_Exchange}
-{$UNDEF CDA_HideFunc_Move}
-{$UNDEF CDA_HideFunc_Remove}
-{$UNDEF CDA_HideFunc_Delete}
-{$UNDEF CDA_HideFunc_Clear}
+{$UNDEF CDA_FuncOverride_First}
+{$UNDEF CDA_FuncOverride_Last}
+{$UNDEF CDA_FuncOverride_FirstPtr}
+{$UNDEF CDA_FuncOverride_LastPtr}
 
-{$UNDEF CDA_HideFunc_Same}
-{$UNDEF CDA_HideFunc_Reverse}
-{$UNDEF CDA_HideFunc_Sort}
+{$UNDEF CDA_FuncOverride_IndexOf}
+{$UNDEF CDA_FuncOverride_Add}
+{$UNDEF CDA_FuncOverride_Append}
+{$UNDEF CDA_FuncOverride_Insert}
+{$UNDEF CDA_FuncOverride_Exchange}
+{$UNDEF CDA_FuncOverride_Move}
+{$UNDEF CDA_FuncOverride_Extract}
+{$UNDEF CDA_FuncOverride_Remove}
+{$UNDEF CDA_FuncOverride_Delete}
+{$UNDEF CDA_FuncOverride_Clear}
+
+{$UNDEF CDA_FuncOverride_ArrayPtr}
+{$UNDEF CDA_FuncOverride_Compare}
+{$UNDEF CDA_FuncOverride_Same}
+{$UNDEF CDA_FuncOverride_Reverse}
+{$UNDEF CDA_FuncOverride_Sort}
+{$UNDEF CDA_FuncOverride_SortStabilized}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+{$UNDEF CDA_FuncReintroduce_ItemInit}
+{$UNDEF CDA_FuncReintroduce_ItemFinal}
+{$UNDEF CDA_FuncReintroduce_ItemUnique}
+{$UNDEF CDA_FuncReintroduce_ItemCompare}
+
+{$UNDEF CDA_FuncReintroduce_SortFunc_ItemCompare}
+{$UNDEF CDA_FuncReintroduce_SortFunc_ItemCompareStabilized}
+{$UNDEF CDA_FuncReintroduce_SortFunc_ItemExchange}
+{$UNDEF CDA_FuncReintroduce_SortFunc_ItemExchangeStabilized}
+
+{$UNDEF CDA_FuncReintroduce_Valid}
+{$UNDEF CDA_FuncReintroduce_Validate}
+{$UNDEF CDA_FuncReintroduce_Init}
+
+{$UNDEF CDA_FuncReintroduce_GetUserData}
+{$UNDEF CDA_FuncReintroduce_SetUserData}
+
+{$UNDEF CDA_FuncReintroduce_Length}
+{$UNDEF CDA_FuncReintroduce_Capacity}
+{$UNDEF CDA_FuncReintroduce_CapacityFree}
+{$UNDEF CDA_FuncReintroduce_Count}
+
+{$UNDEF CDA_FuncReintroduce_SetLength}
+{$UNDEF CDA_FuncReintroduce_SetCapacity}
+{$UNDEF CDA_FuncReintroduce_SetCount}
+
+{$UNDEF CDA_FuncReintroduce_Grow}
+{$UNDEF CDA_FuncReintroduce_Shrink}
+
+{$UNDEF CDA_FuncReintroduce_UniqueArray}
+{$UNDEF CDA_FuncReintroduce_CopyP}
+{$UNDEF CDA_FuncReintroduce_Copy}
+
+{$UNDEF CDA_FuncReintroduce_Low}
+{$UNDEF CDA_FuncReintroduce_High}
+{$UNDEF CDA_FuncReintroduce_CheckIndex}
+
+{$UNDEF CDA_FuncReintroduce_GetItem}
+{$UNDEF CDA_FuncReintroduce_GetItemPtr}
+{$UNDEF CDA_FuncReintroduce_SetItem}
+
+{$UNDEF CDA_FuncReintroduce_First}
+{$UNDEF CDA_FuncReintroduce_Last}
+{$UNDEF CDA_FuncReintroduce_FirstPtr}
+{$UNDEF CDA_FuncReintroduce_LastPtr}
+
+{$UNDEF CDA_FuncReintroduce_IndexOf}
+{$UNDEF CDA_FuncReintroduce_Add}
+{$UNDEF CDA_FuncReintroduce_Append}
+{$UNDEF CDA_FuncReintroduce_Insert}
+{$UNDEF CDA_FuncReintroduce_Exchange}
+{$UNDEF CDA_FuncReintroduce_Move}
+{$UNDEF CDA_FuncReintroduce_Extract}
+{$UNDEF CDA_FuncReintroduce_Remove}
+{$UNDEF CDA_FuncReintroduce_Delete}
+{$UNDEF CDA_FuncReintroduce_Clear}
+
+{$UNDEF CDA_FuncReintroduce_ArrayPtr}
+{$UNDEF CDA_FuncReintroduce_Compare}
+{$UNDEF CDA_FuncReintroduce_Same}
+{$UNDEF CDA_FuncReintroduce_Reverse}
+{$UNDEF CDA_FuncReintroduce_Sort}
+{$UNDEF CDA_FuncReintroduce_SortStabilized}

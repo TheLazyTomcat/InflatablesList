@@ -7,388 +7,538 @@
 -------------------------------------------------------------------------------}
 {===============================================================================
 
-  Counted dynamic arrays
+  Counted Dynamic Arrays
 
     Main implementation template
 
-  ©František Milt 2019-01-26
+  Version 1.2.1 (2019-08-19)
+  
+  Last changed 2019-08-19
 
-  Version 1.0.3
+  ©2018-2019 František Milt
+
+  Contacts:
+    František Milt: frantisek.milt@gmail.com
+
+  Support:
+    If you find this code useful, please consider supporting its author(s) by
+    making a small donation using the following link(s):
+
+      https://www.paypal.me/FMilt
+
+  Changelog:
+    For detailed changelog and history please refer to this git repository:
+
+      github.com/TheLazyTomcat/Lib.AuxClasses
 
   Dependencies:
-    AuxTypes    - github.com/ncs-sniper/Lib.AuxTypes
-    ListSorters - github.com/ncs-sniper/Lib.ListSorters
+    AuxTypes    - github.com/TheLazyTomcat/Lib.AuxTypes
+    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses    
+    ListSorters - github.com/TheLazyTomcat/Lib.ListSorters
+    StrRect     - github.com/TheLazyTomcat/Lib.StrRect
 
 ===============================================================================}
+
+{===============================================================================
+--------------------------------------------------------------------------------
+    Main record structure (common to all types)
+--------------------------------------------------------------------------------
+===============================================================================}
+
+{$IFDEF CDA_Structure}
+    Signature:    TCDASignature;
+    Arr:          array of TCDABaseType;
+    Count:        Integer;
+    UserData:     PtrInt;
+    InternalPtr:  Pointer;
+    InternalInt:  PtrInt;
+    Checksum:     TCDAChecksum;
+{$ENDIF}
+
+{===============================================================================
+--------------------------------------------------------------------------------
+    Interface section (declarations of functions)
+--------------------------------------------------------------------------------
+===============================================================================}
+
 {$IFDEF CDA_Interface}
 
-{$IF not(Defined(CDA_DisableFunc_Valid) or Defined(CDA_HideFunc_Valid))}
-  Function CDA_Valid(const Arr: TCDAArrayType): Boolean;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Validate) or Defined(CDA_HideFunc_Validate))}
-  procedure CDA_Validate(var Arr: TCDAArrayType);{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Init) or Defined(CDA_HideFunc_Init))}
-  procedure CDA_Init(out Arr: TCDAArrayType); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_ArrayPtr) or Defined(CDA_HideFunc_ArrayPtr))}
-  Function CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer; overload;{$IFEND}
+// internal structure manipulation
+{$IFNDEF CDA_FuncReintroduce_Valid}
+  Function CDA_Valid(const Arr: TCDAArrayType): Boolean; overload;{$IF Defined(CanInline) and Defined(FPC)} inline;{$IFEND}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Validate}
+  procedure CDA_Validate(var Arr: TCDAArrayType); overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Init}
+  procedure CDA_Init(out Arr: TCDAArrayType); overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_Length) or Defined(CDA_HideFunc_Length))}
-  Function CDA_Length(const Arr: TCDAArrayType): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Capacity) or Defined(CDA_HideFunc_Capacity))}
-  Function CDA_Capacity(const Arr: TCDAArrayType): Integer; overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_FreeCapacity) or Defined(CDA_HideFunc_FreeCapacity))}
-  Function CDA_FreeCapacity(const Arr: TCDAArrayType): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Count) or Defined(CDA_HideFunc_Count))}
-  Function CDA_Count(const Arr: TCDAArrayType): Integer; overload;{$IFEND}
+// user data access
+{$IFNDEF CDA_FuncReintroduce_GetUserData}
+  Function CDA_GetUserData(const Arr: TCDAArrayType): PtrInt; overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_SetUserData}
+  procedure CDA_SetUserData(var Arr: TCDAArrayType; UserData: PtrInt); overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_Low) or Defined(CDA_HideFunc_Low))}
-  Function CDA_Low(const Arr: TCDAArrayType): Integer; overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_High) or Defined(CDA_HideFunc_High))}
-  Function CDA_High(const Arr: TCDAArrayType): Integer; overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_CheckIndex) or Defined(CDA_HideFunc_CheckIndex))}
-  Function CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean; overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
+// capacity and count access
+{$IFNDEF CDA_FuncReintroduce_Length}
+  Function CDA_Length(const Arr: TCDAArrayType): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Capacity}
+  Function CDA_Capacity(const Arr: TCDAArrayType): Integer; overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_FreeCapacity}
+  Function CDA_CapacityFree(const Arr: TCDAArrayType): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Count}
+  Function CDA_Count(const Arr: TCDAArrayType): Integer; overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_SetLength) or Defined(CDA_HideFunc_SetLength))}
-  procedure CDA_SetLength(var Arr: TCDAArrayType; NewLength: Integer); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_SetCapacity) or Defined(CDA_HideFunc_SetCapacity))}
-  procedure CDA_SetCapacity(var Arr: TCDAArrayType; NewCapacity: Integer); overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
+// explicit changing of capacity and count
+{$IFNDEF CDA_FuncReintroduce_SetLength}
+  procedure CDA_SetLength(var Arr: TCDAArrayType; NewLength: Integer); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_SetCapacity}
+  procedure CDA_SetCapacity(var Arr: TCDAArrayType; NewCapacity: Integer); overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_SetCount}
+  procedure CDA_SetCount(var Arr: TCDAArrayType; NewCount: Integer); overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_Grow) or Defined(CDA_HideFunc_Grow))}
-  Function CDA_Grow(var Arr: TCDAArrayType; GrowMode: TCDAGrowMode = agmFast; GrowFactor: Single = 1.0; DeltaMin: Integer = 1): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Shrink) or Defined(CDA_HideFunc_Shrink))}
-  procedure CDA_Shrink(var Arr: TCDAArrayType; ShrinkMode: TCDAShrinkMode = asmNormal); overload;{$IFEND}
+// implicit changing of capacity
+{$IFNDEF CDA_FuncReintroduce_Grow}
+  Function CDA_Grow(var Arr: TCDAArrayType; GrowMode: TCDAGrowMode = agmFast; GrowFactor: Single = 1.0; DeltaMin: Integer = 1): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Shrink}
+  procedure CDA_Shrink(var Arr: TCDAArrayType; ShrinkMode: TCDAShrinkMode = asmNormal); overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_UniqueArray) or Defined(CDA_HideFunc_UniqueArray))}
-  procedure CDA_UniqueArray(var Arr: TCDAArrayType); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_CopyP) or Defined(CDA_HideFunc_CopyP))}
-  Function CDA_Copy(const Src: TCDAArrayType; Index, Count: Integer): TCDAArrayType; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Copy) or Defined(CDA_HideFunc_Copy))}
-  Function CDA_Copy(const Src: TCDAArrayType): TCDAArrayType; overload;{$IFEND}
+// secure copy
+{$IFNDEF CDA_FuncReintroduce_UniqueArray}
+  procedure CDA_UniqueArray(var Arr: TCDAArrayType); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_CopyP}
+  Function CDA_Copy(const Src: TCDAArrayType; Index, Count: Integer): TCDAArrayType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Copy}
+  Function CDA_Copy(const Src: TCDAArrayType): TCDAArrayType; overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_GetData) or Defined(CDA_HideFunc_GetData))}
-  Function CDA_GetData(const Arr: TCDAArrayType): PtrInt; overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_SetData) or Defined(CDA_HideFunc_SetData))}
-  procedure CDA_SetData(var Arr: TCDAArrayType; Data: PtrInt); overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
+// indices functions
+{$IFNDEF CDA_FuncReintroduce_Low}
+  Function CDA_Low(const Arr: TCDAArrayType): Integer; overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_High}
+  Function CDA_High(const Arr: TCDAArrayType): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_CheckIndex}
+  Function CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean; overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_GetItem) or Defined(CDA_HideFunc_GetItem))}
-  Function CDA_GetItem(const Arr: TCDAArrayType; Index: Integer): TCDABaseType; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_GetItemPtr) or Defined(CDA_HideFunc_GetItemPtr))}
-  Function CDA_GetItemPtr(const Arr: TCDAArrayType; Index: Integer): PCDABaseType; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_SetItem) or Defined(CDA_HideFunc_SetItem))}
-  procedure CDA_SetItem(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType); overload;{$IFEND}
+// item access
+{$IFNDEF CDA_FuncReintroduce_GetItem}
+  Function CDA_GetItem(const Arr: TCDAArrayType; Index: Integer): TCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_GetItemPtr}
+  Function CDA_GetItemPtr(const Arr: TCDAArrayType; Index: Integer): PCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_SetItem}
+  procedure CDA_SetItem(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType); overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_First) or Defined(CDA_HideFunc_First))}
-  Function CDA_First(const Arr: TCDAArrayType): TCDABaseType; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Last) or Defined(CDA_HideFunc_Last))}
-  Function CDA_Last(const Arr: TCDAArrayType): TCDABaseType; overload;{$IFEND}
+// special items access
+{$IFNDEF CDA_FuncReintroduce_First}
+  Function CDA_First(const Arr: TCDAArrayType): TCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Last}
+  Function CDA_Last(const Arr: TCDAArrayType): TCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_FirstPtr}
+  Function CDA_FirstPtr(const Arr: TCDAArrayType): PCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_LastPtr}
+  Function CDA_LastPtr(const Arr: TCDAArrayType): PCDABaseType; overload;{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_IndexOf) or Defined(CDA_HideFunc_IndexOf))}
-  Function CDA_IndexOf(const Arr: TCDAArrayType; const Item: TCDABaseType): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Add) or Defined(CDA_HideFunc_Add))}
-  Function CDA_Add(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Insert) or Defined(CDA_HideFunc_Insert))}
-  procedure CDA_Insert(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Exchange) or Defined(CDA_HideFunc_Exchange))}
-  procedure CDA_Exchange(var Arr: TCDAArrayType; Idx1, Idx2: Integer); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Move) or Defined(CDA_HideFunc_Move))}
-  procedure CDA_Move(var Arr: TCDAArrayType; SrcIdx, DstIdx: Integer); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Remove) or Defined(CDA_HideFunc_Remove))}
-  Function CDA_Remove(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Delete) or Defined(CDA_HideFunc_Delete))}
-  procedure CDA_Delete(var Arr: TCDAArrayType; Index: Integer); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Clear) or Defined(CDA_HideFunc_Clear))}
-  procedure CDA_Clear(var Arr: TCDAArrayType); overload;{$IFDEF CanInline} inline; {$ENDIF}{$IFEND}
+// list-like funtions
+{$IFNDEF CDA_FuncReintroduce_IndexOf}
+  Function CDA_IndexOf(const Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Add}
+  Function CDA_Add(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Append}
+  procedure CDA_Append(var Arr: TCDAArrayType; const Items: TCDAArrayType); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Insert}
+  procedure CDA_Insert(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Exchange}
+  procedure CDA_Exchange(var Arr: TCDAArrayType; Idx1, Idx2: Integer); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Move}
+  procedure CDA_Move(var Arr: TCDAArrayType; SrcIdx, DstIdx: Integer); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Extract}
+  Function CDA_Extract(var Arr: TCDAArrayType; Index: Integer): TCDABaseType; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Remove}
+  Function CDA_Remove(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Delete}
+  procedure CDA_Delete(var Arr: TCDAArrayType; Index: Integer); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Clear}
+  procedure CDA_Clear(var Arr: TCDAArrayType); overload;{$IFDEF CanInline} inline;{$ENDIF}{$ENDIF}
 
-{$IF not(Defined(CDA_DisableFunc_Same) or Defined(CDA_HideFunc_Same))}
-  Function CDA_Same(const Arr1, Arr2: TCDAArrayType): Boolean; overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Reverse) or Defined(CDA_HideFunc_Reverse))}
-  procedure CDA_Reverse(var Arr: TCDAArrayType); overload;{$IFEND}
-{$IF not(Defined(CDA_DisableFunc_Sort) or Defined(CDA_HideFunc_Sort))}
-  procedure CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False); overload;{$IFEND}
+// whole-array access/operation
+{$IFNDEF CDA_FuncReintroduce_ArrayPtr}
+  Function CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Compare}
+  Function CDA_Compare(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Same}
+  Function CDA_Same(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Boolean; overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Reverse}
+  procedure CDA_Reverse(var Arr: TCDAArrayType); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_Sort}
+  procedure CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}); overload;{$ENDIF}
+{$IFNDEF CDA_FuncReintroduce_SortStabilized}
+  procedure CDA_SortStabilized(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}); overload;{$ENDIF}
 
 {$ENDIF}
 
-//==============================================================================
+{===============================================================================
+--------------------------------------------------------------------------------
+    Implementation section (implementation of functions)
+--------------------------------------------------------------------------------
+===============================================================================}
 
 {$IFDEF CDA_Implementation}
 
-{$IFNDEF CDA_DisableFunc_ItemCompareSortFunc}
-{$IFDEF CDA_HideFunc_ItemCompareSortFunc}
-Function _CDA_ItemCompareSortFunc(Context: Pointer; Idx1,Idx2: Integer): Integer;{$IFDEF CanInline} inline; {$ENDIF}
-{$ELSE}
-Function CDA_ItemCompareSortFunc(Context: Pointer; Idx1,Idx2: Integer): Integer;{$IFDEF CanInline} inline; {$ENDIF}
-{$ENDIF}
+{===============================================================================
+    Auxiliary internal functions (cannot be overriden or reintroduced)
+===============================================================================}
+
+Function CDA_Signature: TCDASignature;
 begin
-Result := CDA_CompareFunc(TCDAArrayType(Context^).Arr[Idx1],TCDAArrayType(Context^).Arr[Idx2]);
-end;
+{$IFDEF 64bit}
+Result := (PtrUInt(Random($10000)) shl 48) or (PtrUInt(Random($10000)) shl 32) or
+          (PtrUInt(Random($10000)) shl 16) or PtrUInt(Random($10000)) ;
+{$ELSE}
+Result := (PtrUInt(Random($10000)) shl 16) or PtrUInt(Random($10000));
 {$ENDIF}
+end;
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_ItemExchangeSortFunc}
-{$IFDEF CDA_HideFunc_ItemExchangeSortFunc}
-procedure _CDA_ItemExchangeSortFunc(Context: Pointer; Idx1,Idx2: Integer);{$IFDEF CanInline} inline; {$ENDIF}
-{$ELSE}
-procedure CDA_ItemExchangeSortFunc(Context: Pointer; Idx1,Idx2: Integer);{$IFDEF CanInline} inline; {$ENDIF}
-{$ENDIF}
+{$IFDEF FPCDWM}{$PUSH}W4055{$ENDIF}
+Function CDA_Checksum(const Arr: TCDAArrayType): TCDAChecksum;
 begin
-CDA_Exchange(TCDAArrayType(Context^),Idx1,Idx2);
+{
+  Checksum is obtained by only XOR-ing of some fields.
+  Field Arr is by compiler implemented as a pointer to the dynamic array
+  itself, so we can use it as such.
+}
+Result := Arr.Signature xor PtrUInt(Pointer(Arr.Arr)) xor not(PtrUInt(Arr.Count));
 end;
-{$ENDIF}
+{$IFDEF FPCDWM}{$POP}{$ENDIF}
 
-//------------------------------------------------------------------------------
+{===============================================================================
+    Internal functions
+===============================================================================}
 
-{$IFNDEF CDA_DisableFunc_ItemFinal}
 {$IFDEF FPCDWM}{$PUSH}W5024{$ENDIF}
-{$IFDEF CDA_HideFunc_ItemFinal}
-procedure _CDA_ItemFinal(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
+{$IF Defined(CDA_FuncOverride_ItemInit) or Defined(CDA_FuncReintroduce_ItemInit)}
+procedure _CDA_ItemInit(var Item: TCDABaseType);
 {$ELSE}
-procedure CDA_ItemFinal(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
-{$ENDIF}
+procedure CDA_ItemInit(var Item: TCDABaseType);
+{$IFEND}
 begin
 end;
 {$IFDEF FPCDWM}{$POP}{$ENDIF}
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_ItemUnique}
 {$IFDEF FPCDWM}{$PUSH}W5024{$ENDIF}
-{$IFDEF CDA_HideFunc_ItemUnique}
-procedure _CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
+{$IF Defined(CDA_FuncOverride_ItemFinal) or Defined(CDA_FuncReintroduce_ItemFinal)}
+procedure _CDA_ItemFinal(var Item: TCDABaseType);
 {$ELSE}
-procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
-{$ENDIF}
+procedure CDA_ItemFinal(var Item: TCDABaseType);
+{$IFEND}
 begin
 end;
 {$IFDEF FPCDWM}{$POP}{$ENDIF}
-{$ENDIF}
+
+//------------------------------------------------------------------------------
+
+{$IFDEF FPCDWM}{$PUSH}W5024{$ENDIF}
+{$IF Defined(CDA_FuncOverride_ItemUnique) or Defined(CDA_FuncReintroduce_ItemUnique)}
+procedure _CDA_ItemUnique(var Item: TCDABaseType);
+{$ELSE}
+procedure CDA_ItemUnique(var Item: TCDABaseType); 
+{$IFEND}
+begin
+end;
+{$IFDEF FPCDWM}{$POP}{$ENDIF}
+
+//------------------------------------------------------------------------------
+
+{$IFDEF FPCDWM}{$PUSH}W5024{$ENDIF}
+{$IF Defined(CDA_FuncOverride_ItemCompare) or Defined(CDA_FuncReintroduce_ItemCompare)}
+Function _CDA_ItemCompare({$IFDEF CDA_ConstBaseType}const {$ENDIF}A,B: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean{$ENDIF}): Integer; {$IFDEF CanInline} inline;{$ENDIF}
+{$ELSE}
+Function CDA_ItemCompare({$IFDEF CDA_ConstBaseType}const {$ENDIF}A,B: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean{$ENDIF}): Integer; {$IFDEF CanInline} inline;{$ENDIF}
+{$IFEND}
+begin
+Result := 0;
+end;
+{$IFDEF FPCDWM}{$POP}{$ENDIF}
 
 //==============================================================================
 
-{$IFNDEF CDA_DisableFunc_Valid}
-{$IFDEF CDA_HideFunc_Valid}
-Function _CDA_Valid(const Arr: TCDAArrayType): Boolean;
+{$IF Defined(CDA_FuncOverride_SortFunc_ItemCompare) or Defined(CDA_FuncReintroduce_SortFunc_ItemCompare)}
+Function _CDA_SortFunc_ItemCompare(Context: Pointer; Idx1,Idx2: Integer): Integer;{$IFDEF CanInline} inline;{$ENDIF}
 {$ELSE}
-Function CDA_Valid(const Arr: TCDAArrayType): Boolean;
-{$ENDIF}
+Function CDA_SortFunc_ItemCompare(Context: Pointer; Idx1,Idx2: Integer): Integer;{$IFDEF CanInline} inline;{$ENDIF}
+{$IFEND}
 begin
-Result := (Arr.SigA = CDA_SIGA) and (Arr.SigB = CDA_SIGB) and (Arr.Count <= Length(Arr.Arr));
-end;
+{$IFDEF CDA_CaseSensitiveBaseType}
+Result := CDA_ItemCompare(TCDAArrayType(Context^).Arr[Idx1],TCDAArrayType(Context^).Arr[Idx2],TCDAArrayType(Context^).InternalInt <> 0);
+{$ELSE}
+Result := CDA_ItemCompare(TCDAArrayType(Context^).Arr[Idx1],TCDAArrayType(Context^).Arr[Idx2]);
 {$ENDIF}
+end;
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Validate}
-{$IFDEF CDA_HideFunc_Validate}
+{$IF Defined(CDA_FuncOverride_SortFunc_ItemCompareStabilized) or Defined(CDA_FuncReintroduce_SortFunc_ItemCompareStabilized)}
+Function _CDA_SortFunc_ItemCompareStabilized(Context: Pointer; Idx1,Idx2: Integer): Integer;
+{$ELSE}
+Function CDA_SortFunc_ItemCompareStabilized(Context: Pointer; Idx1,Idx2: Integer): Integer;
+{$IFEND}
+begin
+Result := CDA_SortFunc_ItemCompare(Context,Idx1,Idx2);
+If Result = 0 then
+  with TCDAArrayType(Context^) do
+    begin
+      If PCDAIndexArray(InternalPtr)^[Idx1] < PCDAIndexArray(InternalPtr)^[Idx2] then
+        Result := +1
+      else If PCDAIndexArray(InternalPtr)^[Idx1] > PCDAIndexArray(InternalPtr)^[Idx2] then
+        Result := -1;
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_SortFunc_ItemExchange) or Defined(CDA_FuncReintroduce_SortFunc_ItemExchange)}
+procedure _CDA_SortFunc_ItemExchange(Context: Pointer; Idx1,Idx2: Integer);{$IFDEF CanInline} inline;{$ENDIF}
+{$ELSE}
+procedure CDA_SortFunc_ItemExchange(Context: Pointer; Idx1,Idx2: Integer);{$IFDEF CanInline} inline;{$ENDIF}
+{$IFEND}
+begin
+CDA_Exchange(TCDAArrayType(Context^),Idx1,Idx2);
+end;
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_SortFunc_ItemExchangeStabilized) or Defined(CDA_FuncReintroduce_SortFunc_ItemExchangeStabilized)}
+procedure _CDA_SortFunc_ItemExchangeStabilized(Context: Pointer; Idx1,Idx2: Integer);
+{$ELSE}
+procedure CDA_SortFunc_ItemExchangeStabilized(Context: Pointer; Idx1,Idx2: Integer);
+{$IFEND}
+var
+  Temp: Integer;
+begin
+CDA_SortFunc_ItemExchange(Context,Idx1,Idx2);
+with TCDAArrayType(Context^) do
+  begin
+    Temp := PCDAIndexArray(InternalPtr)^[Idx1];
+    PCDAIndexArray(InternalPtr)^[Idx1] := PCDAIndexArray(InternalPtr)^[Idx2];
+    PCDAIndexArray(InternalPtr)^[Idx2] := Temp;
+  end;
+end;
+
+{===============================================================================
+    Public functions
+===============================================================================}
+
+{$IF Defined(CDA_FuncOverride_Valid) or Defined(CDA_FuncReintroduce_Valid)}
+Function _CDA_Valid(const Arr: TCDAArrayType): Boolean;
+{$ELSE}
+Function CDA_Valid(const Arr: TCDAArrayType): Boolean;
+{$IFEND}
+begin
+Result := Arr.Checksum = CDA_Checksum(Arr);
+end;
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_Validate) or Defined(CDA_FuncReintroduce_Validate)}
 procedure _CDA_Validate(var Arr: TCDAArrayType);
 {$ELSE}
 procedure CDA_Validate(var Arr: TCDAArrayType);
-{$ENDIF}
+{$IFEND}
 begin
 If not CDA_Valid(Arr) then
   CDA_Init(Arr);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Init}
-{$IFDEF CDA_HideFunc_Init}
+{$IF Defined(CDA_FuncOverride_Init) or Defined(CDA_FuncReintroduce_Init)}
 procedure _CDA_Init(out Arr: TCDAArrayType);
 {$ELSE}
 procedure CDA_Init(out Arr: TCDAArrayType);
-{$ENDIF}
+{$IFEND}
 begin
-SetLength(Arr.Arr,0);
-Arr.SigA := CDA_SIGA;
+Arr.Signature := CDA_Signature;
+Arr.Arr := nil; // if the array is not empty this will free it automatically
 Arr.Count := 0;
-Arr.Data := 0;
-Arr.SigB := CDA_SIGB;
+Arr.UserData := 0;
+Arr.InternalPtr := nil;
+Arr.InternalInt := 0;
+Arr.Checksum := CDA_Checksum(Arr);
 end;
-{$ENDIF}
+
+//==============================================================================
+  
+{$IF Defined(CDA_FuncOverride_GetUserData) or Defined(CDA_FuncReintroduce_GetUserData)}
+Function _CDA_GetUserData(const Arr: TCDAArrayType): PtrInt;  
+{$ELSE}
+Function CDA_GetUserData(const Arr: TCDAArrayType): PtrInt;
+{$IFEND}
+begin
+If CDA_Valid(Arr) then
+  Result := Arr.UserData
+else
+  Result := 0;
+end;
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_ArrayPtr}
-{$IFDEF CDA_HideFunc_ArrayPtr}
-Function _CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer;
+{$IF Defined(CDA_FuncOverride_SetUserData) or Defined(CDA_FuncReintroduce_SetUserData)}
+procedure _CDA_SetUserData(var Arr: TCDAArrayType; UserData: PtrInt);
 {$ELSE}
-Function CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer;
-{$ENDIF}
+procedure CDA_SetUserData(var Arr: TCDAArrayType; UserData: PtrInt);
+{$IFEND}
 begin
-If Arr.Count > 0 then
-  Result := Addr(Arr.Arr[0])
-else
-  Result := nil;
+CDA_Validate(Arr);
+Arr.UserData := UserData;
 end;
-{$ENDIF}
 
 //==============================================================================
 
-{$IFNDEF CDA_DisableFunc_Length}
-{$IFDEF CDA_HideFunc_Length}
+{$IF Defined(CDA_FuncOverride_Length) or Defined(CDA_FuncReintroduce_Length)}
 Function _CDA_Length(const Arr: TCDAArrayType): Integer;
 {$ELSE}
 Function CDA_Length(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
+{$IFEND}
 begin
 If CDA_Valid(Arr) then
   Result := Length(Arr.Arr)
 else
   Result := 0;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Capacity}
-{$IFDEF CDA_HideFunc_Capacity}
+{$IF Defined(CDA_FuncOverride_Capacity) or Defined(CDA_FuncReintroduce_Capacity)}
 Function _CDA_Capacity(const Arr: TCDAArrayType): Integer;
 {$ELSE}
 Function CDA_Capacity(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
+{$IFEND}
 begin
 Result := CDA_Length(Arr);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_FreeCapacity}
-{$IFDEF CDA_HideFunc_FreeCapacity}
-Function _CDA_FreeCapacity(const Arr: TCDAArrayType): Integer;
+{$IF Defined(CDA_FuncOverride_FreeCapacity) or Defined(CDA_FuncReintroduce_FreeCapacity)}
+Function _CDA_CapacityFree(const Arr: TCDAArrayType): Integer;
 {$ELSE}
-Function CDA_FreeCapacity(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
+Function CDA_CapacityFree(const Arr: TCDAArrayType): Integer;
+{$IFEND}
 begin
 If CDA_Valid(Arr) then
   Result := Length(Arr.Arr) - Arr.Count
 else
   Result := 0;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Count}
-{$IFDEF CDA_HideFunc_Count}
+{$IF Defined(CDA_FuncOverride_Count) or Defined(CDA_FuncReintroduce_Count)}
 Function _CDA_Count(const Arr: TCDAArrayType): Integer;
 {$ELSE}
 Function CDA_Count(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
+{$IFEND}
 begin
 If CDA_Valid(Arr) then
   Result := Arr.Count
 else
   Result := 0;
 end;
-{$ENDIF}
 
-//------------------------------------------------------------------------------
+//==============================================================================
 
-{$IFNDEF CDA_DisableFunc_Low}
-{$IFDEF CDA_HideFunc_Low}
-Function _CDA_Low(const Arr: TCDAArrayType): Integer;
-{$ELSE}
-Function CDA_Low(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
-begin
-// no need to check validity, this will always return 0
-Result := Low(Arr.Arr);
-end;
-{$ENDIF}
-
-//------------------------------------------------------------------------------
- 
-{$IFNDEF CDA_DisableFunc_High}
-{$IFDEF CDA_HideFunc_High}
-Function _CDA_High(const Arr: TCDAArrayType): Integer;
-{$ELSE}
-Function CDA_High(const Arr: TCDAArrayType): Integer;
-{$ENDIF}
-begin
-// CDA_Count checks for validity
-Result := Pred(CDA_Count(Arr));
-end;
-{$ENDIF}
-
-//------------------------------------------------------------------------------
- 
-{$IFNDEF CDA_DisableFunc_CheckIndex}
-{$IFDEF CDA_HideFunc_CheckIndex}
-Function _CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean;
-{$ELSE}
-Function CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean;
-{$ENDIF}
-begin
-// CDA_High checks for validity
-Result := (Index >= CDA_Low(Arr)) and (Index <= CDA_High(Arr));
-end;
-{$ENDIF}
-
-//------------------------------------------------------------------------------
- 
-{$IFNDEF CDA_DisableFunc_SetLength}
-{$IFDEF CDA_HideFunc_SetLength}
+{$IF Defined(CDA_FuncOverride_SetLength) or Defined(CDA_FuncReintroduce_SetLength)}
 procedure _CDA_SetLength(var Arr: TCDAArrayType; NewLength: Integer);
 {$ELSE}
 procedure CDA_SetLength(var Arr: TCDAArrayType; NewLength: Integer);
-{$ENDIF}
+{$IFEND}
 var
   i:  Integer;
 begin
 CDA_Validate(Arr);
 If NewLength >= 0 then
   begin
-    If NewLength < CDA_Count(Arr) then
-      For i := NewLength to CDA_High(Arr) do
+    If NewLength < Arr.Count then
+      For i := NewLength to Pred(Arr.Count) do
         CDA_ItemFinal(Arr.Arr[i]);
     SetLength(Arr.Arr,NewLength);
-    If NewLength < CDA_Count(Arr) then
+    If NewLength < Arr.Count then
       Arr.Count := NewLength;
+    Arr.Checksum := CDA_Checksum(Arr);
   end
 else raise ERangeError.CreateFmt('CDA_SetLength: New length (%d) out of range.',[NewLength]);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_SetCapacity}
-{$IFDEF CDA_HideFunc_SetCapacity}
+{$IF Defined(CDA_FuncOverride_SetCapacity) or Defined(CDA_FuncReintroduce_SetCapacity)}
 procedure _CDA_SetCapacity(var Arr: TCDAArrayType; NewCapacity: Integer);
 {$ELSE}
 procedure CDA_SetCapacity(var Arr: TCDAArrayType; NewCapacity: Integer);
-{$ENDIF}
+{$IFEND}
 begin
 CDA_SetLength(Arr,NewCapaCity);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Grow}
-{$IFDEF CDA_HideFunc_Grow}
+{$IF Defined(CDA_FuncOverride_SetCount) or Defined(CDA_FuncReintroduce_SetCount)}
+procedure _CDA_SetCount(var Arr: TCDAArrayType; NewCount: Integer);
+{$ELSE}
+procedure CDA_SetCount(var Arr: TCDAArrayType; NewCount: Integer);
+{$IFEND}
+var
+  i:  Integer;
+begin
+CDA_Validate(Arr);
+If NewCount >= 0 then
+  begin
+    If NewCount < Arr.Count then
+      begin
+        // remove existing items
+        For i := Pred(Arr.Count) downto NewCount do
+          CDA_ItemFinal(Arr.Arr[i]);
+        Arr.Count := NewCount;
+        CDA_Shrink(Arr);
+      end
+    else If NewCount > Arr.Count then
+      begin
+        // add new items
+        If NewCount > Length(Arr.Arr) then
+          CDA_SetCapacity(Arr,NewCount);
+        For i := Arr.Count to Pred(NewCount) do
+          CDA_ItemInit(Arr.Arr[i]);
+        Arr.Count := NewCount;
+      end;
+    Arr.Checksum := CDA_Checksum(Arr);
+  end
+else raise ERangeError.CreateFmt('CDA_SetCount: New count (%d) out of range.',[NewCount])
+end;
+
+//==============================================================================
+
+{$IF Defined(CDA_FuncOverride_Grow) or Defined(CDA_FuncReintroduce_Grow)}
 Function _CDA_Grow(var Arr: TCDAArrayType; GrowMode: TCDAGrowMode = agmFast; GrowFactor: Single = 1.0; DeltaMin: Integer = 1): Integer;
 {$ELSE}
 Function CDA_Grow(var Arr: TCDAArrayType; GrowMode: TCDAGrowMode = agmFast; GrowFactor: Single = 1.0; DeltaMin: Integer = 1): Integer;
-{$ENDIF}
+{$IFEND}
 begin
 CDA_Validate(Arr);
 If DeltaMin < 1 then
   DeltaMin := 1;
-If (CDA_Count(Arr) + DeltaMin) > CDA_Capacity(Arr) then
+If (Arr.Count + DeltaMin) > Length(Arr.Arr) then
   begin
-    If (CDA_Capacity(Arr) > 0) or (GrowMode = agmSlow) then
+    If (Length(Arr.Arr) > 0) or (GrowMode = agmSlow) then
       case GrowMode of
         agmLinear:
           Result := Trunc(GrowFactor);
         agmFast:
-          Result := Trunc(CDA_Capacity(Arr) * GrowFactor);
+          Result := Trunc(Length(Arr.Arr) * GrowFactor);
         agmFastAttenuated:
-          If CDA_Capacity(Arr) >= CDA_GROW_ATTENUATE_THRESHOLD then
+          If Length(Arr.Arr) >= CDA_GROW_ATTENUATE_THRESHOLD then
             Result := Trunc(CDA_GROW_ATTENUATE_THRESHOLD / 16)
           else
-            Result := Trunc(CDA_Capacity(Arr) * GrowFactor);
+            Result := Trunc(Length(Arr.Arr) * GrowFactor);
       else
        {agmSlow}
         Result := 1;
@@ -399,279 +549,319 @@ If (CDA_Count(Arr) + DeltaMin) > CDA_Capacity(Arr) then
     If Result < 1 then
       Result := 1;
     // do the growing
-    CDA_SetCapacity(Arr,CDA_Capacity(Arr) + Result);
+    CDA_SetCapacity(Arr,Length(Arr.Arr) + Result);
   end
 else Result := 0;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
  
-{$IFNDEF CDA_DisableFunc_Shrink}
-{$IFDEF CDA_HideFunc_Shrink}
+{$IF Defined(CDA_FuncOverride_Shrink) or Defined(CDA_FuncReintroduce_Shrink)}
 procedure _CDA_Shrink(var Arr: TCDAArrayType; ShrinkMode: TCDAShrinkMode = asmNormal);
 {$ELSE}
 procedure CDA_Shrink(var Arr: TCDAArrayType; ShrinkMode: TCDAShrinkMode = asmNormal);
-{$ENDIF}
+{$IFEND}
 begin
 CDA_Validate(Arr);
-If CDA_Capacity(Arr) > 0 then
+If Length(Arr.Arr) > 0 then
   case ShrinkMode of
-    asmNormal:  If CDA_Capacity(Arr) > CDA_INITIAL_CAPACITY then
+    asmNormal:  If Length(Arr.Arr) > CDA_INITIAL_CAPACITY then
                   begin
-                    If CDA_Count(Arr) < (CDA_Capacity(Arr) div 4) then
-                      CDA_SetCapacity(Arr,CDA_Capacity(Arr) div 4)
+                    If Arr.Count < (Length(Arr.Arr) div 4) then
+                      CDA_SetCapacity(Arr,Length(Arr.Arr) div 4)
                   end
                 else
                   begin
-                    If CDA_Count(Arr) <= 0 then
+                    If Arr.Count <= 0 then
                       CDA_SetCapacity(Arr,0);
                   end;
-    asmToCount: CDA_SetCapacity(Arr,CDA_Count(Arr));
+    asmToCount: CDA_SetCapacity(Arr,Arr.Count);
   else
    {asmKeepCap}
     // do nothing
   end;
 end;
-{$ENDIF}
 
-//------------------------------------------------------------------------------
+//==============================================================================
 
-{$IFNDEF CDA_DisableFunc_UniqueArray}
-{$IFDEF CDA_HideFunc_UniqueArray}
+{$IF Defined(CDA_FuncOverride_UniqueArray) or Defined(CDA_FuncReintroduce_UniqueArray)}
 procedure _CDA_UniqueArray(var Arr: TCDAArrayType);
 {$ELSE}
 procedure CDA_UniqueArray(var Arr: TCDAArrayType);
-{$ENDIF}
+{$IFEND}
 var
   i:  Integer;
 begin
 // CDA_SetLength validates the array
-CDA_SetLength(Arr,CDA_Capacity(Arr));
-For i := CDA_Low(Arr) to CDA_High(Arr) do
+CDA_SetLength(Arr,Length(Arr.Arr));
+For i := 0 to Pred(Arr.Count) do
   CDA_ItemUnique(Arr.Arr[i]);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_CopyP}
-{$IFDEF FPCDWM}{$PUSH}W5093 W5094 W5060{$ENDIF}
-{$IFDEF CDA_HideFunc_CopyP}
+{$IF Defined(CDA_FuncOverride_CopyP) or Defined(CDA_FuncReintroduce_CopyP)}
 Function _CDA_Copy(const Src: TCDAArrayType; Index, Count: Integer): TCDAArrayType; overload;
 {$ELSE}
 Function CDA_Copy(const Src: TCDAArrayType; Index, Count: Integer): TCDAArrayType;
-{$ENDIF}
+{$IFEND}
 var
   i:  Integer;
 begin
-CDA_Validate(Result);
+CDA_Init(Result);
 // CDA_CheckIndex checks for validity of the source array
 If CDA_CheckIndex(Src,Index) then
   begin
-    If (Index + Count) > CDA_Count(Src) then
-      Count := CDA_Count(Src) - Index;
+    If (Index + Count) > Src.Count then
+      Count := Src.Count - Index;
     Result.Arr := Copy(Src.Arr,Index,Count);
-    Result.SigA := CDA_SIGA;
     Result.Count := Count;
-    Result.Data := Src.Data;
-    Result.SigB := CDA_SIGB;
-    For i := CDA_Low(Result) to CDA_High(Result) do
+    Result.UserData := Src.UserData;
+    For i := 0 to Pred(Result.Count) do
       CDA_ItemUnique(Result.Arr[i]);
+    Result.Checksum := CDA_Checksum(Result);
   end;
 end;
-{$IFDEF FPCDWM}{$POP}{$ENDIF}
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Copy}
-{$IFDEF FPCDWM}{$PUSH}W5093 W5094 W5060{$ENDIF}
-{$IFDEF CDA_HideFunc_Copy}
+{$IF Defined(CDA_FuncOverride_Copy) or Defined(CDA_FuncReintroduce_Copy)}
 Function _CDA_Copy(const Src: TCDAArrayType): TCDAArrayType; overload;
 {$ELSE}
 Function CDA_Copy(const Src: TCDAArrayType): TCDAArrayType;
-{$ENDIF}
+{$IFEND}
 var
   i:  Integer;
 begin
-CDA_Validate(Result);
+CDA_Init(Result);
 If CDA_Valid(Src) then
   begin
     Result.Arr := Copy(Src.Arr);
-    Result.SigA := CDA_SIGA;
     Result.Count := Src.Count;
-    Result.Data := Src.Data;
-    Result.SigB := CDA_SIGB;
-    For i := CDA_Low(Result) to CDA_High(Result) do
-      CDA_ItemUnique(Result.Arr[i]);    
+    Result.UserData := Src.UserData;
+    For i := 0 to Pred(Result.Count) do
+      CDA_ItemUnique(Result.Arr[i]);
+    Result.Checksum := CDA_Checksum(Result);
   end;
 end;
+
+//==============================================================================
+
+{$IFDEF FPCDWM}{$PUSH}W5024{$ENDIF}
+{$IF Defined(CDA_FuncOverride_Low) or Defined(CDA_FuncReintroduce_Low)}
+Function _CDA_Low(const Arr: TCDAArrayType): Integer;
+{$ELSE}
+Function CDA_Low(const Arr: TCDAArrayType): Integer;
+{$IFEND}
+begin
+// no need to check validity, this will always return 0
+Result := 0;
+end;
 {$IFDEF FPCDWM}{$POP}{$ENDIF}
-{$ENDIF}
 
 //------------------------------------------------------------------------------
-  
-{$IFNDEF CDA_DisableFunc_GetData}
-{$IFDEF CDA_HideFunc_GetData}
-Function _CDA_GetData(const Arr: TCDAArrayType): PtrInt;
+ 
+{$IF Defined(CDA_FuncOverride_High) or Defined(CDA_FuncReintroduce_High)}
+Function _CDA_High(const Arr: TCDAArrayType): Integer;
 {$ELSE}
-Function CDA_GetData(const Arr: TCDAArrayType): PtrInt;
-{$ENDIF}
+Function CDA_High(const Arr: TCDAArrayType): Integer;
+{$IFEND}
 begin
 If CDA_Valid(Arr) then
-  Result := Arr.Data
+  Result := Pred(Arr.Count)
 else
-  Result := 0;
+  Result := -1;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
-
-{$IFNDEF CDA_DisableFunc_SetData}
-{$IFDEF CDA_HideFunc_SetData}
-procedure _CDA_SetData(var Arr: TCDAArrayType; Data: PtrInt);
+ 
+{$IF Defined(CDA_FuncOverride_CheckIndex) or Defined(CDA_FuncReintroduce_CheckIndex)}
+Function _CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean;
 {$ELSE}
-procedure CDA_SetData(var Arr: TCDAArrayType; Data: PtrInt);
-{$ENDIF}
+Function CDA_CheckIndex(const Arr: TCDAArrayType; Index: Integer): Boolean;
+{$IFEND}
 begin
-CDA_Validate(Arr);
-Arr.Data := Data;
+If CDA_Valid(Arr) then
+  Result := (Index >= 0) and (Index < Arr.Count)
+else
+  Result := False;
 end;
-{$ENDIF}
 
-//------------------------------------------------------------------------------
-   
-{$IFNDEF CDA_DisableFunc_GetItem}
-{$IFDEF CDA_HideFunc_GetItem}
+//==============================================================================
+
+{$IF Defined(CDA_FuncOverride_GetItem) or Defined(CDA_FuncReintroduce_GetItem)}
 Function _CDA_GetItem(const Arr: TCDAArrayType; Index: Integer): TCDABaseType;
 {$ELSE}
 Function CDA_GetItem(const Arr: TCDAArrayType; Index: Integer): TCDABaseType;
-{$ENDIF}
+{$IFEND}
 begin
-// CDA_CheckIndex checks for validity, exception is raised for invalid array
+// CDA_CheckIndex checks for validity, exception is raised for an invalid array
 If CDA_CheckIndex(Arr,Index) then
   Result := Arr.Arr[Index]
 else
   raise Exception.CreateFmt('CDA_GetItem: Index (%d) out of bounds.',[Index]);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_GetItemPtr}
-{$IFDEF CDA_HideFunc_GetItemPtr}
+{$IF Defined(CDA_FuncOverride_GetItemPtr) or Defined(CDA_FuncReintroduce_GetItemPtr)}
 Function _CDA_GetItemPtr(const Arr: TCDAArrayType; Index: Integer): PCDABaseType;
 {$ELSE}
 Function CDA_GetItemPtr(const Arr: TCDAArrayType; Index: Integer): PCDABaseType;
-{$ENDIF}
+{$IFEND}
 begin
-// CDA_CheckIndex checks for validity, exception is raised for invalid array
+// CDA_CheckIndex checks for validity, exception is raised for an invalid array
 If CDA_CheckIndex(Arr,Index) then
   Result := Addr(Arr.Arr[Index])
 else
   raise Exception.CreateFmt('CDA_GetItemPtr: Index (%d) out of bounds.',[Index]);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
   
-{$IFNDEF CDA_DisableFunc_SetItem}
-{$IFDEF CDA_HideFunc_SetItem}
-procedure _CDA_SetItem(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType);
+{$IF Defined(CDA_FuncOverride_SetItem) or Defined(CDA_FuncReintroduce_SetItem)}
+procedure _CDA_SetItem(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType);
 {$ELSE}
-procedure CDA_SetItem(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType);
-{$ENDIF}
+procedure CDA_SetItem(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType);
+{$IFEND}
 begin
-// CDA_CheckIndex checks for validity, exception is raised for invalid array
+// CDA_CheckIndex checks for validity, exception is raised for an invalid array
 If CDA_CheckIndex(Arr,Index) then
   Arr.Arr[Index] := Item
 else
   raise Exception.CreateFmt('CDA_SetItem: Index (%d) out of bounds.',[Index]);
 end;
-{$ENDIF}
 
-//------------------------------------------------------------------------------
-    
-{$IFNDEF CDA_DisableFunc_First}
-{$IFDEF CDA_HideFunc_First}
+//==============================================================================
+
+{$IF Defined(CDA_FuncOverride_First) or Defined(CDA_FuncReintroduce_First)}
 Function _CDA_First(const Arr: TCDAArrayType): TCDABaseType;
 {$ELSE}
 Function CDA_First(const Arr: TCDAArrayType): TCDABaseType;
-{$ENDIF}
+{$IFEND}
 begin
 // CDA_Count checks for validity, exception is raised for invalid array
 If CDA_Count(Arr) > 0 then
-  Result := Arr.Arr[CDA_Low(Arr)]
+  Result := Arr.Arr[0]
 else
   raise Exception.Create('CDA_First: Array is empty.');
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
-    
-{$IFNDEF CDA_DisableFunc_Last}
-{$IFDEF CDA_HideFunc_Last}
+
+{$IF Defined(CDA_FuncOverride_Last) or Defined(CDA_FuncReintroduce_Last)}
 Function _CDA_Last(const Arr: TCDAArrayType): TCDABaseType;
 {$ELSE}
 Function CDA_Last(const Arr: TCDAArrayType): TCDABaseType;
-{$ENDIF}
+{$IFEND}
 begin
 // CDA_Count checks for validity, exception is raised for invalid array
 If CDA_Count(Arr) > 0 then
-  Result := Arr.Arr[CDA_High(Arr)]
+  Result := Arr.Arr[Pred(Arr.Count)]
 else
   raise Exception.Create('CDA_Last: Array is empty.');
 end;
-{$ENDIF}
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_FirstPtr) or Defined(CDA_FuncReintroduce_FirstPtr)}
+Function _CDA_FirstPtr(const Arr: TCDAArrayType): PCDABaseType;
+{$ELSE}
+Function CDA_FirstPtr(const Arr: TCDAArrayType): PCDABaseType;
+{$IFEND}
+begin
+// CDA_Count checks for validity, exception is raised for invalid array
+If CDA_Count(Arr) > 0 then
+  Result := Addr(Arr.Arr[0])
+else
+  raise Exception.Create('CDA_FirstPtr: Array is empty.');
+end;
 
 //------------------------------------------------------------------------------
     
-{$IFNDEF CDA_DisableFunc_IndexOf}
-{$IFDEF CDA_HideFunc_IndexOf}
-Function _CDA_IndexOf(const Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
+{$IF Defined(CDA_FuncOverride_LastPtr) or Defined(CDA_FuncReintroduce_LastPtr)}
+Function _CDA_LastPtr(const Arr: TCDAArrayType): PCDABaseType;
 {$ELSE}
-Function CDA_IndexOf(const Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
-{$ENDIF}
+Function CDA_LastPtr(const Arr: TCDAArrayType): PCDABaseType;
+{$IFEND}
+begin
+// CDA_Count checks for validity, exception is raised for invalid array
+If CDA_Count(Arr) > 0 then
+  Result := Addr(Arr.Arr[Pred(Arr.Count)])
+else
+  raise Exception.Create('CDA_LastPtr: Array is empty.');
+end;
+
+//==============================================================================
+
+{$IF Defined(CDA_FuncOverride_IndexOf) or Defined(CDA_FuncReintroduce_IndexOf)}
+Function _CDA_IndexOf(const Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
+{$ELSE}
+Function CDA_IndexOf(const Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
+{$IFEND}
 var
   i:  Integer;
 begin
 Result := -1;
-// CDA_High checks for validity, -1 is returned for invalid array
-For i := CDA_Low(Arr) to CDA_High(Arr) do
-  If CDA_CompareFunc(Arr.Arr[i],Item) = 0 then
-    begin
-      Result := i;
-      Break{For i};
-    end;
+If CDA_Valid(Arr) then
+  For i := 0 to Pred(Arr.Count) do
+    If CDA_ItemCompare(Arr.Arr[i],Item{$IFDEF CDA_CaseSensitiveBaseType},CaseSensitive{$ENDIF}) = 0 then
+      begin
+        Result := i;
+        Break{For i};
+      end;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
     
-{$IFNDEF CDA_DisableFunc_Add}
-{$IFDEF CDA_HideFunc_Add}
-Function _CDA_Add(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
+{$IF Defined(CDA_FuncOverride_Add) or Defined(CDA_FuncReintroduce_Add)}
+Function _CDA_Add(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType): Integer;
 {$ELSE}
-Function CDA_Add(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
-{$ENDIF}
+Function CDA_Add(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType): Integer;
+{$IFEND}
 begin
-CDA_Validate(Arr);
+// CDA_Grow calls CDA_Validate
 CDA_Grow(Arr);
-Result := CDA_Count(Arr);
+Result := Arr.Count;
 Arr.Arr[Result] := Item;
 Inc(Arr.Count);
+Arr.Checksum := CDA_Checksum(Arr);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Insert}
-{$IFDEF CDA_HideFunc_Insert}
-procedure _CDA_Insert(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType);
+{$IF Defined(CDA_FuncOverride_Append) or Defined(CDA_FuncReintroduce_Append)}
+procedure _CDA_Append(var Arr: TCDAArrayType; const Items: TCDAArrayType);
 {$ELSE}
-procedure CDA_Insert(var Arr: TCDAArrayType; Index: Integer; const Item: TCDABaseType);
-{$ENDIF}
+procedure CDA_Append(var Arr: TCDAArrayType; const Items: TCDAArrayType);
+{$IFEND}
+var
+  i,Idx:  Integer;
+begin
+CDA_Validate(Arr);
+If CDA_Valid(Items) then
+  begin
+    If Length(Arr.Arr) < (Arr.Count + Items.Count) then
+      CDA_SetCapacity(Arr,Arr.Count + Items.Count);
+    Idx := Arr.Count;
+    For i := 0 to Pred(Items.Count) do
+      begin
+        Arr.Arr[Idx] := Items.Arr[i];
+        CDA_ItemUnique(Arr.Arr[Idx]);
+        Inc(Idx);
+      end;
+    Inc(Arr.Count,Items.Count);
+    Arr.Checksum := CDA_Checksum(Arr);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_Insert) or Defined(CDA_FuncReintroduce_Insert)}
+procedure _CDA_Insert(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType);
+{$ELSE}
+procedure CDA_Insert(var Arr: TCDAArrayType; Index: Integer;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType);
+{$IFEND}
 var
   i:  Integer;
 begin
@@ -679,23 +869,22 @@ CDA_Validate(Arr);
 If CDA_CheckIndex(Arr,Index) then
   begin
     CDA_Grow(Arr);
-    For i := CDA_High(Arr) downto Index do
+    For i := Pred(Arr.Count) downto Index do
       Arr.Arr[i + 1] := Arr.Arr[i];
     Arr.Arr[Index] := Item;
     Inc(Arr.Count);
+    Arr.Checksum := CDA_Checksum(Arr);
   end
 else CDA_Add(Arr,Item);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
-   
-{$IFNDEF CDA_DisableFunc_Exchange}
-{$IFDEF CDA_HideFunc_Exchange}
+
+{$IF Defined(CDA_FuncOverride_Exchange) or Defined(CDA_FuncReintroduce_Exchange)}
 procedure _CDA_Exchange(var Arr: TCDAArrayType; Idx1, Idx2: Integer);
 {$ELSE}
 procedure CDA_Exchange(var Arr: TCDAArrayType; Idx1, Idx2: Integer);
-{$ENDIF}
+{$IFEND}
 var
   Temp: TCDABaseType;
 begin
@@ -711,16 +900,14 @@ If Idx1 <> Idx2 then
     Arr.Arr[Idx2] := Temp;
   end;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
-    
-{$IFNDEF CDA_DisableFunc_Move}
-{$IFDEF CDA_HideFunc_Move}
+
+{$IF Defined(CDA_FuncOverride_Move) or Defined(CDA_FuncReintroduce_Move)}
 procedure _CDA_Move(var Arr: TCDAArrayType; SrcIdx, DstIdx: Integer);
 {$ELSE}
 procedure CDA_Move(var Arr: TCDAArrayType; SrcIdx, DstIdx: Integer);
-{$ENDIF}
+{$IFEND}
 var
   Temp: TCDABaseType;
   i:    Integer;
@@ -742,32 +929,51 @@ If SrcIdx <> DstIdx then
     Arr.Arr[DstIdx] := Temp;    
   end;
 end;
-{$ENDIF}
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_Extract) or Defined(CDA_FuncReintroduce_Extract)}
+Function _CDA_Extract(var Arr: TCDAArrayType; Index: Integer): TCDABaseType;
+{$ELSE}
+Function CDA_Extract(var Arr: TCDAArrayType; Index: Integer): TCDABaseType;
+{$IFEND}
+var
+  i:  Integer;
+begin
+CDA_Validate(Arr);
+If CDA_CheckIndex(Arr,Index) then
+  begin
+    Result := Arr.Arr[Index];
+    For i := Index to (Arr.Count - 2) do
+      Arr.Arr[i] := Arr.Arr[i + 1];
+    Dec(Arr.Count);
+    Arr.Checksum := CDA_Checksum(Arr);     
+    CDA_Shrink(Arr);
+  end
+else raise Exception.CreateFmt('CDA_Extract: Index (%d) out of bounds.',[Index]);
+end;
 
 //------------------------------------------------------------------------------
      
-{$IFNDEF CDA_DisableFunc_Remove}
-{$IFDEF CDA_HideFunc_Remove}
-Function _CDA_Remove(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
+{$IF Defined(CDA_FuncOverride_Remove) or Defined(CDA_FuncReintroduce_Remove)}
+Function _CDA_Remove(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
 {$ELSE}
-Function CDA_Remove(var Arr: TCDAArrayType; const Item: TCDABaseType): Integer;
-{$ENDIF}
+Function CDA_Remove(var Arr: TCDAArrayType;{$IFDEF CDA_ConstBaseType} const{$ENDIF} Item: TCDABaseType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
+{$IFEND}
 begin
 CDA_Validate(Arr);
-Result := CDA_IndexOf(Arr,Item);
+Result := CDA_IndexOf(Arr,Item{$IFDEF CDA_CaseSensitiveBaseType},CaseSensitive{$ENDIF});
 If CDA_CheckIndex(Arr,Result) then
   CDA_Delete(Arr,Result);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
     
-{$IFNDEF CDA_DisableFunc_Delete}
-{$IFDEF CDA_HideFunc_Delete}
+{$IF Defined(CDA_FuncOverride_Delete) or Defined(CDA_FuncReintroduce_Delete)}
 procedure _CDA_Delete(var Arr: TCDAArrayType; Index: Integer);
 {$ELSE}
 procedure CDA_Delete(var Arr: TCDAArrayType; Index: Integer);
-{$ENDIF}
+{$IFEND}
 var
   i:  Integer;
 begin
@@ -775,44 +981,96 @@ CDA_Validate(Arr);
 If CDA_CheckIndex(Arr,Index) then
   begin
     CDA_ItemFinal(Arr.Arr[Index]);
-    For i := Index to Pred(CDA_High(Arr)) do
+    For i := Index to (Arr.Count - 2) do
       Arr.Arr[i] := Arr.Arr[i + 1];
     Dec(Arr.Count);
+    Arr.Checksum := CDA_Checksum(Arr);
     CDA_Shrink(Arr);
   end
 else raise Exception.CreateFmt('CDA_Delete: Index (%d) out of bounds.',[Index]);
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
        
-{$IFNDEF CDA_DisableFunc_Clear}
-{$IFDEF CDA_HideFunc_Clear}
+{$IF Defined(CDA_FuncOverride_Clear) or Defined(CDA_FuncReintroduce_Clear)}
 procedure _CDA_Clear(var Arr: TCDAArrayType);
 {$ELSE}
 procedure CDA_Clear(var Arr: TCDAArrayType);
-{$ENDIF}
+{$IFEND}
 begin
 CDA_SetLength(Arr,0);
 end;
-{$ENDIF}
+
+//==============================================================================
+
+{$IF Defined(CDA_FuncOverride_ArrayPtr) or Defined(CDA_FuncReintroduce_ArrayPtr)}
+Function _CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer;
+{$ELSE}
+Function CDA_ArrayPtr(const Arr: TCDAArrayType): Pointer;
+{$IFEND}
+begin
+If CDA_Valid(Arr) then
+  begin
+    If Arr.Count > 0 then
+      Result := Addr(Arr.Arr[0])
+    else
+      Result := nil;
+  end
+else Result := nil;
+end;
 
 //------------------------------------------------------------------------------
-      
-{$IFNDEF CDA_DisableFunc_Same}
-{$IFDEF CDA_HideFunc_Same}
-Function _CDA_Same(const Arr1, Arr2: TCDAArrayType): Boolean;
+
+{$IF Defined(CDA_FuncOverride_Compare) or Defined(CDA_FuncReintroduce_Compare)}
+Function _CDA_Compare(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
 {$ELSE}
-Function CDA_Same(const Arr1, Arr2: TCDAArrayType): Boolean;
-{$ENDIF}
+Function CDA_Compare(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Integer;
+{$IFEND}
+var
+  i:    Integer;
+  Temp: Int64;
+begin
+If CDA_Valid(Arr1) then
+  begin
+    If CDA_Valid(Arr2) then
+      begin
+        If Arr1.Count < Arr2.Count then
+          Result := +1
+        else If Arr1.Count > Arr2.Count then
+          Result := -1
+        else {both arrays have the same number of elements}
+          begin
+            Temp := 0;
+            For i := 0 to Pred(Arr1.Count) do
+              Temp := Temp + CDA_ItemCompare(Arr1.Arr[i],Arr2.Arr[i]{$IFDEF CDA_CaseSensitiveBaseType},CaseSensitive{$ENDIF});
+            If Temp > Int64(High(Integer)) then
+              Result := +1
+            else If Temp < Int64(Low(Integer)) then
+              Result := -1
+            else
+              Result := Integer(Temp);
+          end
+      end
+    else raise Exception.Create('CDA_Compare: Invalid array #2.');
+  end
+else raise Exception.Create('CDA_Compare: Invalid array #1.');
+end;
+
+//------------------------------------------------------------------------------
+
+{$IF Defined(CDA_FuncOverride_Same) or Defined(CDA_FuncReintroduce_Same)}
+Function _CDA_Same(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Boolean;
+{$ELSE}
+Function CDA_Same(const Arr1, Arr2: TCDAArrayType{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF}): Boolean;
+{$IFEND}
 var
   i:  Integer;
 begin
-If CDA_Valid(Arr1) and CDA_Valid(Arr2) and (CDA_Count(Arr1) = CDA_Count(Arr2)) then
+If CDA_Valid(Arr1) and CDA_Valid(Arr2) and (Arr1.Count = Arr2.Count) then
   begin
     Result := True;
-    For i := CDA_Low(Arr1) to CDA_High(Arr1) do
-      If CDA_CompareFunc(Arr1.Arr[i],Arr2.Arr[i]) <> 0 then
+    For i := 0 to Pred(Arr1.Count) do
+      If CDA_ItemCompare(Arr1.Arr[i],Arr2.Arr[i]{$IFDEF CDA_CaseSensitiveBaseType},CaseSensitive{$ENDIF}) <> 0 then
         begin
           Result := False;
           Break{For i};
@@ -820,54 +1078,95 @@ If CDA_Valid(Arr1) and CDA_Valid(Arr2) and (CDA_Count(Arr1) = CDA_Count(Arr2)) t
   end
 else Result := False;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
    
-{$IFNDEF CDA_DisableFunc_Reverse}
-{$IFDEF CDA_HideFunc_Reverse}
+{$IF Defined(CDA_FuncOverride_Reverse) or Defined(CDA_FuncReintroduce_Reverse)}
 procedure _CDA_Reverse(var Arr: TCDAArrayType);
 {$ELSE}
 procedure CDA_Reverse(var Arr: TCDAArrayType);
-{$ENDIF}
+{$IFEND}
 var
   i:    Integer;
   Temp: TCDABaseType;
 begin
 CDA_Validate(Arr);
-If CDA_Count(Arr) > 1 then
-  For i := CDA_Low(Arr) to Pred(CDA_Count(Arr) shr 1) do
+If Arr.Count > 1 then
+  For i := 0 to Pred(Arr.Count shr 1) do
     begin
       Temp := Arr.Arr[i];
-      Arr.Arr[i] := Arr.Arr[CDA_High(Arr) - i];
-      Arr.Arr[CDA_High(Arr) - i] := Temp;
+      Arr.Arr[i] := Arr.Arr[Pred(Arr.Count) - i];
+      Arr.Arr[Pred(Arr.Count) - i] := Temp;
     end;
 end;
-{$ENDIF}
 
 //------------------------------------------------------------------------------
 
-{$IFNDEF CDA_DisableFunc_Sort}
-{$IFDEF CDA_HideFunc_Sort}
-procedure _CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False);
+{$IF Defined(CDA_FuncOverride_Sort) or Defined(CDA_FuncReintroduce_Sort)}
+procedure _CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF});
 {$ELSE}
-procedure CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False);
-{$ENDIF}
+procedure CDA_Sort(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF});
+{$IFEND}
 var
   Sorter: TListQuickSorter;
 begin
 CDA_Validate(Arr);
-If CDA_Count(Arr) > 1 then
+If Arr.Count > 1 then
   begin
-    Sorter := TListQuickSorter.Create(@Arr,CDA_ItemCompareSortFunc,CDA_ItemExchangeSortFunc);
+  {$IFDEF CDA_CaseSensitiveBaseType}
+    If CaseSensitive then
+      Arr.InternalInt := -1
+    else
+      Arr.InternalInt := 0;
+  {$ENDIF}
+    Sorter := TListQuickSorter.Create(@Arr,CDA_SortFunc_ItemCompare,CDA_SortFunc_ItemExchange);
     try
       Sorter.Reversed := Reversed;
-      Sorter.Sort(CDA_Low(Arr),CDA_High(Arr));
+      Sorter.Sort(0,Pred(Arr.Count));
     finally
       Sorter.Free;
     end;
   end;
 end;
-{$ENDIF}
+
+//------------------------------------------------------------------------------
+                                                 
+{$IF Defined(CDA_FuncOverride_SortStabilized) or Defined(CDA_FuncReintroduce_SortStabilized)}
+procedure _CDA_SortStabilized(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF});
+{$ELSE}
+procedure CDA_SortStabilized(var Arr: TCDAArrayType; Reversed: Boolean = False{$IFDEF CDA_CaseSensitiveBaseType}; CaseSensitive: Boolean = False{$ENDIF});
+{$IFEND}
+var
+  i:      Integer;
+  Sorter: TListQuickSorter;
+begin
+CDA_Validate(Arr);
+If Arr.Count > 1 then
+  begin
+    New(PCDAIndexArray(Arr.InternalPtr));
+    try
+      SetLength(PCDAIndexArray(Arr.InternalPtr)^,Arr.Count);
+      For i := Low(PCDAIndexArray(Arr.InternalPtr)^) to High(PCDAIndexArray(Arr.InternalPtr)^) do
+        PCDAIndexArray(Arr.InternalPtr)^[i] := i;
+    {$IFDEF CDA_CaseSensitiveBaseType}
+      If CaseSensitive then
+        Arr.InternalInt := -1
+      else
+        Arr.InternalInt := 0;
+    {$ENDIF}
+      Sorter := TListQuickSorter.Create(@Arr,CDA_SortFunc_ItemCompareStabilized,CDA_SortFunc_ItemExchangeStabilized);
+      try
+        Sorter.Reversed := Reversed;
+        Sorter.Sort(0,Pred(Arr.Count));
+      finally
+        Sorter.Free;
+      end;
+      SetLength(PCDAIndexArray(Arr.InternalPtr)^,0);
+    finally
+      Dispose(PCDAIndexArray(Arr.InternalPtr));
+      Arr.InternalPtr := nil;      
+    end;
+  end;
+end;
 
 {$ENDIF}

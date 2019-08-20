@@ -5,7 +5,7 @@ unit InflatablesList_Utils;
 interface
 
 uses
-  Windows, SysUtils,
+  Windows, SysUtils, Graphics,
   AuxTypes;
 
 //==============================================================================
@@ -25,6 +25,11 @@ Function IL_CompareFloat(A,B: Double): Integer;
 Function IL_CompareDateTime(A,B: TDateTime): Integer;
 Function IL_CompareText(const A,B: String): Integer;
 Function IL_CompareGUID(const A,B: TGUID): Integer;
+
+//==============================================================================
+//- pictures -------------------------------------------------------------------
+
+procedure IL_PicShrink(Large,Small: TBitmap);
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -178,6 +183,49 @@ If Result <> 0 then
       Result := -1
     else
       Result := +1;
+  end;
+end;
+
+//==============================================================================
+//- pictures -------------------------------------------------------------------
+
+procedure IL_PicShrink(Large,Small: TBitmap);
+const
+  Factor = 2;
+type
+  TRGBTriple = packed record
+    rgbtRed, rgbtGreen, rgbtBlue: Byte;
+  end;
+  TRGBTripleArray = array[0..$FFFF] of TRGBTriple;
+  PRGBTripleArray = ^TRGBTripleArray;
+var
+  Y,X:    Integer;
+  Lines:  array[0..Pred(Factor)] of PRGBTripleArray;
+  LineR:  PRGBTripleArray;
+  R,G,B:  UInt32;
+  i,j:    Integer;
+begin
+For Y := 0 to Pred(Large.Height div Factor) do
+  begin
+    For i := 0 to Pred(Factor) do
+      Lines[i] := Large.ScanLine[(Y * Factor) + i];
+    For X := 0 to Pred(Large.Width div Factor) do
+      begin
+        R := 0;
+        G := 0;
+        B := 0;
+        For i := 0 to Pred(Factor) do
+          For j := 0 to Pred(Factor) do
+            begin
+              Inc(R,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtRed)));
+              Inc(G,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtGreen)));
+              Inc(B,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtBlue)));
+            end;
+        LineR := Small.ScanLine[Y];
+        LineR^[X].rgbtRed   := Trunc(Sqrt(R / Sqr(Factor)));
+        LineR^[X].rgbtGreen := Trunc(Sqrt(G / Sqr(Factor)));
+        LineR^[X].rgbtBlue  := Trunc(Sqrt(B / Sqr(Factor)));
+      end;
   end;
 end;
 

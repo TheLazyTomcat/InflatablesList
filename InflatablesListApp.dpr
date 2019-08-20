@@ -10,8 +10,6 @@ uses
   InflatablesList_HTML_Utils in 'source\InflatablesList_HTML_Utils.pas',
   InflatablesList_HTML_TagAttributeArray in 'source\InflatablesList_HTML_TagAttributeArray.pas',
   InflatablesList_HTML_UnicodeTagAttributeArray in 'source\InflatablesList_HTML_UnicodeTagAttributeArray.pas',
-  InflatablesList_HTML_UnicodeCharArray in 'source\InflatablesList_HTML_UnicodeCharArray.pas',
-  InflatablesList_HTML_UnicodeStringArray in 'source\InflatablesList_HTML_UnicodeStringArray.pas',
   InflatablesList_HTML_Download in 'source\InflatablesList_HTML_Download.pas',
   InflatablesList_HTML_Document in 'source\InflatablesList_HTML_Document.pas',
   InflatablesList_HTML_ElementFinder in 'source\InflatablesList_HTML_ElementFinder.pas',
@@ -27,6 +25,8 @@ uses
   InflatablesList_Item_IO in 'source\InflatablesList_Item_IO.pas',
   InflatablesList_Item_IO_00000000 in 'source\InflatablesList_Item_IO_00000000.pas',
   InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas',
+  InflatablesList_Item_IO_00000002 in 'source\InflatablesList_Item_IO_00000002.pas',
+  InflatablesList_Item_IO_00000003 in 'source\InflatablesList_Item_IO_00000003.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ItemShop_Base in 'source\InflatablesList_ItemShop_Base.pas',
   InflatablesList_ItemShop_Update in 'source\InflatablesList_ItemShop_Update.pas',
@@ -50,6 +50,7 @@ uses
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_Converter in 'source\InflatablesList_Manager_IO_Converter.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
+  InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
   Forms,
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
@@ -66,9 +67,7 @@ uses
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
-  ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
-  InflatablesList_Item_IO_00000002 in 'source\InflatablesList_Item_IO_00000002.pas',
-  InflatablesList_Item_IO_00000003 in 'source\InflatablesList_Item_IO_00000003.pas';
+  ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm};
 
 {$R *.res}
 

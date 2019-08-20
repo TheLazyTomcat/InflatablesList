@@ -313,7 +313,7 @@ var
 
   Function CallDownload: Boolean;
   begin
-    If not fStaticOptions.LoadPages or not FileExists(OfflineFile) then
+    If not fStaticOptions.LoadPages then
       begin
         If AlternativeDownload then
           Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
@@ -322,8 +322,12 @@ var
       end
     else
       begin
-        fDownStream.LoadFromFile(OfflineFile);
-        Result := True;
+        If FileExists(OfflineFile) then
+          begin
+            fDownStream.LoadFromFile(OfflineFile);
+            Result := True;
+          end
+        else Result := False;
       end;
   end;
 

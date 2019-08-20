@@ -228,11 +228,11 @@ begin
 If lvShops.ItemIndex < 0 then
   begin
     If lvShops.Items.Count > 0 then
-      lblShops.Caption := Format('Shops [%d]:',[lvShops.Items.Count])
+      lblShops.Caption := Format('Shops (%d):',[lvShops.Items.Count])
     else
       lblShops.Caption := 'Shops:';
   end
-else lblShops.Caption := Format('Shops [%d/%d]:',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
+else lblShops.Caption := Format('Shops (%d/%d):',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
 end;
 
 //------------------------------------------------------------------------------
@@ -532,6 +532,7 @@ If Assigned(fCurrentItem) then
         SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
+            Temp[i].Item := fCurrentItem;
             Temp[i].ItemTitle := Format('[#%d] %s',[fCurrentItem.Index + 1,fCurrentItem.TitleStr]);
             Temp[i].ItemShop := fCurrentItem.Shops[i];
             Temp[i].Done := False;

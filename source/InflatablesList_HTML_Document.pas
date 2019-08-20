@@ -6,9 +6,8 @@ interface
 
 uses
   Classes,
-  AuxTypes, CountedDynArrayObject,
+  AuxTypes, CountedDynArrayObject, CountedDynArrayUnicodeChar,
   InflatablesList_Types,
-  InflatablesList_HTML_UnicodeCharArray,
   InflatablesList_HTML_TagAttributeArray;
 
 type
@@ -18,7 +17,7 @@ type
     fOpen:        Boolean;
     fName:        TILReconvString;
     fAttributes:  TILTagAttributeCountedDynArray;
-    fTextArr:     TILUnicodeCharCountedDynArray;
+    fTextArr:     TCountedDynArrayUnicodeChar;
     fText:        TILReconvString;
     fNestedText:  TILReconvString;
     fElements:    TObjectCountedDynArray;

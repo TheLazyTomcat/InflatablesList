@@ -9,7 +9,7 @@
 
   Counted Dynamic Arrays
 
-    Counted dynamic array of String values
+    Counted dynamic array of UnicdoeString values
 
   Version 1.2.1 (2019-08-19)
   
@@ -33,12 +33,12 @@
 
   Dependencies:
     AuxTypes    - github.com/TheLazyTomcat/Lib.AuxTypes
-    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses    
+    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses
     ListSorters - github.com/TheLazyTomcat/Lib.ListSorters
     StrRect     - github.com/TheLazyTomcat/Lib.StrRect
 
 ===============================================================================}
-unit CountedDynArrayString;
+unit CountedDynArrayUnicodeString;
 
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
 
@@ -55,25 +55,25 @@ uses
   CountedDynArrays;
 
 type
-  TCDABaseType = String;
+  TCDABaseType = UnicodeString;
   PCDABaseType = ^TCDABaseType;
 
-  TCountedDynArrayString = record
+  TCountedDynArrayUnicodeString = record
   {$DEFINE CDA_Structure}
     {$INCLUDE '.\CountedDynArrays.inc'}
   {$UNDEF CDA_Structure}
   end;
-  PCountedDynArrayString = ^TCountedDynArrayString;
+  PCountedDynArrayUnicodeString = ^TCountedDynArrayUnicodeString;
 
   // aliases
-  TCountedDynArrayOfString = TCountedDynArrayString;
-  PCountedDynArrayOfString = PCountedDynArrayString;
+  TCountedDynArrayOfUnicodeString = TCountedDynArrayUnicodeString;
+  PCountedDynArrayOfUnicodeString = PCountedDynArrayUnicodeString;
 
-  TStringCountedDynArray = TCountedDynArrayString;
-  PStringCountedDynArray = PCountedDynArrayString;
+  TUnicodeStringCountedDynArray = TCountedDynArrayUnicodeString;
+  PUnicodeStringCountedDynArray = PCountedDynArrayUnicodeString;
 
-  TCDAArrayType = TCountedDynArrayString;
-  PCDAArrayType = PCountedDynArrayString;
+  TCDAArrayType = TCountedDynArrayUnicodeString;
+  PCDAArrayType = PCountedDynArrayUnicodeString;
 
 {$DEFINE CDA_Interface}
 {$INCLUDE '.\CountedDynArrays.inc'}
@@ -96,7 +96,7 @@ end;
 
 Function CDA_ItemCompare(const A,B: TCDABaseType; CaseSensitive: Boolean): Integer;{$IFDEF CanInline} inline;{$ENDIF}
 begin
-Result := -StringCompare(A,B,CaseSensitive);
+Result := -UnicodeStringCompare(A,B,CaseSensitive);
 end;
 
 {$DEFINE CDA_Implementation}

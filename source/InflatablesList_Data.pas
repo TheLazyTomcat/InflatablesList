@@ -18,17 +18,20 @@ type
 type
   TILDataProvider = class(TObject)
   private
-    fItemManufacturers: array[TILItemManufacturer] of TILItemManufacturerInfo;
-    fItemReviewIcon:    TBitmap;
-    fItemFlagIcons:     array[TILItemFlag] of TBitmap;
-    fItemDefaultPics:   array[TILITemType] of TBitmap;
-    fGradientImage:     TBitmap;
+    fItemManufacturers:     array[TILItemManufacturer] of TILItemManufacturerInfo;
+    fItemReviewIcon:        TBitmap;
+    fItemFlagIcons:         array[TILItemFlag] of TBitmap;
+    fItemDefaultPics:       array[TILITemType] of TBitmap;
+    fItemDefaultPicsSmall:  array[TILITemType] of TBitmap;
+    fGradientImage:         TBitmap;
     Function GetItemManufacturerCount: Integer;
     Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
     Function GetItemFlagIconCount: Integer;
     Function GetItemFlagIcon(ItemFlag: TILItemFlag): TBitmap;
     Function GetItemDefaultPictureCount: Integer;
     Function GetItemDefaultPicture(ItemType: TILITemType): TBitmap;
+    Function GetItemDefaultPictureSmallCount: Integer;
+    Function GetItemDefaultPictureSmall(ItemType: TILITemType): TBitmap;
   protected
     procedure InitializeItemManufacurers; virtual;
     procedure FinalizeItemManufacturers; virtual;
@@ -38,6 +41,8 @@ type
     procedure FinalizeItemFlagIcons; virtual;
     procedure InitializeDefaultPictures; virtual;
     procedure FinalizeDefaultPictures; virtual;
+    procedure InitializeDefaultPicturesSmall; virtual;
+    procedure FinalizeDefaultPicturesSmall; virtual;
     procedure InitializeGradientImage; virtual;
     procedure FinalieGradientImage; virtual;
     procedure Initialize; virtual;
@@ -57,13 +62,16 @@ type
     property ItemFlagIcons[ItemFlag: TILItemFlag]: TBitmap read GetItemFlagIcon;
     property ItemDefaultPictureCount: Integer read GetItemDefaultPictureCount;
     property ItemDefaultPictures[ItemType: TILITemType]: TBitmap read GetItemDefaultPicture;
+    property ItemDefaultPictureSmallCount: Integer read GetItemDefaultPictureSmallCount;
+    property ItemDefaultPicturesSmall[ItemType: TILITemType]: TBitmap read GetItemDefaultPictureSmall;
     property GradientImage: TBitmap read fGradientImage;    
   end;
 
 implementation
 
 uses
-  SysUtils, Classes;
+  SysUtils, Classes,
+  InflatablesList_Utils;
 
 // resources containing the data
 {$R '..\resources\man_logos.res'}
@@ -180,6 +188,23 @@ If (ItemType >= Low(fItemDefaultPics)) and (ItemType <= High(fItemDefaultPics)) 
   Result := fItemDefaultPics[ItemType]
 else
   raise Exception.CreateFmt('TILDataProvider.GetItemDefaultPicture: Invalid item type (%d).',[Ord(ItemType)]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemDefaultPictureSmallCount: Integer;
+begin
+Result := Length(fItemDefaultPicsSmall);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemDefaultPictureSmall(ItemType: TILITemType): TBitmap;
+begin
+If (ItemType >= Low(fItemDefaultPicsSmall)) and (ItemType <= High(fItemDefaultPicsSmall)) then
+  Result := fItemDefaultPicsSmall[ItemType]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetItemDefaultPictureSmall: Invalid item type (%d).',[Ord(ItemType)]);
 end;
 
 //==============================================================================
@@ -318,6 +343,33 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILDataProvider.InitializeDefaultPicturesSmall;
+var
+  i:          TILItemType;
+begin
+For i := Low(fItemDefaultPicsSmall) to High(fItemDefaultPicsSmall) do
+  try
+    fItemDefaultPicsSmall[i] := TBitmap.Create;
+    fItemDefaultPicsSmall[i].PixelFormat := pf24bit;
+    fItemDefaultPicsSmall[i].Width := 48;
+    fItemDefaultPicsSmall[i].Height := 48;
+    IL_PicShrink(fItemDefaultPics[i],fItemDefaultPicsSmall[i]);
+  except
+    fItemDefaultPics[i] := nil;
+  end;
+end;
+
+procedure TILDataProvider.FinalizeDefaultPicturesSmall;
+var
+  i:  TILItemType;
+begin
+For i := Low(fItemDefaultPicsSmall) to High(fItemDefaultPicsSmall) do
+  If Assigned(fItemDefaultPicsSmall[i]) then
+    FreeAndNil(fItemDefaultPicsSmall[i]);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.InitializeGradientImage;
 var
   ResStream:  TResourceStream;
@@ -352,6 +404,7 @@ InitializeItemManufacurers;
 InitializeItemReviewIcon;
 InitializeItemFlagIcons;
 InitializeDefaultPictures;
+InitializeDefaultPicturesSmall;
 InitializeGradientImage;
 end;
 
@@ -360,6 +413,7 @@ end;
 procedure TILDataProvider.Finalize;
 begin
 FinalieGradientImage;
+FinalizeDefaultPicturesSmall;
 FinalizeDefaultPictures;
 FinalizeItemFlagIcons;
 FinalizeItemReviewIcon;

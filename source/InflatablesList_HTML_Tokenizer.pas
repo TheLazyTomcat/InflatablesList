@@ -6,8 +6,8 @@ interface
 
 uses
   AuxTypes,
-  InflatablesList_HTML_UnicodeCharArray,
-  InflatablesList_HTML_UnicodeStringArray,
+  CountedDynArrayUnicodeChar,
+  CountedDynArrayUnicodeString,
   InflatablesList_HTML_UnicodeTagAttributeArray;
 
 type
@@ -60,7 +60,7 @@ type
     // tag fields
     TagName:            UnicodeString;
     SelfClosing:        Boolean;
-    Attributes:         TILUnicodeTagAttributeCountedDynArray;
+    Attributes:         TUnicodeTagAttributeCountedDynArray;
     // comment and char fields
     Data:               UnicodeString;
     // other info
@@ -77,11 +77,11 @@ type
     fParserPause:     Boolean;
     fState:           TILHTMLTokenizerState;
     fReturnState:     TILHTMLTokenizerState;
-    fTemporaryBuffer: TILUnicodeCharCountedDynArray;
+    fTemporaryBuffer: TUnicodeCharCountedDynArray;
     fCharRefCode:     UInt32;
     // helpers
     fCurrentToken:    TILHTMLToken;
-    fLastStartTag:    TILUnicodeStringCountedDynArray;
+    fLastStartTag:    TUnicodeStringCountedDynArray;
     // others
     fRaiseParseErrs:  Boolean;
     fOnTokenEmit:     TILHTMLTokenEvent;

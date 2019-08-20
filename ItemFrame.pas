@@ -1126,6 +1126,7 @@ If Assigned(fCurrentItem) then
         SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
+            Temp[i].Item := fCurrentItem;
             Temp[i].ItemTitle := Format('[#%d] %s',[fCurrentItem.Index + 1,fCurrentItem.TitleStr]);
             Temp[i].ItemShop := fCurrentItem.Shops[i];
             Temp[i].Done := False;

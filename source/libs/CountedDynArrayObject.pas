@@ -7,22 +7,42 @@
 -------------------------------------------------------------------------------}
 {===============================================================================
 
-  Counted dynamic arrays
+  Counted Dynamic Arrays
 
-    Counted dynamic array of objects
+    Counted dynamic array of TObject values
 
-  ©František Milt 2019-01-26
+  Version 1.2.1 (2019-08-19)
+  
+  Last changed 2019-08-19
 
-  Version 1.0.3
+  ©2018-2019 František Milt
+
+  Contacts:
+    František Milt: frantisek.milt@gmail.com
+
+  Support:
+    If you find this code useful, please consider supporting its author(s) by
+    making a small donation using the following link(s):
+
+      https://www.paypal.me/FMilt
+
+  Changelog:
+    For detailed changelog and history please refer to this git repository:
+
+      github.com/TheLazyTomcat/Lib.AuxClasses
 
   Dependencies:
-    AuxTypes    - github.com/ncs-sniper/Lib.AuxTypes
-    ListSorters - github.com/ncs-sniper/Lib.ListSorters
+    AuxTypes    - github.com/TheLazyTomcat/Lib.AuxTypes
+    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses    
+    ListSorters - github.com/TheLazyTomcat/Lib.ListSorters
+    StrRect     - github.com/TheLazyTomcat/Lib.StrRect
 
 ===============================================================================}
 unit CountedDynArrayObject;
 
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
+
+{$DEFINE CDA_FuncOverride_ItemCompare}
 
 interface
 
@@ -31,20 +51,25 @@ uses
   CountedDynArrays;
 
 type
-  TObjectCountedDynArray = record
-    Arr:    array of TObject;
-    SigA:   UInt32;
-    Count:  Integer;
-    Data:   PtrInt;
-    SigB:   UInt32;
-  end;
-  PObjectCountedDynArray = ^TObjectCountedDynArray;
-
   TCDABaseType = TObject;
-  PCDABaseType = ^TObject;
+  PCDABaseType = ^TCDABaseType;
 
-  TCDAArrayType = TObjectCountedDynArray;
-  PCDAArrayType = PObjectCountedDynArray;
+  TCountedDynArrayObject = record
+  {$DEFINE CDA_Structure}
+    {$INCLUDE '.\CountedDynArrays.inc'}
+  {$UNDEF CDA_Structure}
+  end;
+  PCountedDynArrayObject = ^TCountedDynArrayObject;
+
+  // aliases
+  TCountedDynArrayOfObject = TCountedDynArrayObject;
+  PCountedDynArrayOfObject = PCountedDynArrayObject;
+
+  TObjectCountedDynArray = TCountedDynArrayObject;
+  PObjectCountedDynArray = PCountedDynArrayObject;
+
+  TCDAArrayType = TCountedDynArrayObject;
+  PCDAArrayType = PCountedDynArrayObject;
 
 {$DEFINE CDA_Interface}
 {$INCLUDE '.\CountedDynArrays.inc'}
@@ -56,27 +81,17 @@ uses
   SysUtils,
   ListSorters;
 
-{$IFDEF FPC_DisableWarns}
-  {$DEFINE FPCDWM}
-  {$DEFINE W4055:={$WARN 4055 OFF}} // Conversion between ordinals and pointers is not portable
-  {$DEFINE W5024:={$WARN 5024 OFF}} // Parameter "$1" not used
-  {$PUSH}{$WARN 2005 OFF} // Comment level $1 found
-  {$IF Defined(FPC) and (FPC_FULLVERSION >= 30000)}
-    {$DEFINE W5093:={$WARN 5093 OFF}} // Function result variable of a managed type does not seem to initialized
-    {$DEFINE W5094:={$WARN 5094 OFF}} // Function result variable of a managed type does not seem to initialized
-    {$DEFINE W5060:=}
-  {$ELSE}
-    {$DEFINE W5093:=}
-    {$DEFINE W5094:=}
-    {$DEFINE W5060:={$WARN 5060 OFF}} // Function result variable does not seem to be initialized
-  {$IFEND}
-  {$POP}
-{$ENDIF}
+{$INCLUDE '.\CountedDynArrays_msgdis.inc'}
 
-Function CDA_CompareFunc(A,B: TObject): Integer; {$IFDEF CanInline} inline; {$ENDIF}
+Function CDA_ItemCompare(A,B: TCDABaseType): Integer; {$IFDEF CanInline} inline; {$ENDIF}
 begin
 {$IFDEF FPCDWM}{$PUSH}W4055{$ENDIF}
-Result := Integer(PtrUInt(Pointer(B)) - PtrUInt(Pointer(A)));
+If PtrUInt(Pointer(A)) < PtrUInt(Pointer(B)) then
+  Result := +1
+else If PtrUInt(Pointer(A)) > PtrUInt(Pointer(B)) then
+  Result := -1
+else
+  Result := 0;
 {$IFDEF FPCDWM}{$POP}{$ENDIF}
 end;
 
@@ -84,7 +99,6 @@ end;
 
 {$DEFINE CDA_Implementation}
 {$INCLUDE '.\CountedDynArrays.inc'}
-{$UNDEF CDA_Implementation}
-
+{$UNDEF CDA_Implementation}   
 
 end.

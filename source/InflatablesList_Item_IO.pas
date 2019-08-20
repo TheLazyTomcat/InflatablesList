@@ -30,6 +30,7 @@ type
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
+    procedure AfterLoad; virtual;
   public
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
@@ -55,6 +56,14 @@ procedure TILItem_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
+AfterLoad;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO.AfterLoad;
+begin
+RenderSmallPictures;
 end;
 
 //==============================================================================

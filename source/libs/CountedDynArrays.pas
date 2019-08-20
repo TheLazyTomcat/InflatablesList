@@ -7,73 +7,103 @@
 -------------------------------------------------------------------------------}
 {===============================================================================
 
-  Counted dynamic arrays
+  Counted Dynamic Arrays
 
     Basic types and constants
 
-  This library is designed to ease work with dynamic arrays and also slightly
-  optimize reallocation of the array.
+    This library is designed to ease work with dynamic arrays and also slightly
+    optimize reallocation of the array.
 
-  The array itself is hidden in a record that should be considered opaque,
-  but is in fact completely acessible so the compiler can work around it. It is
-  not recommended to directly access fields of this record, but it should not
-  cause any problem when you are cautious.
-  To allow growing and shrinking optimizations, count of the items inside an
-  array is trictly separated from the actual array and its length/capacity
-  (hence counted dynamic arrays).
+    The array itself is hidden in a record that must be considered opaque,
+    but is in fact completely accessible so the compiler can work around it.
+    To allow growing and shrinking optimizations, count of the items inside an
+    array is separated from the actual array and its length/capacity (hence
+    the name counted dynamic arrays).
 
-  Standard functions like Length, SetLength or Copy are implemented along with
-  many more functions that allows acessing the array in a way similar to
-  accessing a list object (Add, Remove, IndexOf, ...).
+    WARNING - It is strictly prohibited to directly access fields of the
+              underlying record, use only the provided functions to do so.
 
-  This library implements counted arrays for several basic types (integers,
-  floats, strings, ...), but is designed so the codebase can be used with minor
-  or no modifications for any other type - it uses templates and type aliases
-  as a kind of generics.
-  For examples on how to implement a counted dynamic array, refer to files
-  CountedDynArray*.pas, where * is name of the base type.
+    Standard functions like Length, SetLength or Copy are implemented along with
+    many more functions that allow accessing the array in a way similar to
+    accessing a list object (Add, Remove, IndexOf, Sort, ...). All implemented
+    functions have CDA_ prefix (e.g CDA_Length).
 
-  Arrays of following types are implemented in current version of this library:
+    This library comes with preimplemented arrays for several basic types
+    (integers, floats, strings, ...), but is designed so the codebase can be
+    used with minor or no modifications for any other type (including, but not
+    limited to, structured types like records or arrays) - it uses templates
+    and type aliases as a kind of generics.
+    Arrays of following types are implemented in current version of this
+    library:
 
-    Boolean    in CountedDynArrayBool.pas
-    Integer    in CountedDynArrayInteger.pas
-    TDateTime  in CountedDynArrayDateTime.pas
-    String     in CountedDynArrayString.pas
-    Pointer    in CountedDynArrayPointer.pas
-    TObject    in CountedDynArrayTObject.pas
-    Int8       in CountedDynArrayInt8.pas
-    UInt8      in CountedDynArrayUInt8.pas
-    Int16      in CountedDynArrayInt16.pas
-    UInt16     in CountedDynArrayUInt16.pas
-    Int32      in CountedDynArrayInt32.pas
-    UInt32     in CountedDynArrayUInt32.pas
-    Int64      in CountedDynArrayInt64.pas
-    UInt64     in CountedDynArrayUInt64.pas
-    Float32    in CountedDynArrayFloat32.pas
-    Float64    in CountedDynArrayFloat64.pas
+      Boolean          CountedDynArrayBool.pas
 
-  Note that given the method used (template with type alias), there is a limit
-  of one array type per *.pas file.
+      Int8             CountedDynArrayInt8.pas
+      UInt8            CountedDynArrayUInt8.pas
+      Int16            CountedDynArrayInt16.pas
+      UInt16           CountedDynArrayUInt16.pas
+      Int32            CountedDynArrayInt32.pas
+      UInt32           CountedDynArrayUInt32.pas
+      Int64            CountedDynArrayInt64.pas
+      UInt64           CountedDynArrayUInt64.pas
+      PtrInt           CountedDynArrayPtrInt.pas
+      PtrUInt          CountedDynArrayPtrUInt.pas
+      Integer          CountedDynArrayInteger.pas      
 
-  If you want to override any preimplemented method, define symbol
-  CDA_DisableFunc_<FunctionName> and write your own implementation.
-  Example how to do it can be found in unit CountedDynArrayString.pas.
+      Float32          CountedDynArrayFloat32.pas
+      Float64          CountedDynArrayFloat64.pas
+      TDateTime        CountedDynArrayDateTime.pas
+      Currency         CountedDynArrayCurrency.pas
 
-  If you want to call the original implementation from the override, define
-  symbol CDA_HideFunc_<FunctionName>. The original function will then be
-  renamed to _<FunctionName> (original name prepended with underscore) and
-  removed from interface section.
+      Pointer          CountedDynArrayPointer.pas
+      TObject          CountedDynArrayTObject.pas
 
-  WARNING - before using any counted dynamic array variable, you have to
-            pass it to CDA_Init for proper initialization.
+      AnsiChar         CountedDynArrayAnsiChar.pas
+      UTF8Char         CountedDynArrayUTF8Char.pas
+      WideChar         CountedDynArrayWideChar.pas
+      UnicodeChar      CountedDynArrayUnicodeChar.pas
+      Char             CountedDynArrayChar.pas
 
-  ©František Milt 2019-01-26
+      ShortString      CountedDynArrayShortString.pas
+      AnsiString       CountedDynArrayAnsiString.pas
+      UTF8String       CountedDynArrayUTF8String.pas
+      WideString       CountedDynArrayWideString.pas
+      UnicodeString    CountedDynArrayUnicodeString.pas
+      String           CountedDynArrayString.pas
 
-  Version 1.0.3
+      Variant          CountedDynArrayVariant.pas
+
+    Note that given the method used (template with type alias), there is a limit
+    of one array type per *.pas file.
+
+    For help with implementing a counted dynamic array for any type, please
+    refer to already implemented arrays or contact the author.
+
+  Version 1.2.1 (2019-08-19)
+  
+  Last changed 2019-08-19
+
+  ©2018-2019 František Milt
+
+  Contacts:
+    František Milt: frantisek.milt@gmail.com
+
+  Support:
+    If you find this code useful, please consider supporting its author(s) by
+    making a small donation using the following link(s):
+
+      https://www.paypal.me/FMilt
+
+  Changelog:
+    For detailed changelog and history please refer to this git repository:
+
+      github.com/TheLazyTomcat/Lib.AuxClasses
 
   Dependencies:
-    AuxTypes    - github.com/ncs-sniper/Lib.AuxTypes
-    ListSorters - github.com/ncs-sniper/Lib.ListSorters
+    AuxTypes    - github.com/TheLazyTomcat/Lib.AuxTypes
+    AuxClasses  - github.com/TheLazyTomcat/Lib.AuxClasses
+    ListSorters - github.com/TheLazyTomcat/Lib.ListSorters
+    StrRect     - github.com/TheLazyTomcat/Lib.StrRect
 
 ===============================================================================}
 unit CountedDynArrays;
@@ -82,7 +112,20 @@ unit CountedDynArrays;
 
 interface
 
+uses
+  AuxTypes;
+
 type
+  TCDASignature = PtrUInt;
+  TCDAChecksum  = PtrUInt;
+  
+  TCDAIndexArray = array of Integer;
+  PCDAIndexArray = ^TCDAIndexArray;
+
+{$IF SizeOf(TCDAIndexArray) <> SizeOf(Pointer)}
+  {$MESSAGE Fatal 'Incompatible implementation detail.'}
+{$IFEND}
+
 {
   Array is only grown if current count + DeltaMin is larger than current capacity.
 
@@ -113,10 +156,10 @@ const
   CDA_INITIAL_CAPACITY         = 16;
   CDA_GROW_ATTENUATE_THRESHOLD = 16 * 1024 * 1024;
 
-  CDA_SIGA = $AF05C0F3;
-  CDA_SIGB = $F23CF3E8;
-
 implementation
+
+initialization
+  System.Randomize; // required for signature initialization
 
 end.
 

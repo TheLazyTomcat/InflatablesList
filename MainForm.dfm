@@ -294,8 +294,7 @@ object fMainForm: TfMainForm
       OnClick = mniLM_OverviewClick
     end
     object mniLM_Selection: TMenuItem
-      Caption = 'Shop selection table...'
-      Enabled = False
+      Caption = 'Shop selection...'
       ShortCut = 16468
       OnClick = mniLM_SelectionClick
     end

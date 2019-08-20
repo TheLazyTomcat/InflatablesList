@@ -66,7 +66,7 @@ type
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     // macro methods (broadcast to item objects)
-    procedure ReinitDrawSize(MainList: TListBox); virtual;
+    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
@@ -450,14 +450,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ReinitDrawSize(MainList: TListBox);
+procedure TILManager_Base.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
 var
   i:  Integer;
 begin
 BeginUpdate;
 try
   For i := ItemLowIndex to ItemHighIndex do
-    fList[i].ReinitDrawSize(MainList);
+    fList[i].ReinitDrawSize(MainList,SmallList);
 finally
   EndUpdate;
 end;

@@ -11,6 +11,7 @@ object fOverviewForm: TfOverviewForm
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
   OnShow = FormShow
@@ -37,6 +38,8 @@ object fOverviewForm: TfOverviewForm
     Width = 81
     Height = 17
     Caption = 'Stay on top'
+    Checked = True
+    State = cbChecked
     TabOrder = 1
     OnClick = cbStayOnTopClick
   end

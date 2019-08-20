@@ -212,11 +212,12 @@ var
 implementation
 
 uses
-  WinFileInfo, BitOps, CountedDynArrayInteger,
+  WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
   InflatablesList_Types,
-  InflatablesList_Backup;
+  InflatablesList_Backup,
+  InflatablesList_Item;
 
 {$R *.dfm}
 
@@ -419,7 +420,7 @@ end;
 
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
-fILManager.ReinitDrawSize(lbList);
+fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
 lbList.SetFocus;
 end;
 
@@ -461,7 +462,7 @@ If Index >= 0 then
   frmItemFrame.SetItem(fILManager[Index],False);
 lbList.Items.Add(IntToStr(lbList.Count));  
 lbList.ItemIndex := fILManager.ItemAddEmpty;
-fILManager.ReinitDrawSize(lbList);  // will also redraw and update the list
+fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems); // will also redraw and update the list
 lbList.OnClick(nil);
 UpdateIndexAndCount;
 end;
@@ -479,7 +480,7 @@ If lbList.ItemIndex >= 0 then
       frmItemFrame.SetItem(fILManager[Index],False);
     lbList.Items.Add(IntToStr(lbList.Count));
     lbList.ItemIndex := fILManager.ItemAddCopy(Index);
-    fILManager.ReinitDrawSize(lbList);
+    fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
     lbList.OnClick(nil);
     UpdateIndexAndCount;
   end;
@@ -500,7 +501,7 @@ If lbList.ItemIndex >= 0 then
       Index := lbList.ItemIndex;
       fILManager.ItemDelete(Index);
       lbList.Items.Delete(Index);
-      fILManager.ReinitDrawSize(lbList);
+      fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
       If lbList.Count > 0 then
         begin
           If Index < lbList.Count then
@@ -715,7 +716,7 @@ If diaItemsImport.Execute then
         For i := 1 to Cntr do
           lbList.Items.Add(IntToStr(lbList.Count));
         lbList.ItemIndex := Pred(lbList.Count);
-        fILManager.ReinitDrawSize(lbList);
+        fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
       end;
     lbList.OnClick(nil);
     UpdateIndexAndCount;
@@ -851,18 +852,24 @@ var
   i:        Integer;
   OldAvail: Int32;
   OldPrice: UInt32;
+  ItemList: TCountedDynArrayObject;
 begin
 If Length(UpdateList) > 0 then
   begin
     // update
     fUpdateForm.ShowUpdate(UpdateList);
+    // build list of updated items
+    CDA_Init(ItemList);
+    For i := Low(UpdateList) to High(UpdateList) do
+      If UpdateList[i].Done and not CDA_CheckIndex(ItemList,CDA_IndexOf(ItemList,UpdateList[i].Item)) then
+        CDA_Add(ItemList,UpdateList[i].Item);
     // recalc prices
-    For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+    For i := CDA_Low(ItemList) to CDA_High(ItemList) do
       begin
-        OldAvail := fILManager[i].AvailableSelected;
-        OldPrice := fILManager[i].UnitPriceSelected;
-        fILManager[i].UpdatePriceAndAvail;
-        fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
+        OldAvail := TILItem(CDA_GetItem(ItemList,i)).AvailableSelected;
+        OldPrice := TILItem(CDA_GetItem(ItemList,i)).UnitPriceSelected;
+        TILItem(CDA_GetItem(ItemList,i)).UpdatePriceAndAvail;
+        TILItem(CDA_GetItem(ItemList,i)).FlagPriceAndAvail(OldPrice,OldAvail);
       end;
     // show changes
     frmItemFrame.LoadItem;
@@ -885,12 +892,12 @@ If lbList.ItemIndex >= 0 then
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     For i := fILManager[lbList.ItemIndex].ShopLowIndex to fILManager[lbList.ItemIndex].ShopHighIndex do
       begin
+        List[i].Item := fILManager[lbList.ItemIndex];
         List[i].ItemTitle := Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
         List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
         List[i].Done := False;
       end;
     mniLN_UpdateCommon(List);
-    {$message 'optimize, all shops are updated whereas only one is needed'}
     lbList.SetFocus;
   end;
 end;
@@ -918,6 +925,7 @@ Cntr := Low(List);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     begin
+      List[Cntr].Item := fILManager[i];
       List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
       List[Cntr].ItemShop := fILManager[i].Shops[j];
       List[Cntr].Done := False;
@@ -952,6 +960,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If ilifWanted in fILManager[i].Flags then
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       begin
+        List[Cntr].Item := fILManager[i];
         List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
         List[Cntr].ItemShop := fILManager[i].Shops[j];
         List[Cntr].Done := False;
@@ -986,6 +995,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     If fILManager[i].Shops[j].Selected then
       begin
+        List[Cntr].Item := fILManager[i];
         List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
         List[Cntr].ItemShop := fILManager[i].Shops[j];
         List[Cntr].Done := False;
@@ -1050,7 +1060,11 @@ end;
 
 procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
-fSelectionForm.ShowTable;
+frmItemFrame.SaveItem;
+fSelectionForm.ShowSelection;
+// load potential changes
+frmItemFrame.LoadItem;
+lbList.Invalidate;
 lbList.SetFocus;
 end;
 

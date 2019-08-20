@@ -1,7 +1,11 @@
 unit InflatablesList_HTML_TagAttributeArray;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
+
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
+
+{$DEFINE CDA_FuncOverride_ItemUnique}
+{$DEFINE CDA_FuncOverride_ItemCompare}
 
 interface
 
@@ -16,22 +20,25 @@ type
   end;
   PILTagAttribute = ^TILTagAttribute;
 
-  TILTagAttributeCountedDynArray = record
-    Arr:    array of TILTagAttribute;
-    SigA:   UInt32;
-    Count:  Integer;
-    Data:   PtrInt;
-    SigB:   UInt32;
-  end;
-  PILTagAttributeCountedDynArray = ^TILTagAttributeCountedDynArray;
-
   TCDABaseType = TILTagAttribute;
-  PCDABaseType = PILTagAttribute;
+  PCDABaseType = ^TCDABaseType;
 
-  TCDAArrayType = TILTagAttributeCountedDynArray;
-  PCDAArrayType = PILTagAttributeCountedDynArray;
+  TILCountedDynArrayTagAttribute = record
+  {$DEFINE CDA_Structure}
+    {$INCLUDE '.\CountedDynArrays.inc'}
+  {$UNDEF CDA_Structure}
+  end;
+  PILCountedDynArrayTagAttribute = ^TILCountedDynArrayTagAttribute;
 
-{$DEFINE CDA_DisableFunc_ItemUnique}
+  // aliases
+  TILCountedDynArrayOfTagAttribute = TILCountedDynArrayTagAttribute;
+  PILCountedDynArrayOfTagAttribute = PILCountedDynArrayTagAttribute;
+
+  TILTagAttributeCountedDynArray = TILCountedDynArrayTagAttribute;
+  PILTagAttributeCountedDynArray = PILCountedDynArrayTagAttribute;
+
+  TCDAArrayType = TILCountedDynArrayTagAttribute;
+  PCDAArrayType = PILCountedDynArrayTagAttribute;
 
 {$DEFINE CDA_Interface}
 {$INCLUDE '.\CountedDynArrays.inc'}
@@ -44,7 +51,7 @@ uses
   ListSorters,
   InflatablesList_HTML_Utils;
 
-Function CDA_CompareFunc(const A,B: TCDABaseType): Integer;
+Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin
 Result := -IL_ReconvCompareText(A.Name,B.Name);
 end;

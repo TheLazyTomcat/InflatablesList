@@ -23,6 +23,7 @@ type
     fOwnsDataProvider:      Boolean;
     fIndex:                 Integer;  // used in sorting
     fRender:                TBitmap;
+    fRenderSmall:           TBitmap;
     fFilteredOut:           Boolean;
     fUpdateCounter:         Integer;
     fUpdated:               TILItemUpdatedFlags;
@@ -45,6 +46,9 @@ type
     // stored pictures
     fItemPicture:           TBitmap;  // 96 x 96 px, white background
     fPackagePicture:        TBitmap;  // 96 x 96 px, white background
+    // not stored pictures
+    fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
+    fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
     // basic specs
     fItemType:              TILItemType;
     fItemTypeSpec:          String;   // closer specification of type
@@ -118,6 +122,10 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
+    // small pictures rendering
+    procedure RenderSmallItemPicture; virtual; abstract;
+    procedure RenderSmallPackagePicture; virtual; abstract;
+    procedure RenderSmallPictures; virtual;
     // handlers for item shop events
     procedure ClearSelectedHandler(Sender: TObject); virtual;
     procedure UpdateOverviewHandler(Sender: TObject); virtual;
@@ -160,6 +168,7 @@ type
     // properties
     property Index: Integer read fIndex write fIndex;
     property Render: TBitmap read fRender;
+    property RenderSmall: TBitmap read fRenderSmall;
     property FilteredOut: Boolean read fFilteredOut;
     property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
     // events
@@ -229,7 +238,9 @@ If fItemPicture <> Value {a different object reference} then
     If Assigned(fItemPicture) then
       FreeAndNil(fItemPicture);
     fItemPicture := Value;
+    RenderSmallItemPicture;
     UpdateMainList;
+    UpdateSmallList;
     UpdatePictures;
   end;
 end;
@@ -243,6 +254,7 @@ If fPackagePicture <> Value then
     If Assigned(fPackagePicture) then
       FreeAndNil(fPackagePicture);
     fPackagePicture := Value;
+    RenderSmallPackagePicture;
     UpdatePictures;
   end;
 end;
@@ -543,6 +555,8 @@ fTimeOfAddition := Now;
 // basic specs
 fItemPicture := nil;
 fPackagePicture := nil;
+fItemPictureSmall := nil;
+fPackagePictureSmall := nil;
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
 fPieces := 1;
@@ -589,6 +603,10 @@ If Assigned(fItemPicture) then
   FreeAndNil(fItemPicture);
 If Assigned(fPackagePicture) then
   FreeAndNil(fPackagePicture);
+If Assigned(fItemPictureSmall) then
+  FreeAndNil(fItemPictureSmall);
+If Assigned(fPackagePictureSmall) then
+  FreeAndNil(fPackagePictureSmall);
 // remove shops  
 For i := LowIndex to HighIndex do
   fShops[i].Free;
@@ -603,6 +621,8 @@ begin
 fIndex := -1;
 fRender := TBitmap.Create;
 fRender.PixelFormat := pf24bit;
+fRenderSmall := TBitmap.Create;
+fRenderSmall.PixelFormat := pf24bit;
 fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -614,8 +634,18 @@ end;
 procedure TILItem_Base.Finalize;
 begin
 FinalizeData;
+If Assigned(fRenderSmall) then
+  FreeAndNil(fRenderSmall);
 If Assigned(fRender) then
   FreeAndNil(fRender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.RenderSmallPictures;
+begin
+RenderSmallItemPicture;
+RenderSmallPackagePicture;
 end;
 
 //------------------------------------------------------------------------------
@@ -792,6 +822,8 @@ If CopyPics then
       end;
     If Assigned(Source.Render) then
       fRender.Assign(Source.Render);
+    If Assigned(Source.RenderSmall) then
+      fRenderSmall.Assign(Source.RenderSmall);
   end;
 fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;

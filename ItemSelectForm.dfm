@@ -13,6 +13,7 @@ object fItemSelectForm: TfItemSelectForm
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object lblItems: TLabel
@@ -29,8 +30,10 @@ object fItemSelectForm: TfItemSelectForm
     Height = 420
     IntegralHeight = True
     ItemHeight = 13
+    PopupMenu = pmItemsMenu
     TabOrder = 0
     OnClick = clbItemsClick
+    OnMouseDown = clbItemsMouseDown
   end
   object btnAccept: TButton
     Left = 240
@@ -49,5 +52,35 @@ object fItemSelectForm: TfItemSelectForm
     Caption = 'Close'
     TabOrder = 2
     OnClick = btnCloseClick
+  end
+  object pmItemsMenu: TPopupMenu
+    Left = 384
+    object mniIM_CheckSelected: TMenuItem
+      Caption = 'Check selected'
+      OnClick = mniIM_CheckSelectedClick
+    end
+    object mniIM_UncheckSelected: TMenuItem
+      Caption = 'Uncheck selected'
+      OnClick = mniIM_UncheckSelectedClick
+    end
+    object mniIM_InvertSelected: TMenuItem
+      Caption = 'Invert selected'
+      OnClick = mniIM_InvertSelectedClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object mniIM_CheckAll: TMenuItem
+      Caption = 'Check all'
+      OnClick = mniIM_CheckAllClick
+    end
+    object mniIM_UncheckAll: TMenuItem
+      Caption = 'Uncheck all'
+      OnClick = mniIM_UncheckAllClick
+    end
+    object mniIM_InvertAll: TMenuItem
+      Caption = 'Invert all'
+      OnClick = mniIM_InvertAllClick
+    end
   end
 end

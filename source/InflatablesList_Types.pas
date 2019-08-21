@@ -131,17 +131,18 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 
 type
   TILItemValueTag = (
-    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtPackagePicture,ilivtItemType,
-    ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,
-    ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
-    ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,
-    ilivtFlagPriceChange,ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,
-    ilivtTextTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
+    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtPackagePicture,
+    ilivtItemType,ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,
+    ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,
+    ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,
+    ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
+    ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,ilivtNumTag,
+    ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
     ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
-    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
-    ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
-    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
-    ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
+    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,
+    ilivtPackPicFilePres,ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,
+    ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
+    ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -696,6 +697,7 @@ case ItemValueTag of
   ilivtTextID:            Result := 55;
   ilivtIDStr:             Result := 56;
   ilivtUniqueID:          Result := 57;
+  ilivtNumTag:            Result := 58;
 else
   {ilivtNone}
   Result := 0;
@@ -765,6 +767,7 @@ case Num of
   55: Result := ilivtTextID;
   56: Result := ilivtIDStr;
   57: Result := ilivtUniqueID;
+  58: Result := ilivtNumTag;
 else
   Result := ilivtNone;
 end;

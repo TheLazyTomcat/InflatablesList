@@ -20,6 +20,7 @@ type
     btnClearACPCFlags: TButton;
     btnReplaceInPicPaths: TButton;
     btnReplaceTextTag: TButton;
+    btnRemoveShops: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
@@ -28,6 +29,7 @@ type
     procedure btnClearACPCFlagsClick(Sender: TObject);
     procedure btnReplaceInPicPathsClick(Sender: TObject);
     procedure btnReplaceTextTagClick(Sender: TObject);
+    procedure btnRemoveShopsClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -158,7 +160,24 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If AnsiSameText(fILManager[i].TextTag,leParam_1.Text) then
     fILManager[i].TextTag := leParam_2.Text;
-Close
+Close;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnRemoveShopsClick(Sender: TObject);
+var
+  i,j:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
+    If not fILManager[i][j].Selected then
+      begin
+        fILManager[i].ShopDelete(j);
+        fILManager[i].UpdateAndFlagPriceAndAvail(
+          fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
+      end;
+Close;
 end;
 
 end.

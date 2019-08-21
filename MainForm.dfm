@@ -53,12 +53,22 @@ object fMainForm: TfMainForm
         Width = 100
       end
       item
-        Width = 540
+        Width = 300
+      end
+      item
+        Alignment = taCenter
+        Style = psOwnerDraw
+        Text = 's.rev'
+        Width = 50
+      end
+      item
+        Width = 500
       end
       item
         Alignment = taRightJustify
         Width = 50
       end>
+    OnDrawPanel = sbStatusBarDrawPanel
   end
   object lbList: TListBox
     Left = 8
@@ -317,6 +327,13 @@ object fMainForm: TfMainForm
       OnClick = mniLM_SpecialsClick
     end
     object N9: TMenuItem
+      Caption = '-'
+    end
+    object mniLM_ResMarkLegend: TMenuItem
+      Caption = 'Worst result mark legend...'
+      OnClick = mniLM_ResMarkLegendClick
+    end
+    object N10: TMenuItem
       Caption = '-'
     end
     object mniLM_Exit: TMenuItem

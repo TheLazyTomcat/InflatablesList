@@ -59,6 +59,8 @@ type
     mniLM_Save: TMenuItem;
     mniLM_Specials: TMenuItem;
     N9: TMenuItem;
+    mniLM_ResMarkLegend: TMenuItem;
+    N10: TMenuItem;
     mniLM_Exit: TMenuItem;
     mniLM_SB_Default: TMenuItem;
     mniLM_SB_Actual: TMenuItem;
@@ -151,6 +153,8 @@ type
     procedure mniLM_NotesClick(Sender: TObject);
     procedure mniLM_SaveClick(Sender: TObject);
     procedure mniLM_SpecialsClick(Sender: TObject);
+    // ---    
+    procedure mniLM_ResMarkLegendClick(Sender: TObject);
     // ---
     procedure mniLM_ExitClick(Sender: TObject);
     // ---
@@ -165,6 +169,8 @@ type
     procedure eSearchForKeyPress(Sender: TObject; var Key: Char);
     procedure btnFindPrevClick(Sender: TObject);
     procedure btnFindNextClick(Sender: TObject);
+    procedure sbStatusBarDrawPanel(StatusBar: TStatusBar;
+      Panel: TStatusPanel; const Rect: TRect);
     // ---
     procedure acItemShopsExecute(Sender: TObject);
     procedure acItemExportExecute(Sender: TObject);
@@ -224,13 +230,19 @@ uses
 const
   DEFAULT_LIST_FILENAME = 'list.inl';
 
+  STATUSBAR_PANEL_IDX_INDEX     = 0;
+  STATUSBAR_PANEL_IDX_RESERVED  = 1;
+  STATUSBAR_PANEL_IDX_OPTIONS   = 2;
+  STATUSBAR_PANEL_IDX_FILENAME  = 3;
+  STATUSBAR_PANEL_IDX_COPYRIGHT = 4;
+
 //==============================================================================
 
 procedure TfMainForm.FillCopyright;
 begin
 with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
 try
-  sbStatusBar.Panels[2].Text := Format('%s, version %d.%d.%d %s%s #%d %s',[
+  sbStatusBar.Panels[STATUSBAR_PANEL_IDX_COPYRIGHT].Text := Format('%s, version %d.%d.%d %s%s #%d %s',[
     VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
@@ -308,11 +320,11 @@ begin
 If lbList.ItemIndex < 0 then
   begin
     If fILManager.ItemCount > 0 then
-      sbStatusBar.Panels[0].Text := Format('-/%d',[fILManager.ItemCount])
+      sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := Format('-/%d',[fILManager.ItemCount])
     else
-      sbStatusBar.Panels[0].Text := '-/-';
+      sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := '-/-';
   end
-else sbStatusBar.Panels[0].Text := Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
+else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
 end;
 
 //------------------------------------------------------------------------------
@@ -383,7 +395,7 @@ frmItemFrame.OnFocusList := FocusList;
 // load list
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-sbStatusBar.Panels[1].Text := fILManager.FileName;
+sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.FileName;
 // fill list
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
@@ -402,6 +414,7 @@ else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
 mniLM_SortRev.Checked := fILManager.ReversedSort;
+sbStatusBar.Invalidate;
 BuildSortBySubmenu;
 end;
 
@@ -814,6 +827,7 @@ else
       frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
+sbStatusBar.Invalidate;
 BuildSortBySubmenu;
 lbList.SetFocus;
 end;
@@ -824,6 +838,7 @@ procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
 mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
 fILManager.ReversedSort := mniLM_SortRev.Checked;
+sbStatusBar.Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1087,7 +1102,7 @@ Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
   SaveList;
-  sbStatusBar.Panels[1].Text := fILManager.FileName;
+  sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.FileName;
 finally
   Screen.Cursor := crDefault;
 end;
@@ -1101,6 +1116,13 @@ frmItemFrame.SaveItem;
 fSpecialsForm.ShowModal;
 frmItemFrame.LoadItem;
 lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ResMarkLegendClick(Sender: TObject);
+begin
+{$message 'implement'}
 end;
 
 //------------------------------------------------------------------------------
@@ -1223,6 +1245,25 @@ end;
 procedure TfMainForm.btnFindNextClick(Sender: TObject);
 begin
 mniLM_FindNext.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
+  Panel: TStatusPanel; const Rect: TRect);
+begin
+If Panel.Index = STATUSBAR_PANEL_IDX_OPTIONS then
+  with sbStatusBar.Canvas do
+    begin
+      // draw background
+      Brush.Style := bsClear;
+      Pen.Style := psClear;
+      If fILManager.ReversedSort then
+        Font.Color := sbStatusBar.Font.Color
+      else
+        Font.Color := clGrayText;
+      TextOut(Rect.Left + (Rect.Right - Rect.Left - TextWidth(Panel.Text)) div 2,Rect.Top,Panel.Text);
+    end;
 end;
 
 //------------------------------------------------------------------------------

@@ -68,7 +68,8 @@ uses
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
-  InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas';
+  InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
+  UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm};
 
 {$R *.res}
 
@@ -87,6 +88,7 @@ begin
   Application.CreateForm(TfSelectionForm, fSelectionForm);
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfItemSelectForm, fItemSelectForm);
+  Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
   fMainForm.InitOtherForms;
   Application.Run;
 end.

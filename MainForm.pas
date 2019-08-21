@@ -219,8 +219,8 @@ implementation
 
 uses
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
-  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
-  SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
+  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
+  SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   InflatablesList_Types,
   InflatablesList_Backup,
   InflatablesList_Item;
@@ -1122,7 +1122,7 @@ end;
 
 procedure TfMainForm.mniLM_ResMarkLegendClick(Sender: TObject);
 begin
-{$message 'implement'}
+fUpdResLegendForm.ShowLegend;
 end;
 
 //------------------------------------------------------------------------------

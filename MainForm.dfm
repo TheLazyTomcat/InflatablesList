@@ -330,7 +330,7 @@ object fMainForm: TfMainForm
       Caption = '-'
     end
     object mniLM_ResMarkLegend: TMenuItem
-      Caption = 'Worst result mark legend...'
+      Caption = 'Worst update result mark legend...'
       OnClick = mniLM_ResMarkLegendClick
     end
     object N10: TMenuItem

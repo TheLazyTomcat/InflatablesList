@@ -149,7 +149,7 @@ case ItemValueTag of
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtNumTag:            If (fNumTag <> 0) and (Item.NumTag <> 0) then
-                            Result := Item.NumTag - fNumTag
+                            Result := IL_CompareInt32(fNumTag,Item.NumTag)
                           else If fNumTag <> 0 then
                             Result := IL_NegateValue(+1,Reversed)
                           else If Item.NumTag <> 0 then

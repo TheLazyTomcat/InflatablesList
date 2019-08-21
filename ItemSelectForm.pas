@@ -91,7 +91,8 @@ end;
 
 procedure TfItemSelectForm.ShowItemSelect(const Title: String; var Indices: TCountedDynArrayInteger);
 var
-  i:  Integer;
+  i:        Integer;
+  TempStr:  String;
 begin
 fAccepted := False;
 Caption := Title;
@@ -100,10 +101,15 @@ clbItems.Items.BeginUpdate;
 try
   clbItems.Clear;
   For i := fIlManager.ItemLowIndex to fILManager.ItemHighIndex do
-    If Length(fILManager[i].SizeStr) > 0 then
-      clbItems.Items.Add(Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr]))
-    else
-      clbItems.Items.Add(Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]));
+    begin
+      If Length(fILManager[i].SizeStr) > 0 then
+        TempStr := Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr])
+      else
+        TempStr :=Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]);
+      If Length(fILManager[i].TextTag) > 0 then
+        TempStr := TempStr + Format(' {%s}',[fILManager[i].TextTag]);
+      clbItems.Items.Add(TempStr);
+    end;
 finally
   clbItems.Items.EndUpdate;
 end;

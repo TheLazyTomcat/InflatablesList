@@ -139,7 +139,14 @@ case ItemValueTag of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtFlagDiscarded:     Result := IL_CompareBool(ilifDiscarded in fFlags,ilifDiscarded in Item.Flags);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtTextTag:           Result := IL_CompareText(fTextTag,Item.TextTag);
+  ilivtTextTag:           If (Length(fTextTag) > 0) and (Length(Item.TextTag) > 0) then
+                            Result := IL_CompareText(fTextTag,Item.TextTag)
+                          else If Length(fTextTag) > 0 then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If Length(Item.TextTag) > 0 then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtNumTag:            If (fNumTag <> 0) and (Item.NumTag <> 0) then
                             Result := Item.NumTag - fNumTag
@@ -148,7 +155,7 @@ case ItemValueTag of
                           else If Item.NumTag <> 0 then
                             Result := IL_NegateValue(-1,Reversed)
                           else
-                            Result := 0;  
+                            Result := 0;
 
   // extended specs  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtWantedLevel:       If (ilifWanted in fFlags) and (ilifWanted in Item.Flags) then

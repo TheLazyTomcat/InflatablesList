@@ -114,14 +114,13 @@ const
     'Wanted (flag)','Ordered (flag)','Boxed (flag)','Elsewhere (flag)','Untested (flag)',
     'Testing (flag)','Tested (flag)','Damaged (flag)','Repaired (flag)','Price change (flag)',
     'Availability change (flag)','Not available (flag)','Lost (flag)','Discarded (flag)',
-    'Textual tag','Numerical tag (0 = invalid)','Wanted level (flagged)',
-    'Variant (color, pattern, type, ...)','Material type','Size X (length, diameter, ...)',
-    'Size Y (width, inner diameter, ...)','Size Z (height, thickness, ...)',
-    'Total size (X * Y * Z)','Weight','Total weight','Wall thickness','Notes',
-    'ReviewURL','Review (is present)','Main picture file','Main picture file (is present)',
-    'Package picture file','Package picture file (is present)','Default unit price',
-    'Lowest unit price','Lowest total price','Selected unit price','Selected total price',
-    'Total price','Available pieces','Shop count','Useful shop count',
+    'Textual tag','Numerical tag','Wanted level (flagged)','Variant (color, pattern, type, ...)',
+    'Material type','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
+    'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
+    'Wall thickness','Notes','ReviewURL','Review (is present)','Main picture file',
+    'Main picture file (is present)','Package picture file','Package picture file (is present)',
+    'Default unit price','Lowest unit price','Lowest total price','Selected unit price',
+    'Selected total price','Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (

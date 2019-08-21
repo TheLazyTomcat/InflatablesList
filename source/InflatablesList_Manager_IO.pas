@@ -87,8 +87,10 @@ end;
 
 procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
 var
-  i:          Integer;
+  i,j:        Integer;
+  Index:      Integer;
   FileStream: TMemoryStream;
+  TempItem:   TILItem;
 begin
 // check indices
 For i := Low(Indices) to High(Indices) do
@@ -97,14 +99,31 @@ For i := Low(Indices) to High(Indices) do
 FileStream := TMemoryStream.Create;
 try
   // pre-allocate
-  FileStream.Size := Length(Indices) * (45 * 1024); // ~45Kib per item
+  FileStream.Size := Length(Indices) * (54 * 1024); // ~54Kib per item
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
   Stream_WriteUInt32(FileStream,Length(Indices));
   // now write individual items in the order they are in the indices array
   For i := Low(Indices) to High(Indices) do
-    fList[Indices[i]].SaveToStream(FileStream);
+    begin
+      TempItem := TILItem.CreateAsCopy(fDataProvider,fList[Indices[i]],True);
+      try
+        // copy parsing data
+        For j := TempItem.ShopLowIndex to TempItem.ShopHighIndex do
+          begin
+            Index := ShopTemplateIndexOf(TempItem.Shops[j].ParsingSettings.TemplateReference);
+            If Index >= 0 then
+              begin
+                TempItem.Shops[j].ReplaceParsingSettings(ShopTemplates[Index].ParsingSettings);
+                TempItem.Shops[j].ParsingSettings.TemplateReference := '';
+              end;
+          end;
+        TempItem.SaveToStream(FileStream);
+      finally
+        TempItem.Free;
+      end;
+    end;
   // save to file
   FileStream.SaveToFile(FileName);
 finally

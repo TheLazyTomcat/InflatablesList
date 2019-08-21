@@ -57,9 +57,12 @@ type
     cbFlagAvailChange: TCheckBox;
     cbFlagNotAvailable: TCheckBox;
     cbFlagLost: TCheckBox;
-    cbFlagDiscarded: TCheckBox;    
-    bvlTextTagSep: TBevel;
-    leTextTag: TLabeledEdit;
+    cbFlagDiscarded: TCheckBox;
+    bvlTagSep: TBevel;
+    lblTextTag: TLabel;
+    eTextTag: TEdit;
+    lblNumTag: TLabel;
+    seNumTag: TSpinEdit;    
     lblWantedLevel: TLabel;
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
@@ -124,7 +127,8 @@ type
     procedure leTextIDChange(Sender: TObject);
     procedure seIDChange(Sender: TObject);
     procedure CommonFlagClick(Sender: TObject);
-    procedure leTextTagChange(Sender: TObject);
+    procedure eTextTagChange(Sender: TObject);
+    procedure seNumTagChange(Sender: TObject);
     procedure seWantedLevelChange(Sender: TObject);
     procedure leVariantChange(Sender: TObject);
     procedure seSizeXChange(Sender: TObject);
@@ -390,7 +394,8 @@ If Assigned(fCurrentItem) then
       fCurrentItem.SetFlagValue(ilifNotAvailable,cbFlagNotAvailable.Checked);
       fCurrentItem.SetFlagValue(ilifLost,cbFlagLost.Checked);
       fCurrentItem.SetFlagValue(ilifDiscarded,cbFlagDiscarded.Checked);
-      fCurrentItem.TextTag := leTextTag.Text;
+      fCurrentItem.TextTag := eTextTag.Text;
+      fCurrentItem.NumTag := seNumTag.Value;
       // extended specs
       fCurrentItem.WantedLevel := seWantedLevel.Value;
       fCurrentItem.Variant := leVariant.Text;
@@ -450,7 +455,8 @@ If Assigned(fCurrentItem) then
       cbFlagNotAvailable.Checked := ilifNotAvailable in fCurrentItem.Flags;
       cbFlagLost.Checked := ilifLost in fCurrentItem.Flags;
       cbFlagDiscarded.Checked := ilifDiscarded in fCurrentItem.Flags;
-      leTextTag.Text := fCurrentItem.TextTag;
+      eTextTag.Text := fCurrentItem.TextTag;
+      seNumTag.Value := fCurrentITem.NumTag;
       // extended specs
       seWantedLevel.Value := fCurrentItem.WantedLevel;
       leVariant.Text := fCurrentItem.Variant;
@@ -509,7 +515,8 @@ try
   cbFlagNotAvailable.Checked := False;
   cbFlagLost.Checked := False;
   cbFlagDiscarded.Checked := False;
-  leTextTag.Text := '';
+  eTextTag.Text := '';
+  seNumTag.Value := 0;
   // ext. specs
   seWantedLevel.Value := 0;
   leVariant.Text := '';
@@ -917,10 +924,18 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.leTextTagChange(Sender: TObject);
+procedure TfrmItemFrame.eTextTagChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.TextTag := leTextTag.Text;
+  fCurrentItem.TextTag := eTextTag.Text;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.seNumTagChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.NumTag := seNumTag.Value;
 end;
 
 //------------------------------------------------------------------------------

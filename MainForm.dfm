@@ -1,11 +1,11 @@
 object fMainForm: TfMainForm
-  Left = 32
+  Left = 9
   Top = 41
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 675
-  ClientWidth = 1232
+  ClientWidth = 1264
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,14 +24,14 @@ object fMainForm: TfMainForm
   object gbDetails: TGroupBox
     Left = 640
     Top = 8
-    Width = 585
+    Width = 617
     Height = 641
     Caption = 'Item details'
     TabOrder = 1
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
-      Width = 569
+      Width = 601
       Height = 620
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -45,7 +45,7 @@ object fMainForm: TfMainForm
   object sbStatusBar: TStatusBar
     Left = 0
     Top = 656
-    Width = 1232
+    Width = 1264
     Height = 19
     Panels = <
       item

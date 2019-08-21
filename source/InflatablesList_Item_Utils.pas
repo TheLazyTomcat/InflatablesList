@@ -254,6 +254,7 @@ fUnitPriceHighest := HighPrice;
 fAvailableLowest := LowAvail;
 fAvailableHighest := HighAvail;
 UpdateMainList;
+UpdateSmallList;
 UpdateOverview;
 end;
 

@@ -521,7 +521,7 @@ procedure TfMainForm.mniLM_ClearClick(Sender: TObject);
 begin
 If lbList.Count > 0 then
   If MessageDlg('Are you sure you want to clear the entire list?',
-       mtConfirmation,[mbYes,mbNo],0) = mrYes then
+       mtWarning,[mbYes,mbNo],0) = mrYes then
     begin
       lbList.ItemIndex := -1;
       lbList.OnClick(nil);

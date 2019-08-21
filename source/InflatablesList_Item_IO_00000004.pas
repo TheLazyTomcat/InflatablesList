@@ -1,4 +1,4 @@
-unit InflatablesList_Item_IO_00000002;
+unit InflatablesList_Item_IO_00000004;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,31 +7,30 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Item_IO_00000001;
+  InflatablesList_Item_IO_00000003;
 
 type
-  TILItem_IO_00000002 = class(TILItem_IO_00000001)
+  TILItem_IO_00000004 = class(TILItem_IO_00000003)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItem_00000002(Stream: TStream); virtual;
-    procedure LoadItem_00000002(Stream: TStream); virtual;
+    procedure SaveItem_00000004(Stream: TStream); virtual;
+    procedure LoadItem_00000004(Stream: TStream); virtual;
   end;
 
 implementation
 
 uses
-  SysUtils, Graphics,
   BinaryStreaming,
   InflatablesList_Types,
   InflatablesList_Item_IO,
   InflatablesList_ItemShop;
 
-procedure TILItem_IO_00000002.InitSaveFunctions(Struct: UInt32);
+procedure TILItem_IO_00000004.InitSaveFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000002 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000004 then
   begin
-    fFNSaveToStream := SaveItem_00000002;
+    fFNSaveToStream := SaveItem_00000004;
     fFNSavePicture := SavePicture_00000000;
   end
 else inherited InitSaveFunctions(Struct);
@@ -39,11 +38,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000002.InitLoadFunctions(Struct: UInt32);
+procedure TILItem_IO_00000004.InitLoadFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000002 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000004 then
   begin
-    fFNLoadFromStream := LoadItem_00000002;
+    fFNLoadFromStream := LoadItem_00000004;
     fFNLoadPicture := LoadPicture_00000000;
   end
 else inherited InitLoadFunctions(Struct);
@@ -51,10 +50,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000002.SaveItem_00000002(Stream: TStream);
+procedure TILItem_IO_00000004.SaveItem_00000004(Stream: TStream);
 var
   i:  Integer;
 begin
+Stream_WriteBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 Stream_WriteFloat64(Stream,fTimeOfAddition);
 // pictures
 SavePicture_00000000(Stream,fItemPicture);
@@ -70,6 +70,7 @@ Stream_WriteInt32(Stream,fID);
 // flags
 Stream_WriteUInt32(Stream,IL_EncodeItemFlags(fFlags));
 Stream_WriteString(Stream,fTextTag);
+Stream_WriteInt32(Stream,fNumTag);
 // extended specs
 Stream_WriteUInt32(Stream,fWantedLevel);
 Stream_WriteString(Stream,fVariant);
@@ -100,10 +101,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000002.LoadItem_00000002(Stream: TStream);
+procedure TILItem_IO_00000004.LoadItem_00000004(Stream: TStream);
 var
   i:  Integer;
 begin
+Stream_ReadBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 fTimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
 // pictures
 LoadPicture_00000000(Stream,fItemPicture);
@@ -119,6 +121,7 @@ fID := Stream_ReadInt32(Stream);
 // flags
 fFlags := IL_DecodeItemFlags(Stream_ReadUInt32(Stream));
 fTextTag := Stream_ReadString(Stream);
+fNumTag := Stream_ReadInt32(Stream);
 // extended specs
 fWantedLevel := Stream_ReadUInt32(Stream);
 fVariant := Stream_ReadString(Stream);

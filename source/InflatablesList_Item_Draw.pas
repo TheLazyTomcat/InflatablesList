@@ -147,12 +147,18 @@ with fRender,fRender.Canvas do
         Inc(TempInt,fDataProvider.ItemReviewIcon.Width + 5);
       end;
 
-    // text tag
+    // text and num tag
     SetCanvas;
     If Length(fTextTag) > 0 then
       begin
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
         TextOut(TempInt,fMainHeight - 25,fTextTag);
+        Inc(TempInt,TextWidth(fTextTag) + 5);
+      end;
+    If fNumTag <> 0 then
+      begin
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,fMainHeight - 25,Format('[%d]',[fNumTag]))
       end;
 
     // selected shop and available count

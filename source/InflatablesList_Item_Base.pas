@@ -60,6 +60,7 @@ type
     // flags, tags
     fFlags:                 TILItemFlags;
     fTextTag:               String;
+    fNumTag:                Int32;
     // extended specs
     fWantedLevel:           UInt32;           // 0..7
     fVariant:               String;           // color, pattern, ...
@@ -99,6 +100,7 @@ type
     procedure SetID(Value: Int32); virtual;
     procedure SetFlags(Value: TILItemFlags); virtual;
     procedure SetTextTag(const Value: String); virtual;
+    procedure SetNumTag(Value: Int32); virtual;
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
@@ -196,6 +198,7 @@ type
     property TextID: String read fTextID write SetTextID;
     property Flags: TILItemFlags read fFlags write SetFlags;
     property TextTag: String read fTextTag write SetTextTag;
+    property NumTag: Int32 read fNumTag write SetNumTag;
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
@@ -267,6 +270,7 @@ If fItemType <> Value then
   begin
     fItemType := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -279,6 +283,7 @@ If not AnsiSameStr(fItemTypeSpec,Value) then
   begin
     fItemTypeSpec := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -291,6 +296,7 @@ If fPieces <> Value then
   begin
     fPieces := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateOverview;
     UpdateTitle;
   end;
@@ -304,6 +310,7 @@ If fManufacturer <> Value then
   begin
     fManufacturer := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -316,6 +323,7 @@ If not AnsiSameStr(fManufacturerStr,Value) then
   begin
     fManufacturerStr := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -328,6 +336,7 @@ If not AnsiSameStr(fTextID,Value) then
   begin
     fTextID := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -340,6 +349,7 @@ If fID <> Value then
   begin
     fID := Value;
     UpdateMainList;
+    UpdateSmallList;
     UpdateTitle;
   end;
 end;
@@ -363,6 +373,18 @@ If not AnsiSameStr(fTextTag,Value) then
   begin
     fTextTag := Value;
     UpdateMainList;
+    UpdateSmallList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetNumTag(Value: Int32);
+begin
+If fNumTag <> Value then
+  begin
+    fNumTag := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -385,6 +407,7 @@ If not AnsiSameStr(fVariant,Value) then
   begin
     fVariant := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -406,6 +429,7 @@ If fSizeX <> Value then
   begin
     fSizeX := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -417,6 +441,7 @@ If fSizeY <> Value then
   begin
     fSizeY := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -428,6 +453,7 @@ If fSizeZ <> Value then
   begin
     fSizeZ := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -500,6 +526,7 @@ If fUnitPriceDefault <> Value then
   begin
     fUnitPriceDefault := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -567,6 +594,7 @@ fID := 0;
 // flags
 fFlags := [];
 fTextTag := '';
+fNumTag := 0;
 // ext. specs
 fWantedLevel := 0;
 fVariant := '';
@@ -837,6 +865,7 @@ fID := Source.ID;
 fFlags := Source.Flags;
 fTextTag := Source.TextTag;
 UniqueString(fTextTag);
+fNumTag := Source.NumTag;
 fWantedLevel := Source.WantedLevel;
 fVariant := Source.Variant;
 UniqueString(fVariant);

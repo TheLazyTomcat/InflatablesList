@@ -119,4 +119,13 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 9
     OnClick = btnReplaceInPicPathsClick
   end
+  object btnReplaceTextTag: TButton
+    Left = 464
+    Top = 128
+    Width = 145
+    Height = 25
+    Caption = 'TextTag = P1 => P2'
+    TabOrder = 10
+    OnClick = btnReplaceTextTagClick
+  end
 end

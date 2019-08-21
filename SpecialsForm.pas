@@ -19,6 +19,7 @@ type
     btnSetMaterialToPVC: TButton;
     btnClearACPCFlags: TButton;
     btnReplaceInPicPaths: TButton;
+    btnReplaceTextTag: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
@@ -26,6 +27,7 @@ type
     procedure btnSetMaterialToPVCClick(Sender: TObject);
     procedure btnClearACPCFlagsClick(Sender: TObject);
     procedure btnReplaceInPicPathsClick(Sender: TObject);
+    procedure btnReplaceTextTagClick(Sender: TObject);
   private
     fILManager: TILManager;
   public
@@ -144,6 +146,18 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].ItemPictureFile := AnsiReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
     fILManager[i].PackagePictureFile := AnsiReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
   end;
+Close
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnReplaceTextTagClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If AnsiSameText(fILManager[i].TextTag,leParam_1.Text) then
+    fILManager[i].TextTag := leParam_2.Text;
 Close
 end;
 

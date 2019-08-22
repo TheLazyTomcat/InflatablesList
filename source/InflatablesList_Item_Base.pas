@@ -76,6 +76,7 @@ type
     fNotes:                 String;
     fReviewURL:             String;
     fItemPictureFile:       String;
+    fSecondaryPictureFile:  String;
     fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
     //fScore:                 UInt32;           // 0..100 [%]
@@ -115,6 +116,7 @@ type
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetItemPictureFile(const Value: String); virtual;
+    procedure SetSecondaryPictureFile(const Value: String); virtual;
     procedure SetPackagePictureFile(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
@@ -167,7 +169,7 @@ type
     procedure ShopClear; virtual;
     // data helpers
     procedure ResetTimeOfAddition; virtual;
-    procedure SwitchPictures; virtual;
+    procedure SwitchPictures(Src,Dst: TLIItemPictureKind); virtual;
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
     procedure BroadcastReqCount; virtual;
     procedure Release(FullRelease: Boolean); virtual;
@@ -215,6 +217,7 @@ type
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
+    property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
     property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
@@ -524,6 +527,16 @@ begin
 If not AnsiSameStr(fItemPictureFile,Value) then
   begin
     fItemPictureFile := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetSecondaryPictureFile(const Value: String);
+begin
+If not AnsiSameStr(fSecondaryPictureFile,Value) then
+  begin
+    fSecondaryPictureFile := Value;
   end;
 end;
 
@@ -1125,17 +1138,37 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SwitchPictures;
+procedure TILItem_Base.SwitchPictures(Src,Dst: TLIItemPictureKind);
+type
+  PBitmap = ^TBitmap;
 var
-  Temp: TBitmap;
+  SrcPtr: PBitmap;
+  DstPtr: PBitmap;
+  Temp:   TBitmap;
 begin
-{$message 'reimplement'}
-Temp := fItemPicture;
-fItemPicture := fPackagePicture;
-fPackagePicture := Temp;
-UpdateMainList;
-UpdateSmallList;
-UpdatePictures;
+If (Src <> Dst) and (Src <> ilipkUnknown) and (Dst <> ilipkUnknown) then
+  begin
+    case Src of
+      ilipkMain:      SrcPtr := @fItemPicture;
+      ilipkSecondary: SrcPtr := @fSecondaryPicture;
+      ilipkPackage:   SrcPtr := @fPackagePicture;
+    else
+      raise Exception.CreateFmt('Invalid source picture kind (%d).',[Ord(Src)]);
+    end;
+    case Dst of
+      ilipkMain:      DstPtr := @fItemPicture;
+      ilipkSecondary: DstPtr := @fSecondaryPicture;
+      ilipkPackage:   DstPtr := @fPackagePicture;
+    else
+      raise Exception.CreateFmt('Invalid destination picture kind (%d).',[Ord(Dst)]);
+    end;
+    Temp := SrcPtr^;
+    SrcPtr^ := DstPtr^;
+    DstPtr^ := Temp;
+    UpdateMainList;
+    UpdateSmallList;
+    UpdatePictures;
+  end;
 end;
 
 //------------------------------------------------------------------------------

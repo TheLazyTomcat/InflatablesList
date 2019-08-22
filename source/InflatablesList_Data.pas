@@ -109,18 +109,20 @@ const
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Unique identifier (UID)','Time of addition','Main picture (is present)',
-    'Package picture (is present)','Item type','Item type specifier','Count','Manufacturer',
-    'Manufacturer string','Textual ID','Numerical ID','ID string','Owned (flag)',
-    'Wanted (flag)','Ordered (flag)','Boxed (flag)','Elsewhere (flag)','Untested (flag)',
-    'Testing (flag)','Tested (flag)','Damaged (flag)','Repaired (flag)','Price change (flag)',
-    'Availability change (flag)','Not available (flag)','Lost (flag)','Discarded (flag)',
-    'Textual tag','Numerical tag','Wanted level (flagged)','Variant (color, pattern, type, ...)',
-    'Material type','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
+    'Secondary picture (is present)','Package picture (is present)','Item type',
+    'Item type specifier','Count','Manufacturer','Manufacturer string','Textual ID',
+    'Numerical ID','ID string','Owned (flag)','Wanted (flag)','Ordered (flag)',
+    'Boxed (flag)','Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
+    'Damaged (flag)','Repaired (flag)','Price change (flag)','Availability change (flag)',
+    'Not available (flag)','Lost (flag)','Discarded (flag)','Textual tag','Numerical tag',
+    'Wanted level (flagged)','Variant (color, pattern, type, ...)','Material type',
+    'Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
     'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
     'Wall thickness','Notes','ReviewURL','Review (is present)','Main picture file',
-    'Main picture file (is present)','Package picture file','Package picture file (is present)',
-    'Default unit price','Lowest unit price','Lowest total price','Selected unit price',
-    'Selected total price','Total price','Available pieces','Shop count','Useful shop count',
+    'Main picture file (is present)','Secondary picture file','Secondary picture file (is present)',
+    'Package picture file','Package picture file (is present)','Default unit price',
+    'Unit price lowest','Total price lowest','Unit price selected','Total price selected',
+    'Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (

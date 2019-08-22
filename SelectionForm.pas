@@ -244,7 +244,8 @@ end;
 
 procedure TfSelectionForm.FillItemShop;
 var
-  i:  Integer;
+  i:        Integer;
+  TempStr:  String;
 begin
 lvItemShops.Items.BeginUpdate;
 try
@@ -293,12 +294,15 @@ finally
   lvItemShops.Items.EndUpdate;
 end;
 If lvItemShops.Items.Count > 0 then
-  grbItemShops.Caption := Format('Item shops for %s (%d)',[
-    // that if there is something in the list, indices were already successfully checked
-    CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex).ItemObject.TitleStr,
-    lvItemShops.Items.Count])
-else
-  grbItemShops.Caption := 'Item shops';
+  begin
+    TempStr := Format('Item shops for %s',[
+      // if there is something in the list, indices were already successfully checked
+      CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex).ItemObject.TitleStr]);
+    If lvItemShops.Items.Count > 1 then
+      TempStr := TempStr + Format('%s (%d)',[TempStr,lvItemShops.Items.Count]);
+  end
+else TempStr := 'Item shops';
+grbItemShops.Caption := TempStr;
 end;
 
 //------------------------------------------------------------------------------

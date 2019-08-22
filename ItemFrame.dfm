@@ -43,7 +43,7 @@ object frmItemFrame: TfrmItemFrame
       Pen.Style = psClear
     end
     object shpPictureBBcgr: TShape
-      Left = 508
+      Left = 404
       Top = 36
       Width = 81
       Height = 81
@@ -52,7 +52,7 @@ object frmItemFrame: TfrmItemFrame
       Pen.Style = psDot
     end
     object shpPictureABcgr: TShape
-      Left = 404
+      Left = 300
       Top = 36
       Width = 81
       Height = 81
@@ -149,7 +149,8 @@ object frmItemFrame: TfrmItemFrame
       Center = True
     end
     object imgPictureB: TImage
-      Left = 500
+      Tag = 131072
+      Left = 396
       Top = 28
       Width = 96
       Height = 96
@@ -158,7 +159,8 @@ object frmItemFrame: TfrmItemFrame
       OnClick = imgPictureClick
     end
     object imgPictureA: TImage
-      Left = 396
+      Tag = 196608
+      Left = 292
       Top = 28
       Width = 96
       Height = 96
@@ -217,11 +219,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalWeight: TLabel
-      Left = 525
+      Left = 520
       Top = 562
-      Width = 68
+      Width = 73
       Height = 13
       Alignment = taRightJustify
+      AutoSize = False
       Caption = 'lblTotalWeight'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -231,12 +234,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceLowestTitle: TLabel
-      Left = 417
+      Left = 425
       Top = 584
-      Width = 96
+      Width = 88
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Total price (lowest):'
+      Caption = 'Total price lowest:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -245,11 +248,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceLowest: TLabel
-      Left = 502
+      Left = 520
       Top = 584
-      Width = 91
+      Width = 73
       Height = 13
       Alignment = taRightJustify
+      AutoSize = False
       Caption = 'lblTotalPriceLowest'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -259,12 +263,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceSelectedTitle: TLabel
-      Left = 389
+      Left = 399
       Top = 604
-      Width = 124
+      Width = 114
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Total price (selected):'
+      Caption = 'Total price selected:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -273,11 +277,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceSelected: TLabel
-      Left = 474
+      Left = 520
       Top = 604
-      Width = 119
+      Width = 73
       Height = 13
       Alignment = taRightJustify
+      AutoSize = False
       Caption = 'lblTotalPriceSelected'
       Color = clBtnFace
       Font.Charset = DEFAULT_CHARSET
@@ -290,12 +295,12 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitPriceLowestTitle: TLabel
-      Left = 190
+      Left = 198
       Top = 584
-      Width = 91
+      Width = 83
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Unit price (lowest):'
+      Caption = 'Unit price lowest:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -319,12 +324,12 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceSelectedTitle: TLabel
-      Left = 163
+      Left = 173
       Top = 604
-      Width = 118
+      Width = 108
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Unit price (selected):'
+      Caption = 'Unit price selected:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -484,8 +489,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
       Transparent = True
     end
-    object Shape1: TShape
-      Left = 300
+    object shpPictureCBcgr: TShape
+      Left = 508
       Top = 36
       Width = 81
       Height = 81
@@ -493,8 +498,9 @@ object frmItemFrame: TfrmItemFrame
       Pen.Color = clSilver
       Pen.Style = psDot
     end
-    object Image1: TImage
-      Left = 292
+    object imgPictureC: TImage
+      Tag = 65536
+      Left = 500
       Top = 28
       Width = 96
       Height = 96
@@ -980,24 +986,40 @@ object frmItemFrame: TfrmItemFrame
     OnPopup = pmnPicturesMenuPopup
     Left = 64
     Top = 96
-    object mniPM_Load: TMenuItem
-      Caption = 'Load picture...'
-      OnClick = mniPM_LoadClick
+    object mniPM_ReplacePic: TMenuItem
+      Caption = 'Replace picture...'
+      OnClick = mniPM_ReplacePicClick
     end
-    object mniPM_Export: TMenuItem
+    object mniPM_LoadItemPic: TMenuItem
+      Caption = 'Load item picture...'
+      OnClick = mniPM_LoadItemPicClick
+    end
+    object mniPM_LoadSecondaryPic: TMenuItem
+      Caption = 'Load secondary picture...'
+      OnClick = mniPM_LoadSecondaryPicClick
+    end
+    object mniPM_LoadPackagePic: TMenuItem
+      Caption = 'Load package picture...'
+      OnClick = mniPM_LoadPackagePicClick
+    end
+    object mniPM_ExportPic: TMenuItem
       Caption = 'Export picture...'
-      OnClick = mniPM_ExportClick
+      OnClick = mniPM_ExportPicClick
     end
     object N1: TMenuItem
       Caption = '-'
     end
-    object mniPM_Remove: TMenuItem
-      Caption = 'Remove this image'
-      OnClick = mniPM_RemoveClick
+    object mniPM_RemovePic: TMenuItem
+      Caption = 'Remove picture'
+      OnClick = mniPM_RemovePicClick
     end
     object mniPM_RemoveItemPic: TMenuItem
       Caption = 'Remove item picture'
       OnClick = mniPM_RemoveItemPicClick
+    end
+    object mniPM_RemoveSecondaryPic: TMenuItem
+      Caption = 'Remove secondary picture'
+      OnClick = mniPM_RemoveSecondaryPicClick
     end
     object mniPM_RemovePackagePic: TMenuItem
       Caption = 'Remove package picture'
@@ -1006,9 +1028,17 @@ object frmItemFrame: TfrmItemFrame
     object N2: TMenuItem
       Caption = '-'
     end
-    object mniPM_Switch: TMenuItem
-      Caption = 'Switch images'
-      OnClick = mniPM_SwitchClick
+    object mniPM_SwapItemPic: TMenuItem
+      Caption = 'Swap with item picture'
+      OnClick = mniPM_SwapItemPicClick
+    end
+    object mniPM_SwapSecondaryPic: TMenuItem
+      Caption = 'Swap with secondary picture'
+      OnClick = mniPM_SwapSecondaryPicClick
+    end
+    object mniPM_SwapPackagePic: TMenuItem
+      Caption = 'Swap with package picture'
+      OnClick = mniPM_SwapPackagePicClick
     end
   end
   object diaPicExport: TSaveDialog

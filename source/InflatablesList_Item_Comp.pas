@@ -62,6 +62,8 @@ case ItemValueTag of
   // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtMainPicture:       Result := IL_CompareBool(Assigned(fItemPicture),Assigned(Item.ItemPicture));
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSecondaryPicture:  Result := IL_CompareBool(Assigned(fSecondaryPicture),Assigned(Item.SecondaryPicture));
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtPackagePicture:    Result := IL_CompareBool(Assigned(fPackagePicture),Assigned(Item.PackagePicture));
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtItemType:          If not(fItemType in [ilitUnknown,ilitOther]) and not(Item.ItemType in [ilitUnknown,ilitOther]) then
@@ -242,6 +244,10 @@ case ItemValueTag of
   ilivtMainPictureFile:   Result := IL_CompareText(fItemPictureFile,Item.ItemPictureFile);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtMainPicFilePres:   Result := IL_CompareBool(Length(fItemPictureFile) > 0,Length(Item.ItemPictureFile) > 0);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSecondaryPictureFile:  Result := IL_CompareText(fSecondaryPictureFile,Item.SecondaryPictureFile);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtSecondaryPicFilePres:  Result := IL_CompareBool(Length(fSecondaryPictureFile) > 0,Length(Item.SecondaryPictureFile) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtPackPictureFile:   Result := IL_CompareText(fPackagePictureFile,Item.PackagePictureFile);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

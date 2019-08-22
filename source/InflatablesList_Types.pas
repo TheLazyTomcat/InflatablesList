@@ -34,6 +34,9 @@ procedure IL_UniqueReconvStr(var Str: TILReconvString);
 //- items ----------------------------------------------------------------------
 
 type
+  TLIItemPictureKind  = (ilipkUnknown,ilipkMain,ilipkSecondary,ilipkPackage);
+  TLIItemPictureKinds = set of TLIItemPictureKind;
+
   TILItemType = (ilitUnknown,ilitRing,ilitRingWithHandles,ilitBall,ilitRider,
                  ilitLounger,ilitLoungerChair,ilitChair,ilitSeat,ilitMattress,
                  ilitIsland,ilitIslandRider,ilitBed,ilitBoat,ilitToy,ilitWings,
@@ -131,18 +134,19 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 
 type
   TILItemValueTag = (
-    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtPackagePicture,
-    ilivtItemType,ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,ilivtManufacturerStr,
-    ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,
-    ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,
-    ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
+    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtSecondaryPicture,
+    ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,
+    ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,
+    ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,
+    ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
     ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,ilivtNumTag,
     ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
     ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
-    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtPackPictureFile,
-    ilivtPackPicFilePres,ilivtUnitPriceDefault,ilivtUnitPriceLowest,ilivtTotalPriceLowest,
-    ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
-    ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
+    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
+    ilivtSecondaryPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,ilivtUnitPriceDefault,
+    ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
+    ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,
+    ilivtSelectedShop,ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -641,65 +645,68 @@ end;
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 begin
 case ItemValueTag of
-  ilivtMainPicture:       Result := 1;
-  ilivtPackagePicture:    Result := 2;
-  ilivtTimeOfAdd:         Result := 3;
-  ilivtItemType:          Result := 4;
-  ilivtItemTypeSpec:      Result := 5;
-  ilivtCount:             Result := 6;
-  ilivtManufacturer:      Result := 7;
-  ilivtManufacturerStr:   Result := 8;
-  ilivtID:                Result := 9;
-  ilivtFlagOwned:         Result := 10;
-  ilivtFlagWanted:        Result := 11;
-  ilivtFlagOrdered:       Result := 12;
-  ilivtFlagBoxed:         Result := 13;
-  ilivtFlagElsewhere:     Result := 14;
-  ilivtFlagUntested:      Result := 15;
-  ilivtFlagTesting:       Result := 16;
-  ilivtFlagTested:        Result := 17;
-  ilivtFlagDamaged:       Result := 18;
-  ilivtFlagRepaired:      Result := 19;
-  ilivtFlagPriceChange:   Result := 20;
-  ilivtFlagAvailChange:   Result := 21;
-  ilivtFlagNotAvailable:  Result := 22;
-  ilivtTextTag:           Result := 23;
-  ilivtWantedLevel:       Result := 24;
-  ilivtVariant:           Result := 25;
-  ilivtSizeX:             Result := 26;
-  ilivtSizeY:             Result := 27;
-  ilivtSizeZ:             Result := 28;
-  ilivtTotalSize:         Result := 29;
-  ilivtUnitWeight:        Result := 30;
-  ilivtTotalWeight:       Result := 31;
-  ilivtNotes:             Result := 32;
-  ilivtReviewURL:         Result := 33;
-  ilivtReview:            Result := 34;
-  ilivtMainPictureFile:   Result := 35;
-  ilivtMainPicFilePres:   Result := 36;
-  ilivtPackPictureFile:   Result := 37;
-  ilivtPackPicFilePres:   Result := 38;
-  ilivtUnitPriceDefault:  Result := 39;
-  ilivtUnitPriceLowest:   Result := 40;
-  ilivtTotalPriceLowest:  Result := 41;
-  ilivtUnitPriceSel:      Result := 42;
-  ilivtTotalPriceSel:     Result := 43;
-  ilivtTotalPrice:        Result := 44;
-  ilivtAvailable:         Result := 45;
-  ilivtShopCount:         Result := 46;
-  ilivtSelectedShop:      Result := 47;
+  ilivtMainPicture:           Result := 1;
+  ilivtPackagePicture:        Result := 2;
+  ilivtTimeOfAdd:             Result := 3;
+  ilivtItemType:              Result := 4;
+  ilivtItemTypeSpec:          Result := 5;
+  ilivtCount:                 Result := 6;
+  ilivtManufacturer:          Result := 7;
+  ilivtManufacturerStr:       Result := 8;
+  ilivtID:                    Result := 9;
+  ilivtFlagOwned:             Result := 10;
+  ilivtFlagWanted:            Result := 11;
+  ilivtFlagOrdered:           Result := 12;
+  ilivtFlagBoxed:             Result := 13;
+  ilivtFlagElsewhere:         Result := 14;
+  ilivtFlagUntested:          Result := 15;
+  ilivtFlagTesting:           Result := 16;
+  ilivtFlagTested:            Result := 17;
+  ilivtFlagDamaged:           Result := 18;
+  ilivtFlagRepaired:          Result := 19;
+  ilivtFlagPriceChange:       Result := 20;
+  ilivtFlagAvailChange:       Result := 21;
+  ilivtFlagNotAvailable:      Result := 22;
+  ilivtTextTag:               Result := 23;
+  ilivtWantedLevel:           Result := 24;
+  ilivtVariant:               Result := 25;
+  ilivtSizeX:                 Result := 26;
+  ilivtSizeY:                 Result := 27;
+  ilivtSizeZ:                 Result := 28;
+  ilivtTotalSize:             Result := 29;
+  ilivtUnitWeight:            Result := 30;
+  ilivtTotalWeight:           Result := 31;
+  ilivtNotes:                 Result := 32;
+  ilivtReviewURL:             Result := 33;
+  ilivtReview:                Result := 34;
+  ilivtMainPictureFile:       Result := 35;
+  ilivtMainPicFilePres:       Result := 36;
+  ilivtPackPictureFile:       Result := 37;
+  ilivtPackPicFilePres:       Result := 38;
+  ilivtUnitPriceDefault:      Result := 39;
+  ilivtUnitPriceLowest:       Result := 40;
+  ilivtTotalPriceLowest:      Result := 41;
+  ilivtUnitPriceSel:          Result := 42;
+  ilivtTotalPriceSel:         Result := 43;
+  ilivtTotalPrice:            Result := 44;
+  ilivtAvailable:             Result := 45;
+  ilivtShopCount:             Result := 46;
+  ilivtSelectedShop:          Result := 47;
   // newly added
-  ilivtFlagLost:          Result := 48;
-  ilivtWorstUpdateResult: Result := 49;
-  ilivtUsefulShopCount:   Result := 50;
-  ilivtUsefulShopRatio:   Result := 51;
-  ilivtMaterial:          Result := 52;
-  ilivtThickness:         Result := 53;
-  ilivtFlagDiscarded:     Result := 54;
-  ilivtTextID:            Result := 55;
-  ilivtIDStr:             Result := 56;
-  ilivtUniqueID:          Result := 57;
-  ilivtNumTag:            Result := 58;
+  ilivtFlagLost:              Result := 48;
+  ilivtWorstUpdateResult:     Result := 49;
+  ilivtUsefulShopCount:       Result := 50;
+  ilivtUsefulShopRatio:       Result := 51;
+  ilivtMaterial:              Result := 52;
+  ilivtThickness:             Result := 53;
+  ilivtFlagDiscarded:         Result := 54;
+  ilivtTextID:                Result := 55;
+  ilivtIDStr:                 Result := 56;
+  ilivtUniqueID:              Result := 57;
+  ilivtNumTag:                Result := 58;
+  ilivtSecondaryPicture:      Result := 59;
+  ilivtSecondaryPictureFile:  Result := 60;
+  ilivtSecondaryPicFilePres:  Result := 61;
 else
   {ilivtNone}
   Result := 0;
@@ -770,6 +777,9 @@ case Num of
   56: Result := ilivtIDStr;
   57: Result := ilivtUniqueID;
   58: Result := ilivtNumTag;
+  59: Result := ilivtSecondaryPicture;
+  60: Result := ilivtSecondaryPictureFile;
+  61: Result := ilivtSecondaryPicFilePres;
 else
   Result := ilivtNone;
 end;

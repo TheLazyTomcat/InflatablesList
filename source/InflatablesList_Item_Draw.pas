@@ -285,10 +285,15 @@ with fRenderSmall,fRenderSmall.Canvas do
         TextOut(fSmallWidth - 64 - TextWidth(TempStr),20,TempStr);
       end;
 
-    // text tag
+    // text and num tag
     SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clGrayText);
+    TempStr := '';
     If Length(fTextTag) > 0 then
-      TextOut(fSmallWidth - 64 - TextWidth(fTextTag),35,fTextTag);
+      TempStr := fTextTag;
+    If fNumTag <> 0 then
+      TempStr := Format('%s [%d]',[TempStr,fNumTag]);
+    If Length(TempStr) > 0 then
+      TextOut(fSmallWidth - 64 - TextWidth(TempStr),35,TempStr);
 
     // picture
     If Assigned(fItemPictureSmall) and not StaticOptions.NoPictures then

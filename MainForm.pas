@@ -427,6 +427,7 @@ end;
 procedure TfMainForm.FormDestroy(Sender: TObject);
 begin
 frmItemFrame.SetItem(nil,True);
+frmItemFrame.Finalize;
 lbList.Items.Clear; // to be sure
 If fSaveOnExit then
   SaveList;

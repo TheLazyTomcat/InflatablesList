@@ -227,6 +227,8 @@ type
     TestCode:   Boolean;
     SavePages:  Boolean;
     LoadPages:  Boolean;
+    NoSave:     Boolean;
+    NoBackup:   Boolean;
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;

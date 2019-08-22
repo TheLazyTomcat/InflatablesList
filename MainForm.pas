@@ -230,11 +230,11 @@ uses
 const
   DEFAULT_LIST_FILENAME = 'list.inl';
 
-  STATUSBAR_PANEL_IDX_INDEX     = 0;
-  STATUSBAR_PANEL_IDX_RESERVED  = 1;
-  STATUSBAR_PANEL_IDX_OPTIONS   = 2;
-  STATUSBAR_PANEL_IDX_FILENAME  = 3;
-  STATUSBAR_PANEL_IDX_COPYRIGHT = 4;
+  STATUSBAR_PANEL_IDX_INDEX       = 0;
+  STATUSBAR_PANEL_IDX_STATIC_OPTS = 1;
+  STATUSBAR_PANEL_IDX_OPTIONS     = 2;
+  STATUSBAR_PANEL_IDX_FILENAME    = 3;
+  STATUSBAR_PANEL_IDX_COPYRIGHT   = 4;
 
 //==============================================================================
 
@@ -331,10 +331,14 @@ end;
 
 procedure TfMainForm.SaveList;
 begin
-If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
-  DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
-    IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
-fILManager.SaveToFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+If not fILManager.StaticOptions.NoSave then
+  begin
+    If not fILManager.StaticOptions.NoBackup then
+      If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
+        DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
+          IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
+    fILManager.SaveToFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+  end;
 end;
 
 //==============================================================================
@@ -1131,8 +1135,7 @@ procedure TfMainForm.mniLM_ExitClick(Sender: TObject);
 begin
 fSaveOnExit := False;
 Close;
-end;
-
+end;    
 
 //------------------------------------------------------------------------------
 
@@ -1251,19 +1254,54 @@ end;
 
 procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
+const
+  STAT_OPTS_STRS: array[0..5] of String = ('nopic','tstcd','svpgs','ldpgs','nosav','nobck');
+  STAT_OPTS_DIST = 5;
+var
+  i:        Integer;
+  TempInt:  Integer;
+
+  procedure DrawOptText(const Text: String; var Left: Integer; Enabled: Boolean; Shift: Integer = 0);
+  begin
+    If Enabled then
+      sbStatusBar.Canvas.Font.Color := sbStatusBar.Font.Color
+    else
+      sbStatusBar.Canvas.Font.Color := clGrayText;
+    sbStatusBar.Canvas.TextOut(Left,Rect.Top,Text);
+    If Shift > 0 then
+      Inc(Left,sbStatusBar.Canvas.TextWidth(Text) + Shift);
+  end;
+
 begin
-If Panel.Index = STATUSBAR_PANEL_IDX_OPTIONS then
-  with sbStatusBar.Canvas do
-    begin
-      // draw background
-      Brush.Style := bsClear;
-      Pen.Style := psClear;
-      If fILManager.ReversedSort then
-        Font.Color := sbStatusBar.Font.Color
-      else
-        Font.Color := clGrayText;
-      TextOut(Rect.Left + (Rect.Right - Rect.Left - TextWidth(Panel.Text)) div 2,Rect.Top,Panel.Text);
-    end;
+case Panel.Index of
+  STATUSBAR_PANEL_IDX_STATIC_OPTS:
+    with sbStatusBar.Canvas do
+      begin
+        TempInt := 0;
+        For i := Low(STAT_OPTS_STRS) to High(STAT_OPTS_STRS) do
+          If i < High(STAT_OPTS_STRS) then
+            Inc(TempInt,TextWidth(STAT_OPTS_STRS[i]) + STAT_OPTS_DIST)
+          else
+            Inc(TempInt,TextWidth(STAT_OPTS_STRS[i]));
+        TempInt := Rect.Left + (Rect.Right - Rect.Left - TempInt) div 2;
+        Brush.Style := bsClear;
+        Pen.Style := psClear;           
+        DrawOptText(STAT_OPTS_STRS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_DIST);
+      end;
+  STATUSBAR_PANEL_IDX_OPTIONS:
+    with sbStatusBar.Canvas do
+      begin
+        TempInt := Rect.Left + (Rect.Right - Rect.Left - TextWidth('s.rev')) div 2;
+        Brush.Style := bsClear;
+        Pen.Style := psClear;
+        DrawOptText('s.rev',TempInt,fILManager.ReversedSort);
+      end;
+end;
 end;
 
 //------------------------------------------------------------------------------

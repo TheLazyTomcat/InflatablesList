@@ -20,6 +20,7 @@ type
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
     procedure RenderSmallItemPicture; override;
+    procedure RenderSmallSecondaryPicture; override;
     procedure RenderSmallPackagePicture; override;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
@@ -315,6 +316,26 @@ If Assigned(fItemPicture) then
 else
   If Assigned(fItemPictureSmall) then
     FreeAndNil(fItemPictureSmall);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.RenderSmallSecondaryPicture;
+begin
+If Assigned(fSecondaryPicture) then
+  begin
+    If not Assigned(fSecondaryPictureSmall) then
+      begin
+        fSecondaryPictureSmall := TBitmap.Create;
+        fSecondaryPictureSmall.PixelFormat := pf24bit;
+        fSecondaryPictureSmall.Width := 48;
+        fSecondaryPictureSmall.Height := 48;
+      end;
+    IL_PicShrink(fSecondaryPicture,fSecondaryPictureSmall);
+  end
+else
+  If Assigned(fSecondaryPictureSmall) then
+    FreeAndNil(fSecondaryPictureSmall);
 end;
 
 //------------------------------------------------------------------------------

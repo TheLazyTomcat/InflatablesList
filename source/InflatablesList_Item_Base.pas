@@ -45,9 +45,11 @@ type
     fTimeOfAddition:        TDateTime;
     // stored pictures
     fItemPicture:           TBitmap;  // 96 x 96 px, white background
+    fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
     fPackagePicture:        TBitmap;  // 96 x 96 px, white background
     // not stored pictures
     fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
+    fSecondaryPictureSmall: TBitmap;  // 48 x 48 px, white background
     fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
     // basic specs
     fItemType:              TILItemType;
@@ -90,6 +92,7 @@ type
     procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
+    procedure SetSecondaryPicture(Value: TBitmap); virtual;
     procedure SetPackagePicture(Value: TBitmap); virtual;
     procedure SetItemType(Value: TILItemType); virtual;
     procedure SetItemTypeSpec(const Value: String); virtual;
@@ -126,6 +129,7 @@ type
     procedure Finalize; virtual;
     // small pictures rendering
     procedure RenderSmallItemPicture; virtual; abstract;
+    procedure RenderSmallSecondaryPicture; virtual; abstract;
     procedure RenderSmallPackagePicture; virtual; abstract;
     procedure RenderSmallPictures; virtual;
     // handlers for item shop events
@@ -188,6 +192,7 @@ type
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
     property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
+    property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
     property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
@@ -244,6 +249,20 @@ If fItemPicture <> Value {a different object reference} then
     RenderSmallItemPicture;
     UpdateMainList;
     UpdateSmallList;
+    UpdatePictures;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetSecondaryPicture(Value: TBitmap);
+begin
+If fSecondaryPicture <> Value then
+  begin
+    If Assigned(fSecondaryPicture) then
+      FreeAndNil(fSecondaryPicture);
+    fSecondaryPicture := Value;
+    RenderSmallSecondaryPicture;
     UpdatePictures;
   end;
 end;
@@ -581,8 +600,10 @@ CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
 fItemPicture := nil;
+fSecondaryPicture := nil;
 fPackagePicture := nil;
 fItemPictureSmall := nil;
+fSecondaryPictureSmall := nil;
 fPackagePictureSmall := nil;
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
@@ -629,10 +650,14 @@ var
 begin
 If Assigned(fItemPicture) then
   FreeAndNil(fItemPicture);
+If Assigned(fSecondaryPicture) then
+  FreeAndNil(fSecondaryPicture);
 If Assigned(fPackagePicture) then
   FreeAndNil(fPackagePicture);
 If Assigned(fItemPictureSmall) then
   FreeAndNil(fItemPictureSmall);
+If Assigned(fSecondaryPictureSmall) then
+  FreeAndNil(fSecondaryPictureSmall);
 If Assigned(fPackagePictureSmall) then
   FreeAndNil(fPackagePictureSmall);
 // remove shops  
@@ -673,6 +698,7 @@ end;
 procedure TILItem_Base.RenderSmallPictures;
 begin
 RenderSmallItemPicture;
+RenderSmallSecondaryPicture;
 RenderSmallPackagePicture;
 end;
 
@@ -843,11 +869,17 @@ If CopyPics then
         fItemPicture := TBitmap.Create;
         fItemPicture.Assign(Source.ItemPicture);
       end;
+    If Assigned(Source.SecondaryPicture) then
+      begin
+        fSecondaryPicture := TBitmap.Create;
+        fSecondaryPicture.Assign(Source.SecondaryPicture);
+      end;
     If Assigned(Source.PackagePicture) then
       begin
         fPackagePicture := TBitmap.Create;
         fPackagePicture.Assign(Source.PackagePicture);
       end;
+    RenderSmallPictures;
     If Assigned(Source.Render) then
       fRender.Assign(Source.Render);
     If Assigned(Source.RenderSmall) then
@@ -1097,6 +1129,7 @@ procedure TILItem_Base.SwitchPictures;
 var
   Temp: TBitmap;
 begin
+{$message 'reimplement'}
 Temp := fItemPicture;
 fItemPicture := fPackagePicture;
 fPackagePicture := Temp;

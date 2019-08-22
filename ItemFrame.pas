@@ -110,6 +110,8 @@ type
     lblTotalPriceSelectedTitle: TLabel;
     lblTotalPriceSelected: TLabel;
     shpTotalPriceSelectedBcgr: TShape;
+    Image1: TImage;
+    Shape1: TShape;
     procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
     procedure pmnPicturesMenuPopup(Sender: TObject);

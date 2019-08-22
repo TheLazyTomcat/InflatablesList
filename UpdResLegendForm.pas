@@ -33,7 +33,7 @@ uses
 
 procedure TfUpdResLegendForm.BuildForm;
 const
-  BOX_WIDTH = 81;
+  BOX_WIDTH = 33;
   BOX_HEIGH = 33;
   TEXT_VSPACE = 15;
   RES_NAMES: array[TILItemShopUpdateResult] of String = (

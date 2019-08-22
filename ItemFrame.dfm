@@ -217,9 +217,9 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalWeight: TLabel
-      Left = 520
+      Left = 525
       Top = 562
-      Width = 73
+      Width = 68
       Height = 13
       Alignment = taRightJustify
       Caption = 'lblTotalWeight'
@@ -245,9 +245,9 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceLowest: TLabel
-      Left = 520
+      Left = 502
       Top = 584
-      Width = 73
+      Width = 91
       Height = 13
       Alignment = taRightJustify
       Caption = 'lblTotalPriceLowest'
@@ -273,9 +273,9 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceSelected: TLabel
-      Left = 520
+      Left = 474
       Top = 604
-      Width = 73
+      Width = 119
       Height = 13
       Alignment = taRightJustify
       Caption = 'lblTotalPriceSelected'
@@ -483,6 +483,24 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
       Transparent = True
+    end
+    object Shape1: TShape
+      Left = 300
+      Top = 36
+      Width = 81
+      Height = 81
+      Brush.Style = bsClear
+      Pen.Color = clSilver
+      Pen.Style = psDot
+    end
+    object Image1: TImage
+      Left = 292
+      Top = 28
+      Width = 96
+      Height = 96
+      Center = True
+      PopupMenu = pmnPicturesMenu
+      OnClick = imgPictureClick
     end
     object seWantedLevel: TSpinEdit
       Left = 0

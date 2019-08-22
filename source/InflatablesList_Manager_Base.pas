@@ -180,6 +180,8 @@ fStaticOptions.NoPictures := fCMDLineParser.CommandPresent('no_pics');
 fStaticOptions.TestCode := fCMDLineParser.CommandPresent('test_code');
 fStaticOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
 fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
+fStaticOptions.NoSave := fCMDLineParser.CommandPresent('no_save');
+fStaticOptions.NoBackup := fCMDLineParser.CommandPresent('no_backup');
 // list
 fCount := 0;
 SetLength(fList,0);

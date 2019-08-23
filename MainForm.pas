@@ -347,14 +347,19 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.SaveList;
+var
+  FileName: String;
 begin
 If not fILManager.StaticOptions.NoSave then
   begin
+    If Length(fILManager.StaticOptions.ListOverride) > 0 then
+      FileName := fILManager.StaticOptions.ListOverride
+    else
+      FileName := fILManager.ListFilePath + DEFAULT_LIST_FILENAME;
     If not fILManager.StaticOptions.NoBackup then
-      If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
-        DoBackup(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME,
-          IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + BACKUP_BACKUP_DIR_DEFAULT));
-    fILManager.SaveToFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
+      If FileExists(FileName) then
+        DoBackup(FileName,IncludeTrailingPathDelimiter(fILManager.ListFilePath + BACKUP_BACKUP_DIR_DEFAULT));
+    fILManager.SaveToFile(FileName);
   end;
 end;
 
@@ -414,9 +419,19 @@ frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
 // load list
-If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
-  fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-FillListFileName(fILManager.FileName);
+If Length(fILManager.StaticOptions.ListOverride) > 0 then
+  begin
+    // overriden list
+    If FileExists(fILManager.StaticOptions.ListOverride) then
+      fILManager.LoadFromFile(fILManager.StaticOptions.ListOverride);
+  end
+else
+  begin
+    // default list
+    If FileExists(fILManager.ListFilePath + DEFAULT_LIST_FILENAME) then
+      fILManager.LoadFromFile(fILManager.ListFilePath + DEFAULT_LIST_FILENAME);
+  end;
+FillListFileName(fILManager.ListFileName);
 // fill list
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
@@ -1124,7 +1139,7 @@ Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
   SaveList;
-  FillListFileName(fILManager.FileName);
+  FillListFileName(fILManager.ListFileName);
 finally
   Screen.Cursor := crDefault;
 end;
@@ -1273,7 +1288,8 @@ end;
 procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 const
-  STAT_OPTS_STRS: array[0..5] of String = ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK');
+  STAT_OPTS_STRS: array[0..7] of String =
+    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
   STAT_OPTS_DIST = 5;
 var
   i:        Integer;
@@ -1310,6 +1326,8 @@ case Panel.Index of
         DrawOptText(STAT_OPTS_STRS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_DIST);
         DrawOptText(STAT_OPTS_STRS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_DIST);
         DrawOptText(STAT_OPTS_STRS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_DIST);
+        DrawOptText(STAT_OPTS_STRS[7],TempInt,Length(fILManager.StaticOptions.ListOverride) > 0,STAT_OPTS_DIST);
       end;
   STATUSBAR_PANEL_IDX_OPTIONS:
     with sbStatusBar.Canvas do

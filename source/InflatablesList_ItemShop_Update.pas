@@ -12,7 +12,7 @@ const
   IL_LISTFILE_UPDATE_TRYCOUNT = 5;
 
 type
-  TILITemShop_Update = class(TILITemShop_Base)
+  TILItemShop_Update = class(TILITemShop_Base)
   public
     Function Update: Boolean; virtual;
   end;
@@ -25,7 +25,7 @@ uses
   InflatablesList_Types,
   InflatablesList_ShopUpdate;
 
-Function TILITemShop_Update.Update: Boolean;
+Function TILItemShop_Update.Update: Boolean;
 var
   Updater:        TILShopUpdater;
   UpdaterResult:  TILShopUpdaterResult;

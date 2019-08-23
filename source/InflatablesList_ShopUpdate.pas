@@ -288,7 +288,7 @@ inherited Create;
 fShopData := TILItemShop_Base.CreateAsCopy(ShopData);
 fDownStream := TMemoryStream.Create;
 InitializeResults;
-fStaticOptions := StaticOptions;
+fStaticOptions := IL_ThreadSafeCopy(StaticOptions);
 end;
 
 //------------------------------------------------------------------------------

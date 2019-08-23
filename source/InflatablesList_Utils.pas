@@ -11,8 +11,10 @@ uses
 //==============================================================================
 //- file path manipulation -----------------------------------------------------
 
-Function IL_PathRelative(const Path: String): String;
-Function IL_PathAbsolute(const Path: String): String;
+Function IL_PathRelative(const Base,Path: String): String;
+Function IL_PathAbsolute(const Base,Path: String): String;
+
+procedure IL_CreateDirectoryPathForFile(const FileName: String);
 
 //==============================================================================
 //- comparison functions, used in sorting --------------------------------------
@@ -52,25 +54,32 @@ uses
 //==============================================================================
 //- file path manipulation -----------------------------------------------------
 
-Function IL_PathRelative(const Path: String): String;
+Function IL_PathRelative(const Base,Path: String): String;
 begin
-Result := ExtractRelativePath(ExtractFilePath(ParamStr(0)),Path);
+Result := ExtractRelativePath(Base,Path);
 If Length(Result) <> Length(Path) then
   Result := '.\' + Result;
 end;
 
 //------------------------------------------------------------------------------
 
-Function IL_PathAbsolute(const Path: String): String;
+Function IL_PathAbsolute(const Base,Path: String): String;
 begin
 If Length(Path) > 0 then
   begin
     If Path[1] = '.' then
-      Result := ExpandFileName(ExtractFilePath(ParamStr(0)) + Path)
+      Result := ExpandFileName(Base + Path)
     else
       Result := Path;
   end
 else Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_CreateDirectoryPathForFile(const FileName: String);
+begin
+ForceDirectories(ExtractFileDir(FileName));
 end;
 
 //==============================================================================

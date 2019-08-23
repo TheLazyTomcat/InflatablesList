@@ -227,12 +227,14 @@ type
 
 type
   TILStaticManagerOptions = record
-    NoPictures: Boolean;
-    TestCode:   Boolean;
-    SavePages:  Boolean;
-    LoadPages:  Boolean;
-    NoSave:     Boolean;
-    NoBackup:   Boolean;
+    NoPictures:       Boolean;
+    TestCode:         Boolean;
+    SavePages:        Boolean;
+    LoadPages:        Boolean;
+    NoSave:           Boolean;
+    NoBackup:         Boolean;
+    NoUpdateAutoLog:  Boolean;
+    ListOverride:     String;
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
@@ -902,7 +904,7 @@ end;
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 begin
 Result := Value;
-// no need to do anything more atm.
+UniqueString(Result.ListOverride);
 end;
 
 end.

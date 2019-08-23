@@ -62,6 +62,7 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
+  InflatablesList_Utils,
   InflatablesList_Item;
 
 procedure TILManager_IO.Save(Stream: TStream; Struct: UInt32);
@@ -202,9 +203,11 @@ try
   FileStream.Size := fCount * (45 * 1024); {~45Kib per item}
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
-  FileStream.Size := FileStream.Position;  
-  FileStream.SaveToFile(FileName);
-  fFileName := FileName;
+  FileStream.Size := FileStream.Position;
+  IL_CreateDirectoryPathForFile(ExpandFileName(FileName));
+  FileStream.SaveToFile(ExpandFileName(FileName));
+  fListFileName := ExpandFileName(FileName);
+  fListFilePath := ExtractFilePath(fListFileName);
 finally
   FileStream.Free;
 end;
@@ -218,10 +221,11 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(ExpandFileName(FileName));
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
-  fFileName := FileName;
+  fListFileName := ExpandFileName(FileName);
+  fListFilePath := ExtractFilePath(fListFileName);
 finally
   FileStream.Free;
 end;

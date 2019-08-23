@@ -862,8 +862,8 @@ procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
 
   procedure OpenPicture(const FileName: String);
   begin
-    If FileExists(IL_PathAbsolute(FileName)) then
-      IL_ShellOpen(Self.Handle,IL_PathAbsolute(FileName));
+    If FileExists(IL_PathAbsolute(fILManager.ListFilePath,FileName)) then
+      IL_ShellOpen(Self.Handle,IL_PathAbsolute(fILManager.ListFilePath,FileName));
   end;
 
 begin
@@ -1337,9 +1337,9 @@ If Assigned(fCurrentItem) then
       If Length(fCurrentItem.ItemPictureFile) > 0 then
         begin
           If MessageDlg('Replace current main picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.ItemPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+            fCurrentItem.ItemPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
         end
-      else fCurrentItem.ItemPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+      else fCurrentItem.ItemPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
       leItemPictureFile.Text := fCurrentItem.ItemPictureFile;
     end;
   end;
@@ -1369,9 +1369,9 @@ If Assigned(fCurrentItem) then
       If Length(fCurrentItem.SecondaryPictureFile) > 0 then
         begin
           If MessageDlg('Replace current secondary picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.SecondaryPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+            fCurrentItem.SecondaryPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
         end
-      else fCurrentItem.SecondaryPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+      else fCurrentItem.SecondaryPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
       leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
     end;
   end;
@@ -1401,9 +1401,9 @@ If Assigned(fCurrentItem) then
       If Length(fCurrentItem.PackagePictureFile) > 0 then
         begin
           If MessageDlg('Replace current package picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.PackagePictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+            fCurrentItem.PackagePictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
         end
-      else fCurrentItem.PackagePictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+      else fCurrentItem.PackagePictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
       lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
     end;
   end;

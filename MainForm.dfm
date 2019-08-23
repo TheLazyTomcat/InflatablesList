@@ -55,7 +55,7 @@ object fMainForm: TfMainForm
       item
         Alignment = taRightJustify
         Style = psOwnerDraw
-        Width = 250
+        Width = 330
       end
       item
         Alignment = taCenter
@@ -63,7 +63,7 @@ object fMainForm: TfMainForm
         Width = 50
       end
       item
-        Width = 570
+        Width = 490
       end
       item
         Alignment = taRightJustify

@@ -15,7 +15,8 @@ type
   TILManager_Base = class(TCustomListObject)
   protected
     fDataProvider:      TILDataProvider;
-    fFileName:          String;
+    fListFileName:      String;
+    fListFilePath:      String;
     fSorting:           Boolean;
     fUpdateCounter:     Integer;
     fUpdated:           Boolean;
@@ -71,7 +72,8 @@ type
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
     property DataProvider: TILDataProvider read fDataProvider;
-    property FileName: String read fFileName;
+    property ListFileName: String read fListFileName;
+    property ListFilePath: String read fListFilePath;
     property StaticOptions: TILStaticManagerOptions read fStaticOptions;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
@@ -168,9 +170,12 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_Base.Initialize;
+var
+  CommandData:  TCLPParameter;
 begin
 fDataProvider := TILDataProvider.Create;
-fFileName := '';
+fListFileName := '';
+fListFilePath := ExtractFilePath(ParamStr(0));
 fSorting := False;
 fUpdateCounter := 0;
 fUpdated := False;
@@ -182,8 +187,18 @@ fStaticOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
 fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
 fStaticOptions.NoSave := fCMDLineParser.CommandPresent('no_save');
 fStaticOptions.NoBackup := fCMDLineParser.CommandPresent('no_backup');
-{$message 'add no auto update log - no_updlog - NOUAL'}
-{$message 'add list override - list_override - LOVRD'}
+fStaticOptions.NoUpdateAutoLog := fCMDLineParser.CommandPresent('no_updlog');
+// note that list_override also disables backups (equivalent to no_backup)
+fStaticOptions.ListOverride := '';
+If fCMDLineParser.CommandPresent('list_override') then
+  begin
+    fCMDLineParser.GetCommandData('list_override',CommandData);
+    If Length(CommandData.Arguments) > 0 then
+      begin
+        fStaticOptions.ListOverride := CommandData.Arguments[Low(CommandData.Arguments)];
+        fStaticOptions.NoBackup := True;
+      end;
+  end;
 // list
 fCount := 0;
 SetLength(fList,0);

@@ -252,7 +252,7 @@ If Length(UpdateList) > 0 then
     end;
     tmrUpdate.Enabled := False;
     If meLog.Lines.Count > 0 then
-      meLog.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'list.update.log');
+      meLog.Lines.SaveToFile(fILManager.ListFilePath + 'list.update.log');
     // return the changed list (done flag is read)
     UpdateList := fUpdateList;
   end

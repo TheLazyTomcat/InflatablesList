@@ -407,6 +407,7 @@ If fNumTag <> Value then
   begin
     fNumTag := Value;
     UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 

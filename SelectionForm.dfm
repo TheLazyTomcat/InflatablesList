@@ -56,10 +56,12 @@ object fSelectionForm: TfSelectionForm
     Style = lbOwnerDrawFixed
     IntegralHeight = True
     ItemHeight = 53
+    PopupMenu = pmnItems
     TabOrder = 1
     OnClick = lbItemsClick
     OnDblClick = lbItemsDblClick
     OnDrawItem = lbItemsDrawItem
+    OnMouseDown = lbItemsMouseDown
   end
   object lvShops: TListView
     Left = 8
@@ -136,6 +138,20 @@ object fSelectionForm: TfSelectionForm
       ViewStyle = vsReport
       OnDblClick = lvItemShopsDblClick
       OnSelectItem = lvShopsSelectItem
+    end
+  end
+  object pmnItems: TPopupMenu
+    OnPopup = pmnItemsPopup
+    Left = 904
+    object mniIT_EditTextTag: TMenuItem
+      Caption = 'Edit textual tag...'
+      ShortCut = 16468
+      OnClick = mniIT_EditTextTagClick
+    end
+    object mniIT_EditNumTag: TMenuItem
+      Caption = 'Edit numerical tag...'
+      ShortCut = 16462
+      OnClick = mniIT_EditNumTagClick
     end
   end
 end

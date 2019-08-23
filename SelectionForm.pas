@@ -9,9 +9,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, StdCtrls, ComCtrls,
+  Dialogs, Grids, StdCtrls, ComCtrls, Menus,
   AuxTypes, CountedDynArrays,
-  InflatablesList_ShopSelectItemsArray, 
+  InflatablesList_ShopSelectItemsArray,
   InflatablesList_Manager;
 
 //-- Table declaration ---------------------------------------------------------
@@ -62,6 +62,9 @@ type
     lblItems: TLabel;
     lblItemsHint: TLabel;
     lbItems: TListBox;
+    pmnItems: TPopupMenu;
+    mniIT_EditTextTag: TMenuItem;
+    mniIT_EditNumTag: TMenuItem;
     grbItemShops: TGroupBox;
     lvItemShops: TListView;
     procedure FormCreate(Sender: TObject);
@@ -72,6 +75,11 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure lbItemsClick(Sender: TObject);
     procedure lbItemsDblClick(Sender: TObject);
+    procedure lbItemsMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure pmnItemsPopup(Sender: TObject);
+    procedure mniIT_EditTextTagClick(Sender: TObject);
+    procedure mniIT_EditNumTagClick(Sender: TObject);
     procedure lvItemShopsDblClick(Sender: TObject);
   private
     { Private declarations }
@@ -521,6 +529,71 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
             RecountAndFillSelected;
             FillItemShop;
             lbItems.Invalidate;            
+          end;
+      end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.lbItemsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  Index:  Integer;
+begin
+If Button = mbRight then
+  begin
+    Index := lbItems.ItemAtPos(Point(X,Y),True);
+    If Index >= 0 then
+      begin
+        lbItems.ItemIndex := Index;
+        lbItems.OnClick(nil);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.pmnItemsPopup(Sender: TObject);
+begin
+mniIT_EditTextTag.Enabled := lbItems.ItemIndex >= 0;
+mniIT_EditNumTag.Enabled := lbItems.ItemIndex >= 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditTextTagClick(Sender: TObject);
+var
+  Temp: String;
+begin
+If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
+  If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then
+    with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
+      begin
+        Temp := ItemObject.TextTag;
+        If InputQuery(Format('Edit textual tag of %s',[ItemObject.TitleStr]),'Textual tag:',Temp) then
+          begin
+            ItemObject.TextTag := Temp;
+            lbItems.Invalidate;
+          end;
+      end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditNumTagClick(Sender: TObject);
+var
+  Temp: Integer;
+begin
+If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
+  If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then
+    with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
+      begin
+        Temp := Integer(ItemObject.NumTag);
+        If IL_InputQuery(Format('Edit numerical tag of %s',[ItemObject.TitleStr]),
+          'Numerical tag:',fMainForm.frmItemFrame.seNumTag.MinValue,
+          fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+          begin
+            ItemObject.NumTag := Temp;
+            lbItems.Invalidate;
           end;
       end;
 end;

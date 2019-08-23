@@ -40,13 +40,13 @@ const
     'no_updlog','list_override <filename>');
   STAT_OPT_DESCR: array[0..Pred(Length(IL_STAT_OPT_TAGS))] of String = (
     'Pictures are not shown in the list and in the item header.',
-    'Text code is executed.',
+    'Test code is executed.',
     'Pages downloaded during updates are saved to the disk.',
     'Pages required during updates are not downloaded from internet, they are instead loaded from the disk.',
-    'Saving of the list is disabled.',
-    'Backup is not attempted during saving of the list (has no meaning is saving is disabled).',
+    'Saving of the list (both implicit and explicit) is disabled.',
+    'Automatic backup during saving of the list is not performed (has no meaning when saving is disabled).',
     'Update log is not automatically saved.',
-    'Overrides file name of loaded and saved list file, also disables backups (equivalent to no_backup).');
+    'Overrides file name of loaded and saved list file, also disables automatic backups (equivalent to no_backup).');
   OPTIONS_TAGS: array[0..0] of String = (
     's.rev');
   OPTIONS_DESCR: array[0..Pred(Length(OPTIONS_TAGS))] of String = (

@@ -239,6 +239,10 @@ type
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 
+const
+  IL_STAT_OPT_TAGS: array[0..7] of String =
+    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
+
 implementation
 
 uses

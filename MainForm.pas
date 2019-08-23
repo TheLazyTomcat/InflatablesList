@@ -60,6 +60,7 @@ type
     mniLM_Specials: TMenuItem;
     N9: TMenuItem;
     mniLM_ResMarkLegend: TMenuItem;
+    mniLM_OptionsLegend: TMenuItem;
     N10: TMenuItem;
     mniLM_Exit: TMenuItem;
     mniLM_SB_Default: TMenuItem;
@@ -155,6 +156,7 @@ type
     procedure mniLM_SpecialsClick(Sender: TObject);
     // ---    
     procedure mniLM_ResMarkLegendClick(Sender: TObject);
+    procedure mniLM_OptionsLegendClick(Sender: TObject);
     // ---
     procedure mniLM_ExitClick(Sender: TObject);
     // ---
@@ -171,6 +173,8 @@ type
     procedure btnFindNextClick(Sender: TObject);
     procedure sbStatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
+    procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     // ---
     procedure acItemShopsExecute(Sender: TObject);
     procedure acItemExportExecute(Sender: TObject);
@@ -219,10 +223,11 @@ var
 implementation
 
 uses
-  {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON}
+  {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON} CommCtrl,
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
+  OptionsLegendForm,
   InflatablesList_Types,
   InflatablesList_Backup,
   InflatablesList_Item;
@@ -378,6 +383,8 @@ fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
 fItemSelectForm.Initialize(fIlManager);
+fUpdResLegendForm.Initialize(fIlManager);
+fOptionsLegendForm.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -1164,6 +1171,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_OptionsLegendClick(Sender: TObject);
+begin
+fOptionsLegendForm.ShowLegend;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_ExitClick(Sender: TObject);
 begin
 fSaveOnExit := False;
@@ -1288,9 +1302,7 @@ end;
 procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 const
-  STAT_OPTS_STRS: array[0..7] of String =
-    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
-  STAT_OPTS_DIST = 5;
+  STAT_OPTS_SPC = 5;
 var
   i:        Integer;
   TempInt:  Integer;
@@ -1312,22 +1324,22 @@ case Panel.Index of
     with sbStatusBar.Canvas do
       begin
         TempInt := 0;
-        For i := Low(STAT_OPTS_STRS) to High(STAT_OPTS_STRS) do
-          If i < High(STAT_OPTS_STRS) then
-            Inc(TempInt,TextWidth(STAT_OPTS_STRS[i]) + STAT_OPTS_DIST)
+        For i := Low(IL_STAT_OPT_TAGS) to High(IL_STAT_OPT_TAGS) do
+          If i < High(IL_STAT_OPT_TAGS) then
+            Inc(TempInt,TextWidth(IL_STAT_OPT_TAGS[i]) + STAT_OPTS_SPC)
           else
-            Inc(TempInt,TextWidth(STAT_OPTS_STRS[i]));
+            Inc(TempInt,TextWidth(IL_STAT_OPT_TAGS[i]));
         TempInt := Rect.Left + (Rect.Right - Rect.Left - TempInt) div 2;
         Brush.Style := bsClear;
         Pen.Style := psClear;           
-        DrawOptText(STAT_OPTS_STRS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_DIST);
-        DrawOptText(STAT_OPTS_STRS[7],TempInt,Length(fILManager.StaticOptions.ListOverride) > 0,STAT_OPTS_DIST);
+        DrawOptText(IL_STAT_OPT_TAGS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[7],TempInt,Length(fILManager.StaticOptions.ListOverride) > 0,STAT_OPTS_SPC);
       end;
   STATUSBAR_PANEL_IDX_OPTIONS:
     with sbStatusBar.Canvas do
@@ -1338,6 +1350,36 @@ case Panel.Index of
         DrawOptText('s.rev',TempInt,fILManager.ReversedSort);
       end;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  i,Index:    Integer;
+  PanelRect:  Windows.TRect;
+
+  Function PointInRect(X,Y: Integer; Rect: Windows.TRect): Boolean;
+  begin
+    Result := (X >= Rect.Left) and (X <= Rect.Right) and
+              (Y >= Rect.Top) and (Y <= Rect.Bottom); 
+  end;
+  
+begin
+If Button = mbLeft then
+  begin
+    Index := -1;
+    // get index of clicked panel
+    For i := 0 to Pred(sbStatusBar.Panels.Count) do
+      If SendMessage(sbStatusBar.Handle,SB_GETRECT,wParam(i),lParam(@PanelRect)) <> 0 then
+        If PointInRect(X,Y,PanelRect) then
+          begin
+            Index := i;
+            Break{For i};
+          end;
+    If Index in [STATUSBAR_PANEL_IDX_STATIC_OPTS,STATUSBAR_PANEL_IDX_OPTIONS] then
+      mniLM_OptionsLegend.OnClick(nil);
+  end;
 end;
 
 //------------------------------------------------------------------------------

@@ -55,7 +55,7 @@ object fMainForm: TfMainForm
       item
         Alignment = taRightJustify
         Style = psOwnerDraw
-        Width = 330
+        Width = 320
       end
       item
         Alignment = taCenter
@@ -63,12 +63,13 @@ object fMainForm: TfMainForm
         Width = 50
       end
       item
-        Width = 490
+        Width = 500
       end
       item
         Alignment = taRightJustify
         Width = 50
       end>
+    OnMouseDown = sbStatusBarMouseDown
     OnDrawPanel = sbStatusBarDrawPanel
   end
   object lbList: TListBox
@@ -331,8 +332,12 @@ object fMainForm: TfMainForm
       Caption = '-'
     end
     object mniLM_ResMarkLegend: TMenuItem
-      Caption = 'Worst update result mark legend...'
+      Caption = 'Worst update result mark colors...'
       OnClick = mniLM_ResMarkLegendClick
+    end
+    object mniLM_OptionsLegend: TMenuItem
+      Caption = 'Options tag legend...'
+      OnClick = mniLM_OptionsLegendClick
     end
     object N10: TMenuItem
       Caption = '-'

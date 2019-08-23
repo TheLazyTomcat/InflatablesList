@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs,
-  InflatablesList_Manager, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls,
+  InflatablesList_Manager;
 
 type
   TfUpdResLegendForm = class(TForm)
@@ -110,7 +110,7 @@ end;
 
 procedure TfUpdResLegendForm.FormCreate(Sender: TObject);
 begin
-BuildForm
+BuildForm;
 end;
 
 end.

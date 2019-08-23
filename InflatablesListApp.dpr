@@ -27,6 +27,8 @@ uses
   InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas',
   InflatablesList_Item_IO_00000002 in 'source\InflatablesList_Item_IO_00000002.pas',
   InflatablesList_Item_IO_00000003 in 'source\InflatablesList_Item_IO_00000003.pas',
+  InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
+  InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ItemShop_Base in 'source\InflatablesList_ItemShop_Base.pas',
   InflatablesList_ItemShop_Update in 'source\InflatablesList_ItemShop_Update.pas',
@@ -68,9 +70,8 @@ uses
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
-  InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
-  InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas';
+  OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm};
 
 {$R *.res}
 
@@ -90,6 +91,7 @@ begin
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfItemSelectForm, fItemSelectForm);
   Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
+  Application.CreateForm(TfOptionsLegendForm, fOptionsLegendForm);
   fMainForm.InitOtherForms;
   Application.Run;
 end.

@@ -420,7 +420,7 @@ object frmShopFrame: TfrmShopFrame
         Top = 118
         Width = 25
         Height = 25
-        Hint = 'Copy available and price parsing settings from selected to local'
+        Hint = 'Copy available and price parsing settings from template to local'
         Caption = '>>'
         ParentShowHint = False
         ShowHint = True

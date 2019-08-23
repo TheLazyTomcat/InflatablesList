@@ -4,7 +4,7 @@ object fMainForm: TfMainForm
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
-  ClientHeight = 675
+  ClientHeight = 707
   ClientWidth = 1264
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,14 +25,14 @@ object fMainForm: TfMainForm
     Left = 640
     Top = 8
     Width = 617
-    Height = 641
+    Height = 673
     Caption = 'Item details'
     TabOrder = 1
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
       Width = 601
-      Height = 620
+      Height = 652
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -44,7 +44,7 @@ object fMainForm: TfMainForm
   end
   object sbStatusBar: TStatusBar
     Left = 0
-    Top = 656
+    Top = 688
     Width = 1264
     Height = 19
     Panels = <
@@ -55,7 +55,7 @@ object fMainForm: TfMainForm
       item
         Alignment = taRightJustify
         Style = psOwnerDraw
-        Width = 215
+        Width = 250
       end
       item
         Alignment = taCenter
@@ -63,7 +63,7 @@ object fMainForm: TfMainForm
         Width = 50
       end
       item
-        Width = 600
+        Width = 570
       end
       item
         Alignment = taRightJustify
@@ -75,10 +75,10 @@ object fMainForm: TfMainForm
     Left = 8
     Top = 8
     Width = 625
-    Height = 610
+    Height = 646
     Style = lbOwnerDrawFixed
     IntegralHeight = True
-    ItemHeight = 101
+    ItemHeight = 107
     PopupMenu = pmnListMenu
     TabOrder = 0
     OnClick = lbListClick
@@ -88,7 +88,7 @@ object fMainForm: TfMainForm
   end
   object eSearchFor: TEdit
     Left = 8
-    Top = 627
+    Top = 659
     Width = 593
     Height = 21
     Font.Charset = DEFAULT_CHARSET
@@ -104,7 +104,7 @@ object fMainForm: TfMainForm
   end
   object btnFindPrev: TButton
     Left = 601
-    Top = 627
+    Top = 659
     Width = 16
     Height = 21
     Caption = '3'
@@ -119,7 +119,7 @@ object fMainForm: TfMainForm
   end
   object btnFindNext: TButton
     Left = 617
-    Top = 627
+    Top = 659
     Width = 16
     Height = 21
     Caption = '4'

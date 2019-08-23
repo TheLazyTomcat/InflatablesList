@@ -202,6 +202,7 @@ type
     fActionMask:  UInt32;
   protected
     procedure FillCopyright;
+    procedure FillListFileName(const FileName: String);
     procedure BuildSortBySubmenu;
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
@@ -218,6 +219,7 @@ var
 implementation
 
 uses
+  {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON}
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
@@ -253,6 +255,21 @@ try
 finally
   Free;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FillListFileName(const FileName: String);
+begin
+If sbStatusBar.Canvas.TextWidth(FileName) >
+  (sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width - (2 * GetSystemMetrics(SM_CXFIXEDFRAME))) then
+  begin
+    sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text :=
+      MinimizeName(FileName,sbStatusBar.Canvas,
+        sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width -
+        (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
+  end
+else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := FileName;
 end;
 
 //------------------------------------------------------------------------------
@@ -399,7 +416,7 @@ frmItemFrame.OnFocusList := FocusList;
 // load list
 If FileExists(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME) then
   fILManager.LoadFromFile(ExtractFilePath(ParamStr(0)) + DEFAULT_LIST_FILENAME);
-sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.FileName;
+FillListFileName(fILManager.FileName);
 // fill list
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
@@ -1107,7 +1124,7 @@ Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
   SaveList;
-  sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.FileName;
+  FillListFileName(fILManager.FileName);
 finally
   Screen.Cursor := crDefault;
 end;
@@ -1256,7 +1273,7 @@ end;
 procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 const
-  STAT_OPTS_STRS: array[0..5] of String = ('nopic','tstcd','svpgs','ldpgs','nosav','nobck');
+  STAT_OPTS_STRS: array[0..5] of String = ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK');
   STAT_OPTS_DIST = 5;
 var
   i:        Integer;

@@ -79,7 +79,7 @@ type
     fSecondaryPictureFile:  String;
     fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
-    //fScore:                 UInt32;           // 0..100 [%]
+    //fRating:                UInt32;           // 0..100 [%]
     // availability and prices (calculated from shops)
     fUnitPriceLowest:       UInt32;
     fUnitPriceHighest:      UInt32;

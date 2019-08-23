@@ -123,13 +123,15 @@ type
     btnReviewOpen: TButton;
     leItemPictureFile: TLabeledEdit;
     btnBrowseItemPictureFile: TButton;
+    leSecondaryPictureFile: TLabeledEdit;
+    btnBrowseSecondaryPictureFile: TButton;
     lePackagePictureFile: TLabeledEdit;
     btnBrowsePackagePictureFile: TButton;
-    bvlInfoSep: TBevel;
     lblUnitDefaultPrice: TLabel;
     seUnitPriceDefault: TSpinEdit;
     btnUpdateShops: TButton;
     btnShops: TButton;
+    bvlInfoSep: TBevel;
     lblSelectedShopTitle: TLabel;
     lblSelectedShop: TLabel;
     lblShopCountTitle: TLabel;
@@ -187,6 +189,8 @@ type
     procedure btnReviewOpenClick(Sender: TObject);        
     procedure leItemPictureFileChange(Sender: TObject);
     procedure btnBrowseItemPictureFileClick(Sender: TObject);
+    procedure leSecondaryPictureFileChange(Sender: TObject);
+    procedure btnBrowseSecondaryPictureFileClick(Sender: TObject);    
     procedure lePackagePictureFileChange(Sender: TObject);
     procedure btnBrowsePackagePictureFileClick(Sender: TObject);
     procedure seUnitPriceDefaultChange(Sender: TObject);
@@ -443,9 +447,12 @@ If Assigned(fCurrentItem) then
     If fCurrentItem.ShopsSelected(SelectedShop) then
       ShowSelectedShop(SelectedShop.Name)
     else
-      ShowSelectedShop('');
+      ShowSelectedShop('-');
     // number of shops
-    lblShopCount.Caption := fCurrentItem.ShopsCountStr;
+    If fCurrentItem.ShopCount > 0 then
+      lblShopCount.Caption := fCurrentItem.ShopsCountStr
+    else
+      lblShopCount.Caption := '-';
     // available pieces
     If fCurrentItem.AvailableSelected <> 0 then
       begin
@@ -478,7 +485,8 @@ If Assigned(fCurrentItem) then
         lblTotalPriceSelected.Caption := '-';
       end;
     // unit price selected background
-    If (fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest) and (fCurrentItem.UnitPriceSelected > 0) then
+    If (fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest) and
+      (fCurrentItem.UnitPriceSelected > 0) and (fCurrentItem.UnitPriceLowest > 0) then
       begin
         shpUnitPriceSelectedBcgr.Visible := True;
         shpTotalPriceSelectedBcgr.Visible := True;
@@ -510,8 +518,8 @@ end;
 procedure TfrmItemFrame.ShowSelectedShop(const SelectedShop: String);
 begin
 If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
-  (lblAvailPieces.BoundsRect.Right - lblSelectedShopTitle.BoundsRect.Right - 8) then
-  lblSelectedShop.Left := lblAvailPieces.BoundsRect.Right - lblSelectedShopTitle.Canvas.TextWidth(SelectedShop)
+  (lblShopCount.BoundsRect.Right - lblSelectedShopTitle.BoundsRect.Right - 8) then
+  lblSelectedShop.Left := lblShopCount.BoundsRect.Right - lblSelectedShop.Canvas.TextWidth(SelectedShop)
 else
   lblSelectedShop.Left := lblSelectedShopTitle.BoundsRect.Right + 8;
 lblSelectedShop.Caption := SelectedShop;
@@ -571,6 +579,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.Notes := meNotes.Text;
       fCurrentItem.ReviewURL := leReviewURL.Text;
       fCurrentItem.ItemPictureFile := leItemPictureFile.Text;
+      fCurrentItem.SecondaryPictureFile := leSecondaryPictureFile.Text;
       fCurrentItem.PackagePictureFile := lePackagePictureFile.Text;
       fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
     finally
@@ -632,6 +641,7 @@ If Assigned(fCurrentItem) then
       meNotes.Text := fCurrentItem.Notes;
       leReviewURL.Text := fCurrentItem.ReviewURL;
       leItemPictureFile.Text := fCurrentItem.ItemPictureFile;
+      leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
       lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
       seUnitPriceDefault.Value := fCurrentItem.UnitPriceDefault;
       ProcessAndShowReadOnlyInfo;
@@ -692,6 +702,7 @@ try
   meNotes.Text := '';
   leReviewURL.Text := '';
   leItemPictureFile.Text := '';
+  leSecondaryPictureFile.Text := '';
   lePackagePictureFile.Text := '';
   seUnitPriceDefault.Value := 0;
   // read-only things
@@ -1330,6 +1341,38 @@ If Assigned(fCurrentItem) then
         end
       else fCurrentItem.ItemPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
       leItemPictureFile.Text := fCurrentItem.ItemPictureFile;
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.leSecondaryPictureFileChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.SecondaryPictureFile := leSecondaryPictureFile.Text;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnBrowseSecondaryPictureFileClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    diaPicOpenDialog.Title := 'Select secondary picture file';
+    diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
+    diaPicOpenDialog.FileName := '';
+    diaPicOpenDialog.InitialDir := fLastPicDir;
+    If diaPicOpenDialog.Execute then
+    begin
+      fLastPicDir := ExtractFileDir(diaPicOpenDialog.FileName);
+      If Length(fCurrentItem.SecondaryPictureFile) > 0 then
+        begin
+          If MessageDlg('Replace current secondary picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+            fCurrentItem.SecondaryPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+        end
+      else fCurrentItem.SecondaryPictureFile := IL_PathRelative(diaPicOpenDialog.FileName);
+      leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
     end;
   end;
 end;

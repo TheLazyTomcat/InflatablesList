@@ -182,6 +182,8 @@ fStaticOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
 fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
 fStaticOptions.NoSave := fCMDLineParser.CommandPresent('no_save');
 fStaticOptions.NoBackup := fCMDLineParser.CommandPresent('no_backup');
+{$message 'add no auto update log - no_updlog - NOUAL'}
+{$message 'add list override - list_override - LOVRD'}
 // list
 fCount := 0;
 SetLength(fList,0);

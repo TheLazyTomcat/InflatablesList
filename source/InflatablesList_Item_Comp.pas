@@ -28,6 +28,7 @@ Function TILItem_Comp.Contains(const Text: String): Boolean;
 var
   SelShop:  TILItemShop;
 begin
+{$message 'add missing'}
 Result :=
   AnsiContainsText(TypeStr,Text) or
   AnsiContainsText(fItemTypeSpec,Text) or

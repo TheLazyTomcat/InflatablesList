@@ -250,7 +250,7 @@ If Assigned(fCurrentItem) and (Index = lvShops.ItemIndex) then
     If fCurrentItem.UnitPriceSelected > 0 then
       begin
         lePriceSelected.Text := Format('%d Kè',[fCurrentItem.UnitPriceSelected]);
-        If fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest then
+        If (fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest) and (fCurrentItem.UnitPriceLowest > 0) then
           lePriceSelected.Color := clYellow
         else
           lePriceSelected.Color := clWindow;

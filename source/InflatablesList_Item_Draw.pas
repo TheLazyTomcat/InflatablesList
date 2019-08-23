@@ -172,7 +172,7 @@ with fRender,fRender.Canvas do
         else
           TempStr := SelShop.Name;
         TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
-        Inc(TempInt,15);
+        Inc(TempInt,17);
 
         If fAvailableSelected <> 0 then
           begin
@@ -181,7 +181,7 @@ with fRender,fRender.Canvas do
             else
               TempStr := Format('%d pcs',[fAvailableSelected]);
             TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
-            Inc(TempInt,15);
+            Inc(TempInt,17);
           end;
       end;
 
@@ -208,9 +208,9 @@ with fRender,fRender.Canvas do
 
     // main picture
     If Assigned(fItemPicture) and not StaticOptions.NoPictures then
-      Draw(fMainWidth - 102,2,fItemPicture)
+      Draw(fMainWidth - 102,5,fItemPicture)
     else
-      Draw(fMainWidth - 102,2,fDataProvider.ItemDefaultPictures[fItemType]);
+      Draw(fMainWidth - 102,5,fDataProvider.ItemDefaultPictures[fItemType]);
 
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then

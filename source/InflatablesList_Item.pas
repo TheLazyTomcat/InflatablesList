@@ -5,7 +5,7 @@ unit InflatablesList_Item;
 interface
 
 uses
-  InflatablesList_Item_IO_00000004;
+  InflatablesList_Item_IO_00000005;
 
 {
   inheritance chain:
@@ -14,7 +14,7 @@ uses
 }
 
 type
-  TILItem = TILItem_IO_00000004;
+  TILItem = TILItem_IO_00000005;
 
 implementation
 

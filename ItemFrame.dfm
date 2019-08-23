@@ -2,7 +2,7 @@ object frmItemFrame: TfrmItemFrame
   Left = 0
   Top = 0
   Width = 601
-  Height = 620
+  Height = 652
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -14,24 +14,24 @@ object frmItemFrame: TfrmItemFrame
     Left = 0
     Top = 0
     Width = 601
-    Height = 620
+    Height = 652
     Align = alClient
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     object shpTotalPriceSelectedBcgr: TShape
-      Left = 516
-      Top = 583
-      Width = 81
-      Height = 17
+      Left = 517
+      Top = 634
+      Width = 80
+      Height = 18
       Brush.Color = clYellow
       Pen.Style = psClear
     end
     object shpUnitPriceSelectedBcgr: TShape
-      Left = 284
-      Top = 583
-      Width = 81
-      Height = 17
+      Left = 309
+      Top = 634
+      Width = 80
+      Height = 18
       Brush.Color = clYellow
       Pen.Style = psClear
     end
@@ -136,7 +136,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblUnitDefaultPrice: TLabel
       Left = 0
-      Top = 528
+      Top = 552
       Width = 87
       Height = 13
       Caption = 'Default price [K'#269']:'
@@ -170,7 +170,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object bvlInfoSep: TBevel
       Left = 0
-      Top = 518
+      Top = 598
       Width = 601
       Height = 9
       Shape = bsTopLine
@@ -206,7 +206,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalWeightTitle: TLabel
       Left = 450
-      Top = 562
+      Top = 604
       Width = 63
       Height = 13
       Alignment = taRightJustify
@@ -220,7 +220,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalWeight: TLabel
       Left = 520
-      Top = 562
+      Top = 604
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -235,7 +235,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalPriceLowestTitle: TLabel
       Left = 425
-      Top = 584
+      Top = 620
       Width = 88
       Height = 13
       Alignment = taRightJustify
@@ -249,7 +249,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalPriceLowest: TLabel
       Left = 520
-      Top = 584
+      Top = 620
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -264,7 +264,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalPriceSelectedTitle: TLabel
       Left = 399
-      Top = 604
+      Top = 636
       Width = 114
       Height = 13
       Alignment = taRightJustify
@@ -278,7 +278,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblTotalPriceSelected: TLabel
       Left = 520
-      Top = 604
+      Top = 636
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -295,8 +295,8 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitPriceLowestTitle: TLabel
-      Left = 198
-      Top = 584
+      Left = 222
+      Top = 620
       Width = 83
       Height = 13
       Alignment = taRightJustify
@@ -309,8 +309,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceLowest: TLabel
-      Left = 288
-      Top = 584
+      Left = 312
+      Top = 620
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -324,8 +324,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceSelectedTitle: TLabel
-      Left = 173
-      Top = 604
+      Left = 197
+      Top = 636
       Width = 108
       Height = 13
       Alignment = taRightJustify
@@ -338,8 +338,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblAvailPiecesTitle: TLabel
-      Left = 201
-      Top = 562
+      Left = 225
+      Top = 604
       Width = 80
       Height = 13
       Alignment = taRightJustify
@@ -352,8 +352,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblAvailPieces: TLabel
-      Left = 288
-      Top = 562
+      Left = 312
+      Top = 604
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -367,8 +367,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblSelectedShopTitle: TLabel
-      Left = 210
-      Top = 540
+      Left = 26
+      Top = 604
       Width = 71
       Height = 13
       Alignment = taRightJustify
@@ -381,8 +381,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblSelectedShop: TLabel
-      Left = 288
-      Top = 540
+      Left = 104
+      Top = 604
       Width = 75
       Height = 13
       Caption = 'lblSelectedShop'
@@ -394,8 +394,8 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceSelected: TLabel
-      Left = 288
-      Top = 604
+      Left = 312
+      Top = 636
       Width = 73
       Height = 13
       Alignment = taRightJustify
@@ -410,8 +410,8 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblShopCountTitle: TLabel
-      Left = 428
-      Top = 540
+      Left = 12
+      Top = 620
       Width = 85
       Height = 13
       Alignment = taRightJustify
@@ -424,9 +424,9 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblShopCount: TLabel
-      Left = 520
-      Top = 540
-      Width = 73
+      Left = 104
+      Top = 620
+      Width = 57
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
@@ -463,7 +463,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 512
+      Left = 504
       Top = 352
       Width = 75
       Height = 13
@@ -565,12 +565,12 @@ object frmItemFrame: TfrmItemFrame
     end
     object seUnitPriceDefault: TSpinEdit
       Left = 0
-      Top = 544
+      Top = 568
       Width = 105
       Height = 22
       MaxValue = 268435455
       MinValue = 0
-      TabOrder = 23
+      TabOrder = 25
       Value = 0
       OnChange = seUnitPriceDefaultChange
     end
@@ -578,7 +578,7 @@ object frmItemFrame: TfrmItemFrame
       Left = 0
       Top = 408
       Width = 313
-      Height = 101
+      Height = 141
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -636,13 +636,13 @@ object frmItemFrame: TfrmItemFrame
     end
     object lePackagePictureFile: TLabeledEdit
       Left = 320
-      Top = 488
+      Top = 528
       Width = 256
       Height = 21
       EditLabel.Width = 97
       EditLabel.Height = 13
       EditLabel.Caption = 'Package picture file:'
-      TabOrder = 21
+      TabOrder = 23
       OnChange = lePackagePictureFileChange
     end
     object gbFlagsTags: TGroupBox
@@ -870,21 +870,21 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbItemTypeChange
     end
     object btnUpdateShops: TButton
-      Left = 0
-      Top = 568
+      Left = 384
+      Top = 566
       Width = 105
       Height = 25
       Caption = 'Update shops...'
-      TabOrder = 24
+      TabOrder = 26
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
-      Left = 0
-      Top = 594
+      Left = 496
+      Top = 566
       Width = 105
       Height = 25
       Caption = 'Shops...'
-      TabOrder = 25
+      TabOrder = 27
       OnClick = btnShopsClick
     end
     object btnBrowseItemPictureFile: TButton
@@ -898,11 +898,11 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnBrowsePackagePictureFile: TButton
       Left = 576
-      Top = 488
+      Top = 528
       Width = 25
       Height = 21
       Caption = '...'
-      TabOrder = 22
+      TabOrder = 24
       OnClick = btnBrowsePackagePictureFileClick
     end
     object sePieces: TSpinEdit
@@ -939,7 +939,7 @@ object frmItemFrame: TfrmItemFrame
     object seUnitWeight: TSpinEdit
       Left = 408
       Top = 368
-      Width = 97
+      Width = 89
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
@@ -957,9 +957,9 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 10
     end
     object seThickness: TSpinEdit
-      Left = 512
+      Left = 504
       Top = 368
-      Width = 89
+      Width = 97
       Height = 22
       MaxValue = 0
       MinValue = 0
@@ -976,6 +976,26 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Caption = 'Textual ID:'
       TabOrder = 5
       OnChange = leTextIDChange
+    end
+    object leSecondaryPictureFile: TLabeledEdit
+      Left = 320
+      Top = 488
+      Width = 256
+      Height = 21
+      EditLabel.Width = 108
+      EditLabel.Height = 13
+      EditLabel.Caption = 'Secondary picture file:'
+      TabOrder = 21
+      OnChange = leSecondaryPictureFileChange
+    end
+    object btnBrowseSecondaryPictureFile: TButton
+      Left = 576
+      Top = 488
+      Width = 25
+      Height = 21
+      Caption = '...'
+      TabOrder = 22
+      OnClick = btnBrowseSecondaryPictureFileClick
     end
   end
   object diaPicOpenDialog: TOpenDialog

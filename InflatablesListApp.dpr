@@ -69,7 +69,8 @@ uses
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
   InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
-  UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm};
+  UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
+  InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas';
 
 {$R *.res}
 

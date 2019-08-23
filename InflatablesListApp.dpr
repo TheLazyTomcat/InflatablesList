@@ -71,7 +71,8 @@ uses
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
-  OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm};
+  OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm},
+  AboutForm in 'AboutForm.pas' {fAboutForm};
 
 {$R *.res}
 
@@ -92,6 +93,7 @@ begin
   Application.CreateForm(TfItemSelectForm, fItemSelectForm);
   Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
   Application.CreateForm(TfOptionsLegendForm, fOptionsLegendForm);
+  Application.CreateForm(TfAboutForm, fAboutForm);
   fMainForm.InitOtherForms;
   Application.Run;
 end.

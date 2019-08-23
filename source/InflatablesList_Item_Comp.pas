@@ -27,23 +27,49 @@ uses
 Function TILItem_Comp.Contains(const Text: String): Boolean;
 var
   SelShop:  TILItemShop;
+
+  Function GetFlagsString: String;
+  const
+    FLAG_STRS: array[TILItemFlag] of String = (
+      'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
+      'Tested','Damaged','Repaired','Price change','Available change',
+      'Not Available','Lost','Discarded');
+  var
+    Flag: TILItemFlag;
+  begin
+    Result := '';
+    For Flag := Low(TILItemFlag) to High(TILItemFlag) do
+      If Flag in fFlags then
+        Result := Result + FLAG_STRS[Flag];
+  end;
+
 begin
-{$message 'add missing'}
+// search only in editable values
 Result :=
   AnsiContainsText(TypeStr,Text) or
   AnsiContainsText(fItemTypeSpec,Text) or
   AnsiContainsText(IntToStr(fPieces),Text) or
   AnsiContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text) or
   AnsiContainsText(fManufacturerStr,Text) or
+  AnsiContainsText(fTextID,Text) or
   AnsiContainsText(IntToStr(fID),Text) or
+  AnsiContainsText(GetFlagsString,Text) or
   AnsiContainsText(fTextTag,Text) or
+  AnsiContainsText(IntToStr(fNumTag),Text) or
   AnsiContainsText(IntToStr(fWantedLevel),Text) or
   AnsiContainsText(fVariant,Text) or
+  AnsiContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text) or
   AnsiContainsText(IntToStr(fSizeX),Text) or
   AnsiContainsText(IntToStr(fSizeY),Text) or
   AnsiContainsText(IntToStr(fSizeZ),Text) or
   AnsiContainsText(IntToStr(fUnitWeight),Text) or
-  AnsiContainsText(fNotes,Text);
+  AnsiContainsText(IntToStr(fThickness),Text) or
+  AnsiContainsText(fNotes,Text) or
+  AnsiContainsText(fReviewURL,Text) or
+  AnsiContainsText(fItemPictureFile,Text) or
+  AnsiContainsText(fSecondaryPictureFile,Text) or
+  AnsiContainsText(fPackagePictureFile,Text) or
+  AnsiContainsText(IntToStr(fUnitPriceDefault),Text);
 If not Result and ShopsSelected(SelShop) then
   Result := AnsiContainsText(SelShop.Name,Text);
 end;

@@ -61,6 +61,7 @@ type
     N9: TMenuItem;
     mniLM_ResMarkLegend: TMenuItem;
     mniLM_OptionsLegend: TMenuItem;
+    mniLM_About: TMenuItem;    
     N10: TMenuItem;
     mniLM_Exit: TMenuItem;
     mniLM_SB_Default: TMenuItem;
@@ -89,9 +90,9 @@ type
     acSums: TAction;
     acOverview: TAction;
     acSelection: TAction;
-    acNotes: TAction;       
+    acNotes: TAction;
+    acSpecials: TAction;             
     acSave: TAction;
-    acSpecials: TAction;    
     acExit: TAction;
     acSortBy_0: TAction;
     acSortBy_1: TAction;
@@ -152,11 +153,12 @@ type
     procedure mniLM_SelectionClick(Sender: TObject);
     // ---
     procedure mniLM_NotesClick(Sender: TObject);
-    procedure mniLM_SaveClick(Sender: TObject);
     procedure mniLM_SpecialsClick(Sender: TObject);
+    procedure mniLM_SaveClick(Sender: TObject);
     // ---    
     procedure mniLM_ResMarkLegendClick(Sender: TObject);
     procedure mniLM_OptionsLegendClick(Sender: TObject);
+    procedure mniLM_AboutClick(Sender: TObject);    
     // ---
     procedure mniLM_ExitClick(Sender: TObject);
     // ---
@@ -196,8 +198,8 @@ type
     procedure acOverviewExecute(Sender: TObject);
     procedure acSelectionExecute(Sender: TObject);
     procedure acNotesExecute(Sender: TObject);
+    procedure acSpecialsExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
-    procedure acSpecialsExecute(Sender: TObject);    
     procedure acExitExecute(Sender: TObject);
     procedure acSortByCommonExecute(Sender: TObject);
   private
@@ -227,7 +229,7 @@ uses
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
-  OptionsLegendForm,
+  OptionsLegendForm, AboutForm,
   InflatablesList_Types,
   InflatablesList_Backup,
   InflatablesList_Item;
@@ -385,6 +387,7 @@ fUpdateForm.Initialize(fILManager);
 fItemSelectForm.Initialize(fIlManager);
 fUpdResLegendForm.Initialize(fIlManager);
 fOptionsLegendForm.Initialize(fIlManager);
+fAboutForm.Initialize(fIlManager);
 end;
 
 //==============================================================================
@@ -1140,6 +1143,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
+begin
+frmItemFrame.SaveItem;
+fSpecialsForm.ShowModal;
+frmItemFrame.LoadItem;
+lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
 begin
 Screen.Cursor := crHourGlass;
@@ -1154,16 +1167,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
-begin
-frmItemFrame.SaveItem;
-fSpecialsForm.ShowModal;
-frmItemFrame.LoadItem;
-lbList.SetFocus;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfMainForm.mniLM_ResMarkLegendClick(Sender: TObject);
 begin
 fUpdResLegendForm.ShowLegend;
@@ -1174,6 +1177,13 @@ end;
 procedure TfMainForm.mniLM_OptionsLegendClick(Sender: TObject);
 begin
 fOptionsLegendForm.ShowLegend;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_AboutClick(Sender: TObject);
+begin
+fAboutForm.ShowInfo;
 end;
 
 //------------------------------------------------------------------------------
@@ -1377,8 +1387,11 @@ If Button = mbLeft then
             Index := i;
             Break{For i};
           end;
-    If Index in [STATUSBAR_PANEL_IDX_STATIC_OPTS,STATUSBAR_PANEL_IDX_OPTIONS] then
-      mniLM_OptionsLegend.OnClick(nil);
+    case Index of
+      STATUSBAR_PANEL_IDX_STATIC_OPTS,
+      STATUSBAR_PANEL_IDX_OPTIONS:      mniLM_OptionsLegend.OnClick(nil);
+      STATUSBAR_PANEL_IDX_COPYRIGHT:    mniLM_About.OnClick(nil);
+    end;
   end;
 end;
 
@@ -1524,16 +1537,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.acSaveExecute(Sender: TObject);
+procedure TfMainForm.acSpecialsExecute(Sender: TObject);
 begin
-mniLM_Save.OnClick(nil);
+mniLM_Specials.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.acSpecialsExecute(Sender: TObject);
+procedure TfMainForm.acSaveExecute(Sender: TObject);
 begin
-mniLM_Specials.OnClick(nil);
+mniLM_Save.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

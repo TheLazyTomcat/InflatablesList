@@ -318,15 +318,15 @@ object fMainForm: TfMainForm
       ShortCut = 16462
       OnClick = mniLM_NotesClick
     end
-    object mniLM_Save: TMenuItem
-      Caption = 'Save now'
-      ShortCut = 16467
-      OnClick = mniLM_SaveClick
-    end
     object mniLM_Specials: TMenuItem
       Caption = 'Special functions...'
       ShortCut = 16460
       OnClick = mniLM_SpecialsClick
+    end
+    object mniLM_Save: TMenuItem
+      Caption = 'Save now'
+      ShortCut = 16467
+      OnClick = mniLM_SaveClick
     end
     object N9: TMenuItem
       Caption = '-'
@@ -338,6 +338,10 @@ object fMainForm: TfMainForm
     object mniLM_OptionsLegend: TMenuItem
       Caption = 'Options tag legend...'
       OnClick = mniLM_OptionsLegendClick
+    end
+    object mniLM_About: TMenuItem
+      Caption = 'About the program...'
+      OnClick = mniLM_AboutClick
     end
     object N10: TMenuItem
       Caption = '-'

@@ -885,7 +885,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Update shops...'
-      TabOrder = 26
+      TabOrder = 27
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
@@ -894,7 +894,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Shops...'
-      TabOrder = 27
+      TabOrder = 28
       OnClick = btnShopsClick
     end
     object btnBrowseItemPictureFile: TButton
@@ -1015,7 +1015,7 @@ object frmItemFrame: TfrmItemFrame
       MaxLength = 3
       MaxValue = 100
       MinValue = 0
-      TabOrder = 28
+      TabOrder = 26
       Value = 0
       OnChange = seRatingChange
     end

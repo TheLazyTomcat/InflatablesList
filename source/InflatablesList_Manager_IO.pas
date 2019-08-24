@@ -100,7 +100,7 @@ For i := Low(Indices) to High(Indices) do
 FileStream := TMemoryStream.Create;
 try
   // pre-allocate
-  FileStream.Size := Length(Indices) * (54 * 1024); // ~54Kib per item
+  FileStream.Size := Length(Indices) * (90 * 1024); // ~90Kib per item
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
@@ -200,7 +200,7 @@ begin
 FileStream := TMemoryStream.Create;
 try
   //prealloc
-  FileStream.Size := fCount * (45 * 1024); {~45Kib per item}
+  FileStream.Size := fCount * (90 * 1024);  // ~90Kib per item
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;

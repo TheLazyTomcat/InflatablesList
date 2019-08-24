@@ -144,7 +144,7 @@ type
     ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
     ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
     ilivtSecondaryPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,ilivtUnitPriceDefault,
-    ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
+    ilivtRating,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
     ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,
     ilivtSelectedShop,ilivtWorstUpdateResult);
 
@@ -713,6 +713,7 @@ case ItemValueTag of
   ilivtSecondaryPicture:      Result := 59;
   ilivtSecondaryPictureFile:  Result := 60;
   ilivtSecondaryPicFilePres:  Result := 61;
+  ilivtRating:                Result := 62;
 else
   {ilivtNone}
   Result := 0;
@@ -786,6 +787,7 @@ case Num of
   59: Result := ilivtSecondaryPicture;
   60: Result := ilivtSecondaryPictureFile;
   61: Result := ilivtSecondaryPicFilePres;
+  62: Result := ilivtRating;
 else
   Result := ilivtNone;
 end;

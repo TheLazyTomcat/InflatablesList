@@ -123,7 +123,7 @@ const
     'Wall thickness','Notes','ReviewURL','Review (is present)','Main picture file',
     'Main picture file (is present)','Secondary picture file','Secondary picture file (is present)',
     'Package picture file','Package picture file (is present)','Default unit price',
-    'Unit price lowest','Total price lowest','Unit price selected','Total price selected',
+    'Rating','Unit price lowest','Total price lowest','Unit price selected','Total price selected',
     'Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 

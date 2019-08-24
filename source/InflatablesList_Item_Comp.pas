@@ -48,7 +48,7 @@ begin
 Result :=
   AnsiContainsText(TypeStr,Text) or
   AnsiContainsText(fItemTypeSpec,Text) or
-  AnsiContainsText(IntToStr(fPieces),Text) or
+  AnsiContainsText(Format('%dpcs',[fPieces]),Text) or
   AnsiContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text) or
   AnsiContainsText(fManufacturerStr,Text) or
   AnsiContainsText(fTextID,Text) or
@@ -59,17 +59,18 @@ Result :=
   AnsiContainsText(IntToStr(fWantedLevel),Text) or
   AnsiContainsText(fVariant,Text) or
   AnsiContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text) or
-  AnsiContainsText(IntToStr(fSizeX),Text) or
-  AnsiContainsText(IntToStr(fSizeY),Text) or
-  AnsiContainsText(IntToStr(fSizeZ),Text) or
-  AnsiContainsText(IntToStr(fUnitWeight),Text) or
-  AnsiContainsText(IntToStr(fThickness),Text) or
+  AnsiContainsText(Format('%dmm',[fSizeX]),Text) or
+  AnsiContainsText(Format('%dmm',[fSizeY]),Text) or
+  AnsiContainsText(Format('%dmm',[fSizeZ]),Text) or
+  AnsiContainsText(Format('%dg',[fUnitWeight]),Text) or
+  AnsiContainsText(Format('%dum',[fThickness]),Text) or
   AnsiContainsText(fNotes,Text) or
   AnsiContainsText(fReviewURL,Text) or
   AnsiContainsText(fItemPictureFile,Text) or
   AnsiContainsText(fSecondaryPictureFile,Text) or
   AnsiContainsText(fPackagePictureFile,Text) or
-  AnsiContainsText(IntToStr(fUnitPriceDefault),Text);
+  AnsiContainsText(Format('%dKè',[fUnitPriceDefault]),Text) or
+  AnsiContainsText(Format('%d%%',[fRating]),Text);
 If not Result and ShopsSelected(SelShop) then
   Result := AnsiContainsText(SelShop.Name,Text);
 end;
@@ -281,6 +282,17 @@ case ItemValueTag of
   ilivtPackPicFilePres:   Result := IL_CompareBool(Length(fPackagePictureFile) > 0,Length(Item.PackagePictureFile) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtUnitPriceDefault:  Result := IL_CompareUInt32(fUnitPriceDefault,Item.UnitPriceDefault);
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ilivtRating:            If ((ilifOwned in fFlags) and not(ilifWanted in fFlags)) and
+                             ((ilifOwned in Item.Flags) and not(ilifWanted in Item.Flags)) then
+                            Result := IL_CompareUInt32(fRating,Item.Rating)
+                          // those without proper flag combination goes at the end
+                          else If ((ilifOwned in fFlags) and not(ilifWanted in fFlags)) then
+                            Result := IL_NegateValue(+1,Reversed)
+                          else If ((ilifOwned in Item.Flags) and not(ilifWanted in Item.Flags)) then
+                            Result := IL_NegateValue(-1,Reversed)
+                          else
+                            Result := 0; 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtUnitPriceLowest:   Result := IL_CompareUInt32(fUnitPriceLowest,Item.UnitPriceLowest);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

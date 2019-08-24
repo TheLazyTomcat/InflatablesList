@@ -1637,11 +1637,12 @@ object fAboutForm: TfAboutForm
     Layout = tlCenter
   end
   object lblMail: TLabel
-    Left = 144
+    Left = 228
     Top = 112
-    Width = 297
+    Width = 129
     Height = 13
     Cursor = crHandPoint
+    Hint = 'mailto:frantisek.milt@gmail.com'
     Alignment = taCenter
     AutoSize = False
     Caption = 'frantisek.milt@gmail.com'
@@ -1651,6 +1652,8 @@ object fAboutForm: TfAboutForm
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     Transparent = True
     OnClick = lblMailClick
     OnMouseEnter = lblMailMouseEnter

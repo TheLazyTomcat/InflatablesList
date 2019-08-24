@@ -153,5 +153,38 @@ object fSelectionForm: TfSelectionForm
       ShortCut = 16462
       OnClick = mniIT_EditNumTagClick
     end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object mniIT_EditTextTagSelected: TMenuItem
+      Caption = 'Edit textual tag of selected items...'
+      OnClick = mniIT_EditTextTagSelectedClick
+    end
+    object mniIT_EditNumTagSelected: TMenuItem
+      Caption = 'Edit numerical tag of selected items...'
+      OnClick = mniIT_EditNumTagSelectedClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object mniIT_EditTextTagAvailable: TMenuItem
+      Caption = 'Edit textual tag of available items...'
+      OnClick = mniIT_EditTextTagAvailableClick
+    end
+    object mniIT_EditNumTagAvailable: TMenuItem
+      Caption = 'Edit numerical tag of available items...'
+      OnClick = mniIT_EditNumTagAvailableClick
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object mniIT_EditTextTagAll: TMenuItem
+      Caption = 'Edit textual tag of all items...'
+      OnClick = mniIT_EditTextTagAllClick
+    end
+    object mniIT_EditNumTagAll: TMenuItem
+      Caption = 'Edit numerical tag of all items...'
+      OnClick = mniIT_EditNumTagAllClick
+    end
   end
 end

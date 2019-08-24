@@ -65,6 +65,15 @@ type
     pmnItems: TPopupMenu;
     mniIT_EditTextTag: TMenuItem;
     mniIT_EditNumTag: TMenuItem;
+    N1: TMenuItem;
+    mniIT_EditTextTagSelected: TMenuItem;
+    mniIT_EditNumTagSelected: TMenuItem;
+    N2: TMenuItem;
+    mniIT_EditTextTagAvailable: TMenuItem;
+    mniIT_EditNumTagAvailable: TMenuItem;
+    N3: TMenuItem;
+    mniIT_EditTextTagAll: TMenuItem;
+    mniIT_EditNumTagAll: TMenuItem;
     grbItemShops: TGroupBox;
     lvItemShops: TListView;
     procedure FormCreate(Sender: TObject);
@@ -80,6 +89,12 @@ type
     procedure pmnItemsPopup(Sender: TObject);
     procedure mniIT_EditTextTagClick(Sender: TObject);
     procedure mniIT_EditNumTagClick(Sender: TObject);
+    procedure mniIT_EditTextTagSelectedClick(Sender: TObject);
+    procedure mniIT_EditNumTagSelectedClick(Sender: TObject);
+    procedure mniIT_EditTextTagAvailableClick(Sender: TObject);
+    procedure mniIT_EditNumTagAvailableClick(Sender: TObject);
+    procedure mniIT_EditTextTagAllClick(Sender: TObject);
+    procedure mniIT_EditNumTagAllClick(Sender: TObject);
     procedure lvItemShopsDblClick(Sender: TObject);
   private
     { Private declarations }
@@ -556,6 +571,24 @@ procedure TfSelectionForm.pmnItemsPopup(Sender: TObject);
 begin
 mniIT_EditTextTag.Enabled := lbItems.ItemIndex >= 0;
 mniIT_EditNumTag.Enabled := lbItems.ItemIndex >= 0;
+If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
+  begin
+    mniIT_EditTextTagSelected.Enabled := (lbItems.Count > 0) and (CDA_GetItem(fShopTable,fCurrentShopIndex).Selected > 0);
+    mniIT_EditNumTagSelected.Enabled := mniIT_EditTextTagSelected.Enabled;
+    mniIT_EditTextTagAvailable.Enabled := (lbItems.Count > 0) and (CDA_GetItem(fShopTable,fCurrentShopIndex).Available > 0);
+    mniIT_EditNumTagAvailable.Enabled := mniIT_EditTextTagAvailable.Enabled;
+    mniIT_EditTextTagAll.Enabled := (lbItems.Count > 0) and (CDA_Count(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) > 0);
+    mniIT_EditNumTagAll.Enabled := mniIT_EditTextTagAll.Enabled;
+  end
+else
+  begin
+    mniIT_EditTextTagSelected.Enabled := False;
+    mniIT_EditNumTagSelected.Enabled := False;
+    mniIT_EditTextTagAvailable.Enabled := False;
+    mniIT_EditNumTagAvailable.Enabled := False;
+    mniIT_EditTextTagAll.Enabled := False;
+    mniIT_EditNumTagAll.Enabled := False;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -596,6 +629,116 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
             lbItems.Invalidate;
           end;
       end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditTextTagSelectedClick(Sender: TObject);
+var
+  Temp: String;
+  i:    Integer;
+begin
+// note that fCurrentShopIndex was checked on menu popup
+Temp := '';
+If InputQuery('Edit textual tag of selected items','Textual tag:',Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).Selected then
+        CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.TextTag := Temp;
+    lbItems.Invalidate;
+  end;  
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditNumTagSelectedClick(Sender: TObject);
+var
+  Temp: Integer;
+  i:    Integer;
+begin
+Temp := 0;
+If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).Selected then
+        CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
+    lbItems.Invalidate;
+  end;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditTextTagAvailableClick(Sender: TObject);
+var
+  Temp: String;
+  i:    Integer;
+begin
+Temp := '';
+If InputQuery('Edit textual tag of available items','Textual tag:',Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).Available then
+        CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.TextTag := Temp;
+    lbItems.Invalidate;
+  end;
+end;
+  
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditNumTagAvailableClick(Sender: TObject);
+var
+  Temp: Integer;
+  i:    Integer;
+begin
+Temp := 0;
+If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).Available then
+        CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
+    lbItems.Invalidate;
+  end;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditTextTagAllClick(Sender: TObject);
+var
+  Temp: String;
+  i:    Integer;
+begin
+Temp := '';
+If InputQuery('Edit textual tag of all items','Textual tag:',Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.TextTag := Temp;
+    lbItems.Invalidate;
+  end;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfSelectionForm.mniIT_EditNumTagAllClick(Sender: TObject);
+var
+  Temp: Integer;
+  i:    Integer;
+begin
+Temp := 0;
+If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+  begin
+    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+      CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
+    lbItems.Invalidate;
+  end;
 end;
 
 //------------------------------------------------------------------------------

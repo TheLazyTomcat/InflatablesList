@@ -1,7 +1,7 @@
 program InflatablesListApp;
 
 uses
-  //FastMM4,
+  FastMM4,
   InflatablesList_Types in 'source\InflatablesList_Types.pas',
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',

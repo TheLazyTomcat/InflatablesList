@@ -129,6 +129,8 @@ type
     btnBrowsePackagePictureFile: TButton;
     lblUnitDefaultPrice: TLabel;
     seUnitPriceDefault: TSpinEdit;
+    lblRating: TLabel;
+    seRating: TSpinEdit;
     btnUpdateShops: TButton;
     btnShops: TButton;
     bvlInfoSep: TBevel;
@@ -184,16 +186,17 @@ type
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
     procedure lblNotesEditClick(Sender: TObject);
     procedure lblNotesEditMouseEnter(Sender: TObject);
-    procedure lblNotesEditMouseLeave(Sender: TObject);         
+    procedure lblNotesEditMouseLeave(Sender: TObject);
     procedure leReviewURLChange(Sender: TObject);
-    procedure btnReviewOpenClick(Sender: TObject);        
+    procedure btnReviewOpenClick(Sender: TObject);
     procedure leItemPictureFileChange(Sender: TObject);
     procedure btnBrowseItemPictureFileClick(Sender: TObject);
     procedure leSecondaryPictureFileChange(Sender: TObject);
-    procedure btnBrowseSecondaryPictureFileClick(Sender: TObject);    
+    procedure btnBrowseSecondaryPictureFileClick(Sender: TObject);
     procedure lePackagePictureFileChange(Sender: TObject);
     procedure btnBrowsePackagePictureFileClick(Sender: TObject);
     procedure seUnitPriceDefaultChange(Sender: TObject);
+    procedure seRatingChange(Sender: TObject);    
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
   private
@@ -582,6 +585,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.SecondaryPictureFile := leSecondaryPictureFile.Text;
       fCurrentItem.PackagePictureFile := lePackagePictureFile.Text;
       fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
+      fCurrentItem.Rating := seRating.Value;
     finally
       fCurrentItem.EndUpdate;
     end
@@ -644,6 +648,7 @@ If Assigned(fCurrentItem) then
       leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
       lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
       seUnitPriceDefault.Value := fCurrentItem.UnitPriceDefault;
+      seRating.Value := fCurrentItem.Rating;
       ProcessAndShowReadOnlyInfo;
     finally
       fInitializing := False;
@@ -705,6 +710,7 @@ try
   leSecondaryPictureFile.Text := '';
   lePackagePictureFile.Text := '';
   seUnitPriceDefault.Value := 0;
+  seRating.Value := 0;
   // read-only things
   lblTotalWeight.Caption := '-';
   ShowSelectedShop('');
@@ -1419,6 +1425,14 @@ If not fInitializing then
       fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
     ProcessAndShowReadOnlyInfo;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.seRatingChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem)then
+  fCurrentItem.Rating := seRating.Value;
 end;
 
 //------------------------------------------------------------------------------

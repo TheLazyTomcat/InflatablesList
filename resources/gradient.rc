@@ -1,1 +1,2 @@
-gradient RCDATA "..\pics\gradient.bmp"
+gradient    RCDATA "..\pics\gradient.bmp"
+rating_grad RCDATA "..\pics\rating_grad.bmp"

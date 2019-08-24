@@ -37,6 +37,7 @@ type
     mniLM_Find: TMenuItem;
     mniLM_FindPrev: TMenuItem;
     mniLM_FindNext: TMenuItem;
+    mniLM_AdvSearch: TMenuItem;
     N4: TMenuItem;
     mniLM_SortSett: TMenuItem;
     mniLM_SortRev: TMenuItem;
@@ -106,6 +107,7 @@ type
     acSortBy_9: TAction;
     diaItemsImport: TOpenDialog;
     diaItemsExport: TSaveDialog;
+    acAdvSearch: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -132,6 +134,7 @@ type
     procedure mniLM_FindClick(Sender: TObject);
     procedure mniLM_FindPrevClick(Sender: TObject);
     procedure mniLM_FindNextClick(Sender: TObject);
+    procedure mniLM_AdvSearchClick(Sender: TObject);    
     // ---
     procedure mniLM_SortCommon(Profile: Integer);
     procedure mniLM_SortSettClick(Sender: TObject);
@@ -185,6 +188,7 @@ type
     procedure acFindExecute(Sender: TObject);
     procedure acFindPrevExecute(Sender: TObject);
     procedure acFindNextExecute(Sender: TObject);
+    procedure acAdvSearchExecute(Sender: TObject);
     procedure acSortSettExecute(Sender: TObject);
     procedure acSortRevExecute(Sender: TObject);
     procedure acSortExecute(Sender: TObject);
@@ -214,7 +218,7 @@ type
     procedure ShowSelectedItem(Sender: TObject);
     procedure FocusList(Sender: TObject);
     procedure UpdateIndexAndCount;
-    procedure SaveList;
+    Function SaveList: Boolean;
   public
     procedure InitOtherForms;
   end;
@@ -353,10 +357,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.SaveList;
+Function TfMainForm.SaveList: Boolean;
 var
   FileName: String;
 begin
+Result := False;
 If not fILManager.StaticOptions.NoSave then
   begin
     If Length(fILManager.StaticOptions.ListOverride) > 0 then
@@ -367,6 +372,7 @@ If not fILManager.StaticOptions.NoSave then
       If FileExists(FileName) then
         DoBackup(FileName,IncludeTrailingPathDelimiter(fILManager.ListFilePath + BACKUP_BACKUP_DIR_DEFAULT));
     fILManager.SaveToFile(FileName);
+    Result := True;
   end;
 end;
 
@@ -832,6 +838,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_AdvSearchClick(Sender: TObject);
+begin
+{$message 'implement'}
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
 begin
 frmItemFrame.SaveItem;
@@ -1158,7 +1171,8 @@ begin
 Screen.Cursor := crHourGlass;
 try
   frmItemFrame.SaveItem;
-  SaveList;
+  If not SaveList then
+    Beep;
   FillListFileName(fILManager.ListFileName);
 finally
   Screen.Cursor := crDefault;
@@ -1442,6 +1456,13 @@ end;
 procedure TfMainForm.acFindNextExecute(Sender: TObject);
 begin
 mniLM_FindNext.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acAdvSearchExecute(Sender: TObject);
+begin
+mniLM_AdvSearch.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

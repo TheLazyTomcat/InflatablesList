@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  SysUtils, Classes,
+  SysUtils, Classes, Math,
   AuxTypes,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -206,11 +206,20 @@ with fRender,fRender.Canvas do
         TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
       end;
 
+    // rating strip
+    If (fRating <> 0) and (ilifOwned in fFLags) and not(ilifWanted in fFlags) then
+      begin
+        TempInt := fMainHeight - Ceil((fMainHeight * Integer(fRating)) / 100);
+        CopyRect(Rect(fMainWidth - 5,TempInt,fMainWidth,fMainHeight),
+                 fDataProvider.RatingGradientImage.Canvas,
+                 Rect(0,TempInt,5,fMainHeight)); 
+      end;
+
     // main picture
     If Assigned(fItemPicture) and not StaticOptions.NoPictures then
-      Draw(fMainWidth - 102,5,fItemPicture)
+      Draw(fMainWidth - 106,5,fItemPicture)
     else
-      Draw(fMainWidth - 102,5,fDataProvider.ItemDefaultPictures[fItemType]);
+      Draw(fMainWidth - 106,5,fDataProvider.ItemDefaultPictures[fItemType]);
 
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then

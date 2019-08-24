@@ -24,6 +24,7 @@ type
     fItemDefaultPics:       array[TILITemType] of TBitmap;
     fItemDefaultPicsSmall:  array[TILITemType] of TBitmap;
     fGradientImage:         TBitmap;
+    fRatingGradientImage:   TBitmap;
     Function GetItemManufacturerCount: Integer;
     Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
     Function GetItemFlagIconCount: Integer;
@@ -64,7 +65,8 @@ type
     property ItemDefaultPictures[ItemType: TILITemType]: TBitmap read GetItemDefaultPicture;
     property ItemDefaultPictureSmallCount: Integer read GetItemDefaultPictureSmallCount;
     property ItemDefaultPicturesSmall[ItemType: TILITemType]: TBitmap read GetItemDefaultPictureSmall;
-    property GradientImage: TBitmap read fGradientImage;    
+    property GradientImage: TBitmap read fGradientImage;
+    property RatingGradientImage: TBitmap read fRatingGradientImage;
   end;
 
 implementation
@@ -384,7 +386,19 @@ try
     ResStream.Free;
   end;
 except
-  fItemReviewIcon := nil;
+  fGradientImage := nil;
+end;
+try
+  ResStream := TResourceStream.Create(hinstance,'rating_grad',PChar(10));
+  try
+    fRatingGradientImage := TBitmap.Create;
+    ResStream.Seek(0,soBeginning);
+    fRatingGradientImage.LoadFromStream(ResStream);
+  finally
+    ResStream.Free;
+  end;
+except
+  fRatingGradientImage := nil;
 end;
 end;
 
@@ -394,6 +408,8 @@ procedure TILDataProvider.FinalieGradientImage;
 begin
 If Assigned(fGradientImage) then
   FreeAndNil(fGradientImage);
+If Assigned(fRatingGradientImage) then
+  FreeAndNil(fRatingGradientImage);
 end;
 
 //------------------------------------------------------------------------------

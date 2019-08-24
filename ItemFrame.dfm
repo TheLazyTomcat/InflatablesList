@@ -508,11 +508,19 @@ object frmItemFrame: TfrmItemFrame
       PopupMenu = pmnPicturesMenu
       OnClick = imgPictureClick
     end
+    object lblRating: TLabel
+      Left = 112
+      Top = 552
+      Width = 97
+      Height = 13
+      Caption = 'Rating (0..100)[%]:'
+    end
     object seWantedLevel: TSpinEdit
       Left = 0
       Top = 328
       Width = 129
       Height = 22
+      MaxLength = 1
       MaxValue = 7
       MinValue = 0
       TabOrder = 8
@@ -684,6 +692,8 @@ object frmItemFrame: TfrmItemFrame
         Width = 65
         Height = 17
         Caption = 'Owned'
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 0
         OnClick = CommonFlagClick
       end
@@ -996,6 +1006,18 @@ object frmItemFrame: TfrmItemFrame
       Caption = '...'
       TabOrder = 22
       OnClick = btnBrowseSecondaryPictureFileClick
+    end
+    object seRating: TSpinEdit
+      Left = 112
+      Top = 568
+      Width = 105
+      Height = 22
+      MaxLength = 3
+      MaxValue = 100
+      MinValue = 0
+      TabOrder = 28
+      Value = 0
+      OnChange = seRatingChange
     end
   end
   object diaPicOpenDialog: TOpenDialog

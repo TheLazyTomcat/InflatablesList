@@ -224,6 +224,12 @@ object fMainForm: TfMainForm
       ShortCut = 114
       OnClick = mniLM_FindNextClick
     end
+    object mniLM_AdvSearch: TMenuItem
+      Caption = 'Advanced search...'
+      Enabled = False
+      ShortCut = 49222
+      OnClick = mniLM_AdvSearchClick
+    end
     object N4: TMenuItem
       Caption = '-'
     end
@@ -549,6 +555,12 @@ object fMainForm: TfMainForm
       Category = 'sorting_by'
       Caption = 'acSortBy_9'
       OnExecute = acSortByCommonExecute
+    end
+    object acAdvSearch: TAction
+      Category = 'search'
+      Caption = 'acAdvSearch'
+      ShortCut = 49222
+      OnExecute = acAdvSearchExecute
     end
   end
   object diaItemsImport: TOpenDialog

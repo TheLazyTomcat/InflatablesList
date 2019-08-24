@@ -79,7 +79,7 @@ type
     fSecondaryPictureFile:  String;
     fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
-    //fRating:                UInt32;           // 0..100 [%]
+    fRating:                UInt32;           // 0..100 [%]
     // availability and prices (calculated from shops)
     fUnitPriceLowest:       UInt32;
     fUnitPriceHighest:      UInt32;
@@ -119,6 +119,7 @@ type
     procedure SetSecondaryPictureFile(const Value: String); virtual;
     procedure SetPackagePictureFile(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
+    procedure SetRating(Value: UInt32); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
     // other protected methods
     Function GetCapacity: Integer; override;
@@ -220,6 +221,7 @@ type
     property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
     property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
+    property Rating: UInt32 read fRating write SetRating;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
     property UnitPriceHighest: UInt32 read fUnitPriceHighest;
     property UnitPriceSelected: UInt32 read fUnitPriceSelected;
@@ -565,6 +567,17 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.SetRating(Value: UInt32);
+begin
+If fRating <> Value then
+  begin
+    fRating := Value;
+    UpdateMainList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 Function TILItem_Base.GetShop(Index: Integer): TILItemShop;
 begin
 If CheckIndex(Index) then
@@ -645,6 +658,7 @@ fReviewURL := '';
 fItemPictureFile := '';
 fPackagePictureFile := '';
 fUnitPriceDefault := 0;
+fRating := 0;
 fUnitPriceLowest := 0;
 fUnitPriceHighest := 0;
 fUnitPriceSelected := 0;
@@ -930,6 +944,7 @@ UniqueString(fItemPictureFile);
 fPackagePictureFile := Source.PackagePictureFile;
 UniqueString(fPackagePictureFile);
 fUnitPriceDefault := Source.UnitPriceDefault;
+fRating := Source.Rating;
 fUnitPriceLowest := Source.UnitPriceLowest;
 fUnitPriceHighest := Source.UnitPriceHighest;
 fUnitPriceSelected := Source.UnitPriceSelected;

@@ -99,7 +99,7 @@
        xlink:href="#linearGradient4169"
        id="linearGradient4160"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.25176471,0,0,0.22764228,-489.9303,509.75259)"
+       gradientTransform="matrix(0.25176471,0,0,0.22764228,363.50848,509.75259)"
        x1="38.57143"
        y1="139.1479"
        x2="463.57144"
@@ -124,6 +124,26 @@
        y1="559.50507"
        x2="542.85715"
        y2="559.50507" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4162"
+       id="linearGradient4177"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.21710145,0,0,0.07291667,-491.78877,467.41704)"
+       x1="50"
+       y1="559.50507"
+       x2="542.85715"
+       y2="559.50507" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4180"
+       id="linearGradient4175"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.21710145,0,0,0.07291667,-491.07448,545.98847)"
+       x1="50"
+       y1="559.50507"
+       x2="542.85718"
+       y2="559.50507" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -133,8 +153,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="361.29326"
-     inkscape:cy="556.55071"
+     inkscape:cx="320.9178"
+     inkscape:cy="651.0157"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -276,9 +296,9 @@
        id="rect4158"
        width="107"
        height="20"
-       x="-480.21939"
+       x="373.21939"
        y="531.42853"
-       transform="matrix(0,-1,1,0,0,0)"
+       transform="matrix(0,1,1,0,0,0)"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -299,5 +319,25 @@
        width="492.85715"
        id="rect4165"
        style="opacity:1;fill:url(#linearGradient4167);fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       y="505.71429"
+       x="-480.93369"
+       height="5"
+       width="107"
+       id="rect4175"
+       style="opacity:1;fill:url(#linearGradient4177);fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0,-1,1,0,0,0)" />
+    <rect
+       transform="matrix(0,-1,1,0,0,0)"
+       style="opacity:1;fill:url(#linearGradient4175);fill-opacity:1.0;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4173"
+       width="107"
+       height="5"
+       x="-480.21939"
+       y="584.28571"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>

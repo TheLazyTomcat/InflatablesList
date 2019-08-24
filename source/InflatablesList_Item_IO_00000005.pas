@@ -88,7 +88,7 @@ Stream_WriteString(Stream,fItemPictureFile);
 Stream_WriteString(Stream,fSecondaryPictureFile);
 Stream_WriteString(Stream,fPackagePictureFile);
 Stream_WriteUInt32(Stream,fUnitPriceDefault);
-Stream_WriteUInt32(Stream,UInt32(-1)); // placeholder
+Stream_WriteUInt32(Stream,fRating);
 // shop avail and prices
 Stream_WriteUInt32(Stream,fUnitPriceLowest);
 Stream_WriteUInt32(Stream,fUnitPriceHighest);
@@ -142,7 +142,7 @@ fItemPictureFile := Stream_ReadString(Stream);
 fSecondaryPictureFile := Stream_ReadString(Stream);
 fPackagePictureFile := Stream_ReadString(Stream);
 fUnitPriceDefault := Stream_ReadUInt32(Stream);
-Stream_ReadUInt32(Stream);  // placeholder
+fRating := Stream_ReadUInt32(Stream);
 // shop avail and prices
 fUnitPriceLowest := Stream_ReadUInt32(Stream);
 fUnitPriceHighest := Stream_ReadUInt32(Stream);

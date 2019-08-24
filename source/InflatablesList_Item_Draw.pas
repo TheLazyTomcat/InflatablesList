@@ -66,7 +66,7 @@ var
   procedure DrawWantedLevelStrip(Canvas: TCanvas);
   const
     WL_STRIP_COLORS: array[0..7] of TColor =
-      (clWhite,$00FEE3CC,$00FDD1AD,$00FBBF8E,$00FAAF71,$00F99D52,$00F78C34,$00F67A15);
+      (clWhite,$00FFB4D9,$00FF97CA,$00FF7CBD,$00FF60AF,$00FF44A1,$00FF2894,$00FF0C85);
   var
     ii: UInt32;
   begin
@@ -93,12 +93,12 @@ with fRender,fRender.Canvas do
     Rectangle(0,0,WL_STRIP_WIDTH,fMainHeight);
     If ilifWanted in fFlags then
       begin
-        If Assigned(fDataProvider.GradientImage) then
+        If Assigned(fDataProvider.WantedGradientImage) then
           begin
             TempInt := fMainHeight - Trunc((fMainHeight / 7) * fWantedLevel);
             If fWantedLevel > 0 then
               CopyRect(Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight),
-                fDataProvider.GradientImage.Canvas,
+                fDataProvider.WantedGradientImage.Canvas,
                 Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight));
           end
         else DrawWantedLevelStrip(fRender.Canvas);
@@ -210,16 +210,16 @@ with fRender,fRender.Canvas do
     If (fRating <> 0) and (ilifOwned in fFLags) and not(ilifWanted in fFlags) then
       begin
         TempInt := fMainHeight - Ceil((fMainHeight * Integer(fRating)) / 100);
-        CopyRect(Rect(fMainWidth - 5,TempInt,fMainWidth,fMainHeight),
+        CopyRect(Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight),
                  fDataProvider.RatingGradientImage.Canvas,
-                 Rect(0,TempInt,5,fMainHeight)); 
+                 Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight));
       end;
 
     // main picture
     If Assigned(fItemPicture) and not StaticOptions.NoPictures then
-      Draw(fMainWidth - 106,5,fItemPicture)
+      Draw(fMainWidth - 102,5,fItemPicture)
     else
-      Draw(fMainWidth - 106,5,fDataProvider.ItemDefaultPictures[fItemType]);
+      Draw(fMainWidth - 102,5,fDataProvider.ItemDefaultPictures[fItemType]);
 
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then

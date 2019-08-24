@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=F:\Programy\Private\InflatablesList\Dev\source\libs\
 UsePackages=0
 [Parameters]
-RunParams=--load_pages --no_save --no_pics
+RunParams=--load_pages --no_save
 HostApplication=
 Launcher=
 UseLauncher=0

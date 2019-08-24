@@ -14,11 +14,63 @@ Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: I
 implementation
 
 uses
-  Windows, SysUtils,
+  Windows, SysUtils, SyncObjs,
   HTTPSend, ssl_openssl, ssl_openssl_lib, // synapse
   CRC32;
 
 {$R '..\resources\down_bins.res'}
+
+const
+  IL_PREP_DOWN_BINS_TAG_WGET = 1;
+  IL_PREP_DOWN_BINS_TAG_OSSL = 2;
+
+var
+  ILPrepFlag_WGET: Integer = 0;
+  ILPrepFlag_OSSL: Integer = 0;
+
+  DiskAccessSection:  TCriticalSection;
+
+procedure IL_PrepDownloadBinaries(Tag: Integer);
+
+  procedure ExtractResToFile(const ResName,FileName: String);
+  var
+    ResStream:  TResourceStream;
+  begin
+    DiskAccessSection.Enter;
+    try
+      If not FileExists(ExtractFilePath(ParamStr(0)) + FileName) then
+        begin
+          ResStream := TResourceStream.Create(hInstance,ResName,PChar(10));
+          try
+            ResStream.SaveToFile(ExtractFilePath(ParamStr(0)) + FileName);
+          finally
+            ResStream.Free;
+          end;
+        end;
+    finally
+      DiskAccessSection.Leave;
+    end;
+  end;
+
+begin
+case Tag of
+  IL_PREP_DOWN_BINS_TAG_WGET:
+    If InterlockedExchangeAdd(ILPrepFlag_WGET,0) <= 0 then
+      begin
+        ExtractResToFile('wget','wget.exe');
+        InterlockedExchangeAdd(ILPrepFlag_WGET,1);
+      end;
+  IL_PREP_DOWN_BINS_TAG_OSSL:
+    If InterlockedExchangeAdd(ILPrepFlag_OSSL,0) <= 0 then
+      begin
+        ExtractResToFile('libeay32','libeay32.dll');
+        ExtractResToFile('ssleay32','ssleay32.dll');
+        InterlockedExchangeAdd(ILPrepFlag_OSSL,1);
+      end;
+end;
+end;
+
+//==============================================================================
 
 Function IL_WGETDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer): Boolean;
 const
@@ -32,6 +84,7 @@ var
   ExitCode:     DWORD;
   FileStream:   TFileStream;
 begin
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET);
 Result := False;
 ResultCode := -1;
 // prepare name for the temp file
@@ -85,6 +138,7 @@ Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: I
 var
   HTTPClient: THTTPSend;
 begin
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_OSSL);
 ResultCode := -1;
 HTTPClient := THTTPSend.Create;
 try
@@ -105,30 +159,10 @@ end;
 
 //==============================================================================
 
-procedure ExtractLibsFromRes;
-
-  procedure ExtractResToFile(const ResName,FileName: String);
-  var
-    ResStream:  TResourceStream;
-  begin
-    If not FileExists(ExtractFilePath(ParamStr(0)) + FileName) then
-      begin
-        ResStream := TResourceStream.Create(hInstance,ResName,PChar(10));
-        try
-          ResStream.SaveToFile(ExtractFilePath(ParamStr(0)) + FileName);
-        finally
-          ResStream.Free;
-        end;
-      end;
-  end;
-
-begin
-ExtractResToFile('libeay32','libeay32.dll');
-ExtractResToFile('ssleay32','ssleay32.dll');
-ExtractResToFile('wget','wget.exe');
-end;
-
 initialization
-  ExtractLibsFromRes;
+  DiskAccessSection := TCriticalSection.Create;
+
+finalization
+  FreeAndNil(DiskAccessSection);
 
 end.

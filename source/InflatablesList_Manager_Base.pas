@@ -195,7 +195,7 @@ If fCMDLineParser.CommandPresent('list_override') then
     fCMDLineParser.GetCommandData('list_override',CommandData);
     If Length(CommandData.Arguments) > 0 then
       begin
-        fStaticOptions.ListOverride := CommandData.Arguments[Low(CommandData.Arguments)];
+        fStaticOptions.ListOverride := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
         fStaticOptions.NoBackup := True;
       end;
   end;

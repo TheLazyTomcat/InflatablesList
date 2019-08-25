@@ -130,6 +130,20 @@ Function IL_NumToItemShopUpdateResult(Num: Int32): TILItemShopUpdateResult;
 Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): TColor;
 
 //==============================================================================
+//- searching ------------------------------------------------------------------
+
+type
+  TILSrcResItemValue = (srifNone);
+  TILSrcResShopValue = (srsfNone);
+
+  TILSearchResult = record
+    ItemIndex:  Integer;
+    ItemValue:  TILSrcResItemValue;
+    ShopIndex:  Integer;
+    ShopValue:  TILSrcResShopValue;
+  end;
+
+//==============================================================================
 //- sorting --------------------------------------------------------------------  
 
 type

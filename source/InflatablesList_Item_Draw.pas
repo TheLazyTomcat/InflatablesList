@@ -227,6 +227,22 @@ with fRender,fRender.Canvas do
         SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
         Polygon([Point(fMainWidth - 15,0),Point(fMainWidth,0),Point(fMainWidth,15)]);
       end;
+
+    // picture presence indication
+    SetCanvas(bsSolid,$00E7E7E7,psClear);
+    If Assigned(fItemPicture) then
+      FillRect(Rect(fMainWidth - 8,fMainHeight - 9,fMainWidth - 1,fMainHeight - 2));
+    If Assigned(fSecondaryPicture) then
+      FillRect(Rect(fMainWidth - 8,fMainHeight - 17,fMainWidth - 1,fMainHeight - 10));
+    If Assigned(fPackagePicture) then
+      FillRect(Rect(fMainWidth - 16,fMainHeight - 9,fMainWidth - 9,fMainHeight - 2));
+    SetCanvas(bsClear,clSilver,psClear);
+    If Length(fItemPictureFile) > 0 then
+      FrameRect(Rect(fMainWidth - 8,fMainHeight - 9,fMainWidth - 1,fMainHeight - 2));
+    If Length(fSecondaryPictureFile) > 0 then
+      FrameRect(Rect(fMainWidth - 8,fMainHeight - 17,fMainWidth - 1,fMainHeight - 10));
+    If Length(fPackagePictureFile) > 0 then
+      FrameRect(Rect(fMainWidth - 16,fMainHeight - 9,fMainWidth - 9,fMainHeight - 2));
   end;
 end;
 

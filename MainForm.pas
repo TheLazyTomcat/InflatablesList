@@ -808,7 +808,12 @@ var
 begin
 If Length(eSearchFor.Text) > 0 then
   begin
-    Index := fILManager.FindPrev(eSearchFor.Text,lbList.ItemIndex);
+    Screen.Cursor := crHourGlass;
+    try
+      Index := fILManager.FindPrev(eSearchFor.Text,lbList.ItemIndex);
+    finally
+      Screen.Cursor := crDefault;
+    end;      
     If Index >= 0 then
       begin
         lbList.ItemIndex := Index;
@@ -826,7 +831,12 @@ var
 begin
 If Length(eSearchFor.Text) > 0 then
   begin
-    Index := fILManager.FindNext(eSearchFor.Text,lbList.ItemIndex);
+    Screen.Cursor := crHourGlass;
+    try
+      Index := fILManager.FindNext(eSearchFor.Text,lbList.ItemIndex);
+    finally
+      Screen.Cursor := crDefault;
+    end;
     If Index >= 0 then
       begin
         lbList.ItemIndex := Index;

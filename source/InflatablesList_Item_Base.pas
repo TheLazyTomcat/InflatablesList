@@ -268,6 +268,7 @@ If fSecondaryPicture <> Value then
       FreeAndNil(fSecondaryPicture);
     fSecondaryPicture := Value;
     RenderSmallSecondaryPicture;
+    UpdateMainList;
     UpdatePictures;
   end;
 end;
@@ -282,6 +283,7 @@ If fPackagePicture <> Value then
       FreeAndNil(fPackagePicture);
     fPackagePicture := Value;
     RenderSmallPackagePicture;
+    UpdateMainList;
     UpdatePictures;
   end;
 end;
@@ -530,6 +532,7 @@ begin
 If not AnsiSameStr(fItemPictureFile,Value) then
   begin
     fItemPictureFile := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -540,6 +543,7 @@ begin
 If not AnsiSameStr(fSecondaryPictureFile,Value) then
   begin
     fSecondaryPictureFile := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -550,6 +554,7 @@ begin
 If not AnsiSameStr(fPackagePictureFile,Value) then
   begin
     fPackagePictureFile := Value;
+    UpdateMainList;
   end;
 end;
 

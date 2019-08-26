@@ -900,7 +900,7 @@ If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
     mniPM_ExportPic.Visible := PicKind <> ilipkUnknown;
     N1.Visible := True;
     mniPM_RemovePic.Visible := PicKind <> ilipkUnknown;
-    mniPM_RemoveItemPic.Visible := (PicKind <> ilipkMain) and Assigned(fCurrentItem.ItemPicture);;
+    mniPM_RemoveItemPic.Visible := (PicKind <> ilipkMain) and Assigned(fCurrentItem.ItemPicture);
     mniPM_RemoveSecondaryPic.Visible := (PicKind <> ilipkSecondary) and Assigned(fCurrentItem.SecondaryPicture);
     mniPM_RemovePackagePic.Visible := (PicKind <> ilipkPackage) and Assigned(fCurrentItem.PackagePicture);
     mniPM_SwapItemPic.Visible := not(PicKind in [ilipkUnknown,ilipkMain]) and Assigned(fCurrentItem.ItemPicture);

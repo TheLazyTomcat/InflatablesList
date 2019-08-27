@@ -211,6 +211,7 @@ type
     fILManager:   TILManager;
     fActionMask:  UInt32;
   protected
+    procedure RePositionMainForm;
     procedure FillCopyright;
     procedure FillListFileName(const FileName: String);
     procedure BuildSortBySubmenu;
@@ -250,6 +251,38 @@ const
   STATUSBAR_PANEL_IDX_COPYRIGHT   = 4;
 
 //==============================================================================
+
+procedure TfMainForm.RePositionMainForm;
+var
+  WorkRect:     TRect;
+  WorkRectSize: TPoint;
+
+  procedure PositionOnX;
+  begin
+    If Width > WorkRectSize.X then
+      Left := WorkRect.Left
+    else
+      Left := WorkRect.Left + (WorkRectSize.X - Width) div 2;
+  end;
+
+begin
+WorkRect := Screen.MonitorFromWindow(Self.Handle).WorkareaRect;
+WorkRectSize := Point(WorkRect.Right - WorkRect.Left,WorkRect.Bottom - WorkRect.Top);
+If Height > WorkRectSize.Y then
+  begin
+    Position := poDesigned;
+    PositionOnX;
+    Top := WorkRect.Top;
+  end
+else If BoundsRect.Bottom > WorkRect.Bottom then
+  begin
+    Position := poDesigned;
+    PositionOnX;    
+    Top := WorkRect.Top + (WorkRectSize.Y - Height) div 2;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfMainForm.FillCopyright;
 begin
@@ -468,6 +501,7 @@ UpdateIndexAndCount;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
 sbStatusBar.Invalidate;
 BuildSortBySubmenu;
+RePositionMainForm;
 end;
 
 //------------------------------------------------------------------------------

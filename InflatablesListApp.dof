@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=F:\Programy\Private\InflatablesList\Dev\source\libs\
 UsePackages=0
 [Parameters]
-RunParams=--load_pages --no_save --no_updlog
+RunParams=--load_pages --no_updlog
 HostApplication=
 Launcher=
 UseLauncher=0
@@ -110,8 +110,8 @@ IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=1
 MinorVer=6
-Release=3
-Build=598
+Release=4
+Build=600
 Debug=0
 PreRelease=0
 Special=0
@@ -122,13 +122,13 @@ CodePage=1250
 [Version Info Keys]
 CompanyName=František Milt
 FileDescription=Inflatables List application
-FileVersion=1.6.3.598
+FileVersion=1.6.4.600
 InternalName=Inflatables List
 LegalCopyright=© 2019 František Milt
 LegalTrademarks=Inflatables List
 OriginalFilename=InflatablesList.exe
 ProductName=Inflatables List
-ProductVersion=1.6.3
+ProductVersion=1.6.4
 Comments=Main program of Inflatables List project
 [HistoryLists\hlDebugSourcePath]
 Count=1

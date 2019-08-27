@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics,
-  AuxTypes, AuxClasses,
+  AuxTypes, AuxClasses, MemoryBuffer,
   InflatablesList_Types,
   InflatablesList_Data,
   InflatablesList_ItemShop;
@@ -39,6 +39,37 @@ type
     fOnShopValuesUpdate:    TIntegerEvent;  // forwarded from item shop
     fOnShopAvailHistoryUpd: TIntegerEvent;  // forwarded from item shop
     fOnShopPriceHistoryUpd: TIntegerEvent;  // forwarded from item shop
+    // item flags and internal data
+    {$message 'implement'}
+  {
+    - decryption if individual items or all of them
+    - list-wide password
+    - fCurrentPassword, fNewPassword
+    - do not ask for password when it was already entered
+    - ask for pswd only when needed, not at the list load
+
+    encryption process:
+
+      - when no item is as of yet encrypted and user marks an item as ecrypted,
+        prompt for a password (list-wide), this pswd will be stored in the list
+        manager and used in each saving
+      - when there are encrypted items in the list none of which were decrypted
+        and another is marked as encrypted, prompt for password - use this
+        password to ad-hoc decrypt first encrypted item and when the pswd
+        matches, store it in list manager and use it to encrypt the item during
+        saving (do not decrypt or re-encrypt other items during this process)
+      - when there are decrypted items and new item is marked as encrypted,
+        a valid password must be in the list manager - do not prompt for a new
+        one and use this one instead
+
+      - when changing the password, firt ask for an old one if there are any
+        encrypted items (test it) and store the new one in different field (the
+        old one must be used to decrypt already encrypted items to re-encrypt
+        them
+  }
+    fEncrypted:             Boolean;        // item will be encrypted during saving
+    fDataAccessible:        Boolean;        // unencrypted or decrypted item
+    fEncryptedData:         TMemoryBuffer;
     // item data...
     // general read-only info
     fUniqueID:              TGUID;

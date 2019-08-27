@@ -72,7 +72,8 @@ uses
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm},
-  AboutForm in 'AboutForm.pas' {fAboutForm};
+  AboutForm in 'AboutForm.pas' {fAboutForm},
+  InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas';
 
 {$R *.res}
 

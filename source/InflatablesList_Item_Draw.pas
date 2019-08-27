@@ -217,9 +217,9 @@ with fRender,fRender.Canvas do
 
     // main picture
     If Assigned(fItemPicture) and not StaticOptions.NoPictures then
-      Draw(fMainWidth - 102,5,fItemPicture)
+      Draw(fMainWidth - 103,5,fItemPicture)
     else
-      Draw(fMainWidth - 102,5,fDataProvider.ItemDefaultPictures[fItemType]);
+      Draw(fMainWidth - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
 
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then

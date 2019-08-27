@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 9
-  Top = 41
+  Left = 8
+  Top = 22
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
@@ -40,6 +40,75 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      inherited pnlMain: TPanel
+        inherited leItemPictureFile: TLabeledEdit [45]
+        end
+        inherited leVariant: TLabeledEdit [46]
+        end
+        inherited leItemTypeSpecification: TLabeledEdit [47]
+        end
+        inherited lePackagePictureFile: TLabeledEdit [48]
+          TabOrder = 22
+        end
+        inherited gbFlagsTags: TGroupBox [49]
+        end
+        inherited cmbManufacturer: TComboBox [50]
+        end
+        inherited cmbItemType: TComboBox [51]
+        end
+        inherited btnUpdateShops: TButton [52]
+        end
+        inherited btnShops: TButton [53]
+        end
+        inherited btnBrowseItemPictureFile: TButton [54]
+          TabOrder = 18
+        end
+        inherited btnBrowsePackagePictureFile: TButton [55]
+          TabOrder = 23
+        end
+        inherited sePieces: TSpinEdit [56]
+        end
+        inherited leReviewURL: TLabeledEdit [57]
+          TabOrder = 16
+        end
+        inherited btnReviewOpen: TButton [58]
+          TabOrder = 17
+        end
+        inherited seUnitWeight: TSpinEdit [59]
+        end
+        inherited cmbMaterial: TComboBox [60]
+        end
+        inherited seThickness: TSpinEdit [61]
+        end
+        inherited leTextID: TLabeledEdit [62]
+        end
+        inherited leSecondaryPictureFile: TLabeledEdit [63]
+          TabOrder = 20
+        end
+        inherited btnBrowseSecondaryPictureFile: TButton [64]
+          TabOrder = 21
+        end
+        inherited seRating: TSpinEdit [65]
+          TabOrder = 24
+        end
+        inherited leManufacturerString: TLabeledEdit [66]
+        end
+        inherited meNotes: TMemo [67]
+          TabOrder = 26
+        end
+        inherited seWantedLevel: TSpinEdit [68]
+        end
+        inherited seSizeZ: TSpinEdit [69]
+        end
+        inherited seSizeY: TSpinEdit [70]
+        end
+        inherited seSizeX: TSpinEdit [71]
+        end
+        inherited seID: TSpinEdit [72]
+        end
+        inherited seUnitPriceDefault: TSpinEdit [73]
+        end
+      end
     end
   end
   object sbStatusBar: TStatusBar

@@ -5,7 +5,7 @@ unit InflatablesList_Manager;
 interface
 
 uses
-  InflatablesList_Manager_IO_00000009;
+  InflatablesList_Manager_IO_0000000A;
 
 {
   inheritance chain:
@@ -14,7 +14,7 @@ uses
 }
 
 type
-  TILManager = TILManager_IO_00000009;
+  TILManager = TILManager_IO_0000000A;
 
 implementation
 

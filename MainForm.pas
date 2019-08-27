@@ -13,8 +13,8 @@ type
   TfMainForm = class(TForm)
     lbList: TListBox;    
     gbDetails: TGroupBox;
-    sbStatusBar: TStatusBar;
     frmItemFrame: TfrmItemFrame;
+    sbStatusBar: TStatusBar;
     oXPManifest: TXPManifest;
     pmnListMenu: TPopupMenu;
     mniLM_Add: TMenuItem;

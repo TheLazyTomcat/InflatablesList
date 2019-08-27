@@ -13,6 +13,7 @@ object fMainForm: TfMainForm
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
+  Menu = mmnMainMenu
   OldCreateOrder = False
   Position = poScreenCenter
   OnClose = FormClose
@@ -136,118 +137,118 @@ object fMainForm: TfMainForm
   object pmnListMenu: TPopupMenu
     OnPopup = pmnListMenuPopup
     Left = 32
-    object mniLM_Add: TMenuItem
+    object mniMML_Add: TMenuItem
       Caption = 'Add new item'
       ShortCut = 45
-      OnClick = mniLM_AddClick
+      OnClick = mniMML_AddClick
     end
-    object mniLM_AddCopy: TMenuItem
+    object mniMML_AddCopy: TMenuItem
       Caption = 'Add copy of selected item'
       ShortCut = 16429
-      OnClick = mniLM_AddCopyClick
+      OnClick = mniMML_AddCopyClick
     end
-    object mniLM_Remove: TMenuItem
+    object mniMML_Remove: TMenuItem
       Caption = 'Remove selected item'
       ShortCut = 46
-      OnClick = mniLM_RemoveClick
+      OnClick = mniMML_RemoveClick
     end
-    object mniLM_Clear: TMenuItem
+    object mniMML_Clear: TMenuItem
       Caption = 'Clear the entire list'
       ShortCut = 16430
-      OnClick = mniLM_ClearClick
+      OnClick = mniMML_ClearClick
     end
     object N1: TMenuItem
       Caption = '-'
     end
-    object mniLM_MoveBeginning: TMenuItem
+    object mniMMI_MoveBeginning: TMenuItem
       Caption = 'Move item to the beginning'
-      OnClick = mniLM_MoveBeginningClick
+      OnClick = mniMMI_MoveBeginningClick
     end
-    object mniLM_MoveUpBy: TMenuItem
+    object mniMMI_MoveUpBy: TMenuItem
       Caption = 'Move item up by 10 places'
-      OnClick = mniLM_MoveUpByClick
+      OnClick = mniMMI_MoveUpByClick
     end
-    object mniLM_MoveUp: TMenuItem
+    object mniMMI_MoveUp: TMenuItem
       Caption = 'Move item up'
-      OnClick = mniLM_MoveUpClick
+      OnClick = mniMMI_MoveUpClick
     end
-    object mniLM_MoveDown: TMenuItem
+    object mniMMI_MoveDown: TMenuItem
       Caption = 'Move item down'
-      OnClick = mniLM_MoveDownClick
+      OnClick = mniMMI_MoveDownClick
     end
-    object mniLM_MoveDownBy: TMenuItem
+    object mniMMI_MoveDownBy: TMenuItem
       Caption = 'Move item down by 10 places'
-      OnClick = mniLM_MoveDownByClick
+      OnClick = mniMMI_MoveDownByClick
     end
-    object mniLM_MoveEnd: TMenuItem
+    object mniMMI_MoveEnd: TMenuItem
       Caption = 'Move item to the end'
-      OnClick = mniLM_MoveEndClick
+      OnClick = mniMMI_MoveEndClick
     end
     object N2: TMenuItem
       Caption = '-'
     end
-    object mniLM_ItemShops: TMenuItem
+    object mniMMI_ItemShops: TMenuItem
       Caption = 'Item shops...'
       ShortCut = 16464
-      OnClick = mniLM_ItemShopsClick
+      OnClick = mniMMI_ItemShopsClick
     end
-    object mniLM_ItemExport: TMenuItem
+    object mniMMI_ItemExport: TMenuItem
       Caption = 'Export item...'
       ShortCut = 16453
-      OnClick = mniLM_ItemExportClick
+      OnClick = mniMMI_ItemExportClick
     end
-    object mniLM_ItemExportMulti: TMenuItem
+    object mniMMI_ItemExportMulti: TMenuItem
       Caption = 'Export multiple items...'
       ShortCut = 49221
-      OnClick = mniLM_ItemExportMultiClick
+      OnClick = mniMMI_ItemExportMultiClick
     end
-    object mniLM_ItemImport: TMenuItem
+    object mniMMI_ItemImport: TMenuItem
       Caption = 'Import items...'
       ShortCut = 16457
-      OnClick = mniLM_ItemImportClick
+      OnClick = mniMMI_ItemImportClick
     end
     object N3: TMenuItem
       Caption = '-'
     end
-    object mniLM_Find: TMenuItem
+    object mniMMF_Find: TMenuItem
       Caption = 'Find...'
       ShortCut = 16454
-      OnClick = mniLM_FindClick
+      OnClick = mniMMF_FindClick
     end
-    object mniLM_FindPrev: TMenuItem
+    object mniMMF_FindPrev: TMenuItem
       Caption = 'Find previous'
       ShortCut = 8306
-      OnClick = mniLM_FindPrevClick
+      OnClick = mniMMF_FindPrevClick
     end
-    object mniLM_FindNext: TMenuItem
+    object mniMMF_FindNext: TMenuItem
       Caption = 'Find next'
       ShortCut = 114
-      OnClick = mniLM_FindNextClick
+      OnClick = mniMMF_FindNextClick
     end
-    object mniLM_AdvSearch: TMenuItem
+    object mniMMF_AdvSearch: TMenuItem
       Caption = 'Advanced search...'
       Enabled = False
       ShortCut = 49222
-      OnClick = mniLM_AdvSearchClick
+      OnClick = mniMMF_AdvSearchClick
     end
     object N4: TMenuItem
       Caption = '-'
     end
-    object mniLM_SortSett: TMenuItem
+    object mniMMS_SortSett: TMenuItem
       Caption = 'Sorting settings...'
-      OnClick = mniLM_SortSettClick
+      OnClick = mniMMS_SortSettClick
     end
-    object mniLM_SortRev: TMenuItem
+    object mniMMS_SortRev: TMenuItem
       Caption = 'Reversed sort'
       ShortCut = 16466
-      OnClick = mniLM_SortRevClick
+      OnClick = mniMMS_SortRevClick
     end
-    object mniLM_Sort: TMenuItem
+    object mniMMS_Sort: TMenuItem
       Caption = 'Sort'
       ShortCut = 16463
-      OnClick = mniLM_SortClick
+      OnClick = mniMMS_SortClick
     end
-    object mniLM_SortBy: TMenuItem
+    object mniMMS_SortBy: TMenuItem
       Caption = 'Sort by profile'
       object mniLM_SB_Default: TMenuItem
         Tag = -2
@@ -267,95 +268,95 @@ object fMainForm: TfMainForm
     object N5: TMenuItem
       Caption = '-'
     end
-    object mniLM_UpdateItem: TMenuItem
+    object mniMMU_UpdateItem: TMenuItem
       Caption = 'Update item shops...'
       ShortCut = 16469
-      OnClick = mniLM_UpdateItemClick
+      OnClick = mniMMU_UpdateItemClick
     end
-    object mniLM_UpdateAll: TMenuItem
+    object mniMMU_UpdateAll: TMenuItem
       Caption = 'Update all shops...'
       ShortCut = 49237
-      OnClick = mniLM_UpdateAllClick
+      OnClick = mniMMU_UpdateAllClick
     end
-    object mniLM_UpdateWanted: TMenuItem
+    object mniMMU_UpdateWanted: TMenuItem
       Caption = 'Update shops of wanted items...'
-      OnClick = mniLM_UpdateWantedClick
+      OnClick = mniMMU_UpdateWantedClick
     end
-    object mniLM_UpdateSelected: TMenuItem
+    object mniMMU_UpdateSelected: TMenuItem
       Caption = 'Update selected shops...'
-      OnClick = mniLM_UpdateSelectedClick
+      OnClick = mniMMU_UpdateSelectedClick
     end
     object N6: TMenuItem
       Caption = '-'
     end
-    object mniLM_UpdateItemShopHistory: TMenuItem
+    object mniMMU_UpdateItemShopHistory: TMenuItem
       Caption = 'Update item shops history'
       ShortCut = 16456
-      OnClick = mniLM_UpdateItemShopHistoryClick
+      OnClick = mniMMU_UpdateItemShopHistoryClick
     end
-    object mniLM_UpdateShopsHistory: TMenuItem
+    object mniMMU_UpdateShopsHistory: TMenuItem
       Caption = 'Update all shops history'
       ShortCut = 49224
-      OnClick = mniLM_UpdateShopsHistoryClick
+      OnClick = mniMMU_UpdateShopsHistoryClick
     end
     object N7: TMenuItem
       Caption = '-'
     end
-    object mniLM_Sums: TMenuItem
+    object mniMMT_Sums: TMenuItem
       Caption = 'Sums...'
       ShortCut = 16461
-      OnClick = mniLM_SumsClick
+      OnClick = mniMMT_SumsClick
     end
-    object mniLM_Overview: TMenuItem
+    object mniMMT_Overview: TMenuItem
       Caption = 'Selected shops overview...'
       ShortCut = 16471
-      OnClick = mniLM_OverviewClick
+      OnClick = mniMMT_OverviewClick
     end
-    object mniLM_Selection: TMenuItem
+    object mniMMT_Selection: TMenuItem
       Caption = 'Shop selection...'
       ShortCut = 16468
-      OnClick = mniLM_SelectionClick
+      OnClick = mniMMT_SelectionClick
     end
     object N8: TMenuItem
       Caption = '-'
     end
-    object mniLM_Notes: TMenuItem
+    object mniMML_Notes: TMenuItem
       Caption = 'Notes...'
       ShortCut = 16462
-      OnClick = mniLM_NotesClick
+      OnClick = mniMML_NotesClick
     end
-    object mniLM_Specials: TMenuItem
+    object mniMMT_Specials: TMenuItem
       Caption = 'Special functions...'
       ShortCut = 16460
-      OnClick = mniLM_SpecialsClick
+      OnClick = mniMMT_SpecialsClick
     end
-    object mniLM_Save: TMenuItem
+    object mniMML_Save: TMenuItem
       Caption = 'Save now'
       ShortCut = 16467
-      OnClick = mniLM_SaveClick
+      OnClick = mniMML_SaveClick
     end
     object N9: TMenuItem
       Caption = '-'
     end
-    object mniLM_ResMarkLegend: TMenuItem
+    object mniMMA_ResMarkLegend: TMenuItem
       Caption = 'Worst update result mark colors...'
-      OnClick = mniLM_ResMarkLegendClick
+      OnClick = mniMMA_ResMarkLegendClick
     end
-    object mniLM_OptionsLegend: TMenuItem
+    object mniMMA_OptionsLegend: TMenuItem
       Caption = 'Options tag legend...'
-      OnClick = mniLM_OptionsLegendClick
+      OnClick = mniMMA_OptionsLegendClick
     end
-    object mniLM_About: TMenuItem
+    object mniMMA_About: TMenuItem
       Caption = 'About the program...'
-      OnClick = mniLM_AboutClick
+      OnClick = mniMMA_AboutClick
     end
     object N10: TMenuItem
       Caption = '-'
     end
-    object mniLM_Exit: TMenuItem
+    object mniMML_Exit: TMenuItem
       Caption = 'Close without saving'
       ShortCut = 16472
-      OnClick = mniLM_ExitClick
+      OnClick = mniMML_ExitClick
     end
   end
   object oXPManifest: TXPManifest
@@ -574,5 +575,26 @@ object fMainForm: TfMainForm
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Title = 'Items export'
     Left = 96
+  end
+  object mmnMainMenu: TMainMenu
+    Left = 160
+    object mniMM_List: TMenuItem
+      Caption = 'List'
+    end
+    object mniMM_Item: TMenuItem
+      Caption = 'Item'
+    end
+    object mniMM_Search: TMenuItem
+      Caption = 'Search'
+    end
+    object mniMM_Sort: TMenuItem
+      Caption = 'Sort'
+    end
+    object mniMM_Tools: TMenuItem
+      Caption = 'Tools'
+    end
+    object mniMM_About: TMenuItem
+      Caption = 'About'
+    end
   end
 end

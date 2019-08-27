@@ -57,6 +57,9 @@ var
 
 implementation
 
+uses
+  PromptForm;
+
 {$R *.dfm}
 
 procedure TfTemplatesForm.Initialize(ILManager: TILManager);
@@ -173,7 +176,7 @@ begin
 If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
   begin
     NewName := lbTemplates.Items[lbTemplates.ItemIndex];
-    If InputQuery('New template name','Enter new template name:',NewName) then
+    If IL_InputQuery('New template name','Enter new template name:',NewName) then
       begin
         // following will also change all references to this template
         fILManager.ShopTemplateRename(lbTemplates.ItemIndex,NewName);

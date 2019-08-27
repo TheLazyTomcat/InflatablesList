@@ -79,6 +79,9 @@ var
 
 implementation
 
+uses
+  PromptForm;
+
 {$R *.dfm}
 
 procedure TfSortForm.FillSortByList(Init: Boolean);
@@ -266,7 +269,7 @@ procedure TfSortForm.pmi_PR_AddClick(Sender: TObject);
 var
   ProfileName:  String;
 begin
-If InputQuery('Sorting profile name','Enter name for the new sorting profile:',ProfileName) then
+If IL_InputQuery('Sorting profile name','Enter name for the new sorting profile:',ProfileName) then
   begin
     If Length(ProfileName) > 0 then
       begin
@@ -289,7 +292,7 @@ begin
 If lbProfiles.ItemIndex >= 0 then
   begin
     ProfileName := fILManager.SortingProfiles[lbProfiles.ItemIndex].Name;
-    If InputQuery('Sorting profile name','Enter new sorting profile name:',ProfileName) then
+    If IL_InputQuery('Sorting profile name','Enter new sorting profile name:',ProfileName) then
       begin
         If Length(ProfileName) > 0 then
           begin

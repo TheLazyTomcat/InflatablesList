@@ -128,7 +128,7 @@ implementation
 uses
   ListSorters,
   InflatablesList_Utils,
-  MainForm;
+  MainForm, PromptForm;
 
 //-- Table implementation ------------------------------------------------------   
 
@@ -602,7 +602,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
       begin
         Temp := ItemObject.TextTag;
-        If InputQuery(Format('Edit textual tag of %s',[ItemObject.TitleStr]),'Textual tag:',Temp) then
+        If IL_InputQuery(Format('Edit textual tag of %s',[ItemObject.TitleStr]),'Textual tag:',Temp) then
           begin
             ItemObject.TextTag := Temp;
             lbItems.Invalidate;
@@ -622,8 +622,8 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
       begin
         Temp := Integer(ItemObject.NumTag);
         If IL_InputQuery(Format('Edit numerical tag of %s',[ItemObject.TitleStr]),
-          'Numerical tag:',fMainForm.frmItemFrame.seNumTag.MinValue,
-          fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+          'Numerical tag:',Temp,fMainForm.frmItemFrame.seNumTag.MinValue,
+          fMainForm.frmItemFrame.seNumTag.MaxValue) then
           begin
             ItemObject.NumTag := Temp;
             lbItems.Invalidate;
@@ -640,7 +640,7 @@ var
 begin
 // note that fCurrentShopIndex was checked on menu popup
 Temp := '';
-If InputQuery('Edit textual tag of selected items','Textual tag:',Temp) then
+If IL_InputQuery('Edit textual tag of selected items','Textual tag:',Temp) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -658,8 +658,8 @@ var
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',Temp,
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -677,7 +677,7 @@ var
   i:    Integer;
 begin
 Temp := '';
-If InputQuery('Edit textual tag of available items','Textual tag:',Temp) then
+If IL_InputQuery('Edit textual tag of available items','Textual tag:',Temp) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -695,8 +695,8 @@ var
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',Temp,
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -714,7 +714,7 @@ var
   i:    Integer;
 begin
 Temp := '';
-If InputQuery('Edit textual tag of all items','Textual tag:',Temp) then
+If IL_InputQuery('Edit textual tag of all items','Textual tag:',Temp) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -731,8 +731,8 @@ var
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue,Temp) then
+If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',Temp,
+  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do

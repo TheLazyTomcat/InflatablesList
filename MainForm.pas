@@ -79,6 +79,7 @@ type
     acFind: TAction;
     acFindPrev: TAction;
     acFindNext: TAction;
+    acAdvSearch: TAction;    
     acSortSett: TAction;
     acSortRev: TAction;
     acSort: TAction;
@@ -107,7 +108,6 @@ type
     acSortBy_9: TAction;
     diaItemsImport: TOpenDialog;
     diaItemsExport: TSaveDialog;
-    acAdvSearch: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -234,7 +234,7 @@ uses
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
-  OptionsLegendForm, AboutForm,
+  OptionsLegendForm, AboutForm, PromptForm,
   InflatablesList_Types,
   InflatablesList_Backup,
   InflatablesList_Item;

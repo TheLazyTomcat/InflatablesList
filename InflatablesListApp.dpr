@@ -50,6 +50,7 @@ uses
   InflatablesList_Manager_IO in 'source\InflatablesList_Manager_IO.pas',
   InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
+  InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',  
   InflatablesList_Manager_IO_Converter in 'source\InflatablesList_Manager_IO_Converter.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
@@ -73,7 +74,7 @@ uses
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
-  InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas';
+  PromptForm in 'PromptForm.pas' {fPromptForm};
 
 {$R *.res}
 

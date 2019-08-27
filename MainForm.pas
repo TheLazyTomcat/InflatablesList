@@ -16,55 +16,51 @@ type
     frmItemFrame: TfrmItemFrame;
     sbStatusBar: TStatusBar;
     oXPManifest: TXPManifest;
-    pmnListMenu: TPopupMenu;
     mniMML_Add: TMenuItem;
     mniMML_AddCopy: TMenuItem;
     mniMML_Remove: TMenuItem;
     mniMML_Clear: TMenuItem;
     N1: TMenuItem;
+    mniMML_Notes: TMenuItem;
+    mniMML_Save: TMenuItem;
+    N2: TMenuItem;
+    mniMML_Exit: TMenuItem;
+
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
     mniMMI_MoveDown: TMenuItem;
     mniMMI_MoveDownBy: TMenuItem;
     mniMMI_MoveEnd: TMenuItem;
-    N2: TMenuItem;
+    N3: TMenuItem;
     mniMMI_ItemShops: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N3: TMenuItem;
     mniMMF_Find: TMenuItem;
     mniMMF_FindPrev: TMenuItem;
     mniMMF_FindNext: TMenuItem;
     mniMMF_AdvSearch: TMenuItem;
-    N4: TMenuItem;
     mniMMS_SortSett: TMenuItem;
     mniMMS_SortRev: TMenuItem;
     mniMMS_Sort: TMenuItem;
     mniMMS_SortBy: TMenuItem;
-    N5: TMenuItem;
     mniMMU_UpdateItem: TMenuItem;
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N6: TMenuItem;
+    N4: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
-    N7: TMenuItem;
     mniMMT_Sums: TMenuItem;
     mniMMT_Overview: TMenuItem;
     mniMMT_Selection: TMenuItem;
-    N8: TMenuItem;
-    mniMML_Notes: TMenuItem;
-    mniMML_Save: TMenuItem;
+
     mniMMT_Specials: TMenuItem;
-    N9: TMenuItem;
     mniMMA_ResMarkLegend: TMenuItem;
     mniMMA_OptionsLegend: TMenuItem;
     mniMMA_About: TMenuItem;
-    N10: TMenuItem;
-    mniMML_Exit: TMenuItem;
+
     mniLM_SB_Default: TMenuItem;
     mniLM_SB_Actual: TMenuItem;
     N1_1: TMenuItem;
@@ -113,13 +109,15 @@ type
     mniMM_Item: TMenuItem;
     mniMM_Search: TMenuItem;
     mniMM_Sort: TMenuItem;
+    mniMM_Update: TMenuItem;
     mniMM_Tools: TMenuItem;
     mniMM_About: TMenuItem;
+    N5: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);      
-    procedure pmnListMenuPopup(Sender: TObject);
+
     // ---
     procedure mniMML_AddClick(Sender: TObject);
     procedure mniMML_AddCopyClick(Sender: TObject);
@@ -213,6 +211,13 @@ type
     procedure acSaveExecute(Sender: TObject);
     procedure acExitExecute(Sender: TObject);
     procedure acSortByCommonExecute(Sender: TObject);
+    procedure mniMM_ListClick(Sender: TObject);
+    procedure mniMM_ItemClick(Sender: TObject);
+    procedure mniMM_SearchClick(Sender: TObject);
+    procedure mniMM_SortClick(Sender: TObject);
+    procedure mniMM_UpdateClick(Sender: TObject);
+    procedure mniMM_ToolsClick(Sender: TObject);
+    procedure mniMM_AboutClick(Sender: TObject);
   private
     fSaveOnExit:  Boolean;
     fILManager:   TILManager;
@@ -536,26 +541,6 @@ end;
 procedure TfMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 fOverviewForm.Disconnect;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.pmnListMenuPopup(Sender: TObject);
-begin
-mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
-mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
-mniMML_Clear.Enabled := lbList.Count > 0;
-mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
-mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
-mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
-mniMMI_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniMMI_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniMMI_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
-mniMMU_UpdateItem.Enabled := lbList.ItemIndex >= 0;
-mniMMU_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -1638,6 +1623,66 @@ If Sender is TAction then
       mniLM_SortCommon(TAction(Sender).Tag);
       lbList.SetFocus;
     end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_ListClick(Sender: TObject);
+begin
+mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
+mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
+mniMML_Clear.Enabled := lbList.Count > 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_ItemClick(Sender: TObject);
+begin
+mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
+mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniMMI_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniMMI_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_SearchClick(Sender: TObject);
+begin
+// no action
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_SortClick(Sender: TObject);
+begin
+// no action
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_UpdateClick(Sender: TObject);
+begin
+mniMMU_UpdateItem.Enabled := lbList.ItemIndex >= 0;
+mniMMU_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_ToolsClick(Sender: TObject);
+begin
+// no action
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_AboutClick(Sender: TObject);
+begin
+// no action
 end;
 
 end.

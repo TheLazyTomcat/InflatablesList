@@ -1,4 +1,4 @@
-unit UpdateForm;
+unit UpdateForm;{$message 'revisit'}
 
 interface
 
@@ -51,7 +51,7 @@ type
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowUpdate(var UpdateList: TILItemShopUpdateList);
+    Function ShowUpdate(var UpdateList: TILItemShopUpdateList): Boolean;
   end;
 
 var
@@ -211,10 +211,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfUpdateForm.ShowUpdate(var UpdateList: TILItemShopUpdateList);
+Function TfUpdateForm.ShowUpdate(var UpdateList: TILItemShopUpdateList): Boolean;
 var
   i:  Integer;
 begin
+Result := False;
 If Length(UpdateList) > 0 then
   begin
     // init form
@@ -253,8 +254,15 @@ If Length(UpdateList) > 0 then
     tmrUpdate.Enabled := False;
     If meLog.Lines.Count > 0 then
       meLog.Lines.SaveToFile(fILManager.ListFilePath + 'list.update.log');
-    // return the changed list (done flag is read)
+    // return the changed list (done flag is used)
     UpdateList := fUpdateList;
+    // indicate whether something was done
+    For i := Low(UpdateList) to High(UpdateList) do
+      If UpdateList[i].Done then
+        begin
+          Result := True;
+          Break{For i};
+        end;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;

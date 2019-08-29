@@ -1,4 +1,4 @@
-unit SelectionForm;
+unit SelectionForm;{$message 'revisit'}
 
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
 
@@ -539,7 +539,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
         If ShopIndex >= 0 then
           begin
             ItemObject[ShopIndex].Selected := not ItemObject[ShopIndex].Selected;
-            ItemObject.UpdatePriceAndAvail;
+            //ItemObject.UpdatePriceAndAvail;
             Selected := ItemObject[ShopIndex].Selected;
             RecountAndFillSelected;
             FillItemShop;

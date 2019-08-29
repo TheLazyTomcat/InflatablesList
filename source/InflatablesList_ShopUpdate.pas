@@ -1,4 +1,4 @@
-unit InflatablesList_ShopUpdate;
+unit InflatablesList_ShopUpdate;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -205,7 +205,7 @@ var
 begin
 Result := 0;
 For i := 0 to Pred(fShopData.ParsingSettings.AvailExtractionSettingsCount) do
-  with fShopData.ParsingSettings.AvailExtractionSettingsPtrs[i]^ do
+  with fShopData.ParsingSettings.AvailExtractionSettings[i] do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin
@@ -251,7 +251,7 @@ var
 begin
 Result := 0;
 For i := 0 to Pred(fShopData.ParsingSettings.PriceExtractionSettingsCount) do
-  with fShopData.ParsingSettings.PriceExtractionSettingsPtrs[i]^ do
+  with fShopData.ParsingSettings.PriceExtractionSettings[i] do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin

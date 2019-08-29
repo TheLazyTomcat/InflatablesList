@@ -96,6 +96,6 @@ begin
   Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
   Application.CreateForm(TfOptionsLegendForm, fOptionsLegendForm);
   Application.CreateForm(TfAboutForm, fAboutForm);
-  fMainForm.InitOtherForms;
+  fMainForm.InitializeOtherForms; // must be run after create but before show
   Application.Run;
 end.

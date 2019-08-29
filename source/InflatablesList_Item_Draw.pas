@@ -1,4 +1,4 @@
-unit InflatablesList_Item_Draw;
+unit InflatablesList_Item_Draw;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -24,8 +24,8 @@ type
     procedure RenderSmallPackagePicture; override;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
-  public
     procedure Initialize; override;
+  public
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
     procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); virtual;
     procedure ReDraw; virtual;
@@ -82,7 +82,8 @@ var
 begin
 with fRender,fRender.Canvas do
   begin
-    Font := fMainFont;
+    If Assigned(fMainFont) then
+      Font := fMainFont;
 
     // background
     SetCanvas(bsSolid,clWhite,psClear);
@@ -271,7 +272,8 @@ var
 begin
 with fRenderSmall,fRenderSmall.Canvas do
   begin
-    Font := fSmallFont;
+    If Assigned(fSmallFont) then
+      Font := fSmallFont;
 
     // background
     SetCanvas(bsSolid,clWhite,psClear);
@@ -406,7 +408,7 @@ If fUpdateCounter <= 0 then
 inherited;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
 procedure TILItem_Draw.Initialize;
 begin
@@ -423,7 +425,7 @@ fRenderSmall.Width := fSmallWidth;
 fRenderSmall.Height := fSmallHeight;
 end;
 
-//------------------------------------------------------------------------------
+//==============================================================================
 
 procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
 begin

@@ -1,4 +1,4 @@
-unit InflatablesList_Types;
+unit InflatablesList_Types;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -13,6 +13,14 @@ uses
 
 type
   EWrongPassword = class(Exception);
+
+//==============================================================================
+//- event prototypes -----------------------------------------------------------
+
+type
+  TILObjectL1Event = procedure(Sender: TObject; O1: TObject) of object;
+  TILObjectL2Event = procedure(Sender: TObject; O1,O2: TObject) of object;
+  TILObjectL3Event = procedure(Sender: TObject; O1,O2,O3: TObject) of object;
 
 //==============================================================================
 //- reconverted string ---------------------------------------------------------
@@ -108,6 +116,8 @@ Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
 
 Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
 Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
+
+Function IL_ThreadSaveCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett; overload;
 
 //==============================================================================
 //- item shop ------------------------------------------------------------------
@@ -247,6 +257,7 @@ type
 
 type
   TILStaticManagerOptions = record
+    // command-line options
     NoPictures:       Boolean;
     TestCode:         Boolean;
     SavePages:        Boolean;
@@ -259,7 +270,7 @@ type
     DefaultPath:      String;
   end;
 
-Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions; overload;
 
 const
   IL_STAT_OPT_TAGS: array[0..7] of String =
@@ -610,6 +621,15 @@ case Num of
 else
   Result := ilpemFirstInteger;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSaveCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett;
+begin
+Result := Value;
+UniqueString(Result.ExtractionData);
+UniqueString(Result.NegativeTag);
 end;
 
 //==============================================================================

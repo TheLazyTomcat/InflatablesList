@@ -1,4 +1,4 @@
-unit ShopFrame;
+unit ShopFrame;{$message 'revisit'}
 
 interface
 
@@ -92,8 +92,8 @@ type
     procedure CreatePredefNotesMenu;
   public
     OnTemplatesChange:  TNotifyEvent;
-    procedure SaveItemShop;
-    procedure LoadItemShop;
+    procedure Save;
+    procedure Load;
     procedure UpdateAvailHistory;
     procedure UpdatePriceHistory;
     procedure Initialize(ILManager: TILManager);
@@ -187,7 +187,7 @@ end;
 
 //==============================================================================
 
-procedure TfrmShopFrame.SaveItemShop;
+procedure TfrmShopFrame.Save;
 begin
 If Assigned(fCurrentItemShop) then
   begin
@@ -224,7 +224,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.LoadItemShop;
+procedure TfrmShopFrame.Load;
 var
   Index:  Integer;
 begin
@@ -368,12 +368,12 @@ Reassigned := fCurrentItemShop = ItemShop;
 If ProcessChange then
   begin
     If Assigned(fCurrentItemShop) and not Reassigned then
-      SaveItemShop;
+      Save;
     If Assigned(ItemShop) then
       begin
         fCurrentItemShop := ItemShop;
         If not Reassigned then
-          LoadItemShop;
+          Load;
       end
     else
       begin
@@ -415,10 +415,7 @@ end;
 procedure TfrmShopFrame.btnShopURLOpenClick(Sender: TObject);
 begin
 If Assigned(fCurrentItemShop) then
-  begin
-    fCurrentItemShop.ShopURL := leShopURL.Text;
-    IL_ShellOpen(Handle,fCurrentItemShop.ShopURL);
-  end;
+  IL_ShellOpen(Handle,fCurrentItemShop.ShopURL);
 end;
 
 //------------------------------------------------------------------------------
@@ -625,7 +622,7 @@ var
 begin
 If Assigned(fCurrentItemShop) then
   begin
-    SaveItemShop;
+    Save;
     Screen.Cursor := crHourGlass;
     try
       Temp := TILItemShop.CreateAsCopy(fCurrentItemShop);
@@ -650,7 +647,7 @@ If Assigned(fCurrentItemShop) then
       MessageDlg('Update finished successfuly.',mtInformation,[mbOK],0)
     else
       MessageDlg('Update failed - see last update message for details.',mtInformation,[mbOK],0);
-    LoadItemShop;
+    Load;
   end;
 end;
 
@@ -660,11 +657,11 @@ procedure TfrmShopFrame.btnTemplatesClick(Sender: TObject);
 begin
 If Assigned(fCurrentItemShop) then
   begin
-    SaveItemShop;
+    Save;
     fTemplatesForm.ShowTemplates(fCurrentItemShop,False);
     // in case a template was deleted or added (must be before load, so proper item is selected]
     FillTemplatesList;
-    LoadItemShop;
+    Load;
     leShopItemURL.SetFocus;
     If Assigned(OnTemplatesChange) then
       OnTemplatesChange(Self);

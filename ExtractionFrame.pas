@@ -1,4 +1,4 @@
-unit ExtractionFrame;
+unit ExtractionFrame;{$message 'revisit'}
 
 interface
 
@@ -56,6 +56,8 @@ If Assigned(fExtractSett) then
     fExtractSett^.ExtractionMethod := TILItemShopParsingExtrMethod(cmbExtractMethod.ItemIndex);
     fExtractSett^.ExtractionData := leExtractionData.Text;
     fExtractSett^.NegativeTag := leNegativeTag.Text;
+    UniqueString(fExtractSett^.ExtractionData);
+    UniqueString(fExtractSett^.NegativeTag);
   end;
 end;
 

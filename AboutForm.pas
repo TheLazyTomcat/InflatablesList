@@ -28,6 +28,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowInfo;
   end;
 
@@ -70,6 +71,13 @@ end;
 procedure TfAboutForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfAboutForm.Finalize;
+begin
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------

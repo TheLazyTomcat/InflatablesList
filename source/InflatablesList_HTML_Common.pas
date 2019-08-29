@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_Common;
+unit InflatablesList_HTML_Common;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

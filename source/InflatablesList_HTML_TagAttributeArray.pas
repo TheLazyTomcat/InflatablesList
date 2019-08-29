@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_TagAttributeArray;
+unit InflatablesList_HTML_TagAttributeArray;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

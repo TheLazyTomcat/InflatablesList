@@ -16,6 +16,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowTextEditor(const Title: String; var Text: String; ProportionalFont: Boolean);
   end;
 
@@ -29,6 +30,13 @@ implementation
 procedure TfTextEditForm.Initialize(ILManager: TILManager);
 begin
 // do nothing, manager is not needed here atm.
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfTextEditForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

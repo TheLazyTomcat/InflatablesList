@@ -1,4 +1,4 @@
-unit InflatablesList_Manager;
+unit InflatablesList_Manager;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

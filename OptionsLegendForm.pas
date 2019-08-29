@@ -20,6 +20,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowLegend;
   end;
 
@@ -129,6 +130,13 @@ end;
 procedure TfOptionsLegendForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfOptionsLegendForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

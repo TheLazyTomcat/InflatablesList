@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_Base;
+unit InflatablesList_Manager_Base;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -14,41 +14,66 @@ uses
 type
   TILManager_Base = class(TCustomListObject)
   protected
-    fDataProvider:      TILDataProvider;
-    fListFileName:      String;
-    fListFilePath:      String;
-    fSorting:           Boolean;
-    fUpdateCounter:     Integer;
-    fUpdated:           Boolean;
+    fStaticOptions:         TILStaticManagerOptions;  // not changed at runtime  
+    fDataProvider:          TILDataProvider;
+    fListFileName:          String;
+    fListFilePath:          String;
+    fSorting:               Boolean;  // used only during sorting to disable reindexing
+    fUpdateCounter:         Integer;
+    fUpdated:               Boolean;
     // cmd options
-    fCMDLineParser:     TCLPParser;
-    fStaticOptions:     TILStaticManagerOptions;  // not changed at runtime
+    fCMDLineParser:         TCLPParser; // make local
     // main list
-    fList:              array of TILItem;
-    fCount:             Integer;
+    fList:                  array of TILItem;
+    fCount:                 Integer;
     // other data
-    fNotes:             String;
+    fNotes:                 String;
     // encryption
-    fEncrypted:         Boolean;
-    fListPassword:      String;
+    fEncrypted:             Boolean;
+    fListPassword:          String;
+    // internal events forwarded from item shops
+    fOnShopListItemUpdate:  TILObjectL2Event;
+    fOnShopValuesUpdate:    TILObjectL2Event;
+    fOnShopAvailHistoryUpd: TILObjectL2Event;
+    fOnShopPriceHistoryUpd: TILObjectL2Event;
+    // internal events forwarded from items
+    fOnItemTitleUpdate:     TILObjectL1Event;
+    fOnItemPicturesUpdate:  TILObjectL1Event;
+    fOnItemFlagsUpdate:     TILObjectL1Event;
+    fOnItemValuesUpdate:    TILObjectL1Event;
+    fOnItemShopListUpdate:  TILObjectL1Event;
     // events
-    fOnMainListUpdate:  TNotifyEvent;
-    fOnSmallListUpdate: TNotifyEvent;
-    fOnOverviewUpdate:  TNotifyEvent;
+    fOnMainListUpdate:      TNotifyEvent;
+    fOnSmallListUpdate:     TNotifyEvent;
+    fOnOverviewUpdate:      TNotifyEvent;
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
     Function GetItem(Index: Integer): TILITem; virtual;
-    // items event handling
-    procedure MainListUpdateHandler(Sender: TObject); virtual;
-    procedure SmallListUpdateHandler(Sender: TObject); virtual;
-    procedure OverviewUpdateHandler(Sender: TObject); virtual;
-    procedure DoUpdate; virtual;
+    // handlers for item shop events
+    procedure ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject); virtual; 
+    procedure ShopUpdateValuesHandler(Sender: TObject; Shop: TObject); virtual; 
+    procedure ShopUpdateAvailHistoryHandler(Sender: TObject; Shop: TObject); virtual; 
+    procedure ShopUpdatePriceHistoryHandler(Sender: TObject; Shop: TObject); virtual; 
+    // handlers for item events
+    procedure ItemUpdateMainListHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateSmallListHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateOverviewHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateTitleHandler(Sender: TObject); virtual;
+    procedure ItemUpdatePicturesHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateFlagsHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateValuesHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateShopListHandler(Sender: TObject); virtual;
+    // event callers
+    procedure UpdateMainList; virtual;
+    procedure UpdateSmallList; virtual;
+    procedure UpdateOverview; virtual;    
     // inits/finals
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // other
+    procedure DoUpdate; virtual;    
     procedure ReIndex; virtual;
   public
     constructor Create;
@@ -74,10 +99,10 @@ type
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
+    property StaticOptions: TILStaticManagerOptions read fStaticOptions;    
     property DataProvider: TILDataProvider read fDataProvider;
     property ListFileName: String read fListFileName;
     property ListFilePath: String read fListFilePath;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property Notes: String read fNotes write fNotes;
@@ -85,6 +110,18 @@ type
     property Encrypted: Boolean read fEncrypted write fEncrypted;
     property ListPassword: String read fListPassword write fListPassword;
     // events
+    // item shop events
+    property OnShopListItemUpdate: TILObjectL2Event read fOnShopListItemUpdate write fOnShopListItemUpdate;
+    property OnShopValuesUpdate: TILObjectL2Event read fOnShopValuesUpdate write fOnShopValuesUpdate;
+    property OnShopAvailHistoryUpdate: TILObjectL2Event read fOnShopAvailHistoryUpd write fOnShopAvailHistoryUpd;
+    property OnShopPriceHistoryUpdate: TILObjectL2Event read fOnShopPriceHistoryUpd write fOnShopPriceHistoryUpd;
+    // item events
+    property OnItemTitleUpdate: TILObjectL1Event read fOnItemTitleUpdate write fOnItemTitleUpdate;
+    property OnItemPicturesUpdate: TILObjectL1Event read fOnItemPicturesUpdate write fOnItemPicturesUpdate;
+    property OnItemFlagsUpdate: TILObjectL1Event read fOnItemFlagsUpdate write fOnItemFlagsUpdate;
+    property OnItemValuesUpdate: TILObjectL1Event read fOnItemValuesUpdate write fOnItemValuesUpdate;
+    property OnItemShopListUpdate: TILObjectL1Event read fOnItemShopListUpdate write fOnItemShopListUpdate;
+    // global events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
     property OnOverviewUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
@@ -94,7 +131,8 @@ implementation
 
 uses
   SysUtils,
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_ItemShop;
 
 Function TILManager_Base.GetCapacity: Integer;
 begin
@@ -139,7 +177,100 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.MainListUpdateHandler(Sender: TObject);
+procedure TILManager_Base.ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject);
+begin
+If Assigned(fOnShopListItemUpdate) and (Sender is TILItem) and (Shop is TILItemShop) then
+  fOnShopListItemUpdate(Self,Sender,Shop);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ShopUpdateValuesHandler(Sender: TObject; Shop: TObject);
+begin
+If Assigned(fOnShopValuesUpdate) and (Sender is TILItem) and (Shop is TILItemShop) then
+  fOnShopValuesUpdate(Self,Sender,Shop);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ShopUpdateAvailHistoryHandler(Sender: TObject; Shop: TObject);
+begin
+If Assigned(fOnShopAvailHistoryUpd) and (Sender is TILItem) and (Shop is TILItemShop) then
+  fOnShopAvailHistoryUpd(Self,Sender,Shop);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ShopUpdatePriceHistoryHandler(Sender: TObject; Shop: TObject);
+begin
+If Assigned(fOnShopPriceHistoryUpd) and (Sender is TILItem) and (Shop is TILItemShop) then
+  fOnShopPriceHistoryUpd(Self,Sender,Shop);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateMainListHandler(Sender: TObject);
+begin
+UpdateMainList;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateSmallListHandler(Sender: TObject);
+begin
+UpdateSmallList;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateOverviewHandler(Sender: TObject);
+begin
+UpdateOverview
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateTitleHandler(Sender: TObject);
+begin
+If Assigned(fOnItemTitleUpdate) and (Sender is TILItem) then
+  fOnItemTitleUpdate(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdatePicturesHandler(Sender: TObject);
+begin
+If Assigned(fOnItemPicturesUpdate) and (Sender is TILItem) then
+  fOnItemPicturesUpdate(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateFlagsHandler(Sender: TObject);
+begin
+If Assigned(fOnItemFlagsUpdate) and (Sender is TILItem) then
+  fOnItemFlagsUpdate(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateValuesHandler(Sender: TObject);
+begin
+If Assigned(fOnItemValuesUpdate) and (Sender is TILItem) then
+  fOnItemValuesUpdate(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateShopListHandler(Sender: TObject);
+begin
+If Assigned(fOnItemShopListUpdate) and (Sender is TILItem) then
+  fOnItemShopListUpdate(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.UpdateMainList;
 begin
 If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
   fOnMainListUpdate(Self);
@@ -148,7 +279,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.SmallListUpdateHandler(Sender: TObject);
+procedure TILManager_Base.UpdateSmallList;
 begin
 If Assigned(fOnSmallListUpdate) and (fUpdateCounter <= 0) then
   fOnSmallListUpdate(Self);
@@ -157,20 +288,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.OverviewUpdateHandler(Sender: TObject);
+procedure TILManager_Base.UpdateOverview;
 begin
 If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
   fOnOverviewUpdate(Self);
 fUpdated := True;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_Base.DoUpdate;
-begin
-MainListUpdateHandler(nil);
-SmallListUpdateHandler(nil);
-OverviewUpdateHandler(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -228,6 +350,15 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILManager_Base.DoUpdate;
+begin
+UpdateMainList;
+UpdateSmallList;
+UpdateOverview;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILManager_Base.ReIndex;
 var
   i:  Integer;
@@ -270,11 +401,7 @@ If fUpdateCounter <= 0 then
   begin
     fUpdateCounter := 0;
     If fUpdated then
-      begin
-        MainListUpdateHandler(nil);
-        SmallListUpdateHandler(nil);
-        OverviewUpdateHandler(nil);
-      end;
+      DoUpdate;
     fUpdated := False;
   end;
 end;
@@ -316,9 +443,19 @@ Result := fCount;
 fList[Result] := TILItem.Create(fDataProvider);
 fList[Result].Index := Result;
 fList[Result].StaticOptions := fStaticOptions;
-fList[Result].OnMainListUpdate := MainListUpdateHandler;
-fList[Result].OnSmallListUpdate := SmallListUpdateHandler;
-fList[Result].OnOverviewListUpdate := OverviewUpdateHandler;
+fList[Result].AssignInternalEvents(
+  ShopUpdateShopListItemHandler,
+  ShopUpdateValuesHandler,
+  ShopUpdateAvailHistoryHandler,
+  ShopUpdatePriceHistoryHandler,
+  ItemUpdateMainListHandler,
+  ItemUpdateSmallListHandler,
+  ItemUpdateOverviewHandler,
+  ItemUpdateTitleHandler,
+  ItemUpdatePicturesHandler,
+  ItemUpdateFlagsHandler,
+  ItemUpdateValuesHandler,
+  ItemUpdateShopListHandler);
 Inc(fCount);
 DoUpdate;
 end;
@@ -334,9 +471,19 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
     fList[Result].Index := Result;
     // static options are copied in item constructor
-    fList[Result].OnMainListUpdate := MainListUpdateHandler;
-    fList[Result].OnSmallListUpdate := SmallListUpdateHandler;
-    fList[Result].OnOverviewListUpdate := OverviewUpdateHandler;
+    fList[Result].AssignInternalEvents(
+      ShopUpdateShopListItemHandler,
+      ShopUpdateValuesHandler,
+      ShopUpdateAvailHistoryHandler,
+      ShopUpdatePriceHistoryHandler,
+      ItemUpdateMainListHandler,
+      ItemUpdateSmallListHandler,
+      ItemUpdateOverviewHandler,
+      ItemUpdateTitleHandler,
+      ItemUpdatePicturesHandler,
+      ItemUpdateFlagsHandler,
+      ItemUpdateValuesHandler,
+      ItemUpdateShopListHandler);
     Inc(fCount);
     DoUpdate;
   end

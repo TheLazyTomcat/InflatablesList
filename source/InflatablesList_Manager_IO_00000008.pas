@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_IO_00000008;
+unit InflatablesList_Manager_IO_00000008;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -238,9 +238,19 @@ If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
         fList[i].StaticOptions := fStaticOptions;
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
-        fList[i].OnMainListUpdate := MainListUpdateHandler;
-        fList[i].OnSmallListUpdate := SmallListUpdateHandler;
-        fList[i].OnOverviewListUpdate := OverviewUpdateHandler;
+        fList[i].AssignInternalEvents(
+          ShopUpdateShopListItemHandler,
+          ShopUpdateValuesHandler,
+          ShopUpdateAvailHistoryHandler,
+          ShopUpdatePriceHistoryHandler,
+          ItemUpdateMainListHandler,
+          ItemUpdateSmallListHandler,
+          ItemUpdateOverviewHandler,
+          ItemUpdateTitleHandler,
+          ItemUpdatePicturesHandler,
+          ItemUpdateFlagsHandler,
+          ItemUpdateValuesHandler,
+          ItemUpdateShopListHandler);
       end;
   end
 else raise Exception.Create('TILManager_IO_00000008.LoadItems_00000008: Invalid stream.');

@@ -71,6 +71,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     Function ShowSortingSettings: Boolean;
   end;
 
@@ -132,6 +133,13 @@ finally
 end;
 If lbAvailable.Count > 0  then
   lbAvailable.ItemIndex := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSortForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

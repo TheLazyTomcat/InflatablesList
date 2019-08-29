@@ -1,4 +1,4 @@
-unit InflatablesList_Item_IO_00000004;
+unit InflatablesList_Item_IO_00000004;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -153,12 +153,13 @@ For i := ShopLowIndex to ShopHighIndex do
     fShops[i] := TILItemShop.Create;
     fShops[i].StaticOptions := fStaticOptions;    
     fShops[i].LoadFromStream(Stream);
-    fShops[i].OnClearSelected := ClearSelectedHandler;
-    fShops[i].OnOverviewUpdate := UpdateOverviewHandler;
-    fShops[i].OnListUpdate := UpdateShopListItemHandler;
-    fShops[i].OnValuesUpdate := UpdateShopValuesHandler;
-    fShops[i].OnAvailHistoryUpdate := UpdateShopAvailHistoryHandler;
-    fShops[i].OnPriceHistoryUpdate := UpdateShopPriceHistoryHandler;
+    fShops[i].AssignInternalEvents(
+      ShopClearSelectedHandler,
+      ShopUpdateOverviewHandler,
+      ShopUpdateShopListItemHandler,
+      ShopUpdateValuesHandler,
+      ShopUpdateAvailHistoryHandler,
+      ShopUpdatePriceHistoryHandler);
   end;
 end;
 

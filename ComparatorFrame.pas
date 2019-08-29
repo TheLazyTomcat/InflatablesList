@@ -1,4 +1,4 @@
-unit ComparatorFrame;
+unit ComparatorFrame;{$message 'revisit'}
 
 interface
 

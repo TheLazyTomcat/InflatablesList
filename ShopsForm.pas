@@ -1,4 +1,4 @@
-unit ShopsForm;
+unit ShopsForm;{$message 'revisit'}
 
 interface
 
@@ -241,7 +241,7 @@ procedure TfShopsForm.UpdateAvailAndPrices(Sender: TObject; Index: Integer);
 begin
 If Assigned(fCurrentItem) and (Index = lvShops.ItemIndex) then
   begin
-    fCurrentItem.UpdatePriceAndAvail;
+    //fCurrentItem.UpdatePriceAndAvail;
     // show prices
     If fCurrentItem.UnitPriceLowest > 0 then
       lePriceLowest.Text := Format('%d Kè',[fCurrentItem.UnitPriceLowest])
@@ -340,16 +340,16 @@ If Assigned(Item) then
     UpdateCurrentAvailAndPrices;
     UpdateShopCounts;
     // set event handlers
-    fCurrentItem.OnShopListUpdate := UpdateList;
-    fCurrentItem.OnShopListItemUpdate := UpdateListItem;
-    fCurrentItem.OnShopValuesUpdate := UpdateAvailAndPrices;
-    fCurrentItem.OnShopAvailHistoryUpdate := UpdateAvailHistory;
-    fCurrentItem.OnShopPriceHistoryUpdate := UpdatePriceHistory;
+    //fCurrentItem.OnShopListUpdate := UpdateList;
+    //fCurrentItem.OnShopListItemUpdate := UpdateListItem;
+    //fCurrentItem.OnShopValuesUpdate := UpdateAvailAndPrices;
+    //fCurrentItem.OnShopAvailHistoryUpdate := UpdateAvailHistory;
+    //fCurrentItem.OnShopPriceHistoryUpdate := UpdatePriceHistory;
     ShowModal;                            // <----
-    fCurrentItem.Release(False);
+    //fCurrentItem.Release(False);
     frmShopFrame.SetItemShop(nil,True);
     // update and set flags
-    fCurrentItem.UpdatePriceAndAvail;
+    //fCurrentItem.UpdatePriceAndAvail;
     fCurrentItem.FlagPriceAndAvail(OldPrice,OldAvail);
   end;
 end;
@@ -386,7 +386,7 @@ begin
 If (lvShops.ItemIndex >= 0) and Assigned(fCurrentItem) then
   begin
     fCurrentItem[lvShops.ItemIndex].Selected := True;
-    frmShopFrame.LoadItemShop;
+    frmShopFrame.Load;
   end;
 end;
 
@@ -432,11 +432,11 @@ If Assigned(fCurrentItem) and (Sender is TMenuItem) then
     mniSH_AddCommon;
     If lvShops.ItemIndex >= 0 then
       begin
-        frmShopFrame.SaveItemShop;
+        frmShopFrame.Save;
         // copy the settings from template
         fILManager.ShopTemplates[TMenuItem(Sender).Tag].CopyTo(
           fCurrentItem.Shops[lvShops.ItemIndex]);
-        frmShopFrame.LoadItemShop;
+        frmShopFrame.Load;
         frmShopFrame.leShopItemURL.SetFocus;
       end;
   end;
@@ -451,9 +451,9 @@ If Assigned(fCurrentItem) then
     mniSH_AddCommon;
     If lvShops.ItemIndex >= 0 then  // should be valid after mniSH_AddCommon, but to be sure
       begin
-        frmShopFrame.SaveItemShop;
+        frmShopFrame.Save;
         fTemplatesForm.ShowTemplates(fCurrentItem.Shops[lvShops.ItemIndex],True);
-        frmShopFrame.LoadItemShop;
+        frmShopFrame.Load;
         BuildAddFromSubMenu;
         frmShopFrame.leShopItemURL.SetFocus;
       end;
@@ -477,7 +477,7 @@ If Assigned(fCurrentItem) and (lvShops.ItemIndex >= 0) then
         Index := lvShops.ItemIndex - 1
       else
         Index := -1;
-      frmShopFrame.SaveItemShop;
+      frmShopFrame.Save;
       frmShopFrame.SetItemShop(nil,False);
       fCurrentItem.ShopDelete(lvShops.ItemIndex);        
       ShopsListSelect(Index);
@@ -528,7 +528,7 @@ If Assigned(fCurrentItem) then
   begin
     If fCurrentItem.ShopCount > 0 then
       begin
-        frmShopFrame.SaveItemShop;
+        frmShopFrame.Save;
         SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
@@ -538,7 +538,7 @@ If Assigned(fCurrentItem) then
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
-        frmShopFrame.LoadItemShop;
+        frmShopFrame.Load;
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
@@ -553,7 +553,7 @@ begin
 If Assigned(fCurrentItem) then
   If fCurrentItem.ShopCount > 0 then
     begin
-      frmShopFrame.SaveItemShop;
+      frmShopFrame.Save;
       For i := fCurrentItem.ShopLowIndex to fCurrentItem.ShopHighIndex do
         fCurrentItem.Shops[i].UpdateAvailAndPriceHistory;
     end;

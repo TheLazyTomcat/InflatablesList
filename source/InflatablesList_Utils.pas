@@ -1,4 +1,4 @@
-unit InflatablesList_Utils;
+unit InflatablesList_Utils;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -6,7 +6,8 @@ interface
 
 uses
   Windows, SysUtils, Graphics,
-  AuxTypes;
+  AuxTypes, AuxClasses,
+  InflatablesList_Types;
 
 //==============================================================================
 //- file path manipulation -----------------------------------------------------
@@ -32,6 +33,15 @@ Function IL_CompareGUID(const A,B: TGUID): Integer;
 //- pictures -------------------------------------------------------------------
 
 procedure IL_PicShrink(Large,Small: TBitmap);
+
+//==============================================================================
+//- event assignment -----------------------------------------------------------
+
+Function IL_CheckAndAssign(Handler: TNotifyEvent): TNotifyEvent; overload;
+
+Function IL_CheckAndAssign(Handler: TILObjectL1Event): TILObjectL1Event; overload;
+Function IL_CheckAndAssign(Handler: TILObjectL2Event): TILObjectL2Event; overload;
+Function IL_CheckAndAssign(Handler: TILObjectL3Event): TILObjectL3Event; overload;
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -236,6 +246,47 @@ For Y := 0 to Pred(Large.Height div Factor) do
         LineR^[X].rgbtBlue  := Trunc(Sqrt(B / Sqr(Factor)));
       end;
   end;
+end;
+
+//==============================================================================
+//- event assignment -----------------------------------------------------------
+
+Function IL_CheckAndAssign(Handler: TNotifyEvent): TNotifyEvent;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TNotifyEvent): Handler not assigned');
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_CheckAndAssign(Handler: TILObjectL1Event): TILObjectL1Event;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TILObjectL1Event): Handler not assigned');
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_CheckAndAssign(Handler: TILObjectL2Event): TILObjectL2Event;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TILObjectL2Event): Handler not assigned');
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_CheckAndAssign(Handler: TILObjectL3Event): TILObjectL3Event;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TILObjectL3Event): Handler not assigned');
 end;
 
 //==============================================================================

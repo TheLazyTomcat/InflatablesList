@@ -1,4 +1,4 @@
-unit InflatablesList_Manager_IO;
+unit InflatablesList_Manager_IO;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -164,9 +164,9 @@ try
               fList[fCount + i].LoadFromStream(FileStream);
               fList[fCount + i].ResetTimeOfAddition;
               fList[fCount + i].Index := i;
-              fList[fCount + i].OnMainListUpdate := MainListUpdateHandler;
-              fList[fCount + i].OnSmallListUpdate := SmallListUpdateHandler;
-              fList[fCount + i].OnOverviewListUpdate := OverviewUpdateHandler;
+              //fList[fCount + i].OnMainListUpdate := MainListUpdateHandler;
+              //fList[fCount + i].OnSmallListUpdate := SmallListUpdateHandler;
+              //fList[fCount + i].OnOverviewListUpdate := OverviewUpdateHandler;
             end;
           fCount := fCount + Result;
           DoUpdate;

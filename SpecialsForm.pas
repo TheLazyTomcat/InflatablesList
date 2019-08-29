@@ -34,6 +34,7 @@ type
     fILManager: TILManager;
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
   end;
 
 var
@@ -51,6 +52,13 @@ uses
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //==============================================================================
@@ -98,17 +106,11 @@ end;
 
 procedure TfSpecialsForm.btnUpdateAllAPFClick(Sender: TObject);
 var
-  i:        Integer;
-  OldPrice: UInt32;
-  OldAvail: Int32;
+  i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    OldPrice := fILManager[i].UnitPriceSelected;
-    OldAvail := fILManager[i].AvailableSelected;
-    fILManager[i].UpdatePriceAndAvail;
-    fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
-  end;
+  fILManager[i].GetAndFlagPriceAndAvail(
+    fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
 Close;
 end;
 
@@ -174,7 +176,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     If not fILManager[i][j].Selected then
       begin
         fILManager[i].ShopDelete(j);
-        fILManager[i].UpdateAndFlagPriceAndAvail(
+        fILManager[i].GetAndFlagPriceAndAvail(
           fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
       end;
 Close;

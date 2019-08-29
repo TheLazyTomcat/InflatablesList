@@ -42,6 +42,7 @@ type
     procedure SelectItem(Index: Integer);
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowItemSelect(const Title: String; var Indices: TCountedDynArrayInteger);
   end;
 
@@ -89,6 +90,12 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfItemSelectForm.Finalize;
+begin
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfItemSelectForm.ShowItemSelect(const Title: String; var Indices: TCountedDynArrayInteger);
 var
   i:        Integer;
@@ -129,7 +136,7 @@ end;
 
 procedure TfItemSelectForm.FormCreate(Sender: TObject);
 begin
-clbItems.MultiSelect := True;
+clbItems.MultiSelect := True; // cannot be set design-time
 end;
 
 //------------------------------------------------------------------------------

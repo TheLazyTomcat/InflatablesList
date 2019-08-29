@@ -1,4 +1,4 @@
-unit MainForm;
+unit MainForm;{$message 'revisit'}
 
 interface
 
@@ -215,13 +215,15 @@ type
     procedure FillCopyright;
     procedure FillListFileName(const FileName: String);
     procedure BuildSortBySubmenu;
+    procedure UpdateIndexAndCount;
+    Function SaveList: Boolean;
+    // event handlers
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
     procedure FocusList(Sender: TObject);
-    procedure UpdateIndexAndCount;
-    Function SaveList: Boolean;
   public
-    procedure InitOtherForms;
+    procedure InitializeOtherForms; // called before Application.Run from project file
+    procedure FinalizeOtherForms;
   end;
 
 var
@@ -348,34 +350,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.InvalidateList(Sender: TObject);
-begin
-lbList.Invalidate;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.ShowSelectedItem(Sender: TObject);
-begin
-If lbList.ItemIndex >= 0 then
-  begin
-    If (lbList.ItemIndex < lbList.TopIndex) then
-      lbList.TopIndex := lbList.ItemIndex
-    else If lbList.ItemIndex >= (lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight)) then
-      lbList.TopIndex := Succ(lbList.ItemIndex - (lbList.ClientHeight div lbList.ItemHeight));
-    lbList.SetFocus;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.FocusList(Sender: TObject);
-begin
-lbList.SetFocus;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfMainForm.UpdateIndexAndCount;
 begin
 If lbList.ItemIndex < 0 then
@@ -409,9 +383,37 @@ If not fILManager.StaticOptions.NoSave then
   end;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.InvalidateList(Sender: TObject);
+begin
+lbList.Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.ShowSelectedItem(Sender: TObject);
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    If (lbList.ItemIndex < lbList.TopIndex) then
+      lbList.TopIndex := lbList.ItemIndex
+    else If lbList.ItemIndex >= (lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight)) then
+      lbList.TopIndex := Succ(lbList.ItemIndex - (lbList.ClientHeight div lbList.ItemHeight));
+    lbList.SetFocus;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FocusList(Sender: TObject);
+begin
+lbList.SetFocus;
+end;
+
 //==============================================================================
 
-procedure TfMainForm.InitOtherForms;
+procedure TfMainForm.InitializeOtherForms;
 begin
 fTextEditForm.Initialize(fILManager);
 fShopsForm.Initialize(fILManager);
@@ -427,6 +429,26 @@ fItemSelectForm.Initialize(fIlManager);
 fUpdResLegendForm.Initialize(fIlManager);
 fOptionsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FinalizeOtherForms;
+begin
+fTextEditForm.Finalize;
+//fShopsForm.Finalize;
+//fParsingForm.Finalize;
+//fTemplatesForm.Finalize;
+fSortForm.Finalize;
+//fSumsForm.Finalize;
+fSpecialsForm.Finalize;
+fOverviewForm.Finalize;
+//fSelectionForm.Finalize;
+//fUpdateForm.Finalize;
+fItemSelectForm.Finalize;
+fUpdResLegendForm.Finalize;
+fOptionsLegendForm.Finalize;
+fAboutForm.Finalize;
 end;
 
 //==============================================================================
@@ -467,7 +489,7 @@ fILManager.OnMainListUpdate := InvalidateList;
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
-// preload list and ask for password if necessary
+// preload list and ask for password if necessary, catch EWrongPassword
 // load list
 If Length(fILManager.StaticOptions.ListOverride) > 0 then
   begin
@@ -529,7 +551,7 @@ end;
 
 procedure TfMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-fOverviewForm.Disconnect;
+FinalizeOtherForms;
 end;
 
 //------------------------------------------------------------------------------
@@ -597,7 +619,7 @@ If lbList.ItemIndex >= 0 then
   If MessageDlg(Format('Are you sure you want to remove the item "%s"?',
        [fILManager[lbList.ItemIndex].TitleStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
-      frmItemFrame.SaveItem;
+      frmItemFrame.Save;
       frmItemFrame.SetItem(nil,False);
       Index := lbList.ItemIndex;
       fILManager.ItemDelete(Index);
@@ -756,11 +778,11 @@ procedure TfMainForm.mniLM_ItemShopsClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   begin
-    frmItemFrame.SaveItem;
+    frmItemFrame.Save;
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
     // load potential changes
-    frmItemFrame.LoadItem;
+    frmItemFrame.Load;
     fILManager[lbList.ItemIndex].ReDraw;
     lbList.SetFocus;
   end;
@@ -773,7 +795,7 @@ begin
 If lbList.ItemIndex >= 0 then
   If diaItemsExport.Execute then
     begin
-      frmItemFrame.SaveItem;
+      frmItemFrame.Save;
       fILManager.ItemsExport(diaItemsExport.FileName,[lbList.ItemIndex]);
     end;
 end;
@@ -786,7 +808,7 @@ var
   IndicesArr: array of Integer;
   i:          Integer;
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 CDA_Init(Indices);
 fItemSelectForm.ShowItemSelect('Select items for export',Indices);
 If CDA_Count(Indices) > 0 then
@@ -892,7 +914,7 @@ end;
 
 procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 Screen.Cursor := crHourGlass;
 try
@@ -903,7 +925,7 @@ end;
 If lbList.ItemIndex >= 0 then
   begin
     frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    frmItemFrame.LoadItem;
+    frmItemFrame.Load;
   end;
 lbList.Invalidate;
 UpdateIndexAndCount;
@@ -913,7 +935,7 @@ end;
 
 procedure TfMainForm.mniLM_SortSettClick(Sender: TObject);
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
 If fSortForm.ShowSortingSettings then
   begin
@@ -921,7 +943,7 @@ If fSortForm.ShowSortingSettings then
     If lbList.ItemIndex >= 0 then
       begin
         frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-        frmItemFrame.LoadItem;
+        frmItemFrame.Load;
       end;
     lbList.Invalidate;
     UpdateIndexAndCount;
@@ -988,11 +1010,11 @@ If Length(UpdateList) > 0 then
       begin
         OldAvail := TILItem(CDA_GetItem(ItemList,i)).AvailableSelected;
         OldPrice := TILItem(CDA_GetItem(ItemList,i)).UnitPriceSelected;
-        TILItem(CDA_GetItem(ItemList,i)).UpdatePriceAndAvail;
-        TILItem(CDA_GetItem(ItemList,i)).FlagPriceAndAvail(OldPrice,OldAvail);
+        //TILItem(CDA_GetItem(ItemList,i)).UpdatePriceAndAvail;
+        //TILItem(CDA_GetItem(ItemList,i)).FlagPriceAndAvail(OldPrice,OldAvail);
       end;
     // show changes
-    frmItemFrame.LoadItem;
+    frmItemFrame.Load;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;
@@ -1006,7 +1028,7 @@ var
 begin
 If lbList.ItemIndex >= 0 then
   begin
-    frmItemFrame.SaveItem;
+    frmItemFrame.Save;
     // create update list
     SetLength(List,fILManager[lbList.ItemIndex].ShopCount);
     fILManager[lbList.ItemIndex].BroadcastReqCount;
@@ -1030,7 +1052,7 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1063,7 +1085,7 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1098,7 +1120,7 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1164,7 +1186,7 @@ end;
 
 procedure TfMainForm.mniLM_SumsClick(Sender: TObject);
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 fSumsForm.ShowSums;
 lbList.SetFocus;
 end;
@@ -1180,10 +1202,10 @@ end;
 
 procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 fSelectionForm.ShowSelection;
 // load potential changes
-frmItemFrame.LoadItem;
+frmItemFrame.Load;
 lbList.Invalidate;
 lbList.SetFocus;
 end;
@@ -1203,9 +1225,9 @@ end;
 
 procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
 begin
-frmItemFrame.SaveItem;
+frmItemFrame.Save;
 fSpecialsForm.ShowModal;
-frmItemFrame.LoadItem;
+frmItemFrame.Load;
 lbList.SetFocus;
 end;
 
@@ -1215,7 +1237,7 @@ procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
 begin
 Screen.Cursor := crHourGlass;
 try
-  frmItemFrame.SaveItem;
+  frmItemFrame.Save;
   If not SaveList then
     Beep;
   FillListFileName(fILManager.ListFileName);

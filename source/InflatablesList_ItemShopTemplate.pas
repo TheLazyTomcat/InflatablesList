@@ -1,4 +1,4 @@
-unit InflatablesList_ItemShopTemplate;
+unit InflatablesList_ItemShopTemplate;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

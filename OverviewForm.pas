@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, StdCtrls, ExtCtrls, Spin,
+  Dialogs, Grids, StdCtrls,
   CountedDynArrayString,
   InflatablesList_Manager;
 
@@ -12,12 +12,9 @@ type
   TfOverviewForm = class(TForm)
     sgOverview: TStringGrid;
     cbStayOnTop: TCheckBox;
-    btnUpdate: TButton; 
-    procedure FormShow(Sender: TObject);
     procedure sgOverviewDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure cbStayOnTopClick(Sender: TObject);
-    procedure btnUpdateClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:   TILManager;
@@ -29,7 +26,8 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
-    procedure Disconnect;
+    procedure Finalize;
+    procedure ShowOverview;
   end;
 
 var
@@ -159,20 +157,21 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfOverviewForm.Disconnect;
+procedure TfOverviewForm.Finalize;
 begin
 fILManager.OnOverviewUpdate := nil;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
-procedure TfOverviewForm.FormShow(Sender: TObject);
+procedure TfOverviewForm.ShowOverview;
 begin
 UpdateOverview;
+ShowModal;
 BringToFront;
 end;
 
-//------------------------------------------------------------------------------
+//==============================================================================
 
 procedure TfOverviewForm.sgOverviewDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
@@ -263,13 +262,6 @@ If cbStayOnTop.Checked then
   FormStyle := fsStayOnTop
 else
   FormStyle := fsNormal;
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfOverviewForm.btnUpdateClick(Sender: TObject);
-begin
-UpdateOverview;
 end;
  
 end.

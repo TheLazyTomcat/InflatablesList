@@ -1,4 +1,4 @@
-unit InflatablesList_ItemShop_Update;
+unit InflatablesList_ItemShop_Update;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -8,7 +8,7 @@ uses
   InflatablesList_ItemShop_Base;
 
 const
-  // how many times to repeat update when it fails in certain way
+  // how many times to repeat update when it fails in certain ways
   IL_LISTFILE_UPDATE_TRYCOUNT = 5;
 
 type
@@ -30,17 +30,6 @@ var
   Updater:        TILShopUpdater;
   UpdaterResult:  TILShopUpdaterResult;
   TryCounter:     Integer;
-
-  procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
-  begin
-    fAvailable := Avail;
-    fPrice := Price;
-    fLastUpdateRes := Res;
-    fLastUpdateMsg := Msg;
-    UpdateList;
-    UpdateValues;
-  end;
-
 begin
 If not fUntracked then
   begin

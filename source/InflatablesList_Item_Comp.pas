@@ -1,4 +1,4 @@
-unit InflatablesList_Item_Comp;
+unit InflatablesList_Item_Comp;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -348,8 +348,12 @@ else
   {vtNone}
   Result := 0;
 end;
+If Result < -1 then
+  Result := -1
+else If Result > 1 then
+  Result := 1;
 If Reversed then
-  Result := -Result;
+  Result := -Result;  
 end;
 
 //------------------------------------------------------------------------------

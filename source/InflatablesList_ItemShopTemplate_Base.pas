@@ -1,4 +1,4 @@
-unit InflatablesList_ItemShopTemplate_Base;
+unit InflatablesList_ItemShopTemplate_Base;{$message 'revisit'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -22,6 +22,14 @@ type
     fShopURL:         String;
     fParsingSettings: TILItemShopParsingSettings;
     procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    // data setters
+    procedure SetName(const Value: String); virtual;
+    procedure SetShopName(const Value: String); virtual;
+    procedure SetUntracked(const Value: Boolean); virtual;
+    procedure SetAltDownMethod(const Value: Boolean); virtual;
+    procedure SetShopURL(const Value: String); virtual;
+    procedure InitializeData; virtual;
+    procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -30,11 +38,11 @@ type
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
     property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
-    property Name: String read fName write fName;
-    property ShopName: String read fShopName write fShopName;
-    property Untracked: Boolean read fUntracked write fUntracked;
-    property AltDownMethod: Boolean read fAltDownMethod write fAltDownMethod;
-    property ShopURL: String read fShopURL write fShopURL;
+    property Name: String read fName write SetName;
+    property ShopName: String read fShopName write SetShopName;
+    property Untracked: Boolean read fUntracked write SetUntracked;
+    property AltDownMethod: Boolean read fAltDownMethod write SetAltDownMethod;
+    property ShopURL: String read fShopURL write SetShopURL;
     property ParsingSettings: TILItemShopParsingSettings read fParsingSettings;
   end;
 
@@ -50,12 +58,61 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopTemplate_Base.Initialize;
+procedure TILItemShopTemplate_Base.SetName(const Value: String);
 begin
-fStaticOptions.NoPictures := False;
-fStaticOptions.TestCode := False;
-fStaticOptions.SavePages := False;
-fStaticOptions.LoadPages := False;
+If not AnsiSameStr(fName,Value) then
+  begin
+    fName := Value;
+    UniqueString(fName);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetShopName(const Value: String);
+begin
+If not AnsiSameStr(fShopName,Value) then
+  begin
+    fShopName := Value;
+    UniqueString(fShopName);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetUntracked(const Value: Boolean);
+begin
+If fUntracked <> Value then
+  begin
+    fUntracked := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetAltDownMethod(const Value: Boolean);
+begin
+If fAltDownMethod <> Value then
+  begin
+    fAltDownMethod := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetShopURL(const Value: String);
+begin
+If not AnsiSameStr(fShopURL,Value) then
+  begin
+    fShopURL := Value;
+    UniqueString(fShopURL);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.InitializeData;
+begin
 fName := '';
 fShopName := '';
 fUntracked := False;
@@ -66,9 +123,24 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopTemplate_Base.Finalize;
+procedure TILItemShopTemplate_Base.FinalizeData;
 begin
 FreeAndNil(fParsingSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.Initialize;
+begin
+FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
+InitializeData;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.Finalize;
+begin
+FinalizeData;
 end;
 
 //==============================================================================

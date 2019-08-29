@@ -27,7 +27,7 @@ type
     { Private declarations }
   public
     { Public declarations }
-    ResultState:  TModalResult;
+    ResultState: TModalResult;
   end;
 
 Function IL_InputQuery(const Title,Prompt: String; var Value: String): Boolean; overload;

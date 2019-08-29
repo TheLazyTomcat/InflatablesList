@@ -18,6 +18,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowLegend;
   end;
 
@@ -97,6 +98,13 @@ end;
 procedure TfUpdResLegendForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfUpdResLegendForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

@@ -1647,7 +1647,7 @@ object fAboutForm: TfAboutForm
     AutoSize = False
     Caption = 'frantisek.milt@gmail.com'
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = 12162865
+    Font.Color = clBlue
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []

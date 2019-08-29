@@ -98,7 +98,7 @@ end;
 procedure TfAboutForm.lblMailMouseEnter(Sender: TObject);
 begin
 lblMail.Font.Style := lblMail.Font.Style + [fsUnderline];
-lblMail.Font.Color := $00DAC074;
+lblMail.Font.Color := clRed;
 end;
   
 //------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ end;
 procedure TfAboutForm.lblMailMouseLeave(Sender: TObject);
 begin
 lblMail.Font.Style := lblMail.Font.Style - [fsUnderline];
-lblMail.Font.Color := $00B99731;
+lblMail.Font.Color := clBlue;
 end;
 
 end.

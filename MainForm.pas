@@ -467,6 +467,7 @@ fILManager.OnMainListUpdate := InvalidateList;
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
+// preload list and ask for password if necessary
 // load list
 If Length(fILManager.StaticOptions.ListOverride) > 0 then
   begin

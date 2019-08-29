@@ -16,9 +16,9 @@ type
   TfPromptForm = class(TForm)
     lblPrompt: TLabel;
     eTextValue: TEdit;
+    seIntValue: TSpinEdit;
     btnOK: TButton;
     btnCancel: TButton;
-    seIntValue: TSpinEdit;
     procedure FormShow(Sender: TObject);
     procedure btnOKClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);

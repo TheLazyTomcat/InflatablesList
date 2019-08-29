@@ -5,8 +5,14 @@ unit InflatablesList_Types;
 interface
 
 uses
-  Graphics,
+  SysUtils, Graphics,
   AuxTypes;
+
+//==============================================================================
+//- encryption exceptions ------------------------------------------------------  
+
+type
+  EWrongPassword = class(Exception);
 
 //==============================================================================
 //- reconverted string ---------------------------------------------------------
@@ -249,6 +255,8 @@ type
     NoBackup:         Boolean;
     NoUpdateAutoLog:  Boolean;
     ListOverride:     String;
+    // automatically filled
+    DefaultPath:      String;
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
@@ -260,7 +268,6 @@ const
 implementation
 
 uses
-  SysUtils,
   BitOps, StrRect;
 
 //==============================================================================
@@ -925,6 +932,7 @@ Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManag
 begin
 Result := Value;
 UniqueString(Result.ListOverride);
+UniqueString(Result.DefaultPath);
 end;
 
 end.

@@ -25,11 +25,12 @@ const
   IL_LISTFILE_STREAMSTRUCTURE_00000009 = UInt32($00000009);
   IL_LISTFILE_STREAMSTRUCTURE_0000000A = UInt32($0000000A);
 
-  IL_LISTFILE_STREAMSTRUCTURE_SAVE = IL_LISTFILE_STREAMSTRUCTURE_0000000A;
+  IL_LISTFILE_STREAMSTRUCTURE_SAVE       = IL_LISTFILE_STREAMSTRUCTURE_00000009;
+  IL_LISTFILE_STREAMSTRUCTURE_SAVE_CRYPT = IL_LISTFILE_STREAMSTRUCTURE_0000000A;
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
-  IL_LISTFILE_VALIDITYCHECK = UInt64($53444E455453494C);  // LISTENDS
+  IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
 type
   TILManager_IO = class(TILManager_Templates)
@@ -57,7 +58,9 @@ type
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile(const FileName: String); virtual;
-    procedure LoadFromFile(const FileName: String); virtual;    
+    procedure LoadFromFile(const FileName: String); virtual;
+    procedure PreloadStream(Stream: TStream); virtual;
+    procedure PreloadFile(const FileName: String); virtual;
   end;
 
 implementation
@@ -178,10 +181,16 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_IO.SaveToStream(Stream: TStream);
+var
+  UsedStructure:  UInt32;
 begin
 Stream_WriteUInt32(Stream,IL_LISTFILE_SIGNATURE);
-Stream_WriteUInt32(Stream,IL_LISTFILE_STREAMSTRUCTURE_SAVE);
-Save(Stream,IL_LISTFILE_STREAMSTRUCTURE_SAVE);
+If fEncrypted then
+  UsedStructure := IL_LISTFILE_STREAMSTRUCTURE_SAVE_CRYPT
+else
+  UsedStructure := IL_LISTFILE_STREAMSTRUCTURE_SAVE;
+Stream_WriteUInt32(Stream,UsedStructure);
+Save(Stream,UsedStructure);
 end;
 
 //------------------------------------------------------------------------------
@@ -229,6 +238,33 @@ try
   LoadFromStream(FileStream);
   fListFileName := ExpandFileName(FileName);
   fListFilePath := ExtractFilePath(fListFileName);
+finally
+  FileStream.Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO.PreloadStream(Stream: TStream);
+begin
+If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
+  case Stream_ReadUInt32(Stream) of
+    IL_LISTFILE_STREAMSTRUCTURE_0000000A: fEncrypted := True;
+  else
+    // do nothing
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO.PreloadFile(const FileName: String);
+var
+  FileStream: TFileStream;
+begin
+FileStream := TFileStream.Create(ExpandFileName(FileName),fmOpenRead or fmShareDenyWrite);
+try
+  FileStream.Seek(0,soBeginning);
+  PreloadStream(FileStream);
 finally
   FileStream.Free;
 end;

@@ -28,6 +28,9 @@ type
     fCount:             Integer;
     // other data
     fNotes:             String;
+    // encryption
+    fEncrypted:         Boolean;
+    fListPassword:      String;
     // events
     fOnMainListUpdate:  TNotifyEvent;
     fOnSmallListUpdate: TNotifyEvent;
@@ -78,6 +81,9 @@ type
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property Notes: String read fNotes write fNotes;
+    // encryption
+    property Encrypted: Boolean read fEncrypted write fEncrypted;
+    property ListPassword: String read fListPassword write fListPassword;
     // events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
@@ -199,10 +205,15 @@ If fCMDLineParser.CommandPresent('list_override') then
         fStaticOptions.NoBackup := True;
       end;
   end;
+// other static option
+fStaticOptions.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
 // list
 fCount := 0;
 SetLength(fList,0);
 fNotes := '';
+// encryption
+fEncrypted := False;
+fListPassword := '';
 end;
 
 //------------------------------------------------------------------------------

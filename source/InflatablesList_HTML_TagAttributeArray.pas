@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_TagAttributeArray;{$message 'revisit'}
+unit InflatablesList_HTML_TagAttributeArray;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -48,8 +48,7 @@ implementation
 
 uses
   SysUtils,
-  ListSorters,
-  InflatablesList_HTML_Utils;
+  ListSorters;
 
 Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin

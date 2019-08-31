@@ -436,11 +436,11 @@ end;
 procedure TfMainForm.FinalizeOtherForms;
 begin
 fTextEditForm.Finalize;
-//fShopsForm.Finalize;
+fShopsForm.Finalize;
 //fParsingForm.Finalize;
-//fTemplatesForm.Finalize;
+fTemplatesForm.Finalize;
 fSortForm.Finalize;
-//fSumsForm.Finalize;
+fSumsForm.Finalize;
 fSpecialsForm.Finalize;
 fOverviewForm.Finalize;
 //fSelectionForm.Finalize;

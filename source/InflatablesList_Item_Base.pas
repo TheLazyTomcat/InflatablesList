@@ -1419,18 +1419,18 @@ procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate,ShopValuesUpdate,
   MainListUpdate,SmallListUpdate,OverviewUpdate,TitleUpdate,PicturesUpdate,
   FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent);
 begin
-fOnShopListItemUpdate := IL_CheckAndAssign(ShopListItemUpdate);
-fOnShopValuesUpdate := IL_CheckAndAssign(ShopValuesUpdate);
-fOnShopAvailHistoryUpd := IL_CheckAndAssign(ShopAvailHistUpdate);
-fOnShopPriceHistoryUpd := IL_CheckAndAssign(ShopPriceHistUpdate);
-fOnMainListUpdate := IL_CheckAndAssign(MainListUpdate);
-fOnSmallListUpdate := IL_CheckAndAssign(SmallListUpdate);
-fOnOverviewUpdate := IL_CheckAndAssign(OverviewUpdate);
-fOnTitleUpdate := IL_CheckAndAssign(TitleUpdate);
-fOnPicturesUpdate := IL_CheckAndAssign(PicturesUpdate);
-fOnFlagsUpdate := IL_CheckAndAssign(FlagsUpdate);
-fOnValuesUpdate := IL_CheckAndAssign(ValuesUpdate);
-fOnShopListUpdate := IL_CheckAndAssign(ShopListUpdate);
+fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
+fOnShopValuesUpdate := IL_CheckHandler(ShopValuesUpdate);
+fOnShopAvailHistoryUpd := IL_CheckHandler(ShopAvailHistUpdate);
+fOnShopPriceHistoryUpd := IL_CheckHandler(ShopPriceHistUpdate);
+fOnMainListUpdate := IL_CheckHandler(MainListUpdate);
+fOnSmallListUpdate := IL_CheckHandler(SmallListUpdate);
+fOnOverviewUpdate := IL_CheckHandler(OverviewUpdate);
+fOnTitleUpdate := IL_CheckHandler(TitleUpdate);
+fOnPicturesUpdate := IL_CheckHandler(PicturesUpdate);
+fOnFlagsUpdate := IL_CheckHandler(FlagsUpdate);
+fOnValuesUpdate := IL_CheckHandler(ValuesUpdate);
+fOnShopListUpdate := IL_CheckHandler(ShopListUpdate);
 end;
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ const
     'Test code will be executed where available.',
     'Pages downloaded during updates are saved to the disk.',
     'Pages required during updates are not downloaded from the internet, they are instead loaded from the disk.',
-    'Saving of the list (both implicit and explicit) is disabled.',
+    'Saving of the list, both implicit and explicit, is disabled.',
     'Automatic backup during saving of the list is not performed (has no meaning when saving is disabled).',
     'Update log is not automatically saved.',
     'Overrides file name of loaded and saved list file, also disables automatic backups (equivalent to no_backup).');

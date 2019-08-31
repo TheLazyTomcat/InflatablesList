@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_Utils;{$message 'revisit'}
+unit InflatablesList_HTML_Utils;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,6 +7,9 @@ interface
 uses
   SysUtils,
   AuxTypes;
+
+type
+  EILParseError = class(Exception);  
 
 Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
@@ -18,6 +21,9 @@ Function IL_UnicodeCompareString(const A,B: UnicodeString; CaseSensitive: Boolea
 Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean): Boolean;
 
 implementation
+
+uses
+  StrRect;
 
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
 begin
@@ -58,34 +64,14 @@ end;
 
 Function IL_UnicodeCompareString(const A,B: UnicodeString; CaseSensitive: Boolean): Integer;
 begin
-{$IFDEF Unicode}
-If CaseSensitive then
-  Result := AnsiCompareStr(A,B)
-else
-  Result := AnsiCompareText(A,B);
-{$ELSE}
-If CaseSensitive then
-  Result := WideCompareStr(A,B)
-else
-  Result := WideCompareText(A,B);
-{$ENDIF}
+Result := UnicodeStringCompare(A,B,CaseSensitive);
 end;
 
 //------------------------------------------------------------------------------
 
 Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean): Boolean;
 begin
-{$IFDEF Unicode}
-If CaseSensitive then
-  Result := AnsiSameStr(A,B)
-else
-  Result := AnsiSameText(A,B);
-{$ELSE}
-If CaseSensitive then
-  Result := WideSameStr(A,B)
-else
-  Result := WideSameText(A,B);
-{$ENDIF}
+Result := UnicodeStringCompare(A,B,CaseSensitive) = 0;
 end;
 
 end.

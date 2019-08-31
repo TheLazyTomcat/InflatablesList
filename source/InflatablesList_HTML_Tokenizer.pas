@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_Tokenizer;{$message 'revisit'}
+unit InflatablesList_HTML_Tokenizer;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -216,7 +216,6 @@ uses
   SysUtils,
   StrRect,
   InflatablesList_HTML_Utils,
-  InflatablesList_HTML_Common,
   InflatablesList_HTML_NamedCharRefs;
 
 type

@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_NamedCharRefs;{$message 'revisit'}
+unit InflatablesList_HTML_NamedCharRefs;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -15,7 +15,7 @@ type
   end;
 
 const
-  IL_TOKENIZER_CHAR_NAMEDREF_MAXLEN = 33;
+  IL_TOKENIZER_CHAR_NAMEDREF_MAXLEN = 33; // max length of name in the following table
 
   IL_TOKENIZER_CHAR_NAMEDREF: array[0..2230] of TILNamedCharRef = (
     (Name: UnicodeString('&Aacute;'); CodePointA: 193; CodePointB: 0),
@@ -2248,7 +2248,7 @@ const
     (Name: UnicodeString('&Zscr;'); CodePointA: 119989; CodePointB: 0),
     (Name: UnicodeString('&zscr;'); CodePointA: 120015; CodePointB: 0),
     (Name: UnicodeString('&zwj;'); CodePointA: 8205; CodePointB: 0),
-    (Name: UnicodeString('&zwnj;'); CodePointA: 8204));
+    (Name: UnicodeString('&zwnj;'); CodePointA: 8204; CodePointB: 0));
 
 implementation
 

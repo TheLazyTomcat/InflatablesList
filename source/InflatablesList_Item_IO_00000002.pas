@@ -1,4 +1,4 @@
-unit InflatablesList_Item_IO_00000002; {$message 'revisit'}
+unit InflatablesList_Item_IO_00000002;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -21,7 +21,6 @@ type
 implementation
 
 uses
-  SysUtils, Graphics,
   BinaryStreaming,
   InflatablesList_Types,
   InflatablesList_Item_IO,

@@ -1,4 +1,4 @@
-unit InflatablesList_ItemShopParsingSettings_IO;{$message 'revisit'}
+unit InflatablesList_ItemShopParsingSettings_IO;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

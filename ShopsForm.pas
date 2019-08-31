@@ -52,8 +52,15 @@ type
     fILManager:   TILManager;
     fCurrentItem: TILItem;
   protected
+    // item event handlers (manager)
+    // shop event handlers (manager)
+    // shop frame event handlers
+    procedure TemplateChangeHandler(Sender: TObject);
+    // helper methods
     procedure BuildAddFromSubMenu;
-    procedure TemplateChangeHandler(Sender: TObject); // called by shop frame
+
+
+
     procedure ShopsListSelect(ItemIndex: Integer);
     procedure UpdateList(Sender: TObject);
     procedure UpdateListItem(Sender: TObject; Index: Integer);
@@ -68,6 +75,7 @@ type
     procedure ListViewItemSelected; overload;
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowShops(Item: TILItem);
   end;
 
@@ -82,6 +90,13 @@ uses
   InflatablesList_Utils;
 
 {$R *.dfm}
+
+procedure TfShopsForm.TemplateChangeHandler(Sender: TObject);
+begin
+BuildAddFromSubMenu;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfShopsForm.BuildAddFromSubMenu;
 var
@@ -110,13 +125,6 @@ For i := 0 to Pred(fILManager.ShopTemplateCount) do
     mniSH_AddFromSub.Add(Temp);
   end;
 mniSH_AddFromSub.Enabled := mniSH_AddFromSub.Count > 0;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfShopsForm.TemplateChangeHandler(Sender: TObject);
-begin
-BuildAddFromSubMenu;
 end;
 
 //------------------------------------------------------------------------------
@@ -275,16 +283,16 @@ end;
 
 procedure TfShopsForm.UpdateAvailHistory(Sender: TObject; Index: Integer);
 begin
-If Index = lvShops.ItemIndex then
-  frmShopFrame.UpdateAvailHistory;
+//If Index = lvShops.ItemIndex then
+//  frmShopFrame.UpdateAvailHistory;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfShopsForm.UpdatePriceHistory(Sender: TObject; Index: Integer);
 begin
-If Index = lvShops.ItemIndex then
-  frmShopFrame.UpdatePriceHistory;
+//If Index = lvShops.ItemIndex then
+//  frmShopFrame.UpdatePriceHistory;
 end;
 
 //------------------------------------------------------------------------------
@@ -318,6 +326,13 @@ begin
 fILManager := ILManager;
 frmShopFrame.Initialize(fILManager);
 BuildAddFromSubMenu;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.Finalize;
+begin
+frmShopFrame.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -408,7 +423,7 @@ begin
 If Assigned(fCurrentItem) then
   begin
     Index := fCurrentItem.ShopAdd;  // this will also update the listing
-    fCurrentItem.Shops[Index].RequiredCount := fCurrentItem.Pieces;
+    fCurrentItem.BroadcastReqCount;
     ShopsListSelect(Index);
     ListViewItemSelected;
     UpdateShopCounts;

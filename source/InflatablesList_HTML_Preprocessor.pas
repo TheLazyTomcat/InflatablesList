@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_Preprocessor;{$message 'revisit'}
+unit InflatablesList_HTML_Preprocessor;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -6,12 +6,11 @@ interface
 
 uses
   Classes,
-  AuxTypes, AuxClasses,
-  InflatablesList_HTML_Common;
+  AuxTypes, AuxClasses;
 
 type
 {$IFDEF DevelMsgs}
-  {$message 'implement'}
+  {$message 'implement invalid char behaviour'}
 {$ENDIF}
   TILHTMLInvalidCharBehaviour = (ilicbRemove,ilicbReplace,ilicbLeave);
 

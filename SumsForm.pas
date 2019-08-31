@@ -1,4 +1,4 @@
-unit SumsForm;{$message 'revisit'}
+unit SumsForm;
 
 interface
 
@@ -72,6 +72,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowSums;
   end;
 
@@ -638,6 +639,13 @@ InitializeTable_SumsGrandTotal;
 InitializeTable_SumsByType;
 InitializeTable_SumsByManufacturer;
 sbMain.VertScrollBar.Position := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSumsForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

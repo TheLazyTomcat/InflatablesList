@@ -49,6 +49,7 @@ type
     fCurrentShop: TILItemShop;
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowTemplates(CurrentShop: TILItemShop; AsInit: Boolean);
   end;
 
@@ -67,6 +68,13 @@ begin
 fILManager := ILManager;
 mniTL_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniTL_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfTemplatesForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

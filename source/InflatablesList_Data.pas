@@ -1,4 +1,4 @@
-unit InflatablesList_Data;{$message 'revisit'}
+unit InflatablesList_Data;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -44,8 +44,8 @@ type
     procedure FinalizeDefaultPictures; virtual;
     procedure InitializeDefaultPicturesSmall; virtual;
     procedure FinalizeDefaultPicturesSmall; virtual;
-    procedure InitializeGradientImage; virtual;
-    procedure FinalieGradientImage; virtual;
+    procedure InitializeGradientImages; virtual;
+    procedure FinalieGradientImages; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -361,6 +361,8 @@ For i := Low(fItemDefaultPicsSmall) to High(fItemDefaultPicsSmall) do
   end;
 end;
 
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.FinalizeDefaultPicturesSmall;
 var
   i:  TILItemType;
@@ -372,7 +374,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILDataProvider.InitializeGradientImage;
+procedure TILDataProvider.InitializeGradientImages;
 var
   ResStream:  TResourceStream;
 begin
@@ -404,7 +406,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILDataProvider.FinalieGradientImage;
+procedure TILDataProvider.FinalieGradientImages;
 begin
 If Assigned(fWantedGradientImage) then
   FreeAndNil(fWantedGradientImage);
@@ -421,14 +423,14 @@ InitializeItemReviewIcon;
 InitializeItemFlagIcons;
 InitializeDefaultPictures;
 InitializeDefaultPicturesSmall;
-InitializeGradientImage;
+InitializeGradientImages;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILDataProvider.Finalize;
 begin
-FinalieGradientImage;
+FinalieGradientImages;
 FinalizeDefaultPicturesSmall;
 FinalizeDefaultPictures;
 FinalizeItemFlagIcons;

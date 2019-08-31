@@ -207,7 +207,7 @@ type
     fILManager:       TILManager;
     fCurrentItem:     TILItem; 
   protected
-    // event handlers
+    // item event handlers (manager)
     procedure UpdateTitle(Sender: TObject; Item: TObject);
     procedure UpdatePictures(Sender: TObject; Item: TObject);
     procedure UpdateFlags(Sender: TObject; Item: TObject);
@@ -217,7 +217,7 @@ type
     procedure BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
     procedure FillFlagsFromItem;
     procedure FillValues;
-    procedure ShowSelectedShop(const SelectedShop: String);
+    procedure FillSelectedShop(const SelectedShop: String);
     Function BrowsePicture(const FileStr: String; var FileName: String): Boolean;
     // frame methods
     procedure FrameClear;
@@ -524,9 +524,9 @@ If Assigned(fCurrentItem) then
   begin
     // selected shop
     If fCurrentItem.ShopsSelected(SelectedShop) then
-      ShowSelectedShop(SelectedShop.Name)
+      FillSelectedShop(SelectedShop.Name)
     else
-      ShowSelectedShop('-');
+      FillSelectedShop('-');
     // number of shops
     If fCurrentItem.ShopCount > 0 then
       lblShopCount.Caption := fCurrentItem.ShopsCountStr
@@ -583,7 +583,7 @@ If Assigned(fCurrentItem) then
   end
 else
   begin
-    ShowSelectedShop('');
+    FillSelectedShop('');
     lblShopCount.Caption := '-';
     lblAvailPieces.Caption := '0';
     lblTotalWeight.Caption := '-';
@@ -598,7 +598,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.ShowSelectedShop(const SelectedShop: String);
+procedure TfrmItemFrame.FillSelectedShop(const SelectedShop: String);
 begin
 If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
   (lblShopCount.BoundsRect.Right - lblSelectedShopTitle.BoundsRect.Right - 8) then
@@ -689,7 +689,7 @@ try
   seRating.Value := 0;
   // read-only things
   lblTotalWeight.Caption := '-';
-  ShowSelectedShop('');
+  FillSelectedShop('');
   lblShopCount.Caption := '0';
   lblUnitPriceLowest.Caption := '-';
   lblUnitPriceSelected.Caption := '-';

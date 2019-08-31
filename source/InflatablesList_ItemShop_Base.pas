@@ -63,8 +63,6 @@ type
     procedure SetNotes(const Value: String); virtual;
     procedure SetLastUpdateRes(Value: TILItemShopUpdateResult); virtual;
     procedure SetLastUpdateMsg(const Value: String); virtual;
-    // macro setters
-    procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
     // event callers
     procedure ClearSelected; virtual;
     procedure UpdateOverview; virtual;
@@ -93,6 +91,7 @@ type
     procedure AvailAndPriceHistoryAdd; virtual;
     procedure UpdateAvailAndPriceHistory; virtual;
     // other methods
+    procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
     procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
     procedure AssignInternalEvents(ClearSelected,OverviewUpdate,ShopListItemUpdate,
       ValuesUpdate,AvailHistUpdate,PriceHistUpdate: TNotifyEvent); virtual;
@@ -299,19 +298,8 @@ If not AnsiSameStr(fLastUpdateMsg,Value) then
   begin
     fLastUpdateMsg := Value;
     UniqueString(fLastUpdateMsg);
+    UpdateValues;     
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemShop_Base.SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
-begin
-fAvailable := Avail;
-fPrice := Price;
-fLastUpdateRes := Res;
-fLastUpdateMsg := Msg;
-UpdateShopListItem;
-UpdateValues;
 end;
 
 //------------------------------------------------------------------------------
@@ -614,11 +602,26 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItemShop_Base.SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
+begin
+fAvailable := Avail;
+fPrice := Price;
+fLastUpdateRes := Res;
+fLastUpdateMsg := Msg;
+UniqueString(fLastUpdateMsg);
+UpdateOverview;
+UpdateShopListItem;
+UpdateValues;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItemShop_Base.ReplaceParsingSettings(Source: TILItemShopParsingSettings);
 var
   Variables:  TILItemShopParsingVariables;
   i:          Integer;
 begin
+// keep variables
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
@@ -633,12 +636,12 @@ end;
 procedure TILItemShop_Base.AssignInternalEvents(ClearSelected,OverviewUpdate,
   ShopListItemUpdate,ValuesUpdate,AvailHistUpdate,PriceHistUpdate: TNotifyEvent);
 begin
-fOnClearSelected := IL_CheckAndAssign(ClearSelected);
-fOnOverviewUpdate := IL_CheckAndAssign(OverviewUpdate);
-fOnShopListItemUpdate := IL_CheckAndAssign(ShopListItemUpdate);
-fOnValuesUpdate := IL_CheckAndAssign(ValuesUpdate);
-fOnAvailHistUpdate := IL_CheckAndAssign(AvailHistUpdate);
-fOnPriceHistUpdate := IL_CheckAndAssign(PriceHistUpdate);
+fOnClearSelected := IL_CheckHandler(ClearSelected);
+fOnOverviewUpdate := IL_CheckHandler(OverviewUpdate);
+fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
+fOnValuesUpdate := IL_CheckHandler(ValuesUpdate);
+fOnAvailHistUpdate := IL_CheckHandler(AvailHistUpdate);
+fOnPriceHistUpdate := IL_CheckHandler(PriceHistUpdate);
 end;
  
 //------------------------------------------------------------------------------

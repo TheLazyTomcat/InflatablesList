@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_ElementFinder;{$message 'revisit'}
+unit InflatablesList_HTML_ElementFinder;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

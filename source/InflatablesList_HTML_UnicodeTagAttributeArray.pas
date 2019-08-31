@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_UnicodeTagAttributeArray;{$message 'revisit'}
+unit InflatablesList_HTML_UnicodeTagAttributeArray;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -10,8 +10,7 @@ unit InflatablesList_HTML_UnicodeTagAttributeArray;{$message 'revisit'}
 interface
 
 uses
-  AuxTypes, CountedDynArrays,
-  InflatablesList_HTML_Common;
+  AuxTypes, CountedDynArrays;
 
 type
   TILUnicodeTagAttribute = record

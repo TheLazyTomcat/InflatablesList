@@ -1,4 +1,4 @@
-unit InflatablesList_HTML_Document;{$message 'revisit'}
+unit InflatablesList_HTML_Document;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  SysUtils, StrUtils,
+  SysUtils,
   StrRect,
   InflatablesList_HTML_ElementFinder;
 
@@ -107,6 +107,7 @@ inherited Create;
 fParent := Parent;
 fOpen := True;
 fName := Name;
+IL_UniqueReconvStr(fName);
 CDA_Init(fAttributes);
 CDA_Init(fTextArr);
 fText := IL_ReconvString('');

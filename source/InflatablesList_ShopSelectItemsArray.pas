@@ -1,4 +1,4 @@
-unit InflatablesList_ShopSelectItemsArray;{$message 'revisit'}
+unit InflatablesList_ShopSelectItemsArray;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

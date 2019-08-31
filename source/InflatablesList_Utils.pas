@@ -1,4 +1,4 @@
-unit InflatablesList_Utils;{$message 'revisit'}
+unit InflatablesList_Utils;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -37,11 +37,11 @@ procedure IL_PicShrink(Large,Small: TBitmap);
 //==============================================================================
 //- event assignment -----------------------------------------------------------
 
-Function IL_CheckAndAssign(Handler: TNotifyEvent): TNotifyEvent; overload;
+Function IL_CheckHandler(Handler: TNotifyEvent): TNotifyEvent; overload;
 
-Function IL_CheckAndAssign(Handler: TILObjectL1Event): TILObjectL1Event; overload;
-Function IL_CheckAndAssign(Handler: TILObjectL2Event): TILObjectL2Event; overload;
-Function IL_CheckAndAssign(Handler: TILObjectL3Event): TILObjectL3Event; overload;
+Function IL_CheckHandler(Handler: TILObjectL1Event): TILObjectL1Event; overload;
+Function IL_CheckHandler(Handler: TILObjectL2Event): TILObjectL2Event; overload;
+Function IL_CheckHandler(Handler: TILObjectL3Event): TILObjectL3Event; overload;
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -251,7 +251,7 @@ end;
 //==============================================================================
 //- event assignment -----------------------------------------------------------
 
-Function IL_CheckAndAssign(Handler: TNotifyEvent): TNotifyEvent;
+Function IL_CheckHandler(Handler: TNotifyEvent): TNotifyEvent;
 begin
 If Assigned(Handler) then
   Result := Handler
@@ -261,7 +261,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Function IL_CheckAndAssign(Handler: TILObjectL1Event): TILObjectL1Event;
+Function IL_CheckHandler(Handler: TILObjectL1Event): TILObjectL1Event;
 begin
 If Assigned(Handler) then
   Result := Handler
@@ -271,7 +271,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Function IL_CheckAndAssign(Handler: TILObjectL2Event): TILObjectL2Event;
+Function IL_CheckHandler(Handler: TILObjectL2Event): TILObjectL2Event;
 begin
 If Assigned(Handler) then
   Result := Handler
@@ -281,7 +281,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Function IL_CheckAndAssign(Handler: TILObjectL3Event): TILObjectL3Event;
+Function IL_CheckHandler(Handler: TILObjectL3Event): TILObjectL3Event;
 begin
 If Assigned(Handler) then
   Result := Handler

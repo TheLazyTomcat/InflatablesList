@@ -1,4 +1,4 @@
-unit InflatablesList_ItemShopTemplate_Base;{$message 'revisit'}
+unit InflatablesList_ItemShopTemplate_Base;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -63,6 +63,7 @@ begin
 If not AnsiSameStr(fName,Value) then
   begin
     fName := Value;
+    fParsingSettings.TemplateReference := fName;
     UniqueString(fName);
   end;
 end;
@@ -156,6 +157,7 @@ end;
 constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
 inherited Create;
+// do not call initialize
 fStaticOptions := IL_ThreadSafeCopy(BaseOn.StaticOptions);
 fName := '';
 fShopName := BaseOn.Name;
@@ -165,6 +167,7 @@ fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
+fParsingSettings.TemplateReference := fName;
 end;
 
 //------------------------------------------------------------------------------

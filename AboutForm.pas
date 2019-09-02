@@ -46,7 +46,6 @@ uses
 
 procedure TfAboutForm.BuildForm;
 begin
-lblTitleShadow.Caption := lblTitle.Caption;
 with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
 try
   lblTitle.Caption := VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'FileDescription'];

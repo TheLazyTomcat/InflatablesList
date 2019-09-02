@@ -1,5 +1,4 @@
 unit InflatablesList_ItemShopTemplate_IO;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

@@ -1,5 +1,4 @@
-unit InflatablesList_ItemShopParsingSettings_Base;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_ItemShopParsingSettings_Base;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -35,11 +34,9 @@ type
     Function GetAvailExtrSettCount: Integer; virtual;
     Function GetAvailExtrSett(Index: Integer): TILItemShopParsingExtrSett; virtual;
     procedure SetAvailExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett); virtual;
-    Function GetAvailExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual; {$message 'remove'}
     Function GetPriceExtrSettCount: Integer; virtual;
     Function GetPriceExtrSett(Index: Integer): TILItemShopParsingExtrSett; virtual;
     procedure SetPriceExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett); virtual;
-    Function GetPriceExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual; {$message 'remove'}
     // other protected methods
     procedure InitializeData; virtual;
     procedure FinalizeData; virtual;
@@ -67,11 +64,9 @@ type
     property DisableParsingErrors: Boolean read fDisableParsErrs write SetDisableParsErrs;
     property AvailExtractionSettingsCount: Integer read GetAvailExtrSettCount;
     property AvailExtractionSettings[Index: Integer]: TILItemShopParsingExtrSett read GetAvailExtrSett write SetAvailExtrSett;
-    property AvailExtractionSettingsPtrs[Index: Integer]: PILItemShopParsingExtrSett read GetAvailExtrSettPtr;
     property AvailFinder: TILElementFinder read fAvailFinder;
     property PriceExtractionSettingsCount: Integer read GetPriceExtrSettCount;
     property PriceExtractionSettings[Index: Integer]: TILItemShopParsingExtrSett read GetPriceExtrSett write SetPriceExtrSett;
-    property PriceExtractionSettingsPtrs[Index: Integer]: PILItemShopParsingExtrSett read GetPRiceExtrSettPtr;
     property PriceFinder: TILElementFinder read fPriceFinder;    
   end;
 
@@ -177,16 +172,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILItemShopParsingSettings_Base.GetAvailExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett;
-begin
-If (Index >= Low(fAvailExtrSetts)) and (Index <= High(fAvailExtrSetts)) then
-  Result := Addr(fAvailExtrSetts[Index])
-else
-  raise Exception.CreateFmt('TILItemShopParsingSettings_Base.GetAvailExtrSettPtr: Index (%d) out of bounds.',[Index]);
-end;
-
-//------------------------------------------------------------------------------
-
 Function TILItemShopParsingSettings_Base.GetPriceExtrSettCount: Integer;
 begin
 Result := Length(fPriceExtrSetts);
@@ -210,16 +195,6 @@ If (Index >= Low(fPriceExtrSetts)) and (Index <= High(fPriceExtrSetts)) then
   fPriceExtrSetts[Index] := IL_ThreadSafeCopy(Value)
 else
   raise Exception.CreateFmt('TILItemShopParsingSettings_Base.SetPriceExtrSett: Index (%d) out of bounds.',[Index]);
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItemShopParsingSettings_Base.GetPriceExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett;
-begin
-If (Index >= Low(fPriceExtrSetts)) and (Index <= High(fPriceExtrSetts)) then
-  Result := Addr(fPriceExtrSetts[Index])
-else
-  raise Exception.CreateFmt('TILItemShopParsingSettings_Base.GetPriceExtrSettPtr: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
@@ -283,11 +258,7 @@ inherited Create;
 fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
 fRequiredCount := Source.RequiredCount;
 // copy data
-For i := Low(fVariables.Vars) to High(fVariables.Vars) do
-  begin
-    fVariables.Vars[i] := Source.Variables[i];
-    UniqueString(fVariables.Vars[i]);
-  end;
+fVariables := IL_ThreadSafeCopy(Source.VariablesRec);
 fTemplateRef := Source.TemplateReference;
 UniqueString(fTemplateRef);
 fDisableParsErrs := Source.DisableParsingErrors;

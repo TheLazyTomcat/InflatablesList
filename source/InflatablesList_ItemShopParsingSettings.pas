@@ -1,5 +1,4 @@
 unit InflatablesList_ItemShopParsingSettings;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

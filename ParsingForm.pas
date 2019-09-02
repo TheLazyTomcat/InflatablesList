@@ -370,16 +370,16 @@ begin
 Self.Caption := Caption;
 If OnPrice then
   begin
-    SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.PriceExtractionSettingsCount);
-    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
-      fCurrentParsingEntry.Extraction[i] := ParsingSettings.PriceExtractionSettingsPtrs[i]^;
+    //SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.PriceExtractionSettingsCount);
+    //For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+    //  fCurrentParsingEntry.Extraction[i] := ParsingSettings.PriceExtractionSettingsPtrs[i]^;
     fCurrentParsingEntry.Finder := ParsingSettings.PriceFinder;
   end
 else
   begin
-    SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.AvailExtractionSettingsCount);
-    For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
-      fCurrentParsingEntry.Extraction[i] := ParsingSettings.AvailExtractionSettingsPtrs[i]^;
+    //SetLength(fCurrentParsingEntry.Extraction,ParsingSettings.AvailExtractionSettingsCount);
+    //For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
+    //  fCurrentParsingEntry.Extraction[i] := ParsingSettings.AvailExtractionSettingsPtrs[i]^;
     fCurrentParsingEntry.Finder := ParsingSettings.AvailFinder;
   end;
 // fill list of stages
@@ -417,7 +417,7 @@ If OnPrice then
     For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
       begin
         ParsingSettings.PriceExtractionSettingsAdd;
-        ParsingSettings.PriceExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
+        //ParsingSettings.PriceExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
       end;
   end
 else
@@ -426,7 +426,7 @@ else
     For i := Low(fCurrentParsingEntry.Extraction) to High(fCurrentParsingEntry.Extraction) do
       begin
         ParsingSettings.AvailExtractionSettingsAdd;
-        ParsingSettings.AvailExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
+        //ParsingSettings.AvailExtractionSettingsPtrs[i]^ := fCurrentParsingEntry.Extraction[i];
       end;
   end;
 end;

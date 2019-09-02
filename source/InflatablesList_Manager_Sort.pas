@@ -17,9 +17,9 @@ type
     fDefaultSortSett: TILSortingSettings;
     fActualSortSett:  TILSortingSettings;
     fSortingProfiles: TILSortingProfiles;
-    Function GetSortProfileCount: Integer;
-    Function GetSortProfile(Index: Integer): TILSortingProfile;
-    Function GetSortProfilePtr(Index: Integer): PILSortingProfile; {$message 'remove'}
+    Function GetSortProfileCount: Integer; virtual;
+    Function GetSortProfile(Index: Integer): TILSortingProfile; virtual;
+    procedure SetSortProfile(Index: Integer; Value: TILSortingProfile); virtual;
     procedure InitializeSortingSettings; virtual;
     procedure FinalizeSortingSettings; virtual;
     procedure Initialize; override;
@@ -38,8 +38,7 @@ type
     property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
     property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
-    property SortingProfiles[Index: Integer]: TILSortingProfile read GetSortProfile;
-    property SortingProfilePtrs[Index: Integer]: PILSortingProfile read GetSortProfilePtr; {$message 'remove'}
+    property SortingProfiles[Index: Integer]: TILSortingProfile read GetSortProfile write SetSortProfile;
   end;
 
 implementation
@@ -66,12 +65,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Sort.GetSortProfilePtr(Index: Integer): PILSortingProfile;
+procedure TILManager_Sort.SetSortProfile(Index: Integer; Value: TILSortingProfile);
 begin
 If (Index >= Low(fSortingProfiles)) and (Index <= High(fSortingProfiles)) then
-  Result := Addr(fSortingProfiles[Index])
+  fSortingProfiles[Index] := IL_ThreadSafeCopy(Value)
 else
-  raise Exception.CreateFmt('TILManager_Sort.GetSortProfilePtr: Index (%d) out of bounds.',[Index]);
+  raise Exception.CreateFmt('TILManager_Sort.SetSortProfile: Index (%d) out of bounds.',[Index]);
 end;
 
 //==============================================================================

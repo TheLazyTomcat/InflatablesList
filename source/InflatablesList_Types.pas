@@ -44,7 +44,7 @@ Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
 
 procedure IL_UniqueReconvStr(var Str: TILReconvString);
 
-Function IL_ThreadSaveCopy(const Str: TILReconvString): TILReconvString; overload;
+Function IL_ThreadSafeCopy(const Str: TILReconvString): TILReconvString; overload;
 
 //==============================================================================
 //- items ----------------------------------------------------------------------
@@ -121,9 +121,9 @@ Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
 Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
 Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
 
-Function IL_ThreadSaveCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett; overload;
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett; overload;
 
-Function IL_ThreadSaveCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables; overload;
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables; overload;
 
 //==============================================================================
 //- item shop ------------------------------------------------------------------
@@ -199,14 +199,14 @@ type
     Name:     String;
     Settings: TILSortingSettings;
   end;
-  PILSortingProfile = ^TILSortingProfile; {$message 'remove'}
+  //PILSortingProfile = ^TILSortingProfile; {$message 'remove'}
 
   TILSortingProfiles = array of TILSortingProfile;
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
 
-Function IL_ThreadSaveCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
+Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
 
 //==============================================================================
 //- sum filters ----------------------------------------------------------------
@@ -384,7 +384,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ThreadSaveCopy(const Str: TILReconvString): TILReconvString;
+Function IL_ThreadSafeCopy(const Str: TILReconvString): TILReconvString;
 begin
 Result := Str;
 IL_UniqueReconvStr(Result);
@@ -645,7 +645,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ThreadSaveCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett;
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett;
 begin
 Result := Value;
 UniqueString(Result.ExtractionData);
@@ -654,7 +654,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ThreadSaveCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables;
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables;
 var
   i:  Integer;
 begin
@@ -869,7 +869,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ThreadSaveCopy(const Value: TILSortingProfile): TILSortingProfile;
+Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile;
 begin
 Result := Value;
 UniqueString(Result.Name);

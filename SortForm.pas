@@ -81,7 +81,8 @@ var
 implementation
 
 uses
-  PromptForm;
+  PromptForm,
+  InflatablesList_Utils;
 
 {$R *.dfm}
 
@@ -252,13 +253,15 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfSortForm.btnProfileSaveClick(Sender: TObject);
+var
+  Temp: TILSortingProfile;
 begin
 If lbProfiles.ItemIndex >= 0 then
   begin
-    fILManager.SortingProfilePtrs[lbProfiles.ItemIndex]^.Settings := fLocalSortSett;
-    lbProfiles.Items[lbProfiles.ItemIndex] := Format('%s (%d)',
-      [fILManager.SortingProfiles[lbProfiles.ItemIndex].Name,
-       fILManager.SortingProfiles[lbProfiles.ItemIndex].Settings.Count]);
+    Temp := fILManager.SortingProfiles[lbProfiles.ItemIndex];
+    Temp.Settings := fLocalSortSett;
+    fILManager.SortingProfiles[lbProfiles.ItemIndex] := Temp;
+    lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',[Temp.Name,Temp.Settings.Count]);
   end;
 end;
 

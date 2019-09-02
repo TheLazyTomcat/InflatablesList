@@ -1,5 +1,6 @@
 unit InflatablesList_ShopUpdate;{$message 'revisit'}
 {$message 'll_rework'}
+{$message 'rename unit to *_ShopUpdater'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

@@ -170,7 +170,7 @@ end;
 procedure TILItemShopParsingSettings_Base.SetAvailExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett);
 begin
 If (Index >= Low(fAvailExtrSetts)) and (Index <= High(fAvailExtrSetts)) then
-  fAvailExtrSetts[Index] := IL_ThreadSaveCopy(Value)
+  fAvailExtrSetts[Index] := IL_ThreadSafeCopy(Value)
 else
   raise Exception.CreateFmt('TILItemShopParsingSettings_Base.SetAvailExtrSett: Index (%d) out of bounds.',[Index]);
 end;
@@ -207,7 +207,7 @@ end;
 procedure TILItemShopParsingSettings_Base.SetPriceExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett);
 begin
 If (Index >= Low(fPriceExtrSetts)) and (Index <= High(fPriceExtrSetts)) then
-  fPriceExtrSetts[Index] := IL_ThreadSaveCopy(Value)
+  fPriceExtrSetts[Index] := IL_ThreadSafeCopy(Value)
 else
   raise Exception.CreateFmt('TILItemShopParsingSettings_Base.SetPriceExtrSett: Index (%d) out of bounds.',[Index]);
 end;
@@ -293,11 +293,11 @@ UniqueString(fTemplateRef);
 fDisableParsErrs := Source.DisableParsingErrors;
 SetLength(fAvailExtrSetts,Source.AvailExtractionSettingsCount);
 For i := Low(fAvailExtrSetts) to High(fAvailExtrSetts) do
-  fAvailExtrSetts[i] := IL_ThreadSaveCopy(Source.AvailExtractionSettings[i]);
+  fAvailExtrSetts[i] := IL_ThreadSafeCopy(Source.AvailExtractionSettings[i]);
 fAvailFinder := TILElementFinder.CreateAsCopy(Source.AvailFinder);
 SetLength(fPriceExtrSetts,Source.PriceExtractionSettingsCount);
 For i := Low(fPriceExtrSetts) to High(fPriceExtrSetts) do
-  fPriceExtrSetts[i] := IL_ThreadSaveCopy(Source.PriceExtractionSettings[i]);
+  fPriceExtrSetts[i] := IL_ThreadSafeCopy(Source.PriceExtractionSettings[i]);
 fPriceFinder := TILElementFinder.CreateAsCopy(Source.PriceFinder);
 end;
 

@@ -340,7 +340,7 @@ For i := Low(fItemDefaultPicsSmall) to High(fItemDefaultPicsSmall) do
     fItemDefaultPicsSmall[i].PixelFormat := pf24bit;
     fItemDefaultPicsSmall[i].Width := 48;
     fItemDefaultPicsSmall[i].Height := 48;
-    IL_PicShrink(fItemDefaultPics[i],fItemDefaultPicsSmall[i]);
+    IL_PicShrink(fItemDefaultPics[i],fItemDefaultPicsSmall[i],2);
   except
     fItemDefaultPics[i] := nil;
   end;

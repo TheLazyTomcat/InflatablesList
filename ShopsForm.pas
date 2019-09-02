@@ -400,6 +400,7 @@ procedure TfShopsForm.lvShopsDblClick(Sender: TObject);
 begin
 If (lvShops.ItemIndex >= 0) and Assigned(fCurrentItem) then
   begin
+    frmShopFrame.Save;
     fCurrentItem[lvShops.ItemIndex].Selected := True;
     frmShopFrame.Load;
   end;

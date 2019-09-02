@@ -274,7 +274,7 @@ Stream_WriteUInt32(fConvertStream,IL_SHOPPARSSETT_SIGNATURE);
 Stream_WriteUInt32(fConvertStream,IL_SHOPPARSSETT_STREAMSTRUCTURE_00000000);
 // data (structure is the same as in 7)
 // variables
-For i := Low(PILItemShopParsingVariables(nil).Vars) to High(PILItemShopParsingVariables(nil).Vars) do
+For i := 0 to Pred(IL_TYPES_ITEMSHOP_PARSING_VARS_COUNT) do
   Stream_WriteString(fConvertStream,Stream_ReadString(Stream));
 Stream_WriteString(fConvertStream,Stream_ReadString(Stream));     // template reference
 Stream_WriteBool(fConvertStream,Stream_ReadBool(Stream));         // disable parsing errors

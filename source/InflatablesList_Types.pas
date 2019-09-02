@@ -1,5 +1,4 @@
 unit InflatablesList_Types;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -36,7 +35,7 @@ type
 Function IL_UTF8Reconvert(const Str: String): String;
 Function IL_ANSIReconvert(const Str: String): String;
 
-Function IL_ReconvString(const Str: String): TILReconvString;
+Function IL_ReconvString(const Str: String; RemoveNullChars: Boolean = True): TILReconvString;
 
 Function IL_ReconvCompareStr(const A,B: TILReconvString): Integer;
 Function IL_ReconvCompareText(const A,B: TILReconvString): Integer;
@@ -44,6 +43,7 @@ Function IL_ReconvSameStr(const A,B: TILReconvString): Boolean;
 Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
 
 procedure IL_UniqueReconvStr(var Str: TILReconvString);
+
 Function IL_ThreadSaveCopy(const Str: TILReconvString): TILReconvString; overload;
 
 //==============================================================================
@@ -91,6 +91,9 @@ Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
 
+const
+  IL_TYPES_ITEMSHOP_PARSING_VARS_COUNT = 8; // never change the number (8 is enough for everyone :P)!
+
 type
   TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
 
@@ -109,9 +112,8 @@ type
   TILItemShopParsingExtrSettList = array of TILItemShopParsingExtrSett;
 
   TILItemShopParsingVariables = record
-    Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
+    Vars: array[0..Pred(IL_TYPES_ITEMSHOP_PARSING_VARS_COUNT)] of String;
   end;
-  PILItemShopParsingVariables = ^TILItemShopParsingVariables; 
 
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
 Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
@@ -120,6 +122,8 @@ Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
 Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
 
 Function IL_ThreadSaveCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett; overload;
+
+Function IL_ThreadSaveCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables; overload;
 
 //==============================================================================
 //- item shop ------------------------------------------------------------------
@@ -150,6 +154,7 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //==============================================================================
 //- searching ------------------------------------------------------------------
 
+{$message 'wip'}
 type
   TILSrcResItemValue = (srifNone);
   TILSrcResShopValue = (srsfNone);
@@ -194,12 +199,14 @@ type
     Name:     String;
     Settings: TILSortingSettings;
   end;
-  PILSortingProfile = ^TILSortingProfile;
+  PILSortingProfile = ^TILSortingProfile; {$message 'remove'}
 
   TILSortingProfiles = array of TILSortingProfile;
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
+
+Function IL_ThreadSaveCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
 
 //==============================================================================
 //- sum filters ----------------------------------------------------------------
@@ -257,6 +264,10 @@ type
 //==============================================================================
 //- command-line options -------------------------------------------------------
 
+const
+  IL_TYPES_STATIC_OPTIONS_TAGS: array[0..7] of String =
+    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
+
 type
   TILStaticManagerOptions = record
     // command-line options
@@ -275,10 +286,6 @@ type
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions; overload;
-
-const
-  IL_STAT_OPT_TAGS: array[0..7] of String =
-    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
 
 implementation
 
@@ -324,15 +331,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ReconvString(const Str: String): TILReconvString;
+Function IL_ReconvString(const Str: String; RemoveNullChars: Boolean = True): TILReconvString;
 var
   i:  Integer;
 begin
 Result.Str := Str;
-// remove null characters as they might break comparation function
-For i := 1 to Length(Result.Str) do
-  If Ord(Result.Str[i]) = 0 then
-    Result.Str[i] := Char(' ');
+// null characters might break some functions
+If RemoveNullChars then
+  For i := 1 to Length(Result.Str) do
+    If Ord(Result.Str[i]) = 0 then
+      Result.Str[i] := Char(' ');
 Result.UTF8Reconv := IL_UTF8Reconvert(Str);
 Result.AnsiReconv := IL_ANSIReconvert(Str);
 end;
@@ -644,6 +652,19 @@ UniqueString(Result.ExtractionData);
 UniqueString(Result.NegativeTag);
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSaveCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables;
+var
+  i:  Integer;
+begin
+For i := Low(Value.Vars) to High(Value.Vars) do
+  begin
+    Result.Vars[i] := Value.Vars[i];
+    UniqueString(Result.Vars[i]);
+  end;
+end;
+
 //==============================================================================
 //- item shop ------------------------------------------------------------------
 
@@ -846,6 +867,14 @@ else
 end;
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSaveCopy(const Value: TILSortingProfile): TILSortingProfile;
+begin
+Result := Value;
+UniqueString(Result.Name);
+end;
+
 //==============================================================================
 //- sum filters ----------------------------------------------------------------
 
@@ -958,7 +987,7 @@ IL_SetFilterSettingsFlagValue(Result,ilffDiscardedClr,GetFlagState(Flags,$200000
 end;
 
 //==============================================================================
-//- command-line options -------------------------------------------------------
+//- static options -------------------------------------------------------------
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 begin

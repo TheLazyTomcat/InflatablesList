@@ -1,5 +1,4 @@
 unit InflatablesList_Utils;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -11,41 +10,59 @@ uses
   InflatablesList_Types;
 
 //==============================================================================
+//- string functions redirection -----------------------------------------------
+
+Function IL_CompareText(const A,B: String): Integer;
+Function IL_CompareStr(const A,B: String): Integer;
+
+Function IL_SameText(const A,B: String): Boolean;
+Function IL_SameStr(const A,B: String): Boolean;
+
+Function IL_ContainsText(const Text,SubText: String): Boolean;
+Function IL_ContainsStr(const Text,SubText: String): Boolean;
+
+Function IL_Format(const FormatStr: String; Args: array of const; const FormatSettings: TFormatSettings): String; overload;
+Function IL_Format(const FormatStr: String; Args: array of const): String; overload;
+
+//==============================================================================
+//- comparison functions used in sorting ---------------------------------------
+
+Function IL_SortCompareBool(A,B: Boolean): Integer;
+Function IL_SortCompareInt32(A,B: Int32): Integer;
+Function IL_SortCompareUInt32(A,B: UInt32): Integer;
+Function IL_SortCompareInt64(A,B: Int64): Integer;
+Function IL_SortCompareFloat(A,B: Double): Integer;
+Function IL_SortCompareDateTime(A,B: TDateTime): Integer;
+Function IL_SortCompareText(const A,B: String): Integer;
+Function IL_SortCompareStr(const A,B: String): Integer;
+Function IL_SortCompareGUID(const A,B: TGUID): Integer;
+
+//==============================================================================
 //- files/directories ----------------------------------------------------------
 
-Function IL_PathRelative(const Base,Path: String): String;
+Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): String;
 Function IL_PathAbsolute(const Base,Path: String): String;
 
+procedure IL_CreateDirectory(const Directory: String);
+procedure IL_CreateDirectoryPath(const Path: String);
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
 
 Function IL_FileExists(const FileName: String): Boolean;
 Function IL_DeleteFile(const FileName: String): Boolean;
 
 //==============================================================================
-//- comparison functions, used in sorting --------------------------------------
-
-Function IL_CompareBool(A,B: Boolean): Integer;
-Function IL_CompareInt32(A,B: Int32): Integer;
-Function IL_CompareUInt32(A,B: UInt32): Integer;
-Function IL_CompareInt64(A,B: Int64): Integer;
-Function IL_CompareFloat(A,B: Double): Integer;
-Function IL_CompareDateTime(A,B: TDateTime): Integer;
-Function IL_CompareText(const A,B: String): Integer;
-Function IL_CompareGUID(const A,B: TGUID): Integer;
-
-//==============================================================================
-//- pictures -------------------------------------------------------------------
-
-procedure IL_PicShrink(Large,Small: TBitmap);
-
-//==============================================================================
-//- event assignment -----------------------------------------------------------
+//- event handler assignment checking ------------------------------------------
 
 Function IL_CheckHandler(Handler: TNotifyEvent): TNotifyEvent; overload;
 
 Function IL_CheckHandler(Handler: TILObjectL1Event): TILObjectL1Event; overload;
 Function IL_CheckHandler(Handler: TILObjectL2Event): TILObjectL2Event; overload;
 Function IL_CheckHandler(Handler: TILObjectL3Event): TILObjectL3Event; overload;
+
+//==============================================================================
+//- pictures manipulation ------------------------------------------------------
+
+procedure IL_PicShrink(Large,Small: TBitmap; Factor: Integer);
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -63,16 +80,210 @@ procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
 implementation
 
 uses
-  ShellAPI,
+  StrUtils, ShellAPI,
   StrRect;
 
 //==============================================================================
-//- file path manipulation -----------------------------------------------------
+//- string functions redirection -----------------------------------------------
 
-Function IL_PathRelative(const Base,Path: String): String;
+Function IL_CompareText(const A,B: String): Integer;
 begin
-Result := RTLToStr(ExtractRelativePath(StrToRTL(Base),StrToRTL(Path)));
-If Length(Result) <> Length(Path) then
+Result := AnsiCompareText(A,B);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_CompareStr(const A,B: String): Integer;
+begin
+Result := AnsiCompareStr(A,B);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SameText(const A,B: String): Boolean;
+begin
+Result := AnsiSameText(A,B);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SameStr(const A,B: String): Boolean;
+begin
+Result := AnsiSameStr(A,B);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ContainsText(const Text,SubText: String): Boolean;
+begin
+Result := AnsiContainsText(Text,SubText);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ContainsStr(const Text,SubText: String): Boolean;
+begin
+Result := AnsiContainsStr(Text,SubText);
+end;
+ 
+//------------------------------------------------------------------------------
+
+var
+  ILLocalFormatSettings:  TFormatSettings;  // never make this public
+
+Function IL_Format(const FormatStr: String; Args: array of const; const FormatSettings: TFormatSettings): String;
+begin
+Result := Format(FormatStr,Args,FormatSettings);
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_Format(const FormatStr: String; Args: array of const): String;
+begin
+Result := IL_Format(FormatStr,Args,ILLocalFormatSettings);
+end;
+
+
+//==============================================================================
+//- comparison functions, used in sorting --------------------------------------
+
+Function IL_SortCompareBool(A,B: Boolean): Integer;
+begin
+If A <> B then
+  begin
+    If A = True then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+ 
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareInt32(A,B: Int32): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+ 
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareUInt32(A,B: UInt32): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareInt64(A,B: Int64): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+ 
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareFloat(A,B: Double): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareDateTime(A,B: TDateTime): Integer;
+begin
+If A <> B then
+  begin
+    If A > B then
+      Result := -1
+    else
+      Result := +1;
+  end
+else Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareText(const A,B: String): Integer;
+begin
+Result := IL_CompareText(A,B);
+If Result <> 0 then
+  begin
+    If Result > 0 then
+      Result := -1
+    else
+      Result := +1;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareStr(const A,B: String): Integer;
+begin
+Result := IL_CompareStr(A,B);
+If Result <> 0 then
+  begin
+    If Result > 0 then
+      Result := -1
+    else
+      Result := +1;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SortCompareGUID(const A,B: TGUID): Integer;
+begin
+Result := IL_CompareText(GUIDToString(A),GUIDToString(B));
+If Result <> 0 then
+  begin
+    If Result > 0 then
+      Result := -1
+    else
+      Result := +1;
+  end;
+end;
+
+
+//==============================================================================
+//- files/directories ----------------------------------------------------------
+
+Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): String;
+begin
+// path can be a filename, so watch for trailing delimiter (must be present when is is a directory)
+Result := RTLToStr(ExtractRelativePath(IncludeTrailingPathDelimiter(StrToRTL(Base)),StrToRTL(Path)));
+{
+  if the paths are the same, it is assumed the path cannot be relativized,
+  for example when it is on a different disk
+}
+If PrependDot and not IL_SameText(Result,Path) then
   Result := '.\' + Result;
 end;
 
@@ -81,20 +292,30 @@ end;
 Function IL_PathAbsolute(const Base,Path: String): String;
 begin
 If Length(Path) > 0 then
-  begin
-    If Path[1] = '.' then
-      Result := RTLToStr(ExpandFileName(StrToRTL(Base + Path)))
-    else
-      Result := Path;
-  end
-else Result := '';
+  Result := RTLToStr(ExpandFileName(IncludeTrailingPathDelimiter(StrToRTL(Base)) + StrToRTL(Path)))
+else
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_CreateDirectory(const Directory: String);
+begin
+ForceDirectories(StrToRTL(Directory));
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_CreateDirectoryPath(const Path: String);
+begin
+IL_CreateDirectory(ExcludeTrailingPathDelimiter(StrToRTL(Path)));
 end;
 
 //------------------------------------------------------------------------------
 
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
 begin
-ForceDirectories(ExtractFileDir(StrToRTL(FileName)));
+IL_CreateDirectory(ExtractFileDir(StrToRTL(FileName)));
 end;
 
 //------------------------------------------------------------------------------
@@ -111,164 +332,9 @@ begin
 Result := DeleteFile(StrToRTL(FileName));
 end;
 
-//==============================================================================
-//- comparison functions, used in sorting --------------------------------------
-
-Function IL_CompareBool(A,B: Boolean): Integer;
-begin
-If A <> B then
-  begin
-    If A = True then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
- 
-//------------------------------------------------------------------------------
-
-Function IL_CompareInt32(A,B: Int32): Integer;
-begin
-If A <> B then
-  begin
-    If A > B then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
- 
-//------------------------------------------------------------------------------
-
-Function IL_CompareUInt32(A,B: UInt32): Integer;
-begin
-If A <> B then
-  begin
-    If A > B then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_CompareInt64(A,B: Int64): Integer;
-begin
-If A <> B then
-  begin
-    If A > B then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
- 
-//------------------------------------------------------------------------------
-
-Function IL_CompareFloat(A,B: Double): Integer;
-begin
-If A <> B then
-  begin
-    If A > B then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_CompareDateTime(A,B: TDateTime): Integer;
-begin
-If A <> B then
-  begin
-    If A > B then
-      Result := -1
-    else
-      Result := +1;
-  end
-else Result := 0;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_CompareText(const A,B: String): Integer;
-begin
-Result := AnsiCompareText(A,B);
-If Result <> 0 then
-  begin
-    If Result > 0 then
-      Result := -1
-    else
-      Result := +1;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_CompareGUID(const A,B: TGUID): Integer;
-begin
-Result := AnsiCompareText(GUIDToString(A),GUIDToString(B));
-If Result <> 0 then
-  begin
-    If Result > 0 then
-      Result := -1
-    else
-      Result := +1;
-  end;
-end;
 
 //==============================================================================
-//- pictures -------------------------------------------------------------------
-
-procedure IL_PicShrink(Large,Small: TBitmap);
-const
-  Factor = 2;
-type
-  TRGBTriple = packed record
-    rgbtRed, rgbtGreen, rgbtBlue: Byte;
-  end;
-  TRGBTripleArray = array[0..$FFFF] of TRGBTriple;
-  PRGBTripleArray = ^TRGBTripleArray;
-var
-  Y,X:    Integer;
-  Lines:  array[0..Pred(Factor)] of PRGBTripleArray;
-  LineR:  PRGBTripleArray;
-  R,G,B:  UInt32;
-  i,j:    Integer;
-begin
-For Y := 0 to Pred(Large.Height div Factor) do
-  begin
-    For i := 0 to Pred(Factor) do
-      Lines[i] := Large.ScanLine[(Y * Factor) + i];
-    For X := 0 to Pred(Large.Width div Factor) do
-      begin
-        R := 0;
-        G := 0;
-        B := 0;
-        For i := 0 to Pred(Factor) do
-          For j := 0 to Pred(Factor) do
-            begin
-              Inc(R,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtRed)));
-              Inc(G,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtGreen)));
-              Inc(B,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtBlue)));
-            end;
-        LineR := Small.ScanLine[Y];
-        LineR^[X].rgbtRed   := Trunc(Sqrt(R / Sqr(Factor)));
-        LineR^[X].rgbtGreen := Trunc(Sqrt(G / Sqr(Factor)));
-        LineR^[X].rgbtBlue  := Trunc(Sqrt(B / Sqr(Factor)));
-      end;
-  end;
-end;
-
-//==============================================================================
-//- event assignment -----------------------------------------------------------
+//- event handler assignment checking ------------------------------------------
 
 Function IL_CheckHandler(Handler: TNotifyEvent): TNotifyEvent;
 begin
@@ -307,6 +373,50 @@ If Assigned(Handler) then
 else
   raise Exception.Create('IL_CheckAndAssign(TILObjectL3Event): Handler not assigned');
 end;
+
+
+//==============================================================================
+//- pictures manipulation ------------------------------------------------------
+
+procedure IL_PicShrink(Large,Small: TBitmap; Factor: Integer);
+type
+  TRGBTriple = packed record
+    rgbtRed, rgbtGreen, rgbtBlue: Byte;
+  end;
+  TRGBTripleArray = array[0..$FFFF] of TRGBTriple;
+  PRGBTripleArray = ^TRGBTripleArray;
+var
+  Y,X:    Integer;
+  Lines:  array of PRGBTripleArray;
+  LineR:  PRGBTripleArray;
+  R,G,B:  UInt32;
+  i,j:    Integer;
+begin
+SetLength(Lines,Factor);
+For Y := 0 to Pred(Large.Height div Factor) do
+  begin
+    For i := 0 to Pred(Factor) do
+      Lines[i] := Large.ScanLine[(Y * Factor) + i];
+    For X := 0 to Pred(Large.Width div Factor) do
+      begin
+        R := 0;
+        G := 0;
+        B := 0;
+        For i := 0 to Pred(Factor) do
+          For j := 0 to Pred(Factor) do
+            begin
+              Inc(R,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtRed)));
+              Inc(G,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtGreen)));
+              Inc(B,Sqr(Integer(Lines[i]^[(X * Factor) + j].rgbtBlue)));
+            end;
+        LineR := Small.ScanLine[Y];
+        LineR^[X].rgbtRed   := Trunc(Sqrt(R / Sqr(Factor)));
+        LineR^[X].rgbtGreen := Trunc(Sqrt(G / Sqr(Factor)));
+        LineR^[X].rgbtBlue  := Trunc(Sqrt(B / Sqr(Factor)));
+      end;
+  end;
+end;
+
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -360,5 +470,16 @@ begin
 If Length(Path) > 0 then
   ShellExecute(WindowHandle,'open',PChar(StrToWin(Path)),nil,nil,SW_SHOWNORMAL);
 end;
+
+//==============================================================================
+
+initialization
+{$WARN SYMBOL_PLATFORM OFF}
+{$IF not Defined(FPC) and (CompilerVersion >= 18)} // Delphi 2006+
+  ILLocalFormatSettings := TFormatSettings.Create(LOCALE_USER_DEFAULT);
+{$ELSE}
+  GetLocaleFormatSettings(LOCALE_USER_DEFAULT,ILLocalFormatSettings);
+{$IFEND}
+{$WARN SYMBOL_PLATFORM ON}
 
 end.

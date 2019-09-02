@@ -19,7 +19,7 @@ type
     fSortingProfiles: TILSortingProfiles;
     Function GetSortProfileCount: Integer;
     Function GetSortProfile(Index: Integer): TILSortingProfile;
-    Function GetSortProfilePtr(Index: Integer): PILSortingProfile;
+    Function GetSortProfilePtr(Index: Integer): PILSortingProfile; {$message 'remove'}
     procedure InitializeSortingSettings; virtual;
     procedure FinalizeSortingSettings; virtual;
     procedure Initialize; override;
@@ -39,7 +39,7 @@ type
     property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
     property SortingProfiles[Index: Integer]: TILSortingProfile read GetSortProfile;
-    property SortingProfilePtrs[Index: Integer]: PILSortingProfile read GetSortProfilePtr;  
+    property SortingProfilePtrs[Index: Integer]: PILSortingProfile read GetSortProfilePtr; {$message 'remove'}
   end;
 
 implementation
@@ -127,7 +127,7 @@ If Idx1 <> Idx2 then
         Result := (Result shl 1) + fList[Idx1].Compare(fList[Idx2],ItemValueTag,Reversed);
     // stabilize sorting using indices
     If Result = 0 then
-      Result := (Result shl 1) + IL_CompareInt32(fList[Idx1].Index,fList[Idx2].Index);
+      Result := (Result shl 1) + IL_SortCompareInt32(fList[Idx1].Index,fList[Idx2].Index);
   end;
 end;
 

@@ -36,10 +36,10 @@ uses
 
 procedure TfOptionsLegendForm.BuildForm;
 const
-  STAT_OPT_CMDS: array[0..Pred(Length(IL_STAT_OPT_TAGS))] of String = (
+  STAT_OPT_CMDS: array[0..Pred(Length(IL_TYPES_STATIC_OPTIONS_TAGS))] of String = (
     'no_pics','test_code','save_pages','load_pages','no_save','no_backup',
     'no_updlog','list_override <filename>');
-  STAT_OPT_DESCR: array[0..Pred(Length(IL_STAT_OPT_TAGS))] of String = (
+  STAT_OPT_DESCR: array[0..Pred(Length(IL_TYPES_STATIC_OPTIONS_TAGS))] of String = (
     'Pictures are not shown in the list and in the item header (internally they still maintained).',
     'Test code will be executed where available.',
     'Pages downloaded during updates are saved to the disk.',
@@ -73,10 +73,10 @@ begin
 // add static options
 TempInt := 2 * LABELS_SPACE;
 grbStaticOptions.Tag := grbStaticOptions.Width;
-For i := Low(IL_STAT_OPT_TAGS) to High(IL_STAT_OPT_TAGS) do
+For i := Low(IL_TYPES_STATIC_OPTIONS_TAGS) to High(IL_TYPES_STATIC_OPTIONS_TAGS) do
   begin
     // tag
-    TempLabel := AddLabel(grbStaticOptions,LABELS_SPACE,TempInt,[fsBold],IL_STAT_OPT_TAGS[i]);
+    TempLabel := AddLabel(grbStaticOptions,LABELS_SPACE,TempInt,[fsBold],IL_TYPES_STATIC_OPTIONS_TAGS[i]);
     // command
     TempLabel := AddLabel(grbStaticOptions,TempLabel.BoundsRect.Right + LABELS_SPACE,TempInt,[],STAT_OPT_CMDS[i]);
     If (TempLabel.BoundsRect.Right + LABELS_SPACE) > grbStaticOptions.Tag then

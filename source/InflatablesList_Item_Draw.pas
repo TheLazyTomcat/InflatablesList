@@ -352,7 +352,7 @@ If Assigned(LargePicture) then
         SmallPicture.Width := 48;
         SmallPicture.Height := 48;
       end;
-    IL_PicShrink(LargePicture,SmallPicture);
+    IL_PicShrink(LargePicture,SmallPicture,2);
   end
 else
   If Assigned(SmallPicture) then

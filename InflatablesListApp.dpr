@@ -3,7 +3,9 @@ program InflatablesListApp;
 
 uses
   FastMM4,
-  Forms,
+  InflatablesList_Types in 'source\InflatablesList_Types.pas',
+  InflatablesList_Utils in 'source\InflatablesList_Utils.pas',  
+  Forms, 
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},

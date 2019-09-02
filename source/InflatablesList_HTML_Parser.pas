@@ -1,5 +1,4 @@
-unit InflatablesList_HTML_Parser;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_HTML_Parser;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -40,6 +39,7 @@ uses
   SysUtils,
   StrRect,
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_HTML_UnicodeTagAttributeArray,
   InflatablesList_HTML_Preprocessor;
 
@@ -52,7 +52,7 @@ var
 begin
 Result := False;
 For i := Low(VOID_ELEMENT_NAMES) to High(VOID_ELEMENT_NAMES) do
-  If AnsiSameText(VOID_ELEMENT_NAMES[i],Name) then
+  If IL_SameText(VOID_ELEMENT_NAMES[i],Name) then
     begin
       Result := True;
       Break{For i};
@@ -95,18 +95,18 @@ case Token.TokenType of
                             fCurrentElement := NewElement;
                           end;
                       end
-                    else NewElement.Free;
+                    else NewElement.Free; // no current element, drop the new one
                     If (Sender is TILHTMLTokenizer) then
                       begin
-                        If AnsiSameText(UnicodeToStr('script'),Token.TagName) then
+                        If IL_SameText(UnicodeToStr('script'),Token.TagName) then
                           TILHTMLTokenizer(Sender).State := iltsScriptData
-                        else If AnsiSameText(UnicodeToStr('noscript'),Token.TagName) then
+                        else If IL_SameText(UnicodeToStr('noscript'),Token.TagName) then
                           TILHTMLTokenizer(Sender).State := iltsRAWText;
                       end;
                   end;
   ilttEndTag:     If Assigned(fCurrentElement) then
                     begin
-                      If AnsiSameText(fCurrentElement.Name.Str,UnicodeToStr(Token.TagName)) then
+                      If IL_SameText(fCurrentElement.Name.Str,UnicodeToStr(Token.TagName)) then
                         begin
                           fCurrentElement.Close;
                           fCurrentElement := fCurrentElement.Parent;
@@ -114,9 +114,9 @@ case Token.TokenType of
                         end
                       else
                         begin
-                          // misnested
+                          // missnested
                           For i := CDA_High(fOpenElements) downto CDA_Low(fOpenElements) do
-                            If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Name.Str,UnicodeToStr(Token.TagName)) then
+                            If IL_SameText(TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Name.Str,UnicodeToStr(Token.TagName)) then
                               begin
                                 fCurrentElement := TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Parent;
                                 TILHTMLElementNode(CDA_GetItem(fOpenElements,i)).Close;
@@ -147,12 +147,13 @@ var
 begin
 Preprocessor := TILHTMLPreprocessor.Create;
 try
+  Preprocessor.RaiseParseErrors := fRaiseParseErrs;
   fSource.Seek(0,soBeginning);
-  fText := Preprocessor.Process(fSource,True);
+  fText := Preprocessor.Process(fSource,True);  // first try with UTF8
   If (Length(fText) <= 0) and (fSource.Size > 0) then
     begin
       fSource.Seek(0,soBeginning);
-      fText := Preprocessor.Process(fSource,False);
+      fText := Preprocessor.Process(fSource,False); // try with ANSI
     end;
 finally
   Preprocessor.Free;

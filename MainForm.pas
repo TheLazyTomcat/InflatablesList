@@ -1396,22 +1396,22 @@ case Panel.Index of
     with sbStatusBar.Canvas do
       begin
         TempInt := 0;
-        For i := Low(IL_TYPES_STATIC_OPTIONS_TAGS) to High(IL_TYPES_STATIC_OPTIONS_TAGS) do
-          If i < High(IL_TYPES_STATIC_OPTIONS_TAGS) then
-            Inc(TempInt,TextWidth(IL_TYPES_STATIC_OPTIONS_TAGS[i]) + STAT_OPTS_SPC)
+        For i := Low(IL_STATIC_OPTIONS_TAGS) to High(IL_STATIC_OPTIONS_TAGS) do
+          If i < High(IL_STATIC_OPTIONS_TAGS) then
+            Inc(TempInt,TextWidth(IL_STATIC_OPTIONS_TAGS[i]) + STAT_OPTS_SPC)
           else
-            Inc(TempInt,TextWidth(IL_TYPES_STATIC_OPTIONS_TAGS[i]));
+            Inc(TempInt,TextWidth(IL_STATIC_OPTIONS_TAGS[i]));
         TempInt := Rect.Left + (Rect.Right - Rect.Left - TempInt) div 2;
         Brush.Style := bsClear;
         Pen.Style := psClear;           
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_SPC);
-        DrawOptText(IL_TYPES_STATIC_OPTIONS_TAGS[7],TempInt,fILManager.StaticOptions.ListOverride,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_OPTIONS_TAGS[7],TempInt,fILManager.StaticOptions.ListOverride,STAT_OPTS_SPC);
       end;
   STATUSBAR_PANEL_IDX_OPTIONS:
     with sbStatusBar.Canvas do

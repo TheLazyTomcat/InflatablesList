@@ -1,5 +1,4 @@
-unit InflatablesList_HTML_Document;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_HTML_Document;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -15,15 +14,15 @@ type
   TILHTMLElementNode = class(TObject)
   private
     fParent:      TILHTMLElementNode;
-    fOpen:        Boolean;
     fName:        TILReconvString;
+    fOpen:        Boolean;
     fAttributes:  TILTagAttributeCountedDynArray;
     fTextArr:     TCountedDynArrayUnicodeChar;
     fText:        TILReconvString;
     fNestedText:  TILReconvString;
     fElements:    TObjectCountedDynArray;
     Function GetAttributeCount: Integer;
-    Function GetAttribute(Index: Integer): TILTagAttribute;
+    Function GetAttribute(Index: Integer): TILHTMLTagAttribute;
     Function GetElementCount: Integer;
     Function GetElement(Index: Integer): TILHTMLElementNode;
   public
@@ -50,7 +49,7 @@ type
     property Open: Boolean read fOpen;
     property Name: TILReconvString read fName;
     property AttributeCount: Integer read GetAttributeCount;
-    property Attributes[Index: Integer]: TILTagAttribute read GetAttribute;
+    property Attributes[Index: Integer]: TILHTMLTagAttribute read GetAttribute;
     property Text: TILReconvString read fText;
     property NestedText: TILReconvString read fNestedText;
     property ElementCount: Integer read GetElementCount;
@@ -66,6 +65,7 @@ implementation
 uses
   SysUtils,
   StrRect,
+  InflatablesList_Utils,
   InflatablesList_HTML_ElementFinder;
 
 Function TILHTMLElementNode.GetAttributeCount: Integer;
@@ -75,7 +75,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILHTMLElementNode.GetAttribute(Index: Integer): TILTagAttribute;
+Function TILHTMLElementNode.GetAttribute(Index: Integer): TILHTMLTagAttribute;
 begin
 If (Index >= CDA_Low(fAttributes)) and (Index <= CDA_High(fAttributes)) then
   Result := CDA_GetItem(fAttributes,Index)
@@ -106,12 +106,12 @@ constructor TILHTMLElementNode.Create(Parent: TILHTMLElementNode; const Name: TI
 begin
 inherited Create;
 fParent := Parent;
+fName := IL_ThreadSafeCopy(Name);
 fOpen := True;
-fName := Name;
-IL_UniqueReconvStr(fName);
 CDA_Init(fAttributes);
 CDA_Init(fTextArr);
 fText := IL_ReconvString('');
+fNestedText := IL_ReconvString('');
 CDA_Init(fElements);
 end;
 
@@ -123,16 +123,13 @@ var
   i:    Integer;
 begin
 Create(Parent,Source.Name);
-IL_UniqueReconvStr(fName);
 fOpen := Source.Open;
 Source.TextFinalize;
 // copy attributes
 For i := 0 to Pred(Source.AttributeCount) do
-  CDA_Add(fAttributes,Source.Attributes[i]);
-fText := Source.Text;
-fNestedText := Source.NestedText;
-IL_UniqueReconvStr(fText);
-IL_UniqueReconvStr(fNestedText);
+  CDA_Add(fAttributes,IL_ThreadSafeCopy(Source.Attributes[i]));
+fText := IL_ThreadSafeCopy(Source.Text);
+fNestedText := IL_ThreadSafeCopy(Source.NestedText);
 CDA_Clear(fTextArr);
 Temp := StrToUnicode(fText.Str);
 For i := 1 to Length(Temp) do
@@ -199,7 +196,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Name.Str,Name) then
+  If IL_SameText(CDA_GetItem(fAttributes,i).Name.Str,Name) then
     begin
       Result := i;
       Break{For i};
@@ -214,7 +211,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
+  If IL_SameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
     begin
       Result := i;
       Break{For i};
@@ -229,8 +226,8 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  If AnsiSameText(CDA_GetItem(fAttributes,i).Name.Str,Name) and
-     AnsiSameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
+  If IL_SameText(CDA_GetItem(fAttributes,i).Name.Str,Name) and
+     IL_SameText(CDA_GetItem(fAttributes,i).Value.Str,Value) then
     begin
       Result := i;
       Break{For i};
@@ -241,7 +238,7 @@ end;
 
 Function TILHTMLElementNode.AttributeAdd(const Name,Value: String): Integer;
 var
-  Temp: TILTagAttribute;
+  Temp: TILHTMLTagAttribute;
 begin
 Temp.Name := IL_ReconvString(Name);
 Temp.Value := IL_ReconvString(Value);
@@ -283,7 +280,7 @@ var
 begin
 Result := -1;
 For i := CDA_Low(fElements) to CDA_High(fElements) do
-  If AnsiSameText(TILHTMLElementNode(CDA_GetItem(fElements,i)).Name.Str,Name) then
+  If IL_SameText(TILHTMLElementNode(CDA_GetItem(fElements,i)).Name.Str,Name) then
     begin
       Result := i;
       Break{For i};
@@ -317,7 +314,7 @@ var
 begin
 Result := CDA_Count(fElements);
 For i := CDA_Low(fElements) to CDA_High(fElements) do
-  Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).GetElementCount);
+  Inc(Result,TILHTMLElementNode(CDA_GetItem(fElements,i)).GetSubElementsCount);
 end;
 
 //------------------------------------------------------------------------------
@@ -365,14 +362,14 @@ procedure TILHTMLElementNode.List(Strs: TStrings);
 var
   i:  Integer;
 begin
-Strs.Add(StringOfChar(' ',GetLevel * 2) + '<' + fName.Str + '>');
+Strs.Add(IL_Format('%s<%s>',[IL_StringOfChar(' ',GetLevel * 2),fName.Str]));
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
   Strs.Add(StringOfChar(' ',GetLevel * 2) + Format('  %s="%s"',
     [CDA_GetItem(fAttributes,i).Name.Str,CDA_GetItem(fAttributes,i).Value.Str]));
 For i := CDA_Low(fElements) to CDA_High(fElements) do
   TILHTMLElementNode(CDA_GetItem(fElements,i)).List(Strs);
 If CDA_Count(fElements) > 0 then
-  Strs.Add(StringOfChar(' ',GetLevel * 2) + '</' + fName.Str + '>');
+  Strs.Add(IL_Format('%s</%s>',[IL_StringOfChar(' ',GetLevel * 2),fName.Str]));
 end;
 
 end.

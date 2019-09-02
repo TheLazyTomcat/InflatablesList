@@ -24,6 +24,8 @@ Function IL_ContainsStr(const Text,SubText: String): Boolean;
 Function IL_Format(const FormatStr: String; Args: array of const; const FormatSettings: TFormatSettings): String; overload;
 Function IL_Format(const FormatStr: String; Args: array of const): String; overload;
 
+Function IL_StringOfChar(Ch: Char; Count: Integer): String;
+
 //==============================================================================
 //- comparison functions used in sorting ---------------------------------------
 
@@ -42,6 +44,8 @@ Function IL_SortCompareGUID(const A,B: TGUID): Integer;
 
 Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): String;
 Function IL_PathAbsolute(const Base,Path: String): String;
+
+Function IL_ExtractFilePath(const FileName: String): String;
 
 procedure IL_CreateDirectory(const Directory: String);
 procedure IL_CreateDirectoryPath(const Path: String);
@@ -125,7 +129,7 @@ Function IL_ContainsStr(const Text,SubText: String): Boolean;
 begin
 Result := AnsiContainsStr(Text,SubText);
 end;
- 
+
 //------------------------------------------------------------------------------
 
 var
@@ -141,6 +145,13 @@ end;
 Function IL_Format(const FormatStr: String; Args: array of const): String;
 begin
 Result := IL_Format(FormatStr,Args,ILLocalFormatSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_StringOfChar(Ch: Char; Count: Integer): String;
+begin
+Result := StringOfChar(Ch,Count);
 end;
 
 
@@ -295,6 +306,13 @@ If Length(Path) > 0 then
   Result := RTLToStr(ExpandFileName(IncludeTrailingPathDelimiter(StrToRTL(Base)) + StrToRTL(Path)))
 else
   Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ExtractFilePath(const FileName: String): String;
+begin
+Result := RTLToStr(ExtractFilePath(StrToRTL(FileName)));
 end;
 
 //------------------------------------------------------------------------------

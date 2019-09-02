@@ -1,5 +1,4 @@
-unit InflatablesList_HTML_Preprocessor;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_HTML_Preprocessor;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -10,9 +9,6 @@ uses
   AuxTypes, AuxClasses;
 
 type
-{$IFDEF DevelMsgs}
-  {$message 'implement invalid char behaviour'}
-{$ENDIF}
   TILHTMLInvalidCharBehaviour = (ilicbRemove,ilicbReplace,ilicbLeave);
 
   TILHTMLPreprocessor = class(TObject)
@@ -34,6 +30,7 @@ type
     Function CharPrev: UnicodeChar; virtual;
     Function CharNext: UnicodeChar; virtual;
     procedure EmitChar(Char: UnicodeChar); virtual;
+    procedure ProcessInvalidChar; virtual;
     procedure ProcessChar; virtual;
   public
     constructor Create;
@@ -46,21 +43,22 @@ type
 implementation
 
 uses
-  SysUtils,
+  StrRect,
+  InflatablesList_Utils,
   InflatablesList_HTML_Utils;
 
 Function TILHTMLPreprocessor.ParseError(const Msg: String): Boolean;
 begin
 Result := fRaiseParseErrs;
 If fRaiseParseErrs then
-  raise EILParseError.Create(Msg);
+  raise EILHTMLParseError.Create(Msg);
 end;
 
 //------------------------------------------------------------------------------
 
 Function TILHTMLPreprocessor.ParseError(const Msg: String; Args: array of const): Boolean;
 begin
-Result := ParseError(Format(Msg,Args));
+Result := ParseError(IL_Format(Msg,Args));
 end;
 
 //------------------------------------------------------------------------------
@@ -92,7 +90,7 @@ end;
 
 Function TILHTMLPreprocessor.CharCurrent: UnicodeChar;
 begin
-If (fInputPos >= 1)  and (fInputPos <= Length(fInput)) then
+If (fInputPos >= 1) and (fInputPos <= Length(fInput)) then
   Result := fInput[fInputPos]
 else
   Result := UnicodeChar(#0);
@@ -102,7 +100,7 @@ end;
 
 Function TILHTMLPreprocessor.CharPrev: UnicodeChar;
 begin
-If (Pred(fInputPos) >= 1)  and (Pred(fInputPos) <= Length(fInput)) then
+If (Pred(fInputPos) >= 1) and (Pred(fInputPos) <= Length(fInput)) then
   Result := fInput[Pred(fInputPos)]
 else
   Result := UnicodeChar(#0);
@@ -112,7 +110,7 @@ end;
 
 Function TILHTMLPreprocessor.CharNext: UnicodeChar;
 begin
-If (Succ(fInputPos) >= 1)  and (Succ(fInputPos) <= Length(fInput)) then
+If (Succ(fInputPos) >= 1) and (Succ(fInputPos) <= Length(fInput)) then
   Result := fInput[Succ(fInputPos)]
 else
   Result := UnicodeChar(#0);
@@ -136,6 +134,19 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILHTMLPreprocessor.ProcessInvalidChar;
+begin
+case fIvalidChars of
+  ilicbRemove:  ; // do nothing, char is skipped
+  ilicbReplace: EmitChar(#$FFFD);
+else
+ {ilicbLeave}
+  EmitChar(CharCurrent);
+end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILHTMLPreprocessor.ProcessChar;
 var
   TempChar: UnicodeChar;
@@ -144,6 +155,7 @@ var
   var
     CodePoint:  UInt32;
   begin
+    // check if the codepoint can be in HTML
     CodePoint := IL_UTF16CodePoint(High,Low);
     Result := not(
       ((CodePoint >= $0001) and (CodePoint <= $0008)) or
@@ -169,8 +181,8 @@ If (TempChar >= #$D800) and (TempChar <= #$DBFF) then
             // the codepoint is invalid
             If not ParseErrorInvalidChar(TempChar) then
               begin
-                EmitChar(#$FFFD);
-                Inc(fInputPos); // skip next the char
+                ProcessInvalidChar;
+                Inc(fInputPos); // skip the next char
               end;
           end
         else EmitChar(TempChar);
@@ -179,7 +191,7 @@ If (TempChar >= #$D800) and (TempChar <= #$DBFF) then
       begin
         // NOT followed by a low surrogate, the next char will be processed in next round
         If not ParseErrorInvalidChar(TempChar) then
-          EmitChar(#$FFFD);
+          ProcessInvalidChar;
       end;
   end
 else If ((CharNext >= #$DC00) and (CharNext <= #$DFFF)) then
@@ -188,7 +200,7 @@ else If ((CharNext >= #$DC00) and (CharNext <= #$DFFF)) then
     If not ((CharPrev >= #$D800) and (CharPrev <= #$DBFF)) then
       begin
         If not ParseErrorInvalidChar(TempChar) then
-          EmitChar(#$FFFD)
+          ProcessInvalidChar;
       end
     else EmitChar(TempChar);
   end
@@ -216,7 +228,8 @@ end;
 
 Function TILHTMLPreprocessor.Process(Stream: TStream; IsUFT8: Boolean): UnicodeString;
 var
-  Temp: UTF8String;
+  UTF8Temp: UTF8String;
+  AnsiTemp: AnsiString;
 begin
 fInput := '';
 fOutput := '';
@@ -227,12 +240,18 @@ fLastProgress := 0.0;
 If Stream.Size > 0 then
   begin
     // decode stream to unicode string
-    SetLength(Temp,(Stream.Size - Stream.Position) div SizeOf(UTF8Char));
-    Stream.Read(PUTF8Char(Temp)^,Length(Temp) * SizeOf(UTF8Char));
     If IsUFT8 then
-      fInput := UTF8Decode(Temp)
+      begin
+        SetLength(UTF8Temp,(Stream.Size - Stream.Position) div SizeOf(UTF8Char));
+        Stream.Read(PUTF8Char(UTF8Temp)^,Length(UTF8Temp) * SizeOf(UTF8Char));
+        fInput := UTF8ToString(UTF8Temp);
+      end
     else
-      fInput := AnsiString(Temp);
+      begin
+        SetLength(AnsiTemp,(Stream.Size - Stream.Position) div SizeOf(AnsiChar));
+        Stream.Read(PAnsiChar(AnsiTemp)^,Length(AnsiTemp) * SizeOf(AnsiChar));
+        fInput := UnicodeString(AnsiTemp);
+      end;
     DoProgress;
     // preallocate
     SetLength(fOutput,Length(fInput));

@@ -1,5 +1,4 @@
 unit InflatablesList_HTML_Utils;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -9,8 +8,14 @@ uses
   SysUtils,
   AuxTypes;
 
+//==============================================================================
+//- special parsing exception --------------------------------------------------      
+
 type
-  EILParseError = class(Exception);  
+  EILHTMLParseError = class(Exception);
+
+//==============================================================================
+//- unicode strings manipulation -----------------------------------------------    
 
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
 Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
@@ -25,6 +30,9 @@ implementation
 
 uses
   StrRect;
+
+//==============================================================================
+//- unicode strings manipulation -----------------------------------------------
 
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
 begin

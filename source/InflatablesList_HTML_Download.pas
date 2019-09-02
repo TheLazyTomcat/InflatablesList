@@ -1,5 +1,4 @@
 unit InflatablesList_HTML_Download;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -20,6 +19,7 @@ uses
   CRC32, StrRect,
   InflatablesList_Utils;
 
+// resource file with the binaries (DLLs, wget.exe)
 {$R '..\resources\down_bins.res'}
 
 const
@@ -30,7 +30,7 @@ var
   ILPrepFlag_WGET: Integer = 0;
   ILPrepFlag_OSSL: Integer = 0;
 
-  DiskAccessSection:  TCriticalSection;
+  ILDiskAccessSection:  TCriticalSection;
 
 //------------------------------------------------------------------------------
 
@@ -40,19 +40,20 @@ procedure IL_PrepDownloadBinaries(Tag: Integer);
   var
     ResStream:  TResourceStream;
   begin
-    DiskAccessSection.Enter;
+    ILDiskAccessSection.Enter;
     try
-      If not IL_FileExists(ExtractFilePath(ParamStr(0)) + FileName) then
+      // extract files to program folder
+      If not IL_FileExists(IL_ExtractFilePath(RTLToStr(ParamStr(0))) + FileName) then
         begin
           ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10));
           try
-            ResStream.SaveToFile(StrToRTL(ExtractFilePath(ParamStr(0)) + FileName));
+            ResStream.SaveToFile(StrToRTL(IL_ExtractFilePath(RTLToStr(ParamStr(0))) + FileName));
           finally
             ResStream.Free;
           end;
         end;
     finally
-      DiskAccessSection.Leave;
+      ILDiskAccessSection.Leave;
     end;
   end;
 
@@ -88,11 +89,11 @@ var
   ExitCode:     DWORD;
   FileStream:   TFileStream;
 begin
-IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET);
 Result := False;
 ResultCode := -1;
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET);
 // prepare name for the temp file
-OutFileName := ExtractFilePath(ParamStr(0)) + CRC32ToStr(StringCRC32(URL));
+OutFileName := IL_ExtractFilePath(RTLToStr(ParamStr(0))) + CRC32ToStr(StringCRC32(URL));
 // prepare command line
 {
   used wget options:
@@ -100,8 +101,8 @@ OutFileName := ExtractFilePath(ParamStr(0)) + CRC32ToStr(StringCRC32(URL));
     -T ...  timeout [s]
     -O ...  output file
 }
-CommandLine := Format('"%s" -q -T 5 -O "%s" "%s"',[
-  ExtractFilePath(ParamStr(0)) + 'wget.exe',OutFileName,URL]);
+CommandLine := IL_Format('"%s" -q -T 5 -O "%s" "%s"',[
+  IL_ExtractFilePath(RTLToStr(ParamStr(0))) + 'wget.exe',OutFileName,URL]);
 // init security attributes
 FillChar(SecurityAttr,SizeOf(TSecurityAttributes),0);
 SecurityAttr.nLength := SizeOf(TSecurityAttributes);
@@ -142,8 +143,9 @@ Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: I
 var
   HTTPClient: THTTPSend;
 begin
-IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_OSSL);
+Result := False;
 ResultCode := -1;
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_OSSL);
 HTTPClient := THTTPSend.Create;
 try
   // user agent must be set to something sensible, otherwise some webs refuse to send anything
@@ -153,8 +155,7 @@ try
     begin
       HTTPClient.Document.SaveToStream(Stream);
       Result := Stream.Size > 0;
-    end
-  else Result := False;
+    end;
   ResultCode := HTTPClient.ResultCode;
 finally
   HTTPClient.Free;
@@ -164,9 +165,9 @@ end;
 //==============================================================================
 
 initialization
-  DiskAccessSection := TCriticalSection.Create;
+  ILDiskAccessSection := TCriticalSection.Create;
 
 finalization
-  FreeAndNil(DiskAccessSection);
+  FreeAndNil(ILDiskAccessSection);
 
 end.

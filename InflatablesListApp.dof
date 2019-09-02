@@ -96,7 +96,7 @@ PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=source;source\libs;source\libs\synapse
 Packages=vcl;rtl;vclx;VclSmp;vclshlctrls;_AltFixUnit;_GlobalInstanceControl;_XPAdminMan;AdvCircularProgressPkgD7;TMSMenusD7;AdvShaperPkgD7;_alignedit;_ALProgressBar;_SuperLabel;_ButtonComps;_PJVersionInfo;EZJTexturePanelD6;FormShapePkgD7;GradientLabelPkgD7;_adpInstanceControl;_Label3D;_lfreg;_FadeWorks;_MMJLabel;PNGDelphi;_AlphaShowHide;_QProgBar;_ShadowLabel;_VistaAltFixUnit;shape;_XiButton;GR32_D7
-Conditionals=
+Conditionals=DevelMsgs
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
@@ -133,6 +133,9 @@ Comments=Main program of Inflatables List project
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=F:\Programy\Private\InflatablesList\Dev\source\libs\
+[HistoryLists\hlConditionals]
+Count=1
+Item0=DevelMsgs
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

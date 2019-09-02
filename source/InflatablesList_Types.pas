@@ -92,7 +92,7 @@ Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 //- item shop parsing ----------------------------------------------------------
 
 const
-  IL_TYPES_ITEMSHOP_PARSING_VARS_COUNT = 8; // never change the number (8 is enough for everyone :P)!
+  IL_ITEMSHOP_PARSING_VARS_COUNT = 8; // never change the number (8 is enough for everyone :P)!
 
 type
   TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
@@ -112,7 +112,7 @@ type
   TILItemShopParsingExtrSettList = array of TILItemShopParsingExtrSett;
 
   TILItemShopParsingVariables = record
-    Vars: array[0..Pred(IL_TYPES_ITEMSHOP_PARSING_VARS_COUNT)] of String;
+    Vars: array[0..Pred(IL_ITEMSHOP_PARSING_VARS_COUNT)] of String;
   end;
 
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
@@ -265,7 +265,7 @@ type
 //- command-line options -------------------------------------------------------
 
 const
-  IL_TYPES_STATIC_OPTIONS_TAGS: array[0..7] of String =
+  IL_STATIC_OPTIONS_TAGS: array[0..7] of String =
     ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
 
 type
@@ -336,6 +336,7 @@ var
   i:  Integer;
 begin
 Result.Str := Str;
+UniqueString(Result.Str);
 // null characters might break some functions
 If RemoveNullChars then
   For i := 1 to Length(Result.Str) do

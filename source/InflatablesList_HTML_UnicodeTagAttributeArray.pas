@@ -1,5 +1,4 @@
 unit InflatablesList_HTML_UnicodeTagAttributeArray;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -14,13 +13,19 @@ uses
   AuxTypes, CountedDynArrays;
 
 type
-  TILUnicodeTagAttribute = record
+  TILHTMLUnicodeTagAttribute = record
     Name:   UnicodeString;
     Value:  UnicodeString;
   end;
-  PILUnicodeTagAttribute = ^TILUnicodeTagAttribute;
 
-  TCDABaseType = TILUnicodeTagAttribute;
+procedure IL_UniqueHTMLUnicodeTagAtribute(var Value: TILHTMLUnicodeTagAttribute);
+
+Function IL_ThreadSafeCopy(Value: TILHTMLUnicodeTagAttribute): TILHTMLUnicodeTagAttribute; overload;
+
+//==============================================================================
+
+type
+  TCDABaseType = TILHTMLUnicodeTagAttribute;
   PCDABaseType = ^TCDABaseType;
 
   TCountedDynArrayUnicodeTagAttribute = record
@@ -51,6 +56,22 @@ uses
   ListSorters,
   InflatablesList_HTML_Utils;
 
+procedure IL_UniqueHTMLUnicodeTagAtribute(var Value: TILHTMLUnicodeTagAttribute);
+begin
+UniqueString(Value.Name);
+UniqueString(Value.Value);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(Value: TILHTMLUnicodeTagAttribute): TILHTMLUnicodeTagAttribute;
+begin
+Result := Value;
+IL_UniqueHTMLUnicodeTagAtribute(Result);
+end;
+
+//==============================================================================
+
 Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin
 Result := -IL_UnicodeCompareString(A.Name,B.Name,False);
@@ -60,8 +81,7 @@ end;
 
 procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
 begin
-UniqueString(Item.Name);
-UniqueString(Item.Value);
+IL_UniqueHTMLUnicodeTagAtribute(Item);
 end;
 
 //------------------------------------------------------------------------------

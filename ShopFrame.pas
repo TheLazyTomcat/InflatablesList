@@ -1,5 +1,5 @@
-unit ShopFrame;
-
+unit ShopFrame;{$message 'revisit'}
+{$message 'll_rework'}
 interface
 
 uses

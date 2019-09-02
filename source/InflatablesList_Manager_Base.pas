@@ -1,4 +1,5 @@
 unit InflatablesList_Manager_Base;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -14,23 +15,19 @@ uses
 type
   TILManager_Base = class(TCustomListObject)
   protected
-    fStaticOptions:         TILStaticManagerOptions;  // not changed at runtime  
-    fDataProvider:          TILDataProvider;
-    fListFileName:          String;
-    fListFilePath:          String;
-    fSorting:               Boolean;  // used only during sorting to disable reindexing
-    fUpdateCounter:         Integer;
-    fUpdated:               Boolean;
-    // cmd options
-    fCMDLineParser:         TCLPParser; // make local
+    fStaticOptions: TILStaticManagerOptions;  // not changed at runtime
+    fDataProvider:  TILDataProvider;
+    fSorting:       Boolean;                  // used only during sorting to disable reindexing
+    fUpdateCounter: Integer;
+    fUpdated:       Boolean;
     // main list
-    fList:                  array of TILItem;
-    fCount:                 Integer;
+    fList:          array of TILItem;
+    fCount:         Integer;
     // other data
-    fNotes:                 String;
+    fNotes:         String;
     // encryption
-    fEncrypted:             Boolean;
-    fListPassword:          String;
+    fEncrypted:     Boolean;
+    fListPassword:  String;
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILObjectL2Event;
     fOnShopValuesUpdate:    TILObjectL2Event;
@@ -70,6 +67,8 @@ type
     procedure UpdateSmallList; virtual;
     procedure UpdateOverview; virtual;    
     // inits/finals
+    procedure InitializeStaticOptions; virtual;
+    procedure FinalizeStaticOptions; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // other
@@ -101,8 +100,6 @@ type
     // properties
     property StaticOptions: TILStaticManagerOptions read fStaticOptions;    
     property DataProvider: TILDataProvider read fDataProvider;
-    property ListFileName: String read fListFileName;
-    property ListFilePath: String read fListFilePath;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property Notes: String read fNotes write fNotes;
@@ -133,6 +130,9 @@ uses
   SysUtils,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
+
+const
+  DEFAULT_LIST_FILENAME = 'list.inl';
 
 Function TILManager_Base.GetCapacity: Integer;
 begin
@@ -297,38 +297,58 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.Initialize;
+procedure TILManager_Base.InitializeStaticOptions;
 var
-  CommandData:  TCLPParameter;
+  CommandData:    TCLPParameter;
+  CMDLineParser:  TCLPParser;
 begin
+CMDLineParser := TCLPParser.Create;
+try
+  fStaticOptions.NoPictures := CMDLineParser.CommandPresent('no_pics');
+  fStaticOptions.TestCode := CMDLineParser.CommandPresent('test_code');
+  fStaticOptions.SavePages := CMDLineParser.CommandPresent('save_pages');
+  fStaticOptions.LoadPages := CMDLineParser.CommandPresent('load_pages');
+  fStaticOptions.NoSave := CMDLineParser.CommandPresent('no_save');
+  fStaticOptions.NoBackup := CMDLineParser.CommandPresent('no_backup');
+  fStaticOptions.NoUpdateAutoLog := CMDLineParser.CommandPresent('no_updlog');
+  // note that list_override also disables backups (equivalent to no_backup)
+  fStaticOptions.ListOverride := False;
+  fStaticOptions.ListPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
+  fStaticOptions.ListFile := fStaticOptions.ListPath + DEFAULT_LIST_FILENAME;
+  If CMDLineParser.CommandPresent('list_override') then
+    begin
+      CMDLineParser.GetCommandData('list_override',CommandData);
+      If Length(CommandData.Arguments) > 0 then
+        begin
+          fStaticOptions.NoBackup := True;        
+          fStaticOptions.ListOverride := True;
+          fStaticOptions.ListFile := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
+          fStaticOptions.ListPath := ExtractFilePath(fStaticOptions.ListFile);
+        end;
+    end;
+  // other static option
+  fStaticOptions.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
+finally
+  CMDLineParser.Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.FinalizeStaticOptions;
+begin
+// do nothing
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.Initialize;
+begin
+InitializeStaticOptions;
 fDataProvider := TILDataProvider.Create;
-fListFileName := '';
-fListFilePath := ExtractFilePath(ParamStr(0));
 fSorting := False;
 fUpdateCounter := 0;
 fUpdated := False;
-// cmd-line options
-fCMDLineParser := TCLPParser.Create;
-fStaticOptions.NoPictures := fCMDLineParser.CommandPresent('no_pics');
-fStaticOptions.TestCode := fCMDLineParser.CommandPresent('test_code');
-fStaticOptions.SavePages := fCMDLineParser.CommandPresent('save_pages');
-fStaticOptions.LoadPages := fCMDLineParser.CommandPresent('load_pages');
-fStaticOptions.NoSave := fCMDLineParser.CommandPresent('no_save');
-fStaticOptions.NoBackup := fCMDLineParser.CommandPresent('no_backup');
-fStaticOptions.NoUpdateAutoLog := fCMDLineParser.CommandPresent('no_updlog');
-// note that list_override also disables backups (equivalent to no_backup)
-fStaticOptions.ListOverride := '';
-If fCMDLineParser.CommandPresent('list_override') then
-  begin
-    fCMDLineParser.GetCommandData('list_override',CommandData);
-    If Length(CommandData.Arguments) > 0 then
-      begin
-        fStaticOptions.ListOverride := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
-        fStaticOptions.NoBackup := True;
-      end;
-  end;
-// other static option
-fStaticOptions.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
 // list
 fCount := 0;
 SetLength(fList,0);
@@ -344,8 +364,8 @@ procedure TILManager_Base.Finalize;
 begin
 ItemClear;
 SetLength(fList,0);
-FreeAndNil(fCMDLineParser);
 FreeAndNil(fDataProvider);
+FinalizeStaticOptions;
 end;
 
 //------------------------------------------------------------------------------

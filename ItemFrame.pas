@@ -1,4 +1,5 @@
 unit ItemFrame;{$message 'revisit'}
+{$message 'll_rework'}
 
 interface
 
@@ -624,11 +625,11 @@ If diaPicOpenDialog.Execute then
     If Length(FileName) > 0 then
       begin
         If MessageDlg(Format('Replace current %s picture file?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
-          FileName := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName)
+          FileName := IL_PathRelative(fILManager.StaticOptions.ListPath,diaPicOpenDialog.FileName)
         else
           Result := False;
       end
-    else FileName := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
+    else FileName := IL_PathRelative(fILManager.StaticOptions.ListPath,diaPicOpenDialog.FileName);
   end;
 end;
 
@@ -932,8 +933,8 @@ procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
 
   procedure OpenPicture(const FileName: String);
   begin
-    If FileExists(IL_PathAbsolute(fILManager.ListFilePath,FileName)) then
-      IL_ShellOpen(Self.Handle,IL_PathAbsolute(fILManager.ListFilePath,FileName));
+    If FileExists(IL_PathAbsolute(fILManager.StaticOptions.ListPath,FileName)) then
+      IL_ShellOpen(Self.Handle,IL_PathAbsolute(fILManager.StaticOptions.ListPath,FileName));
   end;
 
 begin

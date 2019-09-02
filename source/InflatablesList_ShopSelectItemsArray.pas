@@ -1,4 +1,5 @@
 unit InflatablesList_ShopSelectItemsArray;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -49,8 +50,7 @@ implementation
 
 uses
   SysUtils,
-  ListSorters,
-  InflatablesList_HTML_Utils;
+  ListSorters;
 
 Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin

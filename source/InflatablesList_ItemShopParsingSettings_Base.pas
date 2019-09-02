@@ -1,4 +1,5 @@
-unit InflatablesList_ItemShopParsingSettings_Base;
+unit InflatablesList_ItemShopParsingSettings_Base;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -34,11 +35,11 @@ type
     Function GetAvailExtrSettCount: Integer; virtual;
     Function GetAvailExtrSett(Index: Integer): TILItemShopParsingExtrSett; virtual;
     procedure SetAvailExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett); virtual;
-    Function GetAvailExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual;
+    Function GetAvailExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual; {$message 'remove'}
     Function GetPriceExtrSettCount: Integer; virtual;
     Function GetPriceExtrSett(Index: Integer): TILItemShopParsingExtrSett; virtual;
     procedure SetPriceExtrSett(Index: Integer; Value: TILItemShopParsingExtrSett); virtual;
-    Function GetPriceExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual;
+    Function GetPriceExtrSettPtr(Index: Integer): PILItemShopParsingExtrSett; virtual; {$message 'remove'}
     // other protected methods
     procedure InitializeData; virtual;
     procedure FinalizeData; virtual;

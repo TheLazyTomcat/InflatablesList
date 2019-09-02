@@ -1,4 +1,5 @@
 unit InflatablesList_HTML_Download;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -16,7 +17,8 @@ implementation
 uses
   Windows, SysUtils, SyncObjs,
   HTTPSend, ssl_openssl, ssl_openssl_lib, // synapse
-  CRC32;
+  CRC32, StrRect,
+  InflatablesList_Utils;
 
 {$R '..\resources\down_bins.res'}
 
@@ -30,6 +32,8 @@ var
 
   DiskAccessSection:  TCriticalSection;
 
+//------------------------------------------------------------------------------
+
 procedure IL_PrepDownloadBinaries(Tag: Integer);
 
   procedure ExtractResToFile(const ResName,FileName: String);
@@ -38,11 +42,11 @@ procedure IL_PrepDownloadBinaries(Tag: Integer);
   begin
     DiskAccessSection.Enter;
     try
-      If not FileExists(ExtractFilePath(ParamStr(0)) + FileName) then
+      If not IL_FileExists(ExtractFilePath(ParamStr(0)) + FileName) then
         begin
-          ResStream := TResourceStream.Create(hInstance,ResName,PChar(10));
+          ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10));
           try
-            ResStream.SaveToFile(ExtractFilePath(ParamStr(0)) + FileName);
+            ResStream.SaveToFile(StrToRTL(ExtractFilePath(ParamStr(0)) + FileName));
           finally
             ResStream.Free;
           end;
@@ -109,7 +113,7 @@ StartInfo.cb := SizeOf(TStartupInfo);
 StartInfo.dwFlags := STARTF_USESHOWWINDOW;
 StartInfo.wShowWindow := SW_HIDE;
 // run the wget
-If CreateProcess(nil,PChar(CommandLine),@SecurityAttr,@SecurityAttr,True,
+If CreateProcess(nil,PChar(StrToWin(CommandLine)),@SecurityAttr,@SecurityAttr,True,
   BELOW_NORMAL_PRIORITY_CLASS,nil,nil,StartInfo,ProcessInfo) then
   begin
     WaitForSingleObject(ProcessInfo.hProcess,INFINITE);
@@ -119,7 +123,7 @@ If CreateProcess(nil,PChar(CommandLine),@SecurityAttr,@SecurityAttr,True,
     CloseHandle(ProcessInfo.hProcess);
     If ResultCode = 0 then
       begin
-        FileStream := TFileStream.Create(OutFileName,fmOpenRead or fmShareDenyWrite);
+        FileStream := TFileStream.Create(StrToRTL(OutFileName),fmOpenRead or fmShareDenyWrite);
         try
           Stream.CopyFrom(FileStream,0);
           Result := True;
@@ -128,8 +132,8 @@ If CreateProcess(nil,PChar(CommandLine),@SecurityAttr,@SecurityAttr,True,
         end;
       end;
   end;
-If FileExists(OutFileName) then
-  DeleteFile(OutFileName);
+If IL_FileExists(OutFileName) then
+  IL_DeleteFile(OutFileName);
 end;
 
 //------------------------------------------------------------------------------

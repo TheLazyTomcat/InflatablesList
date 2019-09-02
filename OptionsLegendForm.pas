@@ -1,5 +1,5 @@
 unit OptionsLegendForm;
-
+{$message 'll_rework'}
 interface
 
 uses

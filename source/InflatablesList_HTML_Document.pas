@@ -1,4 +1,5 @@
-unit InflatablesList_HTML_Document;
+unit InflatablesList_HTML_Document;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

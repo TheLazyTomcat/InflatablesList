@@ -1,4 +1,5 @@
 unit TextEditForm;
+{$message 'll_rework'}
 
 interface
 
@@ -13,6 +14,7 @@ type
     procedure meTextKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
+    fILManager: TILManager;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
@@ -29,7 +31,7 @@ implementation
 
 procedure TfTextEditForm.Initialize(ILManager: TILManager);
 begin
-// do nothing, manager is not needed here atm.
+fILManager := ILManager;
 end;
 
 //------------------------------------------------------------------------------

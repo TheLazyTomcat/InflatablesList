@@ -1,5 +1,5 @@
 unit SortForm;
-
+{$message 'll_rework'}
 interface
 
 uses
@@ -123,6 +123,7 @@ var
   i:  TILItemValueTag;
 begin
 fILManager := ILManager;
+// fill list of available values 
 lbAvailable.Items.BeginUpdate;
 try
   lbAvailable.Clear;
@@ -349,6 +350,7 @@ If lbProfiles.ItemIndex > 0 then
     lbProfiles.Items.Exchange(Index,Index - 1);
     fILManager.SortingProfileExchange(Index,Index - 1);
     lbProfiles.ItemIndex := Index - 1;
+    lbProfiles.OnClick(nil);
   end;
 end;
 
@@ -364,6 +366,7 @@ If (lbProfiles.Count > 0) and (lbProfiles.ItemIndex < Pred(lbProfiles.Count)) th
     lbProfiles.Items.Exchange(Index,Index + 1);
     fILManager.SortingProfileExchange(Index,Index + 1);
     lbProfiles.ItemIndex := Index + 1;
+    lbProfiles.OnClick(nil);
   end;
 end;
 

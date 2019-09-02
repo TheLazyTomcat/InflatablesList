@@ -1,4 +1,5 @@
 unit InflatablesList_Item_Utils;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -229,6 +230,7 @@ For i := ShopLowIndex to ShopHighIndex do
     begin
       Shop := fShops[i];
       Result := True;
+      Break{For i}; // there should be only one selected shop, no need to continue
     end;
 end;
 

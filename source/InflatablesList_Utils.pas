@@ -1,4 +1,5 @@
 unit InflatablesList_Utils;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -10,12 +11,15 @@ uses
   InflatablesList_Types;
 
 //==============================================================================
-//- file path manipulation -----------------------------------------------------
+//- files/directories ----------------------------------------------------------
 
 Function IL_PathRelative(const Base,Path: String): String;
 Function IL_PathAbsolute(const Base,Path: String): String;
 
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
+
+Function IL_FileExists(const FileName: String): Boolean;
+Function IL_DeleteFile(const FileName: String): Boolean;
 
 //==============================================================================
 //- comparison functions, used in sorting --------------------------------------
@@ -59,14 +63,15 @@ procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
 implementation
 
 uses
-  ShellAPI;
+  ShellAPI,
+  StrRect;
 
 //==============================================================================
 //- file path manipulation -----------------------------------------------------
 
 Function IL_PathRelative(const Base,Path: String): String;
 begin
-Result := ExtractRelativePath(Base,Path);
+Result := RTLToStr(ExtractRelativePath(StrToRTL(Base),StrToRTL(Path)));
 If Length(Result) <> Length(Path) then
   Result := '.\' + Result;
 end;
@@ -78,7 +83,7 @@ begin
 If Length(Path) > 0 then
   begin
     If Path[1] = '.' then
-      Result := ExpandFileName(Base + Path)
+      Result := RTLToStr(ExpandFileName(StrToRTL(Base + Path)))
     else
       Result := Path;
   end
@@ -89,7 +94,21 @@ end;
 
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
 begin
-ForceDirectories(ExtractFileDir(FileName));
+ForceDirectories(ExtractFileDir(StrToRTL(FileName)));
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_FileExists(const FileName: String): Boolean;
+begin
+Result := FileExists(StrToRTL(FileName));
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_DeleteFile(const FileName: String): Boolean;
+begin
+Result := DeleteFile(StrToRTL(FileName));
 end;
 
 //==============================================================================
@@ -339,7 +358,7 @@ end;
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
 begin
 If Length(Path) > 0 then
-  ShellExecute(WindowHandle,'open',PChar(Path),nil,nil,SW_SHOWNORMAL);
+  ShellExecute(WindowHandle,'open',PChar(StrToWin(Path)),nil,nil,SW_SHOWNORMAL);
 end;
 
 end.

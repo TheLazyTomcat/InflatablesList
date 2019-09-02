@@ -1,4 +1,5 @@
 program InflatablesListApp;
+{$message 'll_rework'}
 
 uses
   FastMM4,
@@ -95,6 +96,7 @@ begin
   Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
   Application.CreateForm(TfOptionsLegendForm, fOptionsLegendForm);
   Application.CreateForm(TfAboutForm, fAboutForm);
+  // do not automatically create prompt form
   fMainForm.InitializeOtherForms; // must be run after create but before show
   Application.Run;
 end.

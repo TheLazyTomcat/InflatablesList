@@ -1,4 +1,5 @@
 unit InflatablesList_ItemShopTemplate_Base;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -54,6 +55,7 @@ uses
 procedure TILItemShopTemplate_Base.SetStaticOptions(Value: TILStaticManagerOptions);
 begin
 fStaticOptions := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticOptions := fStaticOptions;
 end;
 
 //------------------------------------------------------------------------------
@@ -63,8 +65,8 @@ begin
 If not AnsiSameStr(fName,Value) then
   begin
     fName := Value;
+    UniqueString(fName);    
     fParsingSettings.TemplateReference := fName;
-    UniqueString(fName);
   end;
 end;
 
@@ -159,7 +161,8 @@ begin
 inherited Create;
 // do not call initialize
 fStaticOptions := IL_ThreadSafeCopy(BaseOn.StaticOptions);
-fName := '';
+fName := BaseOn.Name;
+UniqueString(fName);
 fShopName := BaseOn.Name;
 UniqueString(fShopName);
 fUntracked := BaseOn.Untracked;
@@ -167,7 +170,7 @@ fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
-fParsingSettings.TemplateReference := fName;
+fParsingSettings.TemplateReference := fName;  // reference self
 end;
 
 //------------------------------------------------------------------------------
@@ -194,6 +197,7 @@ try
   For i := 0 to Pred(Shop.ParsingSettings.VariableCount) do
     If Length(Shop.ParsingSettings.Variables[i]) <= 0 then
       Shop.ParsingSettings.Variables[i] := fParsingSettings.Variables[i];
+  // copy only reference to self, not actual parsing settings (objects)    
   Shop.ParsingSettings.TemplateReference := fParsingSettings.TemplateReference;
   Shop.ParsingSettings.DisableParsingErrors := fParsingSettings.DisableParsingErrors;
 finally

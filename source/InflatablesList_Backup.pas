@@ -1,4 +1,5 @@
 unit InflatablesList_Backup;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -14,7 +15,8 @@ procedure DoBackup(const FileName,BackupPath: String);
 implementation
 
 uses
-  Windows, SysUtils, IniFiles;
+  Windows, SysUtils, IniFiles,
+  InflatablesList_Utils;
 
 type
   TILBackupManager = class(TObject)
@@ -140,7 +142,7 @@ var
 begin
 BackupFileName := FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now) + '.inl';
 If not DirectoryExists(ExtractFileDir(fBackupPath + BackupFileName)) then
-  ForceDirectories(ExtractFileDir(fBackupPath + BackupFileName));
+  IL_CreateDirectoryPathForFile(ExtractFileDir(fBackupPath + BackupFileName));
 If FileExists(fBackupPath + BackupFileName) then
   DeleteFile(fBackupPath + BackupFileName);
 CopyFile(PChar(FileName),PChar(fBackupPath + BackupFileName),False);

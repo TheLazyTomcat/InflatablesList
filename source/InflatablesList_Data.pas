@@ -1,4 +1,5 @@
 unit InflatablesList_Data;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -34,6 +35,7 @@ type
     Function GetItemDefaultPictureSmallCount: Integer;
     Function GetItemDefaultPictureSmall(ItemType: TILITemType): TBitmap;
   protected
+    class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
     procedure InitializeItemManufacurers; virtual;
     procedure FinalizeItemManufacturers; virtual;
     procedure InitializeItemReviewIcon; virtual;
@@ -73,6 +75,7 @@ implementation
 
 uses
   SysUtils, Classes,
+  StrRect,
   InflatablesList_Utils;
 
 // resources containing the data
@@ -211,30 +214,39 @@ end;
 
 //==============================================================================
 
+class Function TILDataProvider.LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean;
+var
+  ResStream:  TResourceStream;
+begin
+try
+  ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10){RT_RCDATA});
+  try
+    ResStream.Seek(0,soBeginning);
+    Bitmap.LoadFromStream(ResStream);
+  finally
+    ResStream.Free;
+  end;
+  Result := True;
+except
+  Result := False;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.InitializeItemManufacurers;
 var
-  i:          TILItemManufacturer;
-  ResStream:  TResourceStream;
-  Bitmap:     TBitmap;
+  i:      TILItemManufacturer;
+  Bitmap: TBitmap;
 begin
 For i := Low(fItemManufacturers) to High(fItemManufacturers) do
   begin
     fItemManufacturers[i].Str := IL_DATA_ITEMMANUFACTURER_STRS[i];
     fItemManufacturers[i].LogoResName := IL_DATA_ITEMMANUFACTURER_LOGORESNAMES[i];
-    try
-      ResStream := TResourceStream.Create(hInstance,fItemManufacturers[i].LogoResName,PChar(10){RT_RCDATA});
-      try
-        Bitmap := TBitmap.Create;
-        ResStream.Seek(0,soBeginning);
-        Bitmap.LoadFromStream(ResStream);
-        fItemManufacturers[i].Logo := Bitmap;
-      finally
-        ResStream.Free;
-      end;
-    except
-      // supress error
-      fItemManufacturers[i].Logo := nil;
-    end;
+    Bitmap := TBitmap.Create;
+    If not LoadBitmapFromResource(fItemManufacturers[i].LogoResName,Bitmap) then
+      FreeAndNil(Bitmap);
+    fItemManufacturers[i].Logo := Bitmap;
   end;
 end;
 
@@ -252,21 +264,10 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILDataProvider.InitializeItemReviewIcon;
-var
-  ResStream:  TResourceStream;
 begin
-try
-  ResStream := TResourceStream.Create(hinstance,'icon_review',PChar(10));
-  try
-    fItemReviewIcon := TBitmap.Create;
-    ResStream.Seek(0,soBeginning);
-    fItemReviewIcon.LoadFromStream(ResStream);
-  finally
-    ResStream.Free;
-  end;
-except
-  fItemReviewIcon := nil;
-end;
+fItemReviewIcon := TBitmap.Create;
+If not LoadBitmapFromResource('icon_review',fItemReviewIcon) then
+  FreeAndNil(fItemReviewIcon);
 end;
 
 //------------------------------------------------------------------------------
@@ -281,21 +282,13 @@ end;
 
 procedure TILDataProvider.InitializeItemFlagIcons;
 var
-  i:          TILItemFlag;
-  ResStream:  TResourceStream;
+  i:  TILItemFlag; 
 begin
 For i := Low(fItemFlagIcons) to High(fItemFlagIcons) do
-  try
-    ResStream := TResourceStream.Create(hInstance,IL_DATA_ITEMFLAGICON_RESNAMES[i],PChar(10));
-    try
-      fItemFlagIcons[i] := TBitmap.Create;
-      ResStream.Seek(0,soBeginning);
-      fItemFlagIcons[i].LoadFromStream(ResStream);
-    finally
-      ResStream.Free;
-    end;
-  except
-    fItemFlagIcons[i] := nil;
+  begin
+    fItemFlagIcons[i] := TBitmap.Create;
+    If not LoadBitmapFromResource(IL_DATA_ITEMFLAGICON_RESNAMES[i],fItemFlagIcons[i]) then
+      FreeAndNil(fItemFlagIcons[i]);
   end;
 end;
 
@@ -314,21 +307,13 @@ end;
 
 procedure TILDataProvider.InitializeDefaultPictures;
 var
-  i:          TILItemType;
-  ResStream:  TResourceStream;
+  i:  TILItemType;
 begin
 For i := Low(fItemDefaultPics) to High(fItemDefaultPics) do
-  try
-    ResStream := TResourceStream.Create(hInstance,IL_DATA_DEFAULTPIC_RESNAME[i],PChar(10));
-    try
-      fItemDefaultPics[i] := TBitmap.Create;
-      ResStream.Seek(0,soBeginning);
-      fItemDefaultPics[i].LoadFromStream(ResStream);
-    finally
-      ResStream.Free;
-    end;
-  except
-    fItemDefaultPics[i] := nil;
+  begin
+    fItemDefaultPics[i] := TBitmap.Create;
+    If not LoadBitmapFromResource(IL_DATA_DEFAULTPIC_RESNAME[i],fItemDefaultPics[i]) then
+      FreeAndNil(fItemDefaultPics[i]);
   end;
 end;
 
@@ -347,7 +332,7 @@ end;
 
 procedure TILDataProvider.InitializeDefaultPicturesSmall;
 var
-  i:          TILItemType;
+  i:  TILItemType;
 begin
 For i := Low(fItemDefaultPicsSmall) to High(fItemDefaultPicsSmall) do
   try
@@ -375,33 +360,13 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILDataProvider.InitializeGradientImages;
-var
-  ResStream:  TResourceStream;
 begin
-try
-  ResStream := TResourceStream.Create(hinstance,'wanted_grad',PChar(10));
-  try
-    fWantedGradientImage := TBitmap.Create;
-    ResStream.Seek(0,soBeginning);
-    fWantedGradientImage.LoadFromStream(ResStream);
-  finally
-    ResStream.Free;
-  end;
-except
-  fWantedGradientImage := nil;
-end;
-try
-  ResStream := TResourceStream.Create(hinstance,'rating_grad',PChar(10));
-  try
-    fRatingGradientImage := TBitmap.Create;
-    ResStream.Seek(0,soBeginning);
-    fRatingGradientImage.LoadFromStream(ResStream);
-  finally
-    ResStream.Free;
-  end;
-except
-  fRatingGradientImage := nil;
-end;
+fWantedGradientImage := TBitmap.Create;
+If not LoadBitmapFromResource('wanted_grad',fWantedGradientImage) then
+  FreeAndNil(fWantedGradientImage);
+fRatingGradientImage := TBitmap.Create;
+If not LoadBitmapFromResource('rating_grad',fRatingGradientImage) then
+  FreeAndNil(fRatingGradientImage);
 end;
 
 //------------------------------------------------------------------------------

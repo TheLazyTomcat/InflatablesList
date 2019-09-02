@@ -1,4 +1,5 @@
 unit AboutForm;
+{$message 'll_rework'}
 
 interface
 
@@ -98,7 +99,7 @@ end;
 
 procedure TfAboutForm.lblMailClick(Sender: TObject);
 begin
-InflatablesList_Utils.IL_ShellOpen(Self.Handle,'mailto:' + lblMail.Caption);
+IL_ShellOpen(Self.Handle,'mailto:' + lblMail.Caption);
 end;
 
 //------------------------------------------------------------------------------

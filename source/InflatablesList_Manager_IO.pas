@@ -1,4 +1,5 @@
-unit InflatablesList_Manager_IO;
+unit InflatablesList_Manager_IO;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -57,17 +58,17 @@ type
     // normal io  
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
-    procedure SaveToFile(const FileName: String); virtual;
-    procedure LoadFromFile(const FileName: String); virtual;
+    procedure SaveToFile; virtual;
+    procedure LoadFromFile; virtual;
     procedure PreloadStream(Stream: TStream); virtual;
-    procedure PreloadFile(const FileName: String); virtual;
+    procedure PreloadFile; virtual;
   end;
 
 implementation
 
 uses
   SysUtils,
-  BinaryStreaming,
+  BinaryStreaming, StrRect,
   InflatablesList_Utils,
   InflatablesList_Item;
 
@@ -205,7 +206,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.SaveToFile(const FileName: String);
+procedure TILManager_IO.SaveToFile;
 var
   FileStream: TMemoryStream;
 begin
@@ -216,10 +217,8 @@ try
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
-  IL_CreateDirectoryPathForFile(ExpandFileName(FileName));
-  FileStream.SaveToFile(ExpandFileName(FileName));
-  fListFileName := ExpandFileName(FileName);
-  fListFilePath := ExtractFilePath(fListFileName);
+  IL_CreateDirectoryPathForFile(fStaticOptions.ListPath);
+  FileStream.SaveToFile(StrToRTL(fStaticOptions.ListFile));
 finally
   FileStream.Free;
 end;
@@ -227,20 +226,21 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.LoadFromFile(const FileName: String);
+procedure TILManager_IO.LoadFromFile;
 var
   FileStream: TMemoryStream;
 begin
-FileStream := TMemoryStream.Create;
-try
-  FileStream.LoadFromFile(ExpandFileName(FileName));
-  FileStream.Seek(0,soBeginning);
-  LoadFromStream(FileStream);
-  fListFileName := ExpandFileName(FileName);
-  fListFilePath := ExtractFilePath(fListFileName);
-finally
-  FileStream.Free;
-end;
+If IL_FileExists(fStaticOptions.ListFile) then
+  begin
+    FileStream := TMemoryStream.Create;
+    try
+      FileStream.LoadFromFile(StrToRTL(fStaticOptions.ListFile));
+      FileStream.Seek(0,soBeginning);
+      LoadFromStream(FileStream);
+    finally
+      FileStream.Free;
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -257,17 +257,20 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.PreloadFile(const FileName: String);
+procedure TILManager_IO.PreloadFile;
 var
   FileStream: TFileStream;
 begin
-FileStream := TFileStream.Create(ExpandFileName(FileName),fmOpenRead or fmShareDenyWrite);
-try
-  FileStream.Seek(0,soBeginning);
-  PreloadStream(FileStream);
-finally
-  FileStream.Free;
-end;
+If IL_FileExists(fStaticOptions.ListFile) then
+  begin
+    FileStream := TFileStream.Create(StrToRTL(fStaticOptions.ListFile),fmOpenRead or fmShareDenyWrite);
+    try
+      FileStream.Seek(0,soBeginning);
+      PreloadStream(FileStream);
+    finally
+      FileStream.Free;
+    end;
+  end;
 end;
 
 end.

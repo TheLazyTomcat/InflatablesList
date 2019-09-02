@@ -1,4 +1,5 @@
 unit UpdResLegendForm;
+{$message 'll_rework'}
 
 interface
 

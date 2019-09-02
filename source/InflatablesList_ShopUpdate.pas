@@ -1,4 +1,5 @@
-unit InflatablesList_ShopUpdate;
+unit InflatablesList_ShopUpdate;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -350,7 +351,7 @@ If Length(fShopData.ItemURL) > 0 then
               fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'page.txt');
             If fStaticOptions.SavePages then
               begin
-                ForceDirectories(ExtractFilePath(ParamStr(0)) + 'saved_pages');
+                IL_CreateDirectoryPathForFile(ExtractFilePath(ParamStr(0)) + 'saved_pages');
                 fDownStream.SaveToFile(OfflineFile);
               end;
             fDownSize := fDownStream.Size;

@@ -1,4 +1,5 @@
 unit ItemSelectForm;
+{$message 'll_rework'}
 
 interface
 
@@ -92,6 +93,7 @@ end;
 
 procedure TfItemSelectForm.Finalize;
 begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------

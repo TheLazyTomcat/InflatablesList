@@ -1,5 +1,5 @@
 unit MainForm;{$message 'revisit'}
-
+{$message 'll_rework'}
 interface
 
 uses
@@ -213,7 +213,7 @@ type
   protected
     procedure RePositionMainForm;
     procedure FillCopyright;
-    procedure FillListFileName(const FileName: String);
+    procedure FillListFileName;
     procedure BuildSortBySubmenu;
     procedure UpdateIndexAndCount;
     Function SaveList: Boolean;
@@ -244,8 +244,6 @@ uses
 {$R *.dfm}
 
 const
-  DEFAULT_LIST_FILENAME = 'list.inl';
-
   STATUSBAR_PANEL_IDX_INDEX       = 0;
   STATUSBAR_PANEL_IDX_STATIC_OPTS = 1;
   STATUSBAR_PANEL_IDX_OPTIONS     = 2;
@@ -305,17 +303,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.FillListFileName(const FileName: String);
+procedure TfMainForm.FillListFileName;
 begin
-If sbStatusBar.Canvas.TextWidth(FileName) >
+If sbStatusBar.Canvas.TextWidth(fILManager.StaticOptions.ListFile) >
   (sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width - (2 * GetSystemMetrics(SM_CXFIXEDFRAME))) then
   begin
     sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text :=
-      MinimizeName(FileName,sbStatusBar.Canvas,
+      MinimizeName(fILManager.StaticOptions.ListFile,sbStatusBar.Canvas,
         sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width -
         (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
   end
-else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := FileName;
+else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticOptions.ListFile;
 end;
 
 //------------------------------------------------------------------------------
@@ -365,20 +363,15 @@ end;
 //------------------------------------------------------------------------------
 
 Function TfMainForm.SaveList: Boolean;
-var
-  FileName: String;
 begin
 Result := False;
 If not fILManager.StaticOptions.NoSave then
   begin
-    If Length(fILManager.StaticOptions.ListOverride) > 0 then
-      FileName := fILManager.StaticOptions.ListOverride
-    else
-      FileName := fILManager.ListFilePath + DEFAULT_LIST_FILENAME;
     If not fILManager.StaticOptions.NoBackup then
-      If FileExists(FileName) then
-        DoBackup(FileName,IncludeTrailingPathDelimiter(fILManager.ListFilePath + BACKUP_BACKUP_DIR_DEFAULT));
-    fILManager.SaveToFile(FileName);
+      If FileExists(fILManager.StaticOptions.ListFile) then
+        DoBackup(fILManager.StaticOptions.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticOptions.ListPath + BACKUP_BACKUP_DIR_DEFAULT));
+    fILManager.SaveToFile;
+    FillListFileName;
     Result := True;
   end;
 end;
@@ -491,19 +484,8 @@ frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
 // preload list and ask for password if necessary, catch EWrongPassword
 // load list
-If Length(fILManager.StaticOptions.ListOverride) > 0 then
-  begin
-    // overriden list
-    If FileExists(fILManager.StaticOptions.ListOverride) then
-      fILManager.LoadFromFile(fILManager.StaticOptions.ListOverride);
-  end
-else
-  begin
-    // default list
-    If FileExists(fILManager.ListFilePath + DEFAULT_LIST_FILENAME) then
-      fILManager.LoadFromFile(fILManager.ListFilePath + DEFAULT_LIST_FILENAME);
-  end;
-FillListFileName(fILManager.ListFileName);
+fILManager.LoadFromFile;
+FillListFileName;
 // fill list
 lbList.Items.Clear;
 If fILManager.ItemCount > 0 then
@@ -1240,7 +1222,6 @@ try
   frmItemFrame.Save;
   If not SaveList then
     Beep;
-  FillListFileName(fILManager.ListFileName);
 finally
   Screen.Cursor := crDefault;
 end;
@@ -1430,7 +1411,7 @@ case Panel.Index of
         DrawOptText(IL_STAT_OPT_TAGS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_SPC);
         DrawOptText(IL_STAT_OPT_TAGS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_SPC);
         DrawOptText(IL_STAT_OPT_TAGS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_SPC);
-        DrawOptText(IL_STAT_OPT_TAGS[7],TempInt,Length(fILManager.StaticOptions.ListOverride) > 0,STAT_OPTS_SPC);
+        DrawOptText(IL_STAT_OPT_TAGS[7],TempInt,fILManager.StaticOptions.ListOverride,STAT_OPTS_SPC);
       end;
   STATUSBAR_PANEL_IDX_OPTIONS:
     with sbStatusBar.Canvas do

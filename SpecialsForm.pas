@@ -1,4 +1,5 @@
 unit SpecialsForm;
+{$message 'll_rework'}
 
 interface
 
@@ -46,7 +47,6 @@ implementation
 
 uses
   StrUtils,
-  AuxTypes,
   InflatablesList_Types;
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
@@ -69,7 +69,6 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].TextTag := '';
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -86,7 +85,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
       fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
     end;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -99,7 +97,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     If AnsiSameText(fILManager[i][j].Name,leParam_1.Text) then
       fILManager[i][j].AltDownMethod := True;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -111,7 +108,6 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].GetAndFlagPriceAndAvail(
     fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -122,7 +118,6 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].Material := ilimtPolyvinylchloride;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -136,7 +131,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].SetFlagValue(ilifPriceChange,False);
     fILManager[i].SetFlagValue(ilifAvailChange,False)
   end;
-Close
 end;
 
 //------------------------------------------------------------------------------
@@ -150,7 +144,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].ItemPictureFile := AnsiReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
     fILManager[i].PackagePictureFile := AnsiReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
   end;
-Close
 end;
 
 //------------------------------------------------------------------------------
@@ -162,7 +155,6 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If AnsiSameText(fILManager[i].TextTag,leParam_1.Text) then
     fILManager[i].TextTag := leParam_2.Text;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -179,7 +171,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
         fILManager[i].GetAndFlagPriceAndAvail(
           fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
       end;
-Close;
 end;
 
 end.

@@ -1,4 +1,5 @@
 unit InflatablesList_Manager;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

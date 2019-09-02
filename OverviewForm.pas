@@ -1,5 +1,5 @@
 unit OverviewForm;
-
+{$message 'll_rework'}
 interface
 
 uses
@@ -19,8 +19,10 @@ type
     { Private declarations }
     fILManager:   TILManager;
     fSelShopList: TStringCountedDynArray;
-    procedure OnOverviewUpdate(Sender: TObject);
   protected
+    // manager event handlers
+    procedure OnOverviewUpdate(Sender: TObject);
+    // other methods
     procedure InitializeTable;
     procedure UpdateOverview;
   public

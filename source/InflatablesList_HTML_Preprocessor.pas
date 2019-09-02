@@ -1,4 +1,5 @@
-unit InflatablesList_HTML_Preprocessor;
+unit InflatablesList_HTML_Preprocessor;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

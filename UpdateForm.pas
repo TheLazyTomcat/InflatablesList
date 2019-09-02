@@ -1,4 +1,5 @@
-unit UpdateForm;{$message 'revisit'}
+unit UpdateForm;
+{$message 'll_rework'}
 
 interface
 
@@ -59,6 +60,9 @@ var
 
 implementation
 
+uses
+  StrRect;
+
 {$R *.dfm}
 
 const
@@ -88,6 +92,7 @@ begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
 fItemShop := TILItemShop.CreateAsCopy(ItemShop);
+// resolve reference and make local copy of processing settings
 Index := ILManager.ShopTemplateIndexOf(fItemShop.ParsingSettings.TemplateReference);
 If Index >= 0 then
   fItemShop.ReplaceParsingSettings(ILManager.ShopTemplates[Index].ParsingSettings);
@@ -156,30 +161,24 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
-var
-  TempStr:  String;
 begin
 Inc(fDoneCount);
 // retrieve results from the task
 with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
   begin
-    fUpdateList[ProcessingIndex].ItemShop.Available := ItemShop.Available;
-    fUpdateList[ProcessingIndex].ItemShop.Price := ItemShop.Price;
-    fUpdateList[ProcessingIndex].ItemShop.LastUpdateRes := ItemShop.LastUpdateRes;
-    TempStr := ItemShop.LastUpdateMsg;
-    UniqueString(TempStr);
-    fUpdateList[ProcessingIndex].ItemShop.LastUpdateMsg := TempStr;
+    fUpdateList[ProcessingIndex].ItemShop.SetValues(ItemShop.LastUpdateMsg,
+      ItemShop.LastUpdateRes,ItemShop.Available,ItemShop.Price);
     fUpdateList[ProcessingIndex].Done := True;
   end;
 // log
 while fLoggedIndex <= High(fUpdateList) do
   begin
-  If fUpdateList[fLoggedIndex].Done then
-    begin
-      MakeLog(fLoggedIndex);
-      Inc(fLoggedIndex);
-    end
-  else Break{while...};
+    If fUpdateList[fLoggedIndex].Done then
+      begin
+        MakeLog(fLoggedIndex);
+        Inc(fLoggedIndex);
+      end
+    else Break{while...};
   end;
 //progress
 If fDoneCount < Length(fUpdateList) then
@@ -226,7 +225,6 @@ If Length(UpdateList) > 0 then
     meLog.Clear;
     // init list of shops for processing
     fUpdateList := UpdateList;
-    SetLength(fUpdateList,Length(fUpdateList));
     For i := Low(fUpdateList) to High(fUpdateList) do
       fUpdateList[i].Done := False;  // should be false atm, but to be sure
     // init processing vars
@@ -252,8 +250,9 @@ If Length(UpdateList) > 0 then
       FreeAndNil(fUpdater);
     end;
     tmrUpdate.Enabled := False;
-    If meLog.Lines.Count > 0 then
-      meLog.Lines.SaveToFile(fILManager.ListFilePath + 'list.update.log');
+    // save log
+    If (meLog.Lines.Count > 0) and not fILManager.StaticOptions.NoUpdateAutoLog then
+      meLog.Lines.SaveToFile(StrToRTL(fILManager.StaticOptions.ListPath + 'list.update.log'));
     // return the changed list (done flag is used)
     UpdateList := fUpdateList;
     // indicate whether something was done
@@ -272,6 +271,7 @@ end;
 procedure TfUpdateForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
 fCanContinue := False;
+CanClose := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ end;
 
 procedure TfUpdateForm.tmrUpdateTimer(Sender: TObject);
 begin
-if Assigned(fUpdater) then
+If Assigned(fUpdater) then
   begin
     fUpdater.Update;
     fUpdater.ClearCompletedTasks;

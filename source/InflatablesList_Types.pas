@@ -1,4 +1,5 @@
 unit InflatablesList_Types;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -9,10 +10,10 @@ uses
   AuxTypes;
 
 //==============================================================================
-//- encryption exceptions ------------------------------------------------------  
+//- special encryption exceptions ----------------------------------------------  
 
 type
-  EWrongPassword = class(Exception);
+  EILWrongPassword = class(Exception);
 
 //==============================================================================
 //- event prototypes -----------------------------------------------------------
@@ -43,6 +44,7 @@ Function IL_ReconvSameStr(const A,B: TILReconvString): Boolean;
 Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
 
 procedure IL_UniqueReconvStr(var Str: TILReconvString);
+Function IL_ThreadSaveCopy(const Str: TILReconvString): TILReconvString; overload;
 
 //==============================================================================
 //- items ----------------------------------------------------------------------
@@ -265,9 +267,11 @@ type
     NoSave:           Boolean;
     NoBackup:         Boolean;
     NoUpdateAutoLog:  Boolean;
-    ListOverride:     String;
+    ListOverride:     Boolean;
     // automatically filled
-    DefaultPath:      String;
+    DefaultPath:      String; // initialized to program path
+    ListPath:         String; // filled with list path
+    ListFile:         String; // file, where the list will be saved, or was loaded from
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions; overload;
@@ -368,6 +372,14 @@ begin
 UniqueString(Str.Str);
 UniqueString(Str.UTF8Reconv);
 UniqueString(Str.AnsiReconv);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSaveCopy(const Str: TILReconvString): TILReconvString;
+begin
+Result := Str;
+IL_UniqueReconvStr(Result);
 end;
 
 //==============================================================================
@@ -951,8 +963,8 @@ end;
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
 begin
 Result := Value;
-UniqueString(Result.ListOverride);
 UniqueString(Result.DefaultPath);
+UniqueString(Result.ListPath);
 end;
 
 end.

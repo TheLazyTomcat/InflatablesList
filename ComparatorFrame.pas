@@ -1,4 +1,5 @@
 unit ComparatorFrame;{$message 'revisit'}
+{$message 'll_rework'}
 
 interface
 

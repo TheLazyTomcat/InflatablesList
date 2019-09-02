@@ -1,4 +1,5 @@
 unit InflatablesList_Item_IO_00000003;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -51,7 +52,7 @@ end;
 procedure TILItem_IO_00000003.SaveItem_00000003(Stream: TStream);
 begin
 Stream_WriteBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
-// after UID, stream is the same as for ver. 2
+// after UID, stream is the same as for ver 2
 SaveItem_00000002(Stream);
 end;
 
@@ -60,7 +61,7 @@ end;
 procedure TILItem_IO_00000003.LoadItem_00000003(Stream: TStream);
 begin
 Stream_ReadBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
-// after UID, stream is the same as for ver. 2
+// after UID, stream is the same as for ver 2
 LoadItem_00000002(Stream);
 end;
 

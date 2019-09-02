@@ -78,8 +78,14 @@ object fMainForm: TfMainForm
     Width = 625
     Height = 646
     Style = lbOwnerDrawFixed
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
     IntegralHeight = True
     ItemHeight = 107
+    ParentFont = False
     PopupMenu = pmnListMenu
     TabOrder = 0
     OnClick = lbListClick

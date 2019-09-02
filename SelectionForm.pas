@@ -1,4 +1,5 @@
 unit SelectionForm;{$message 'revisit'}
+{$message 'll_rework'}
 
 {$INCLUDE '.\CountedDynArrays_defs.inc'}
 

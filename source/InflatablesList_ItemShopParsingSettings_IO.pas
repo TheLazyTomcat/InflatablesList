@@ -1,4 +1,5 @@
 unit InflatablesList_ItemShopParsingSettings_IO;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -35,7 +36,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  SysUtils, StrRect,
   BinaryStreaming;
 
 procedure TILItemShopParsingSettings_IO.Save(Stream: TStream; Struct: UInt32);
@@ -80,7 +81,7 @@ begin
 FileStream := TMemoryStream.Create;
 try
   SaveToStream(FileStream);
-  FileStream.SaveToFile(FileName);
+  FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
 end;
@@ -94,7 +95,7 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(StrToRTL(FileName));
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
 finally

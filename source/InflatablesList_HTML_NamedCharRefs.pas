@@ -1,4 +1,5 @@
 unit InflatablesList_HTML_NamedCharRefs;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

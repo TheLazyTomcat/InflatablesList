@@ -1,4 +1,5 @@
 unit InflatablesList_HTML_Utils;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -11,8 +12,8 @@ uses
 type
   EILParseError = class(Exception);  
 
-Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
+Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
 Function IL_UTF16CodePoint(HighSurrogate,LowSurrogate: UnicodeChar): UInt32;
 
 Function IL_UTF16CharInSet(UTF16Char: UnicodeChar; CharSet: TSysCharSet): Boolean;
@@ -64,14 +65,14 @@ end;
 
 Function IL_UnicodeCompareString(const A,B: UnicodeString; CaseSensitive: Boolean): Integer;
 begin
-Result := UnicodeStringCompare(A,B,CaseSensitive);
+Result := StrRect.UnicodeStringCompare(A,B,CaseSensitive);
 end;
 
 //------------------------------------------------------------------------------
 
 Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean): Boolean;
 begin
-Result := UnicodeStringCompare(A,B,CaseSensitive) = 0;
+Result := StrRect.UnicodeStringCompare(A,B,CaseSensitive) = 0;
 end;
 
 end.

@@ -1,4 +1,5 @@
-unit InflatablesList_Item_Base;{$message 'revisit'}
+unit InflatablesList_Item_Base;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

@@ -1,5 +1,5 @@
 unit ShopsForm;{$message 'revisit'}
-
+{$message 'll_rework'}
 interface
 
 uses

@@ -1,4 +1,5 @@
-unit InflatablesList_ItemShop_Base;{$message 'revisit'}
+unit InflatablesList_ItemShop_Base;
+{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -390,6 +391,7 @@ end;
 
 procedure TILItemShop_Base.Initialize;
 begin
+FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
 fRequiredCount := 0;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -418,8 +420,11 @@ var
   i:  Integer;
 begin
 inherited Create;
+// do not call initialize
 fRequiredCount := Source.RequiredCount;
 fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fUpdateCounter := 0;
+fUpdated := [];
 // copy data...
 fSelected := Source.Selected;
 fUntracked := Source.Untracked;
@@ -622,6 +627,7 @@ var
   i:          Integer;
 begin
 // keep variables
+// no need to care for thread safety, strings are cured when assigned to new object
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);

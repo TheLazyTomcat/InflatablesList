@@ -7,5 +7,5 @@ Thumbs.db
 *.inl
 *.log
 list_backup
-saved_pages
+*_saved_pages
 pics

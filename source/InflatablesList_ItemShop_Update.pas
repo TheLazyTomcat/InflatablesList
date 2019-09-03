@@ -1,5 +1,4 @@
 unit InflatablesList_ItemShop_Update;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -21,13 +20,12 @@ type
 implementation
 
 uses
-  SysUtils,
-  AuxTypes,
   InflatablesList_Types,
-  InflatablesList_ShopUpdate;
+  InflatablesList_Utils,
+  InflatablesList_ShopUpdater;
 
 const
-  IL_RESULLT_STRS: array[0..11] of String = (
+  IL_RESULT_STRS: array[0..11] of String = (
     'Success (%d bytes downloaded) - Avail: %d  Price: %d',
     'No item link',
     'Insufficient search data',
@@ -37,8 +35,8 @@ const
     'Search failed',
     'Unable to obtain available count',
     'Unable to obtain values',
-    'Failed (general error)',
-    'Failed (unknown state)',
+    'Failed - general error (%s)',
+    'Failed - unknown state (%d)',
     'Success (untracked) - Avail: %d  Price: %d');
 
 //------------------------------------------------------------------------------    
@@ -53,35 +51,35 @@ If not fUntracked then
   begin
     TryCounter := IL_LISTFILE_UPDATE_TRYCOUNT;
     Result := False;
-    Updater := TILShopUpdater.Create(Self,fStaticOptions);
+    Updater := TILShopUpdater.Create(Self);
     try
       repeat
         UpdaterResult := Updater.Run(fAltDownMethod);
         case UpdaterResult of
           ilurSuccess:          begin
-                                  SetValues(Format(IL_RESULLT_STRS[0],
+                                  SetValues(IL_Format(IL_RESULT_STRS[0],
                                     [Updater.DownloadSize,Updater.Available,Updater.Price]),
                                     ilisurSuccess,Updater.Available,Updater.Price);
                                   Result := True;
                                 end;
-          ilurNoLink:           SetValues(IL_RESULLT_STRS[1],ilisurDataFail,0,0);
-          ilurNoData:           SetValues(IL_RESULLT_STRS[2],ilisurDataFail,0,0);
+          ilurNoLink:           SetValues(IL_RESULT_STRS[1],ilisurDataFail,0,0);
+          ilurNoData:           SetValues(IL_RESULT_STRS[2],ilisurDataFail,0,0);
           // when download fails, keep old price (assumes the item vent unavailable)
-          ilurFailDown:         SetValues(Format(IL_RESULLT_STRS[3],[Updater.DownloadResultCode]),ilisurDownload,0,fPrice);
+          ilurFailDown:         SetValues(IL_Format(IL_RESULT_STRS[3],[Updater.DownloadResultCode]),ilisurDownload,0,fPrice);
           // when parsing fails, keep old values (assumes bad download or internal exception)
-          ilurFailParse:        SetValues(Format(IL_RESULLT_STRS[4],[Updater.ErrorString]),ilisurParsing,fAvailable,fPrice);
+          ilurFailParse:        SetValues(IL_Format(IL_RESULT_STRS[4],[Updater.ErrorString]),ilisurParsing,fAvailable,fPrice);
           // following assumes the item is unavailable
-          ilurFailAvailSearch:  SetValues(IL_RESULLT_STRS[5],ilisurSoftFail,0,Updater.Price);
+          ilurFailAvailSearch:  SetValues(IL_RESULT_STRS[5],ilisurSoftFail,0,Updater.Price);
           // following assumes the item is unavailable, keep old price
-          ilurFailSearch:       SetValues(IL_RESULLT_STRS[6],ilisurHardFail,0,fPrice);
+          ilurFailSearch:       SetValues(IL_RESULT_STRS[6],ilisurHardFail,0,fPrice);
           // following assumes the item is unavailable
-          ilurFailAvailValGet:  SetValues(IL_RESULLT_STRS[7],ilisurSoftFail,0,Updater.Price);
+          ilurFailAvailValGet:  SetValues(IL_RESULT_STRS[7],ilisurSoftFail,0,Updater.Price);
           // following assumes the item is unavailable, keep old price
-          ilurFailValGet:       SetValues(IL_RESULLT_STRS[8],ilisurHardFail,0,fPrice);
+          ilurFailValGet:       SetValues(IL_RESULT_STRS[8],ilisurHardFail,0,fPrice);
           // general fail, invalidate
-          ilurFail:             SetValues(IL_RESULLT_STRS[9],ilisurFatal,0,0);
+          ilurFail:             SetValues(IL_Format(IL_RESULT_STRS[9],[Updater.ErrorString]),ilisurFatal,0,0);
         else
-          SetValues(IL_RESULLT_STRS[10],ilisurFatal,0,0);
+          SetValues(IL_Format(IL_RESULT_STRS[10],[Ord(UpdaterResult)]),ilisurFatal,0,0);
         end;
         Dec(TryCounter);
       until (TryCounter <= 0) or not(UpdaterResult in [ilurFailDown,ilurFailParse]);
@@ -91,7 +89,7 @@ If not fUntracked then
   end
 else
   begin
-    SetValues(Format(IL_RESULLT_STRS[11],[fAvailable,fPrice]),ilisurMildSucc,fAvailable,fPrice);
+    SetValues(IL_Format(IL_RESULT_STRS[11],[fAvailable,fPrice]),ilisurMildSucc,fAvailable,fPrice);
     Result := True;
   end;
 end;

@@ -1,5 +1,4 @@
 unit InflatablesList_Data;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

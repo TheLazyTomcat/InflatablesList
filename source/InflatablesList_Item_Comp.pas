@@ -1,5 +1,4 @@
 unit InflatablesList_Item_Comp;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -20,7 +19,7 @@ type
 implementation
 
 uses
-  SysUtils, StrUtils,
+  SysUtils,
   AuxTypes, BitOps,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
@@ -47,33 +46,33 @@ var
 begin
 // search only in editable values
 Result :=
-  AnsiContainsText(TypeStr,Text) or
-  AnsiContainsText(fItemTypeSpec,Text) or
-  AnsiContainsText(Format('%dpcs',[fPieces]),Text) or
-  AnsiContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text) or
-  AnsiContainsText(fManufacturerStr,Text) or
-  AnsiContainsText(fTextID,Text) or
-  AnsiContainsText(IntToStr(fID),Text) or
-  AnsiContainsText(GetFlagsString,Text) or
-  AnsiContainsText(fTextTag,Text) or
-  AnsiContainsText(IntToStr(fNumTag),Text) or
-  AnsiContainsText(IntToStr(fWantedLevel),Text) or
-  AnsiContainsText(fVariant,Text) or
-  AnsiContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text) or
-  AnsiContainsText(Format('%dmm',[fSizeX]),Text) or
-  AnsiContainsText(Format('%dmm',[fSizeY]),Text) or
-  AnsiContainsText(Format('%dmm',[fSizeZ]),Text) or
-  AnsiContainsText(Format('%dg',[fUnitWeight]),Text) or
-  AnsiContainsText(Format('%dum',[fThickness]),Text) or
-  AnsiContainsText(fNotes,Text) or
-  AnsiContainsText(fReviewURL,Text) or
-  AnsiContainsText(fItemPictureFile,Text) or
-  AnsiContainsText(fSecondaryPictureFile,Text) or
-  AnsiContainsText(fPackagePictureFile,Text) or
-  AnsiContainsText(Format('%dKè',[fUnitPriceDefault]),Text) or
-  AnsiContainsText(Format('%d%%',[fRating]),Text);
+  IL_ContainsText(TypeStr,Text) or
+  IL_ContainsText(fItemTypeSpec,Text) or
+  IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text) or
+  IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text) or
+  IL_ContainsText(fManufacturerStr,Text) or
+  IL_ContainsText(fTextID,Text) or
+  IL_ContainsText(IntToStr(fID),Text) or
+  IL_ContainsText(GetFlagsString,Text) or
+  IL_ContainsText(fTextTag,Text) or
+  IL_ContainsText(IntToStr(fNumTag),Text) or
+  IL_ContainsText(IntToStr(fWantedLevel),Text) or
+  IL_ContainsText(fVariant,Text) or
+  IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text) or
+  IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text) or
+  IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text) or
+  IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text) or
+  IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text) or
+  IL_ContainsText(IL_Format('%dum',[fThickness]),Text) or
+  IL_ContainsText(fNotes,Text) or
+  IL_ContainsText(fReviewURL,Text) or
+  IL_ContainsText(fItemPictureFile,Text) or
+  IL_ContainsText(fSecondaryPictureFile,Text) or
+  IL_ContainsText(fPackagePictureFile,Text) or
+  IL_ContainsText(IL_Format('%dKè',[fUnitPriceDefault]),Text) or
+  IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
 If not Result and ShopsSelected(SelShop) then
-  Result := AnsiContainsText(SelShop.Name,Text);
+  Result := IL_ContainsText(SelShop.Name,Text);
 end;
 
 //------------------------------------------------------------------------------

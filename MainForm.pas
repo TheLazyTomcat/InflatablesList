@@ -369,7 +369,7 @@ If not fILManager.StaticOptions.NoSave then
   begin
     If not fILManager.StaticOptions.NoBackup then
       If FileExists(fILManager.StaticOptions.ListFile) then
-        DoBackup(fILManager.StaticOptions.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticOptions.ListPath + BACKUP_BACKUP_DIR_DEFAULT));
+        DoBackup(fILManager.StaticOptions.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticOptions.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
     fILManager.SaveToFile;
     FillListFileName;
     Result := True;

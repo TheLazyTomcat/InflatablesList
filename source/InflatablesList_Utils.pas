@@ -26,6 +26,9 @@ Function IL_Format(const FormatStr: String; Args: array of const): String; overl
 
 Function IL_StringOfChar(Ch: Char; Count: Integer): String;
 
+Function IL_UpperCase(const Str: String): String;
+Function IL_LowerCase(const Str: String): String;
+
 //==============================================================================
 //- comparison functions used in sorting ---------------------------------------
 
@@ -46,6 +49,9 @@ Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): S
 Function IL_PathAbsolute(const Base,Path: String): String;
 
 Function IL_ExtractFilePath(const FileName: String): String;
+Function IL_ExtractFileNameNoExt(const FileName: String): String;
+
+Function IL_ChangeFileExt(const FileName,NewExt: String): String;
 
 procedure IL_CreateDirectory(const Directory: String);
 procedure IL_CreateDirectoryPath(const Path: String);
@@ -152,6 +158,20 @@ end;
 Function IL_StringOfChar(Ch: Char; Count: Integer): String;
 begin
 Result := StringOfChar(Ch,Count);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_UpperCase(const Str: String): String;
+begin
+Result := AnsiUpperCase(Str);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_LowerCase(const Str: String): String;
+begin
+Result := AnsiLowerCase(Str);
 end;
 
 
@@ -317,6 +337,20 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function IL_ExtractFileNameNoExt(const FileName: String): String;
+begin
+Result := IL_ChangeFileExt(ExtractFileName(FileName),'');
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ChangeFileExt(const FileName,NewExt: String): String;
+begin
+Result := ChangeFileExt(FileName,NewExt);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure IL_CreateDirectory(const Directory: String);
 begin
 ForceDirectories(StrToRTL(Directory));
@@ -326,14 +360,14 @@ end;
 
 procedure IL_CreateDirectoryPath(const Path: String);
 begin
-IL_CreateDirectory(ExcludeTrailingPathDelimiter(StrToRTL(Path)));
+IL_CreateDirectory(RTLToStr(ExcludeTrailingPathDelimiter(StrToRTL(Path))));
 end;
 
 //------------------------------------------------------------------------------
 
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
 begin
-IL_CreateDirectory(ExtractFileDir(StrToRTL(FileName)));
+IL_CreateDirectory(RTLToStr(ExtractFileDir(StrToRTL(FileName))));
 end;
 
 //------------------------------------------------------------------------------

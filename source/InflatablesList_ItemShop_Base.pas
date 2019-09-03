@@ -1,5 +1,4 @@
 unit InflatablesList_ItemShop_Base;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -178,7 +177,7 @@ end;
 
 procedure TILItemShop_Base.SetName(const Value: String);
 begin
-If not AnsiSameStr(fName,Value) then
+If not IL_SameStr(fName,Value) then
   begin
     fName := Value;
     UniqueString(fName);
@@ -191,7 +190,7 @@ end;
 
 procedure TILItemShop_Base.SetShopURL(const Value: String);
 begin
-If not AnsiSameStr(fShopURL,Value) then
+If not IL_SameStr(fShopURL,Value) then
   begin
     fShopURL := Value;
     UniqueString(fShopURL);
@@ -202,7 +201,7 @@ end;
 
 procedure TILItemShop_Base.SetItemURL(const Value: String);
 begin
-If not AnsiSameStr(fItemURL,Value) then
+If not IL_SameStr(fItemURL,Value) then
   begin
     fItemURL := Value;
     UniqueString(fItemURL);
@@ -274,7 +273,7 @@ end;
 
 procedure TILItemShop_Base.SetNotes(const Value: String);
 begin
-If not AnsiSameStr(fNotes,Value) then
+If not IL_SameStr(fNotes,Value) then
   begin
     fNotes := Value;
     UniqueString(fNotes);
@@ -295,7 +294,7 @@ end;
 
 procedure TILItemShop_Base.SetLastUpdateMsg(const Value: String);
 begin
-If not AnsiSameStr(fLastUpdateMsg,Value) then
+If not IL_SameStr(fLastUpdateMsg,Value) then
   begin
     fLastUpdateMsg := Value;
     UniqueString(fLastUpdateMsg);
@@ -374,6 +373,7 @@ SetLength(fPriceHistory,0);
 fNotes := '';
 fParsingSettings := TILItemShopParsingSettings.Create;
 fParsingSettings.StaticOptions := fStaticOptions;
+fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := ilisurSuccess;
 fLastUpdateMsg := '';
 end;
@@ -421,8 +421,8 @@ var
 begin
 inherited Create;
 // do not call initialize
-fRequiredCount := Source.RequiredCount;
 fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fRequiredCount := Source.RequiredCount;
 fUpdateCounter := 0;
 fUpdated := [];
 // copy data...
@@ -439,7 +439,7 @@ fAvailable := Source.Available;
 fPrice := Source.Price;
 SetLength(fAvailHistory,Source.AvailHistoryEntryCount);
 For i := Low(fAvailHistory) to High(fAvailHistory) do
-  fAvailHistory[i] := Source.AvailHistoryEntries[i];
+  fAvailHistory[i] := Source.AvailHistoryEntries[i];  // no need to care for thread safety
 SetLength(fPriceHistory,Source.PriceHistoryEntryCount);
 For i := Low(fPriceHistory) to High(fPriceHistory) do
   fPriceHistory[i] := Source.PriceHistoryEntries[i];

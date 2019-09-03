@@ -1,5 +1,4 @@
 unit InflatablesList_Item_Draw;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -34,8 +33,8 @@ type
 implementation
 
 uses
-  SysUtils, Classes, Math,
-  AuxTypes,
+  SysUtils,
+  Classes, Math,
   InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
@@ -68,13 +67,13 @@ var
     WL_STRIP_COLORS: array[0..7] of TColor =
       (clWhite,$00FFB4D9,$00FF97CA,$00FF7CBD,$00FF60AF,$00FF44A1,$00FF2894,$00FF0C85);
   var
-    ii: UInt32;
+    ii: Integer;
   begin
     with fRender,fRender.Canvas do
       For ii := 7 downto 0 do
         begin
           Brush.Color := WL_STRIP_COLORS[ii];
-          If fWantedLevel >= ii then
+          If Integer(fWantedLevel) >= ii then
             Rectangle(0,Height - Trunc(Height * (ii / 7)),SIDE_STRIP_WIDTH,Height);
         end;
   end;
@@ -140,7 +139,7 @@ with fRender,fRender.Canvas do
 
     // title + count
     If fPieces > 1 then
-      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
+      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
     else
       TempStr := TitleStr;
     If ilifDiscarded in fFlags then
@@ -155,7 +154,7 @@ with fRender,fRender.Canvas do
     SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
     TempStr := SizeStr;
     If Length(TempStr) > 0 then
-      TextOut(SIDE_STRIP_WIDTH + 5,30,Format('%s - %s',[TypeStr,TempStr]))
+      TextOut(SIDE_STRIP_WIDTH + 5,30,IL_Format('%s - %s',[TypeStr,TempStr]))
     else
       TextOut(SIDE_STRIP_WIDTH + 5,30,TypeStr);
 
@@ -193,7 +192,7 @@ with fRender,fRender.Canvas do
     If fNumTag <> 0 then
       begin
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
-        TextOut(TempInt,Height - 25,Format('[%d]',[fNumTag]))
+        TextOut(TempInt,Height - 25,IL_Format('[%d]',[fNumTag]))
       end;
 
     // selected shop and available count
@@ -202,7 +201,7 @@ with fRender,fRender.Canvas do
     If ShopsSelected(SelShop) then
       begin
         If ShopCount > 1 then
-          TempStr := Format('%s (%s)',[SelShop.Name,ShopsCountStr])
+          TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
         else
           TempStr := SelShop.Name;
         TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
@@ -211,9 +210,9 @@ with fRender,fRender.Canvas do
         If fAvailableSelected <> 0 then
           begin
             If fAvailableSelected < 0 then
-              TempStr := Format('more than %d pcs',[Abs(fAvailableSelected)])
+              TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
             else
-              TempStr := Format('%d pcs',[fAvailableSelected]);
+              TempStr := IL_Format('%d pcs',[fAvailableSelected]);
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
             Inc(TempInt,17);
           end;
@@ -224,9 +223,9 @@ with fRender,fRender.Canvas do
     If TotalPrice > 0 then
       begin
         If fPieces > 1 then
-          TempStr := Format('%d (%d) Kè',[TotalPrice,UnitPrice])
+          TempStr := IL_Format('%d (%d) Kè',[TotalPrice,UnitPrice])
         else
-          TempStr := Format('%d Kè',[TotalPrice]);
+          TempStr := IL_Format('%d Kè',[TotalPrice]);
         TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
       end;
 
@@ -234,9 +233,9 @@ with fRender,fRender.Canvas do
     If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
       begin
         If fPieces > 1 then
-          TempStr := Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
+          TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
         else
-          TempStr := Format('%d Kè',[TotalPriceLowest]);
+          TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
         TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
       end;
 
@@ -290,7 +289,7 @@ with fRenderSmall,fRenderSmall.Canvas do
 
     // title + count
     If fPieces > 1 then
-      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
+      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
     else
       TempStr := TitleStr;
     If ilifDiscarded in fFlags then
@@ -305,7 +304,7 @@ with fRenderSmall,fRenderSmall.Canvas do
     SetCanvas;
     TempStr := SizeStr;
     If Length(TempStr) > 0 then
-      TextOut(SIDE_STRIP_WIDTH + 5,20,Format('%s - %s',[TypeStr,TempStr]))
+      TextOut(SIDE_STRIP_WIDTH + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
     else
       TextOut(SIDE_STRIP_WIDTH + 5,20,TypeStr);
 
@@ -317,7 +316,7 @@ with fRenderSmall,fRenderSmall.Canvas do
     SetCanvas;
     If fUnitPriceLowest > 0 then
       begin
-        TempStr := Format('%d Kè',[fUnitPriceLowest]);
+        TempStr := IL_Format('%d Kè',[fUnitPriceLowest]);
         TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
       end;
 
@@ -327,7 +326,7 @@ with fRenderSmall,fRenderSmall.Canvas do
     If Length(fTextTag) > 0 then
       TempStr := fTextTag;
     If fNumTag <> 0 then
-      TempStr := Format('%s [%d]',[TempStr,fNumTag]);
+      TempStr := IL_Format('%s [%d]',[TempStr,fNumTag]);
     If Length(TempStr) > 0 then
       TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
 
@@ -425,7 +424,7 @@ If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) 
     fRender.Height := fMainHeight;
     fRender.Canvas.Font.Assign(MainList.Font);
     ReDrawMain;
-    inherited UpdateMainList;   // so redraw is not called again
+    inherited UpdateMainList; // call inherited code so ReDrawMain is not called again
   end;
 If (fSmallWidth <> SmallList.ClientWidth) or (fSmallHeight <> SmallList.ItemHeight) then
   begin

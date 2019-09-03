@@ -1,5 +1,4 @@
 unit InflatablesList_Item_Utils;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -36,7 +35,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
 
 Function TILItem_Utils.TitleStr: String;
 begin
@@ -51,7 +51,7 @@ else Result := fDataProvider.ItemManufacturers[fManufacturer].Str;
 If Length(IDStr) <> 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s %s',[Result,IDStr])
+      Result := IL_Format('%s %s',[Result,IDStr])
     else
       Result := IDStr;
   end;
@@ -64,7 +64,7 @@ begin
 If not(fItemType in [ilitUnknown,ilitOther]) then
   begin
     If Length(fItemTypeSpec) > 0 then
-      Result := Format('%s (%s)',[fDataProvider.GetItemTypeString(fItemType),fItemTypeSpec])
+      Result := IL_Format('%s (%s)',[fDataProvider.GetItemTypeString(fItemType),fItemTypeSpec])
     else
       Result := fDataProvider.GetItemTypeString(fItemType);
   end
@@ -112,23 +112,23 @@ Function TILItem_Utils.SizeStr: String;
 begin
 Result := '';
 If fSizeX > 0 then
-  Result := Format('%g',[fSizeX / 10]);
+  Result := IL_Format('%g',[fSizeX / 10]);
 If fSizeY > 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s x %g',[Result,fSizeY / 10])
+      Result := IL_Format('%s x %g',[Result,fSizeY / 10])
     else
-      Result := Format('%g',[fSizeY / 10]);
+      Result := IL_Format('%g',[fSizeY / 10]);
   end;
 If fSizeZ > 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s x %g',[Result,fSizeZ / 10])
+      Result := IL_Format('%s x %g',[Result,fSizeZ / 10])
     else
-      Result := Format('%g',[fSizeZ / 10]);
+      Result := IL_Format('%g',[fSizeZ / 10]);
   end;
 If Length(Result) > 0 then
-  Result := Format('%s cm',[Result]);
+  Result := IL_Format('%s cm',[Result]);
 end;
 
 //------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ end;
 Function TILItem_Utils.TotalWeightStr: String;
 begin
 If TotalWeight > 0 then
-  Result := Format('%g kg',[TotalWeight / 1000])
+  Result := IL_Format('%g kg',[TotalWeight / 1000])
 else
   Result := '';
 end;
@@ -213,7 +213,7 @@ end;
 Function TILItem_Utils.ShopsCountStr: String;
 begin
 If ShopsUsefulCount <> ShopCount then
-  Result := Format('%d/%d',[ShopsUsefulCount,ShopCount])
+  Result := IL_Format('%d/%d',[ShopsUsefulCount,ShopCount])
 else
   Result := IntToStr(ShopCount);
 end;

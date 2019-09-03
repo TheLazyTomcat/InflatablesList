@@ -1,14 +1,14 @@
 unit InflatablesList_Backup;
-{$message 'll_rework'}
+{$message 'will be totally reworked later'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 const
-  BACKUP_MAX_DEPTH_DEFAULT  = 25;
-  BACKUP_UTILFILENAME       = 'backups.ini';
-  BACKUP_BACKUP_DIR_DEFAULT = 'list_backup';
+  IL_BACKUP_MAX_DEPTH_DEFAULT  = 25;
+  IL_BACKUP_UTILFILENAME       = 'backups.ini';
+  IL_BACKUP_BACKUP_DIR_DEFAULT = 'list_backup';
 
 procedure DoBackup(const FileName,BackupPath: String);
 
@@ -62,7 +62,7 @@ var
   Temp: String;
 begin
 SetLength(fBackups,0);
-Ini := TIniFile.Create(fBackupPath + BACKUP_UTILFILENAME);
+Ini := TIniFile.Create(fBackupPath + IL_BACKUP_UTILFILENAME);
 try
   For i := 0 to Pred(Ini.ReadInteger('Backups','Count',0)) do
     If Ini.ValueExists('Backups',Format('Backup[%d]',[i])) then
@@ -88,14 +88,14 @@ var
   Ini:    TIniFile;
 begin
 // traverse list of backup files and delete all above depth limit
-For i := BACKUP_MAX_DEPTH_DEFAULT to High(fBackups) do
+For i := IL_BACKUP_MAX_DEPTH_DEFAULT to High(fBackups) do
   If FileExists(fBackupPath + fBackups[i]) then
     DeleteFile(fBackupPath + fBackups[i]);
 // truncate the list
-If Length(fBackups) > BACKUP_MAX_DEPTH_DEFAULT then
-  SetLength(fBackups,BACKUP_MAX_DEPTH_DEFAULT);
+If Length(fBackups) > IL_BACKUP_MAX_DEPTH_DEFAULT then
+  SetLength(fBackups,IL_BACKUP_MAX_DEPTH_DEFAULT);
 // save the list
-Ini := TIniFile.Create(fBackupPath + BACKUP_UTILFILENAME);
+Ini := TIniFile.Create(fBackupPath + IL_BACKUP_UTILFILENAME);
 try
   Ini.WriteInteger('Backups','Count',Length(fBackups));
   For i := Low(fBackups) to High(fBackups) do

@@ -354,9 +354,9 @@ object fMainForm: TfMainForm
       Caption = 'Worst update result mark colors...'
       OnClick = mniLM_ResMarkLegendClick
     end
-    object mniLM_OptionsLegend: TMenuItem
-      Caption = 'Options tag legend...'
-      OnClick = mniLM_OptionsLegendClick
+    object mniLM_SettingsLegend: TMenuItem
+      Caption = 'Settings tag legend...'
+      OnClick = mniLM_SettingsLegendClick
     end
     object mniLM_About: TMenuItem
       Caption = 'About the program...'

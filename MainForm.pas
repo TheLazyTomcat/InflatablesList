@@ -61,7 +61,7 @@ type
     mniLM_Specials: TMenuItem;
     N9: TMenuItem;
     mniLM_ResMarkLegend: TMenuItem;
-    mniLM_OptionsLegend: TMenuItem;
+    mniLM_SettingsLegend: TMenuItem;
     mniLM_About: TMenuItem;    
     N10: TMenuItem;
     mniLM_Exit: TMenuItem;
@@ -160,7 +160,7 @@ type
     procedure mniLM_SaveClick(Sender: TObject);
     // ---    
     procedure mniLM_ResMarkLegendClick(Sender: TObject);
-    procedure mniLM_OptionsLegendClick(Sender: TObject);
+    procedure mniLM_SettingsLegendClick(Sender: TObject);
     procedure mniLM_AboutClick(Sender: TObject);    
     // ---
     procedure mniLM_ExitClick(Sender: TObject);
@@ -236,7 +236,7 @@ uses
   WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
-  OptionsLegendForm, AboutForm, PromptForm,
+  SettingsLegendForm, AboutForm, PromptForm,
   InflatablesList_Types,
   InflatablesList_Backup,
   InflatablesList_Item;
@@ -244,11 +244,11 @@ uses
 {$R *.dfm}
 
 const
-  STATUSBAR_PANEL_IDX_INDEX       = 0;
-  STATUSBAR_PANEL_IDX_STATIC_OPTS = 1;
-  STATUSBAR_PANEL_IDX_OPTIONS     = 2;
-  STATUSBAR_PANEL_IDX_FILENAME    = 3;
-  STATUSBAR_PANEL_IDX_COPYRIGHT   = 4;
+  STATUSBAR_PANEL_IDX_INDEX        = 0;
+  STATUSBAR_PANEL_IDX_STATIC_SETT  = 1;
+  STATUSBAR_PANEL_IDX_DYNAMIC_SETT = 2;
+  STATUSBAR_PANEL_IDX_FILENAME     = 3;
+  STATUSBAR_PANEL_IDX_COPYRIGHT    = 4;
 
 //==============================================================================
 
@@ -305,15 +305,15 @@ end;
 
 procedure TfMainForm.FillListFileName;
 begin
-If sbStatusBar.Canvas.TextWidth(fILManager.StaticOptions.ListFile) >
+If sbStatusBar.Canvas.TextWidth(fILManager.StaticSettings.ListFile) >
   (sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width - (2 * GetSystemMetrics(SM_CXFIXEDFRAME))) then
   begin
     sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text :=
-      MinimizeName(fILManager.StaticOptions.ListFile,sbStatusBar.Canvas,
+      MinimizeName(fILManager.StaticSettings.ListFile,sbStatusBar.Canvas,
         sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width -
         (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
   end
-else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticOptions.ListFile;
+else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticSettings.ListFile;
 end;
 
 //------------------------------------------------------------------------------
@@ -365,11 +365,11 @@ end;
 Function TfMainForm.SaveList: Boolean;
 begin
 Result := False;
-If not fILManager.StaticOptions.NoSave then
+If not fILManager.StaticSettings.NoSave then
   begin
-    If not fILManager.StaticOptions.NoBackup then
-      If FileExists(fILManager.StaticOptions.ListFile) then
-        DoBackup(fILManager.StaticOptions.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticOptions.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
+    If not fILManager.StaticSettings.NoBackup then
+      If FileExists(fILManager.StaticSettings.ListFile) then
+        DoBackup(fILManager.StaticSettings.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticSettings.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
     fILManager.SaveToFile;
     FillListFileName;
     Result := True;
@@ -420,7 +420,7 @@ fSelectionForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
 fItemSelectForm.Initialize(fIlManager);
 fUpdResLegendForm.Initialize(fIlManager);
-fOptionsLegendForm.Initialize(fIlManager);
+fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
 end;
 
@@ -440,7 +440,7 @@ fOverviewForm.Finalize;
 //fUpdateForm.Finalize;
 fItemSelectForm.Finalize;
 fUpdResLegendForm.Finalize;
-fOptionsLegendForm.Finalize;
+fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
 end;
 
@@ -1236,9 +1236,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_OptionsLegendClick(Sender: TObject);
+procedure TfMainForm.mniLM_SettingsLegendClick(Sender: TObject);
 begin
-fOptionsLegendForm.ShowLegend;
+fSettingsLegendForm.ShowLegend;
 end;
 
 //------------------------------------------------------------------------------
@@ -1392,28 +1392,28 @@ var
 
 begin
 case Panel.Index of
-  STATUSBAR_PANEL_IDX_STATIC_OPTS:
+  STATUSBAR_PANEL_IDX_STATIC_SETT:
     with sbStatusBar.Canvas do
       begin
         TempInt := 0;
-        For i := Low(IL_STATIC_OPTIONS_TAGS) to High(IL_STATIC_OPTIONS_TAGS) do
-          If i < High(IL_STATIC_OPTIONS_TAGS) then
-            Inc(TempInt,TextWidth(IL_STATIC_OPTIONS_TAGS[i]) + STAT_OPTS_SPC)
+        For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
+          If i < High(IL_STATIC_SETTINGS_TAGS) then
+            Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]) + STAT_OPTS_SPC)
           else
-            Inc(TempInt,TextWidth(IL_STATIC_OPTIONS_TAGS[i]));
+            Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]));
         TempInt := Rect.Left + (Rect.Right - Rect.Left - TempInt) div 2;
         Brush.Style := bsClear;
         Pen.Style := psClear;           
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[0],TempInt,fILManager.StaticOptions.NoPictures,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[1],TempInt,fILManager.StaticOptions.TestCode,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[2],TempInt,fILManager.StaticOptions.SavePages,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[3],TempInt,fILManager.StaticOptions.LoadPages,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[4],TempInt,fILManager.StaticOptions.NoSave,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[5],TempInt,fILManager.StaticOptions.NoBackup,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[6],TempInt,fILManager.StaticOptions.NoUpdateAutoLog,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_OPTIONS_TAGS[7],TempInt,fILManager.StaticOptions.ListOverride,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[0],TempInt,fILManager.StaticSettings.NoPictures,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[1],TempInt,fILManager.StaticSettings.TestCode,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[2],TempInt,fILManager.StaticSettings.SavePages,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[3],TempInt,fILManager.StaticSettings.LoadPages,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[4],TempInt,fILManager.StaticSettings.NoSave,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,STAT_OPTS_SPC);
+        DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,STAT_OPTS_SPC);
       end;
-  STATUSBAR_PANEL_IDX_OPTIONS:
+  STATUSBAR_PANEL_IDX_DYNAMIC_SETT:
     with sbStatusBar.Canvas do
       begin
         TempInt := Rect.Left + (Rect.Right - Rect.Left - TextWidth('s.rev')) div 2;
@@ -1450,8 +1450,8 @@ If Button = mbLeft then
             Break{For i};
           end;
     case Index of
-      STATUSBAR_PANEL_IDX_STATIC_OPTS,
-      STATUSBAR_PANEL_IDX_OPTIONS:      mniLM_OptionsLegend.OnClick(nil);
+      STATUSBAR_PANEL_IDX_STATIC_SETT,
+      STATUSBAR_PANEL_IDX_DYNAMIC_SETT: mniLM_SettingsLegend.OnClick(nil);
       STATUSBAR_PANEL_IDX_COPYRIGHT:    mniLM_About.OnClick(nil);
     end;
   end;

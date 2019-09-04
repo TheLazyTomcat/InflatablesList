@@ -13,7 +13,7 @@ type
   TILItemShopTemplate_Base = class(TObject)
   protected
     // internals
-    fStaticOptions:   TILStaticManagerOptions;
+    fStaticSettings:  TILStaticManagerSettings;
     // data
     fName:            String;
     fShopName:        String;
@@ -21,7 +21,7 @@ type
     fAltDownMethod:   Boolean;
     fShopURL:         String;
     fParsingSettings: TILItemShopParsingSettings;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     // data setters
     procedure SetName(const Value: String); virtual;
     procedure SetShopName(const Value: String); virtual;
@@ -37,7 +37,7 @@ type
     constructor Create(BaseOn: TILItemShop); overload;
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property Name: String read fName write SetName;
     property ShopName: String read fShopName write SetShopName;
     property Untracked: Boolean read fUntracked write SetUntracked;
@@ -51,10 +51,10 @@ implementation
 uses
   SysUtils;
 
-procedure TILItemShopTemplate_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+procedure TILItemShopTemplate_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
-fParsingSettings.StaticOptions := fStaticOptions;
+fStaticSettings := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticSettings := fStaticSettings;
 end;
 
 //------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ end;
 
 procedure TILItemShopTemplate_Base.Initialize;
 begin
-FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
 InitializeData;
 end;
 
@@ -159,7 +159,7 @@ constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
 inherited Create;
 // do not call initialize
-fStaticOptions := IL_ThreadSafeCopy(BaseOn.StaticOptions);
+fStaticSettings := IL_ThreadSafeCopy(BaseOn.StaticSettings);
 fName := BaseOn.Name;
 UniqueString(fName);
 fShopName := BaseOn.Name;

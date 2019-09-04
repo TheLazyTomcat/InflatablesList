@@ -156,7 +156,9 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //==============================================================================
 //- searching ------------------------------------------------------------------
 
+{$IFDEF DevelMsgs}
 {$message 'wip'}
+{$endif}
 type
   TILSrcResItemValue = (srifNone);
   TILSrcResShopValue = (srsfNone);
@@ -263,14 +265,14 @@ type
   TILSumsArray = array of TILSumRec;
 
 //==============================================================================
-//- command-line options -------------------------------------------------------
+//- static settings ------------------------------------------------------------
 
 const
-  IL_STATIC_OPTIONS_TAGS: array[0..7] of String =
+  IL_STATIC_SETTINGS_TAGS: array[0..7] of String =
     ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
 
 type
-  TILStaticManagerOptions = record
+  TILStaticManagerSettings = record
     // command-line options
     NoPictures:       Boolean;
     TestCode:         Boolean;
@@ -286,7 +288,7 @@ type
     ListFile:         String; // file, where the list will be saved, or was loaded from
   end;
 
-Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions; overload;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings; overload;
 
 implementation
 
@@ -989,9 +991,9 @@ IL_SetFilterSettingsFlagValue(Result,ilffDiscardedClr,GetFlagState(Flags,$200000
 end;
 
 //==============================================================================
-//- static options -------------------------------------------------------------
+//- static settings ------------------------------------------------------------
 
-Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings;
 begin
 Result := Value;
 UniqueString(Result.DefaultPath);

@@ -70,7 +70,7 @@ uses
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
   ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
-  OptionsLegendForm in 'OptionsLegendForm.pas' {fOptionsLegendForm},
+  SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm};
 
@@ -92,7 +92,7 @@ begin
   Application.CreateForm(TfUpdateForm, fUpdateForm);
   Application.CreateForm(TfItemSelectForm, fItemSelectForm);
   Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
-  Application.CreateForm(TfOptionsLegendForm, fOptionsLegendForm);
+  Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
   Application.CreateForm(TfAboutForm, fAboutForm);
   // do not automatically create prompt form
   fMainForm.InitializeOtherForms; // must be run after create but before show

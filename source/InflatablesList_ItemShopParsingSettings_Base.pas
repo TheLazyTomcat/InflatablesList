@@ -13,7 +13,7 @@ type
   TILItemShopParsingSettings_Base = class(TObject)
   protected
     // internals
-    fStaticOptions:   TILStaticManagerOptions;
+    fStaticSettings:  TILStaticManagerSettings;
     fRequiredCount:   UInt32;    
     // data
     fVariables:       TILItemShopParsingVariables;
@@ -23,7 +23,7 @@ type
     fAvailFinder:     TILElementFinder;
     fPriceExtrSetts:  TILItemShopParsingExtrSettList;
     fPriceFinder:     TILElementFinder;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     procedure SetRequiredCount(Value: Uint32); virtual;
     // data getters and setters
     Function GetVariableCount: Integer; virtual;
@@ -54,7 +54,7 @@ type
     procedure PriceExtractionSettingsDelete(Index: Integer); virtual;
     procedure PriceExtractionSettingsClear; virtual;
     // properties
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
     // data
     property VariableCount: Integer read GetVariableCount;
@@ -75,9 +75,9 @@ implementation
 uses
   SysUtils;
 
-procedure TILItemShopParsingSettings_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+procedure TILItemShopParsingSettings_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
+fStaticSettings := IL_ThreadSafeCopy(Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ end;
 
 procedure TILItemShopParsingSettings_Base.Initialize;
 begin
-FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
 fRequiredCount := 1;
 InitializeData;
 end;
@@ -255,7 +255,7 @@ var
 begin
 inherited Create;
 // copy fields
-fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 fRequiredCount := Source.RequiredCount;
 // copy data
 fVariables := IL_ThreadSafeCopy(Source.VariablesRec);

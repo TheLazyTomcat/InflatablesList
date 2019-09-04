@@ -311,7 +311,7 @@ var
 
   Function CallDownload: Boolean;
   begin
-    If not fShopObject.StaticOptions.LoadPages then
+    If not fShopObject.StaticSettings.LoadPages then
       begin
         If AlternativeDownload then
           Result := IL_WGETDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode)
@@ -332,8 +332,8 @@ var
 begin
 SetLength(AvailNodes,0);
 SetLength(PriceNodes,0);
-OfflineFile := fShopObject.StaticOptions.ListPath +
-  IL_ExtractFileNameNoExt(fShopObject.StaticOptions.ListFile) + '_saved_pages\' +
+OfflineFile := fShopObject.StaticSettings.ListPath +
+  IL_ExtractFileNameNoExt(fShopObject.StaticSettings.ListFile) + '_saved_pages\' +
   IL_UpperCase(CRC32ToStr(WideStringCRC32(StrToUnicode(fShopObject.ItemURL))));
 If Length(fShopObject.ItemURL) > 0 then
   begin
@@ -345,9 +345,9 @@ If Length(fShopObject.ItemURL) > 0 then
         fDownStream.Clear;
         If CallDownload then
           begin
-            If fShopObject.StaticOptions.TestCode then
-              fDownStream.SaveToFile(StrToRTL(fShopObject.StaticOptions.ListPath + 'page.txt'));
-            If fShopObject.StaticOptions.SavePages then
+            If fShopObject.StaticSettings.TestCode then
+              fDownStream.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'page.txt'));
+            If fShopObject.StaticSettings.SavePages then
               begin
                 IL_CreateDirectoryPathForFile(OfflineFile);
                 fDownStream.SaveToFile(StrToRTL(OfflineFile));
@@ -361,12 +361,12 @@ If Length(fShopObject.ItemURL) > 0 then
                 Parser.Run; // whole parsing
                 Document := Parser.GetDocument;
                 try
-                  If fShopObject.StaticOptions.TestCode then
+                  If fShopObject.StaticSettings.TestCode then
                     begin
                       ElementList := TStringList.Create;
                       try
                         Document.List(ElementList);
-                        ElementList.SaveToFile(StrToRTL(fShopObject.StaticOptions.ListPath + 'elements.txt'));
+                        ElementList.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'elements.txt'));
                       finally
                         ElementList.Free;
                       end;

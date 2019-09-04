@@ -21,7 +21,7 @@ type
   protected
     fDataProvider:          TILDataProvider;
     fOwnsDataProvider:      Boolean;
-    fStaticOptions:         TILStaticManagerOptions;
+    fStaticSettings:        TILStaticManagerSettings;
     fIndex:                 Integer;  // used in sorting
     fRender:                TBitmap;
     fRenderSmall:           TBitmap;
@@ -43,7 +43,9 @@ type
     fOnValuesUpdate:        TNotifyEvent;
     fOnShopListUpdate:      TNotifyEvent;
     // item flags and internal data
+  {$IFDEF DevelMsgs}
     {$message 'implement encryption'}
+  {$ENDIF}
   {
     - decryption if individual items or all of them
     - list-wide password
@@ -124,7 +126,7 @@ type
     // shops
     fShopCount:             Integer;
     fShops:                 array of TILItemShop;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     procedure SetIndex(Value: Integer); virtual;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
@@ -233,7 +235,7 @@ type
       ShopListUpdate:       TNotifyEvent); virtual;
     procedure ClearInternalEvents; virtual;
     // properties
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;    
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;    
     property Index: Integer read fIndex write SetIndex;
     property Render: TBitmap read fRender;
     property RenderSmall: TBitmap read fRenderSmall;
@@ -285,13 +287,13 @@ uses
   SysUtils,
   InflatablesList_Utils;
 
-procedure TILItem_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+procedure TILItem_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 var
   i:  Integer;
 begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
+fStaticSettings := IL_ThreadSafeCopy(Value);
 For i := ShopLowIndex to ShopHighIndex do
-  fShops[i].StaticOptions := fStaticOptions;
+  fShops[i].StaticSettings := fStaticSettings;
 end;
 
 //------------------------------------------------------------------------------
@@ -960,7 +962,7 @@ end;
 
 procedure TILItem_Base.Initialize;
 begin
-FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
 fIndex := -1;
 fRender := TBitmap.Create;
 fRender.PixelFormat := pf24bit;
@@ -1008,7 +1010,7 @@ var
   i:  Integer;
 begin
 Create(DataProvider);
-fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 // do not copy time of addition and UID
 If CopyPics then
   begin
@@ -1080,7 +1082,8 @@ fShopCount := Source.ShopCount;
 For i := Low(fShops) to High(fShops) do
   begin
     fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
-    fShops[i].StaticOptions := fStaticOptions;
+    fShops[i].StaticSettings := fStaticSettings;
+    fShops[i].RequiredCount := fPieces;
     fShops[i].AssignInternalEvents(
       ShopClearSelectedHandler,
       ShopUpdateOverviewHandler,
@@ -1211,7 +1214,8 @@ begin
 Grow;
 Result := fShopCount;
 fShops[Result] := TILItemShop.Create;
-fShops[Result].StaticOptions := fStaticOptions;
+fShops[Result].StaticSettings := fStaticSettings;
+fShops[Result].RequiredCount := fPieces;
 fShops[Result].AssignInternalEvents(
   ShopClearSelectedHandler,
   ShopUpdateOverviewHandler,

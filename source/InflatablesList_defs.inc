@@ -1,1 +1,1 @@
-{$DEFINE DevelMsgs}
+{.$DEFINE DevelMsgs}

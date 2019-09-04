@@ -156,7 +156,7 @@ try
           For i := 0 to Pred(Result) do
             begin
               fList[fCount + i] := TILItem.Create(fDataProvider);
-              fList[fCount + i].StaticOptions := fStaticOptions;
+              fList[fCount + i].StaticSettings:= fStaticSettings;
               fList[fCount + i].LoadFromStream(FileStream);
               fList[fCount + i].ResetTimeOfAddition;
               fList[fCount + i].Index := i;
@@ -222,8 +222,8 @@ try
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
-  IL_CreateDirectoryPathForFile(fStaticOptions.ListFile);
-  FileStream.SaveToFile(StrToRTL(fStaticOptions.ListFile));
+  IL_CreateDirectoryPathForFile(fStaticSettings.ListFile);
+  FileStream.SaveToFile(StrToRTL(fStaticSettings.ListFile));
 finally
   FileStream.Free;
 end;
@@ -235,11 +235,11 @@ procedure TILManager_IO.LoadFromFile;
 var
   FileStream: TMemoryStream;
 begin
-If IL_FileExists(fStaticOptions.ListFile) then
+If IL_FileExists(fStaticSettings.ListFile) then
   begin
     FileStream := TMemoryStream.Create;
     try
-      FileStream.LoadFromFile(StrToRTL(fStaticOptions.ListFile));
+      FileStream.LoadFromFile(StrToRTL(fStaticSettings.ListFile));
       FileStream.Seek(0,soBeginning);
       LoadFromStream(FileStream);
     finally
@@ -266,9 +266,9 @@ procedure TILManager_IO.PreloadFile;
 var
   FileStream: TFileStream;
 begin
-If IL_FileExists(fStaticOptions.ListFile) then
+If IL_FileExists(fStaticSettings.ListFile) then
   begin
-    FileStream := TFileStream.Create(StrToRTL(fStaticOptions.ListFile),fmOpenRead or fmShareDenyWrite);
+    FileStream := TFileStream.Create(StrToRTL(fStaticSettings.ListFile),fmOpenRead or fmShareDenyWrite);
     try
       FileStream.Seek(0,soBeginning);
       PreloadStream(FileStream);

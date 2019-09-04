@@ -89,7 +89,7 @@ begin
 SetLength(fShopTemplates,Length(fShopTemplates) + 1);
 Result := High(fShopTemplates);
 fShopTemplates[Result] := TILItemShopTemplate.Create(Shop);
-fShopTemplates[Result].StaticOptions := fStaticOptions;
+fShopTemplates[Result].StaticSettings := fStaticSettings;
 fShopTemplates[Result].Name := Name;
 end;
 
@@ -176,7 +176,7 @@ Result := High(fShopTemplates);
 fShopTemplates[Result] := TILItemShopTemplate.Create;
 try
   fShopTemplates[Result].LoadFromFile(FileName);
-  fShopTemplates[Result].StaticOptions := fStaticOptions;
+  fShopTemplates[Result].StaticSettings := fStaticSettings;
 except
   fShopTemplates[Result].Free;
   SetLength(fShopTemplates,Length(fShopTemplates) - 1);

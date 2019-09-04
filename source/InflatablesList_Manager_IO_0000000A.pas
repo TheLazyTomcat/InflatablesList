@@ -1,5 +1,7 @@
 unit InflatablesList_Manager_IO_0000000A;
+{$IFDEF DevelMsgs}
 {$message 'will be totally reworked later'}
+{$endif}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

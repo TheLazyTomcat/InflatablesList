@@ -15,7 +15,7 @@ uses
 type
   TILManager_Base = class(TCustomListObject)
   protected
-    fStaticOptions: TILStaticManagerOptions;  // not changed at runtime
+    fStaticSettings: TILStaticManagerSettings;  // not changed at runtime
     fDataProvider:  TILDataProvider;
     fSorting:       Boolean;                  // used only during sorting to disable reindexing
     fUpdateCounter: Integer;
@@ -67,8 +67,8 @@ type
     procedure UpdateSmallList; virtual;
     procedure UpdateOverview; virtual;    
     // inits/finals
-    procedure InitializeStaticOptions; virtual;
-    procedure FinalizeStaticOptions; virtual;
+    procedure InitializeStaticSettings; virtual;
+    procedure FinalizeStaticSettings; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // other
@@ -98,7 +98,7 @@ type
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions;    
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
     property DataProvider: TILDataProvider read fDataProvider;
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
@@ -298,37 +298,37 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.InitializeStaticOptions;
+procedure TILManager_Base.InitializeStaticSettings;
 var
   CommandData:    TCLPParameter;
   CMDLineParser:  TCLPParser;
 begin
 CMDLineParser := TCLPParser.Create;
 try
-  fStaticOptions.NoPictures := CMDLineParser.CommandPresent('no_pics');
-  fStaticOptions.TestCode := CMDLineParser.CommandPresent('test_code');
-  fStaticOptions.SavePages := CMDLineParser.CommandPresent('save_pages');
-  fStaticOptions.LoadPages := CMDLineParser.CommandPresent('load_pages');
-  fStaticOptions.NoSave := CMDLineParser.CommandPresent('no_save');
-  fStaticOptions.NoBackup := CMDLineParser.CommandPresent('no_backup');
-  fStaticOptions.NoUpdateAutoLog := CMDLineParser.CommandPresent('no_updlog');
+  fStaticSettings.NoPictures := CMDLineParser.CommandPresent('no_pics');
+  fStaticSettings.TestCode := CMDLineParser.CommandPresent('test_code');
+  fStaticSettings.SavePages := CMDLineParser.CommandPresent('save_pages');
+  fStaticSettings.LoadPages := CMDLineParser.CommandPresent('load_pages');
+  fStaticSettings.NoSave := CMDLineParser.CommandPresent('no_save');
+  fStaticSettings.NoBackup := CMDLineParser.CommandPresent('no_backup');
+  fStaticSettings.NoUpdateAutoLog := CMDLineParser.CommandPresent('no_updlog');
   // note that list_override also disables backups (equivalent to no_backup)
-  fStaticOptions.ListOverride := False;
-  fStaticOptions.ListPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
-  fStaticOptions.ListFile := fStaticOptions.ListPath + DEFAULT_LIST_FILENAME;
+  fStaticSettings.ListOverride := False;
+  fStaticSettings.ListPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
+  fStaticSettings.ListFile := fStaticSettings.ListPath + DEFAULT_LIST_FILENAME;
   If CMDLineParser.CommandPresent('list_override') then
     begin
       CMDLineParser.GetCommandData('list_override',CommandData);
       If Length(CommandData.Arguments) > 0 then
         begin
-          fStaticOptions.NoBackup := True;        
-          fStaticOptions.ListOverride := True;
-          fStaticOptions.ListFile := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
-          fStaticOptions.ListPath := ExtractFilePath(fStaticOptions.ListFile);
+          fStaticSettings.NoBackup := True;        
+          fStaticSettings.ListOverride := True;
+          fStaticSettings.ListFile := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
+          fStaticSettings.ListPath := ExtractFilePath(fStaticSettings.ListFile);
         end;
     end;
   // other static option
-  fStaticOptions.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
+  fStaticSettings.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
 finally
   CMDLineParser.Free;
 end;
@@ -336,7 +336,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.FinalizeStaticOptions;
+procedure TILManager_Base.FinalizeStaticSettings;
 begin
 // do nothing
 end;
@@ -345,7 +345,7 @@ end;
 
 procedure TILManager_Base.Initialize;
 begin
-InitializeStaticOptions;
+InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;
 fSorting := False;
 fUpdateCounter := 0;
@@ -366,7 +366,7 @@ begin
 ItemClear;
 SetLength(fList,0);
 FreeAndNil(fDataProvider);
-FinalizeStaticOptions;
+FinalizeStaticSettings;
 end;
 
 //------------------------------------------------------------------------------
@@ -463,7 +463,7 @@ Grow;
 Result := fCount;
 fList[Result] := TILItem.Create(fDataProvider);
 fList[Result].Index := Result;
-fList[Result].StaticOptions := fStaticOptions;
+fList[Result].StaticSettings := fStaticSettings;
 fList[Result].AssignInternalEvents(
   ShopUpdateShopListItemHandler,
   ShopUpdateValuesHandler,
@@ -491,7 +491,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     Result := fCount;
     fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
     fList[Result].Index := Result;
-    // static options are copied in item constructor
+    // static Settings are copied in item constructor
     fList[Result].AssignInternalEvents(
       ShopUpdateShopListItemHandler,
       ShopUpdateValuesHandler,

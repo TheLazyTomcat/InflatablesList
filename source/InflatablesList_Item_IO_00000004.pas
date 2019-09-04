@@ -151,7 +151,7 @@ fShopCount := Length(fShops);
 For i := ShopLowIndex to ShopHighIndex do
   begin
     fShops[i] := TILItemShop.Create;
-    fShops[i].StaticOptions := fStaticOptions;    
+    fShops[i].StaticSettings := fStaticSettings;    
     fShops[i].LoadFromStream(Stream);
     fShops[i].AssignInternalEvents(
       ShopClearSelectedHandler,

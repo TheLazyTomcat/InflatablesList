@@ -189,6 +189,7 @@ If IL_SameStr(Stream_ReadString(Stream),'TEMPLATES') then
     For i := 0 to Pred(ShopTemplateCount) do
       begin
         fShopTemplates[i] := TILItemShopTemplate.Create;
+        fShopTemplates[i].StaticSettings := fStaticSettings;
         fShopTemplates[i].LoadFromStream(Stream);
       end;
   end
@@ -242,8 +243,8 @@ If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
     For i := ItemLowIndex to ItemHighIndex do
       begin
         fList[i] := TILItem.Create(fDataProvider);
-        // StaticOptions must be set must be before load so it is propagated to item shops
-        fList[i].StaticOptions := fStaticOptions;
+        // StaticSettings must be set must be before load so it is propagated to item shops
+        fList[i].StaticSettings := fStaticSettings;
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
         fList[i].AssignInternalEvents(

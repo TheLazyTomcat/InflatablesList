@@ -240,7 +240,7 @@ with fRender,fRender.Canvas do
       end;
 
     // main picture
-    If Assigned(fItemPicture) and not StaticOptions.NoPictures then
+    If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
       Draw(Width - 103,5,fItemPicture)
     else
       Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
@@ -331,7 +331,7 @@ with fRenderSmall,fRenderSmall.Canvas do
       TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
 
     // picture
-    If Assigned(fItemPictureSmall) and not StaticOptions.NoPictures then
+    If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
       Draw(Width - 54,2,fItemPictureSmall)
     else
       Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);

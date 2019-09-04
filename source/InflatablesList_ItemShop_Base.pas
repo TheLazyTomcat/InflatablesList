@@ -18,7 +18,7 @@ type
   TILItemShop_Base = class(TObject)
   protected
     // internals
-    fStaticOptions:         TILStaticManagerOptions;
+    fStaticSettings:        TILStaticManagerSettings;
     fRequiredCount:         UInt32;   // used internally in updates, ignored otherwise
     fUpdateCounter:         Integer;
     fUpdated:               TILItemShopUpdateFlags;
@@ -46,7 +46,7 @@ type
     fLastUpdateRes:         TILItemShopUpdateResult;
     fLastUpdateMsg:         String;
     procedure SetRequiredCount(Value: UInt32); virtual;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     // data getters and setters
     procedure SetSelected(Value: Boolean); virtual;
     procedure SetUntracked(Value: Boolean); virtual;
@@ -102,7 +102,7 @@ type
       PriceHistUpdate: TNotifyEvent); virtual;
     procedure ClearInternalEvents; virtual;
     // properties
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
     // data
     property Selected: Boolean read fSelected write SetSelected;
@@ -129,10 +129,10 @@ uses
   SysUtils,
   InflatablesList_Utils;
 
-procedure TILItemShop_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+procedure TILItemShop_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
-fParsingSettings.StaticOptions := Value;
+fStaticSettings := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticSettings := Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -377,7 +377,7 @@ SetLength(fAvailHistory,0);
 SetLength(fPriceHistory,0);
 fNotes := '';
 fParsingSettings := TILItemShopParsingSettings.Create;
-fParsingSettings.StaticOptions := fStaticOptions;
+fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := ilisurSuccess;
 fLastUpdateMsg := '';
@@ -396,7 +396,7 @@ end;
 
 procedure TILItemShop_Base.Initialize;
 begin
-FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
 fRequiredCount := 0;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -426,7 +426,7 @@ var
 begin
 inherited Create;
 // do not call initialize
-fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 fRequiredCount := Source.RequiredCount;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -452,6 +452,8 @@ fNotes := Source.Notes;
 UniqueString(fNotes);
 // parsing stuff
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
+fParsingSettings.StaticSettings := fStaticSettings;
+fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := Source.LastUpdateRes;
 fLastUpdateMsg := Source.LastUpdateMsg;
 UniqueString(fLastUpdateMsg);
@@ -636,7 +638,7 @@ begin
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
-fParsingSettings.StaticOptions := fStaticOptions;
+fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 For i := 0 to Pred(fParsingSettings.VariableCount) do
   fParsingSettings.Variables[i] := Variables.Vars[i];

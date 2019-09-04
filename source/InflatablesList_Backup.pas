@@ -1,5 +1,7 @@
 unit InflatablesList_Backup;
+{$IFDEF DevelMsgs}
 {$message 'will be totally reworked later'}
+{$endif}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

@@ -251,8 +251,8 @@ If Length(UpdateList) > 0 then
     end;
     tmrUpdate.Enabled := False;
     // save log
-    If (meLog.Lines.Count > 0) and not fILManager.StaticOptions.NoUpdateAutoLog then
-      meLog.Lines.SaveToFile(StrToRTL(fILManager.StaticOptions.ListPath + 'list.update.log'));
+    If (meLog.Lines.Count > 0) and not fILManager.StaticSettings.NoUpdateAutoLog then
+      meLog.Lines.SaveToFile(StrToRTL(fILManager.StaticSettings.ListPath + 'list.update.log'));
     // return the changed list (done flag is used)
     UpdateList := fUpdateList;
     // indicate whether something was done

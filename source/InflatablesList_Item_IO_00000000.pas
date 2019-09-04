@@ -18,13 +18,15 @@ type
     procedure LoadItem_00000000(Stream: TStream); virtual;
     procedure SavePicture_00000000(Stream: TStream; Pic: TBitmap); virtual;
     procedure LoadPicture_00000000(Stream: TStream; out Pic: TBitmap); virtual;
+  public
+    class procedure Convert(Stream, ConvStream: TStream); virtual;
   end;
 
 implementation
 
 uses
   SysUtils,
-  BinaryStreaming,
+  BinaryStreaming, MemoryBuffer,
   InflatablesList_Types,
   InflatablesList_ItemShop;
 
@@ -200,6 +202,78 @@ If Size > 0 then
     end;
   end
 else Pic := nil;
+end;
+
+//==============================================================================
+
+class procedure TILItem_IO_00000000.Convert(Stream, ConvStream: TStream);
+var
+  Cntr: UInt32;
+  i:    Integer;
+
+  procedure CopyBuffer;
+  var
+    Size: UInt32;
+    Buff: TMemoryBuffer;
+  begin
+    Size := Stream_ReadUInt32(Stream);
+    Stream_WriteUInt32(ConvStream,Size);
+    If Size > 0 then
+      begin
+        GetBuffer(Buff,Size);
+        try
+          Stream_ReadBuffer(Stream,Buff.Memory^,Buff.Size);
+          Stream_WriteBuffer(ConvStream,Buff.Memory^,Buff.Size);
+        finally
+          FreeBuffer(Buff);
+        end;
+      end;
+  end;
+
+begin
+Stream_WriteUInt32(ConvStream,IL_ITEM_SIGNATURE);
+Stream_WriteUInt32(ConvStream,IL_ITEM_STREAMSTRUCTURE_00000000);
+// data (no change)
+Stream_WriteFloat64(ConvStream,Stream_ReadFloat64(Stream));   // TimeOfAddition
+// item picture
+CopyBuffer;
+// package picture
+CopyBuffer;
+// basic specs
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // ItemType
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ItemTypeSpec
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // Pieces
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // Manufacturer
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ManufacturerStr
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // ID
+// flags
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // Flags
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // TextTag
+// extended specs
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // WantedLevel
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // Variant
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // SizeX
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // SizeY
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // SizeZ
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // UnitWeight
+// others
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // Notes
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ReviewURL
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ItemPictureFile
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // PackagePictureFile
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // UnitPriceDefault
+// avail and prices
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // UnitPriceLowest
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // UnitPriceHighest
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // UnitPriceSelected
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // AvailableLowest
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // AvailableHighest
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // AvailableSelected
+// shops
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  TILItemShop.Convert(Stream,ConvStream);
 end;
 
 end.

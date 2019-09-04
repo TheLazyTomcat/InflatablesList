@@ -1,12 +1,10 @@
-unit InflatablesList_Manager_Templates;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_Manager_Templates;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 uses
-  AuxTypes,
   InflatablesList_ItemShop,
   InflatablesList_ItemShopTemplate,
   InflatablesList_Manager_Filter;
@@ -35,8 +33,8 @@ type
 implementation
 
 uses
-  SysUtils, Classes,
-  BinaryStreaming;
+  SysUtils,
+  InflatablesList_Utils;
 
 Function TILManager_Templates.GetShopTemplateCount: Integer;
 begin
@@ -77,7 +75,7 @@ var
 begin
 Result := -1;
 For i := Low(fShopTemplates) to High(fShopTemplates) do
-  If AnsiSameText(fShopTemplates[i].Name,Name) then
+  If IL_SameText(fShopTemplates[i].Name,Name) then
     begin
       Result := i;
       Break{For i};
@@ -91,6 +89,7 @@ begin
 SetLength(fShopTemplates,Length(fShopTemplates) + 1);
 Result := High(fShopTemplates);
 fShopTemplates[Result] := TILItemShopTemplate.Create(Shop);
+fShopTemplates[Result].StaticOptions := fStaticOptions;
 fShopTemplates[Result].Name := Name;
 end;
 
@@ -102,13 +101,12 @@ var
 begin
 If (Index >= Low(fShopTemplates)) and (Index <= High(fShopTemplates)) then
   begin
+    fShopTemplates[Index].Name := NewName;
     // change all references to this template
     For i := ItemLowIndex to ItemHighIndex do
       For j := fList[i].ShopLowIndex to fList[i].ShopHighIndex do
-        If AnsiSameText(fList[i].Shops[j].ParsingSettings.TemplateReference,fShopTemplates[Index].Name) then
+        If IL_SameText(fList[i].Shops[j].ParsingSettings.TemplateReference,fShopTemplates[Index].Name) then
           fList[i].Shops[j].ParsingSettings.TemplateReference := NewName;
-    // rename
-    fShopTemplates[Index].Name := NewName
   end
 else raise Exception.CreateFmt('TILManager_Templates.ShopTemplateRename: Index (%d) out of bounds.',[Index]);
 end;
@@ -172,23 +170,16 @@ end;
 //------------------------------------------------------------------------------
 
 Function TILManager_Templates.ShopTemplateImport(const FileName: String): Integer;
-var
-  FileStream: TFileStream;
 begin
-FileStream := TFileStream.Create(FileName,fmOpenRead or fmShareDenyWrite);
+SetLength(fShopTemplates,Length(fShopTemplates) + 1);
+Result := High(fShopTemplates);
+fShopTemplates[Result] := TILItemShopTemplate.Create;
 try
-  SetLength(fShopTemplates,Length(fShopTemplates) + 1);
-  Result := High(fShopTemplates);
-  fShopTemplates[Result] := TILItemShopTemplate.Create;
-  try
-    fShopTemplates[Result].LoadFromFile(FileName);
-    fShopTemplates[Result].StaticOptions := fStaticOptions;
-  except
-    fShopTemplates[Result].Free;
-    SetLength(fShopTemplates,Length(fShopTemplates) - 1);
-  end;
-finally
-  FileStream.Free;
+  fShopTemplates[Result].LoadFromFile(FileName);
+  fShopTemplates[Result].StaticOptions := fStaticOptions;
+except
+  fShopTemplates[Result].Free;
+  SetLength(fShopTemplates,Length(fShopTemplates) - 1);
 end;
 end;
 

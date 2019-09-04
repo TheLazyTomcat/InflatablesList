@@ -1,5 +1,4 @@
 unit InflatablesList_Manager;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -16,7 +15,6 @@ uses
     TILManager_Filter
     TILManager_Templates
     TILManager_IO
-    TILManager_IO_Converter
     TILManager_IO_00000008
     TILManager_IO_00000009
     TILManager_IO_0000000A

@@ -20,7 +20,9 @@ type
 type
   TILObjectL1Event = procedure(Sender: TObject; O1: TObject) of object;
   TILObjectL2Event = procedure(Sender: TObject; O1,O2: TObject) of object;
-  TILObjectL3Event = procedure(Sender: TObject; O1,O2,O3: TObject) of object;
+
+  TILIndexedObjectL1Event = procedure(Sender: TObject; IndexedObj: TObject; Index: Integer) of object;
+  TILIndexedObjectL2Event = procedure(Sender: TObject; Obj: TObject; IndexedObj: TObject; Index: Integer) of object;
 
 //==============================================================================
 //- reconverted string ---------------------------------------------------------
@@ -192,14 +194,13 @@ type
 
   TILSortingSettings = record
     Count:  Integer;
-    Items:  array[0..29] of TILSortingItem;
+    Items:  array[0..29] of TILSortingItem; // length of this array will newer change ;)
   end;
 
   TILSortingProfile = record
     Name:     String;
     Settings: TILSortingSettings;
   end;
-  //PILSortingProfile = ^TILSortingProfile; {$message 'remove'}
 
   TILSortingProfiles = array of TILSortingProfile;
 

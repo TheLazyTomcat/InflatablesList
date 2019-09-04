@@ -93,8 +93,13 @@ type
     // other methods
     procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
     procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
-    procedure AssignInternalEvents(ClearSelected,OverviewUpdate,ShopListItemUpdate,
-      ValuesUpdate,AvailHistUpdate,PriceHistUpdate: TNotifyEvent); virtual;
+    procedure AssignInternalEvents(
+      ClearSelected,
+      OverviewUpdate,
+      ShopListItemUpdate,
+      ValuesUpdate,
+      AvailHistUpdate,
+      PriceHistUpdate: TNotifyEvent); virtual;
     procedure ClearInternalEvents; virtual;
     // properties
     property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;

@@ -1642,7 +1642,7 @@ else If IsCurrentInputString(UnicodeString('DOCTYPE'),False) then
 else If IsCurrentInputString(UnicodeString('[CDATA['),False) then
   begin
   {$IFDEF DevelMsgs}
-    {$message 'implement'}
+    {$message 'implement CDATA'}
   {$ENDIF}
     raise Exception.Create('not implemented');
   end

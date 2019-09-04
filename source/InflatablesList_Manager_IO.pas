@@ -1,5 +1,4 @@
-unit InflatablesList_Manager_IO;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_Manager_IO;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -33,6 +32,8 @@ const
 
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
+  IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024; // 90KiB per item
+
 type
   TILManager_IO = class(TILManager_Templates)
   protected
@@ -46,13 +47,12 @@ type
     fFNLoadFilterSettings:  procedure(Stream: TStream) of object;
     fFNSaveItems:           procedure(Stream: TStream) of object;
     fFNLoadItems:           procedure(Stream: TStream) of object;
-    procedure Convert_7_to_8(Stream: TStream); virtual; abstract;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
   public
-    // items export/import
+    // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
     Function ItemsImport(const FileName: String): Integer; virtual;
     // normal io  
@@ -82,11 +82,6 @@ end;
 
 procedure TILManager_IO.Load(Stream: TStream; Struct: UInt32);
 begin
-If Struct = IL_LISTFILE_STREAMSTRUCTURE_00000007 then
-  begin
-    Convert_7_to_8(Stream);
-    Struct := IL_LISTFILE_STREAMSTRUCTURE_00000008;
-  end;
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
 end;
@@ -107,7 +102,7 @@ For i := Low(Indices) to High(Indices) do
 FileStream := TMemoryStream.Create;
 try
   // pre-allocate
-  FileStream.Size := Length(Indices) * (90 * 1024); // ~90Kib per item
+  FileStream.Size := Length(Indices) * IL_LISTFILE_PREALLOC_ITEM_BYTES;
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
@@ -117,7 +112,7 @@ try
     begin
       TempItem := TILItem.CreateAsCopy(fDataProvider,fList[Indices[i]],True);
       try
-        // copy parsing data
+        // copy parsing data when they are only referenced
         For j := TempItem.ShopLowIndex to TempItem.ShopHighIndex do
           begin
             Index := ShopTemplateIndexOf(TempItem.Shops[j].ParsingSettings.TemplateReference);
@@ -133,7 +128,7 @@ try
       end;
     end;
   // save to file
-  FileStream.SaveToFile(FileName);
+  FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
 end;
@@ -149,7 +144,7 @@ begin
 Result := 0;
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(StrToRTL(FileName));
   FileStream.Seek(0,soBeginning);
   // now the reading itself...
   If Stream_ReadUInt32(FileStream) = IL_ITEMEXPORT_SIGNATURE then
@@ -165,9 +160,19 @@ try
               fList[fCount + i].LoadFromStream(FileStream);
               fList[fCount + i].ResetTimeOfAddition;
               fList[fCount + i].Index := i;
-              //fList[fCount + i].OnMainListUpdate := MainListUpdateHandler;
-              //fList[fCount + i].OnSmallListUpdate := SmallListUpdateHandler;
-              //fList[fCount + i].OnOverviewListUpdate := OverviewUpdateHandler;
+              fList[fCount + i].AssignInternalEvents(
+                ShopUpdateShopListItemHandler,
+                ShopUpdateValuesHandler,
+                ShopUpdateAvailHistoryHandler,
+                ShopUpdatePriceHistoryHandler,
+                ItemUpdateMainListHandler,
+                ItemUpdateSmallListHandler,
+                ItemUpdateOverviewHandler,
+                ItemUpdateTitleHandler,
+                ItemUpdatePicturesHandler,
+                ItemUpdateFlagsHandler,
+                ItemUpdateValuesHandler,
+                ItemUpdateShopListHandler);
             end;
           fCount := fCount + Result;
           DoUpdate;
@@ -213,11 +218,11 @@ begin
 FileStream := TMemoryStream.Create;
 try
   //prealloc
-  FileStream.Size := fCount * (90 * 1024);  // ~90Kib per item
+  FileStream.Size := fCount * IL_LISTFILE_PREALLOC_ITEM_BYTES;
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
-  IL_CreateDirectoryPathForFile(fStaticOptions.ListPath);
+  IL_CreateDirectoryPathForFile(fStaticOptions.ListFile);
   FileStream.SaveToFile(StrToRTL(fStaticOptions.ListFile));
 finally
   FileStream.Free;

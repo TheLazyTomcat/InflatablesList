@@ -1,12 +1,11 @@
 program InflatablesListApp;
-{$message 'll_rework'}
 
 uses
   FastMM4,
   InflatablesList_Types in 'source\InflatablesList_Types.pas',
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
-  InflatablesList_Backup in 'source\InflatablesList_Backup.pas',  
+  InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
   InflatablesList_HTML_Utils in 'source\InflatablesList_HTML_Utils.pas',
   InflatablesList_HTML_NamedCharRefs in 'source\InflatablesList_HTML_NamedCharRefs.pas',
   InflatablesList_HTML_Download in 'source\InflatablesList_HTML_Download.pas',
@@ -44,6 +43,15 @@ uses
   InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
+  InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
+  InflatablesList_Manager_Sort in 'source\InflatablesList_Manager_Sort.pas',
+  InflatablesList_Manager_Filter in 'source\InflatablesList_Manager_Filter.pas',
+  InflatablesList_Manager_Templates in 'source\InflatablesList_Manager_Templates.pas',
+  InflatablesList_Manager_IO in 'source\InflatablesList_Manager_IO.pas',
+  InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',
+  InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
+  InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',
+  InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
   Forms,
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},

@@ -40,6 +40,13 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      inherited pnlMain: TPanel
+        inherited lblNotesEdit: TLabel
+          Hint = 'Open editor...'
+          ParentShowHint = False
+          ShowHint = True
+        end
+      end
     end
   end
   object sbStatusBar: TStatusBar

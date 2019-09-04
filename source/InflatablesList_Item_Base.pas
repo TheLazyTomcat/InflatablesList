@@ -1,5 +1,4 @@
 unit InflatablesList_Item_Base;
-{$message 'll_rework'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -20,9 +19,9 @@ type
 
   TILItem_Base = class(TCustomListObject)
   protected
-    fStaticOptions:         TILStaticManagerOptions;
     fDataProvider:          TILDataProvider;
     fOwnsDataProvider:      Boolean;
+    fStaticOptions:         TILStaticManagerOptions;
     fIndex:                 Integer;  // used in sorting
     fRender:                TBitmap;
     fRenderSmall:           TBitmap;
@@ -30,7 +29,7 @@ type
     fUpdateCounter:         Integer;
     fUpdated:               TILItemUpdatedFlags;
     // internal events forwarded from item shops
-    fOnShopListItemUpdate:  TILObjectL1Event;
+    fOnShopListItemUpdate:  TILIndexedObjectL1Event;
     fOnShopValuesUpdate:    TILObjectL1Event;
     fOnShopAvailHistoryUpd: TILObjectL1Event;
     fOnShopPriceHistoryUpd: TILObjectL1Event;
@@ -44,7 +43,7 @@ type
     fOnValuesUpdate:        TNotifyEvent;
     fOnShopListUpdate:      TNotifyEvent;
     // item flags and internal data
-    {$message 'implement'}
+    {$message 'implement encryption'}
   {
     - decryption if individual items or all of them
     - list-wide password
@@ -119,7 +118,7 @@ type
     fUnitPriceLowest:       UInt32;
     fUnitPriceHighest:      UInt32;
     fUnitPriceSelected:     UInt32;
-    fAvailableLowest:       Int32;    // negative value means "more than"
+    fAvailableLowest:       Int32;            // negative value means "more than"
     fAvailableHighest:      Int32;
     fAvailableSelected:     Int32;
     // shops
@@ -170,6 +169,7 @@ type
     procedure ShopUpdateAvailHistoryHandler(Sender: TObject); virtual;
     procedure ShopUpdatePriceHistoryHandler(Sender: TObject); virtual;
     // event callers
+    procedure UpdateShopListItem(Index: Integer); virtual;
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
     procedure UpdateOverview; virtual;
@@ -178,6 +178,8 @@ type
     procedure UpdateFlags; virtual;
     procedure UpdateValues; virtual;
     procedure UpdateShopList; virtual;
+    // macro callers
+    procedure UpdateShops; virtual; // when list shop is added or deleted
     // small pictures rendering
     procedure RenderSmallItemPicture; virtual; abstract;
     procedure RenderSmallSecondaryPicture; virtual; abstract;
@@ -209,17 +211,26 @@ type
     procedure ShopClear; virtual;
     // data helpers
     procedure ResetTimeOfAddition; virtual;
-    procedure SwitchPictures(Src,Dst: TLIItemPictureKind); virtual;
+    procedure SwapPictures(Src,Dst: TLIItemPictureKind); virtual;
+    procedure BroadcastReqCount; virtual;    
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
-    procedure BroadcastReqCount; virtual;
     procedure GetPriceAndAvailFromShops; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     procedure GetAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     // other methods
     procedure AssignInternalEvents(
-      ShopListItemUpdate,ShopValuesUpdate,ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
-      MainListUpdate,SmallListUpdate,OverviewUpdate,TitleUpdate,PicturesUpdate,FlagsUpdate,
-      ValuesUpdate,ShopListUpdate: TNotifyEvent); virtual;
+      ShopListItemUpdate:   TILIndexedObjectL1Event;
+      ShopValuesUpdate,
+      ShopAvailHistUpdate,
+      ShopPriceHistUpdate:  TILObjectL1Event;
+      MainListUpdate,
+      SmallListUpdate,
+      OverviewUpdate,
+      TitleUpdate,
+      PicturesUpdate,
+      FlagsUpdate,
+      ValuesUpdate,
+      ShopListUpdate:       TNotifyEvent); virtual;
     procedure ClearInternalEvents; virtual;
     // properties
     property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;    
@@ -275,8 +286,12 @@ uses
   InflatablesList_Utils;
 
 procedure TILItem_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+var
+  i:  Integer;
 begin
 fStaticOptions := IL_ThreadSafeCopy(Value);
+For i := ShopLowIndex to ShopHighIndex do
+  fShops[i].StaticOptions := fStaticOptions;
 end;
 
 //------------------------------------------------------------------------------
@@ -352,7 +367,7 @@ end;
 
 procedure TILItem_Base.SetItemTypeSpec(const Value: String);
 begin
-If not AnsiSameStr(fItemTypeSpec,Value) then
+If not IL_SameStr(fItemTypeSpec,Value) then
   begin
     fItemTypeSpec := Value;
     UniqueString(fItemTypeSpec);
@@ -374,7 +389,7 @@ If fPieces <> Value then
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateMainList;
       UpdateSmallList;
-      UpdateOverview;
+      UpdateOverview;      
       UpdateTitle;
       UpdateValues;
       // UpdteFlags is called in FlagPriceAndAvail only when needed
@@ -401,7 +416,7 @@ end;
 
 procedure TILItem_Base.SetManufacturerStr(const Value: String);
 begin
-If not AnsiSameStr(fManufacturerStr,Value) then
+If not IL_SameStr(fManufacturerStr,Value) then
   begin
     fManufacturerStr := Value;
     UniqueString(fManufacturerStr);
@@ -415,7 +430,7 @@ end;
 
 procedure TILItem_Base.SetTextID(const Value: String);
 begin
-If not AnsiSameStr(fTextID,Value) then
+If not IL_SameStr(fTextID,Value) then
   begin
     fTextID := Value;
     UniqueString(fTextID);
@@ -460,7 +475,7 @@ end;
 
 procedure TILItem_Base.SetTextTag(const Value: String);
 begin
-If not AnsiSameStr(fTextTag,Value) then
+If not IL_SameStr(fTextTag,Value) then
   begin
     fTextTag := Value;
     UniqueString(fTextTag);
@@ -496,7 +511,7 @@ end;
 
 procedure TILItem_Base.SetVariant(const Value: String);
 begin
-If not AnsiSameStr(fVariant,Value) then
+If not IL_SameStr(fVariant,Value) then
   begin
     fVariant := Value;
     UniqueString(fVariant);
@@ -576,7 +591,7 @@ end;
 
 procedure TILItem_Base.SetNotes(const Value: String);
 begin
-If not AnsiSameStr(fNotes,Value) then
+If not IL_SameStr(fNotes,Value) then
   begin
     fNotes := Value;
     UniqueString(fNotes);
@@ -587,7 +602,7 @@ end;
 
 procedure TILItem_Base.SetReviewURL(const Value: String);
 begin
-If not AnsiSameStr(fReviewURL,Value) then
+If not IL_SameStr(fReviewURL,Value) then
   begin
     fReviewURL := Value;
     UniqueString(fReviewURL);
@@ -599,7 +614,7 @@ end;
 
 procedure TILItem_Base.SetItemPictureFile(const Value: String);
 begin
-If not AnsiSameStr(fItemPictureFile,Value) then
+If not IL_SameStr(fItemPictureFile,Value) then
   begin
     fItemPictureFile := Value;
     UniqueString(fItemPictureFile);
@@ -611,7 +626,7 @@ end;
 
 procedure TILItem_Base.SetSecondaryPictureFile(const Value: String);
 begin
-If not AnsiSameStr(fSecondaryPictureFile,Value) then
+If not IL_SameStr(fSecondaryPictureFile,Value) then
   begin
     fSecondaryPictureFile := Value;
     UniqueString(fSecondaryPictureFile);
@@ -623,7 +638,7 @@ end;
 
 procedure TILItem_Base.SetPackagePictureFile(const Value: String);
 begin
-If not AnsiSameStr(fPackagePictureFile,Value) then
+If not IL_SameStr(fPackagePictureFile,Value) then
   begin
     fPackagePictureFile := Value;
     UniqueString(fPackagePictureFile);
@@ -640,6 +655,7 @@ If fUnitPriceDefault <> Value then
     fUnitPriceDefault := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateOverview;
     UpdateValues;
   end;
 end;
@@ -679,8 +695,11 @@ var
   i:  Integer;
 begin
 If Value < fShopCount then
-  For i := Value to Pred(fShopCount) do
-    fShops[i].Free;
+  begin
+    For i := Value to Pred(fShopCount) do
+      fShops[i].Free;
+    fShopCount := Value;  
+  end;
 SetLength(fShops,Value);
 end;
 
@@ -724,9 +743,15 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.ShopUpdateShopListItemHandler(Sender: TObject);
+var
+  Index:  Integer;
 begin
-If Assigned(fOnShopListItemUpdate) and (Sender is TILItemShop) then
-  fOnShopListItemUpdate(Self,Sender);
+If Sender is TILItemShop then
+  begin
+    Index := ShopIndexOf(TILItemShop(Sender));
+    If CheckIndex(Index) then
+      UpdateShopListItem(Index);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -751,6 +776,14 @@ procedure TILItem_Base.ShopUpdatePriceHistoryHandler(Sender: TObject);
 begin
 If Assigned(fOnShopPriceHistoryUpd) and (Sender is TILItemShop) then
   fOnShopPriceHistoryUpd(Self,Sender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShopListItem(Index: Integer);
+begin
+If Assigned(fOnShopListItemUpdate) and CheckIndex(Index) then
+  fOnShopListItemUpdate(Self,fShops[Index],Index);
 end;
 
 //------------------------------------------------------------------------------
@@ -825,6 +858,17 @@ begin
 If Assigned(fOnShopListUpdate) and (fUpdateCounter <= 0) then
   fOnShopListUpdate(Self);
 Include(fUpdated,iliufShopList);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateShops;
+begin
+UpdateMainList;   // there can be shop count shown
+UpdateSmallList;  // well...
+UpdateOverview;   // -//-
+UpdateValues;     // shop count is shown there
+UpdateShopList;
 end;
 
 //------------------------------------------------------------------------------
@@ -916,6 +960,7 @@ end;
 
 procedure TILItem_Base.Initialize;
 begin
+FillChar(fStaticOptions,SizeOf(TILStaticManagerOptions),0);
 fIndex := -1;
 fRender := TBitmap.Create;
 fRender.PixelFormat := pf24bit;
@@ -964,7 +1009,7 @@ var
 begin
 Create(DataProvider);
 fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
-// do not copy time of addition, leave it as is (actual time)
+// do not copy time of addition and UID
 If CopyPics then
   begin
     If Assigned(Source.ItemPicture) then
@@ -1035,6 +1080,7 @@ fShopCount := Source.ShopCount;
 For i := Low(fShops) to High(fShops) do
   begin
     fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
+    fShops[i].StaticOptions := fStaticOptions;
     fShops[i].AssignInternalEvents(
       ShopClearSelectedHandler,
       ShopUpdateOverviewHandler,
@@ -1136,7 +1182,7 @@ var
 begin
 Result := -1;
 For i := ShopLowIndex to ShopHighIndex do
-  If AnsiSameText(fShops[i].Name,Name) then
+  If IL_SameText(fShops[i].Name,Name) then
     begin
       Result := i;
       Break{For i};
@@ -1166,11 +1212,15 @@ Grow;
 Result := fShopCount;
 fShops[Result] := TILItemShop.Create;
 fShops[Result].StaticOptions := fStaticOptions;
-fShops[Result].AssignInternalEvents(ShopClearSelectedHandler,ShopUpdateOverviewHandler,
-  ShopUpdateShopListItemHandler,ShopUpdateValuesHandler,ShopUpdateAvailHistoryHandler,
+fShops[Result].AssignInternalEvents(
+  ShopClearSelectedHandler,
+  ShopUpdateOverviewHandler,
+  ShopUpdateShopListItemHandler,
+  ShopUpdateValuesHandler,
+  ShopUpdateAvailHistoryHandler,
   ShopUpdatePriceHistoryHandler);
 Inc(fShopCount);
-UpdateShopList;
+UpdateShops;
 end;
 
 //------------------------------------------------------------------------------
@@ -1182,15 +1232,15 @@ begin
 If Idx1 <> Idx2 then
   begin
     // sanity checks
-    If (Idx1 < ShopLowIndex) or (Idx1 > ShopHighIndex) then
+    If not CheckIndex(Idx1) then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 1 (%d) out of bounds.',[Idx1]);
-    If (Idx2 < ShopLowIndex) or (Idx2 > ShopHighIndex) then
+    If not CheckIndex(Idx2) then
       raise Exception.CreateFmt('TILItem_Base.ShopExchange: Index 2 (%d) out of bounds.',[Idx1]);
     Temp := fShops[Idx1];
     fShops[Idx1] := fShops[Idx2];
     fShops[Idx2] := Temp;
-    ShopUpdateShopListItemHandler(fShops[Idx1]);
-    ShopUpdateShopListItemHandler(fShops[Idx2]);
+    UpdateShopListItem(Idx1);
+    UpdateShopListItem(Idx2);
   end;
 end;
 
@@ -1200,14 +1250,14 @@ procedure TILItem_Base.ShopDelete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index >= ShopLowIndex) and (Index <= ShopHighIndex) then
+If CheckIndex(Index) then
   begin
     FreeAndNil(fShops[Index]);
     For i := Index to Pred(ShopHighIndex) do
       fShops[i] := fShops[i + 1];
     Dec(fShopCount);
     Shrink;
-    UpdateShopList;
+    UpdateShops;
   end
 else raise Exception.CreateFmt('TILItem_Base.ShopDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -1222,7 +1272,7 @@ For i := ShopLowIndex to ShopHighIndex do
   FreeAndNil(fShops[i]);
 SetLength(fShops,0);
 fShopCount := 0;
-UpdateShopList;
+UpdateShops;
 end;
 
 //------------------------------------------------------------------------------
@@ -1234,38 +1284,74 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SwitchPictures(Src,Dst: TLIItemPictureKind);
+procedure TILItem_Base.SwapPictures(Src,Dst: TLIItemPictureKind);
 type
   PBitmap = ^TBitmap;
 var
-  SrcPtr: PBitmap;
-  DstPtr: PBitmap;
-  Temp:   TBitmap;
+  SrcBmpPtr:  PBitmap;
+  DstBmpPtr:  PBitmap;
+  BmpTemp:    TBitmap;
+  SrcStrPtr:  PString;
+  DstStrPtr:  PString;
+  StrTemp:    String;
 begin
 If (Src <> Dst) and (Src <> ilipkUnknown) and (Dst <> ilipkUnknown) then
   begin
     case Src of
-      ilipkMain:      SrcPtr := @fItemPicture;
-      ilipkSecondary: SrcPtr := @fSecondaryPicture;
-      ilipkPackage:   SrcPtr := @fPackagePicture;
+      ilipkMain:      begin
+                        SrcBmpPtr := @fItemPicture;
+                        SrcStrPtr := @fItemPictureFile;
+                      end;
+      ilipkSecondary: begin
+                        SrcBmpPtr := @fSecondaryPicture;
+                        SrcStrPtr := @fSecondaryPictureFile;
+                      end;
+      ilipkPackage:   begin
+                        SrcBmpPtr := @fPackagePicture;
+                        SrcStrPtr := @fPackagePictureFile;
+                      end;  
     else
       raise Exception.CreateFmt('Invalid source picture kind (%d).',[Ord(Src)]);
     end;
     case Dst of
-      ilipkMain:      DstPtr := @fItemPicture;
-      ilipkSecondary: DstPtr := @fSecondaryPicture;
-      ilipkPackage:   DstPtr := @fPackagePicture;
+      ilipkMain:      begin
+                        DstBmpPtr := @fItemPicture;
+                        DstStrPtr := @fItemPictureFile;
+                      end;
+      ilipkSecondary: begin
+                        DstBmpPtr := @fSecondaryPicture;
+                        DstStrPtr := @fSecondaryPictureFile;
+                      end;
+      ilipkPackage:   begin
+                        DstBmpPtr := @fPackagePicture;
+                        DstStrPtr := @fPackagePictureFile;
+                      end;
     else
       raise Exception.CreateFmt('Invalid destination picture kind (%d).',[Ord(Dst)]);
     end;
-    Temp := SrcPtr^;
-    SrcPtr^ := DstPtr^;
-    DstPtr^ := Temp;
+    // switch picture bitmaps
+    BmpTemp := DstBmpPtr^;
+    DstBmpPtr^ := SrcBmpPtr^;
+    SrcBmpPtr^ := BmpTemp;
     RenderSmallPictures;
+    // switch picture files
+    StrTemp := DstStrPtr^;
+    DstStrPtr^ := SrcStrPtr^;
+    SrcStrPtr^ := StrTemp;
     UpdateMainList;
     UpdateSmallList;
     UpdatePictures;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.BroadcastReqCount;
+var
+  i:  Integer;
+begin
+For i := ShopLowIndex to ShopHighIndex do
+  fShops[i].RequiredCount := fPieces;
 end;
 
 //------------------------------------------------------------------------------
@@ -1282,16 +1368,6 @@ try
 finally
   EndUpdate;
 end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.BroadcastReqCount;
-var
-  i:  Integer;
-begin
-For i := ShopLowIndex to ShopHighIndex do
-  fShops[i].RequiredCount := fPieces;
 end;
 
 //------------------------------------------------------------------------------
@@ -1415,8 +1491,8 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate,ShopValuesUpdate,
-  ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
+procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate: TILIndexedObjectL1Event;
+  ShopValuesUpdate,ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
   MainListUpdate,SmallListUpdate,OverviewUpdate,TitleUpdate,PicturesUpdate,
   FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent);
 begin

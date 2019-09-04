@@ -1,5 +1,4 @@
-unit InflatablesList_Manager_Sort;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_Manager_Sort;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -122,11 +121,11 @@ Result := 0;
 If Idx1 <> Idx2 then
   begin
     For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
-      with fUsedSortSett.Items[i] do
-        Result := (Result shl 1) + fList[Idx1].Compare(fList[Idx2],ItemValueTag,Reversed);
+      Result := (Result shl 1) + fList[Idx1].Compare(fList[Idx2],
+        fUsedSortSett.Items[i].ItemValueTag,fUsedSortSett.Items[i].Reversed);
     // stabilize sorting using indices
     If Result = 0 then
-      Result := (Result shl 1) + IL_SortCompareInt32(fList[Idx1].Index,fList[Idx2].Index);
+      Result := IL_SortCompareInt32(fList[Idx1].Index,fList[Idx2].Index);
   end;
 end;
 
@@ -138,7 +137,7 @@ var
 begin
 Result := -1;
 For i := Low(fSortingProfiles) to High(fSortingProfiles) do
-  If AnsiSameText(fSortingProfiles[i].Name,Name) then
+  If IL_SameText(fSortingProfiles[i].Name,Name) then
     begin
       Result := i;
       Break{For i};
@@ -152,6 +151,7 @@ begin
 SetLength(fSortingProfiles,Length(fSortingProfiles) + 1);
 Result := High(fSortingProfiles);
 fSortingProfiles[Result].Name := Name;
+UniqueString(fSortingProfiles[Result].Name);
 FillChar(fSortingProfiles[Result].Settings,SizeOf(TILSortingSettings),0);
 end;
 
@@ -160,9 +160,11 @@ end;
 procedure TILManager_Sort.SortingProfileRename(Index: Integer; const NewName: String);
 begin
 If (Index >= Low(fSortingProfiles)) and (Index <= High(fSortingProfiles)) then
-  fSortingProfiles[Index].Name := NewName
-else
-  raise Exception.CreateFmt('TILManager_Sort.SortingProfileRename: Index (%d) out of bounds.',[Index]);
+  begin
+    fSortingProfiles[Index].Name := NewName;
+    UniqueString(fSortingProfiles[Index].Name);
+  end
+else raise Exception.CreateFmt('TILManager_Sort.SortingProfileRename: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
@@ -213,21 +215,21 @@ var
   i:      Integer;
   Sorter: TListSorter;
 begin
-ReIndex;  // to be sure
-case SortingProfile of
-  -2: fUsedSortSett := fDefaultSortSett;
-  -1: fUsedSortSett := fActualSortSett;
-else
-  If (SortingProfile >= Low(fSortingProfiles)) and (SortingProfile <= High(fSortingProfiles)) then
-    fUsedSortSett := fSortingProfiles[SortingProfile].Settings
-  else
-    raise Exception.CreateFmt('TILManager_Sort.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
-end;
-If fReversedSort then
-  For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
-    fUsedSortSett.Items[i].Reversed := not fUsedSortSett.Items[i].Reversed;
 If Length(fList) > 1 then
   begin
+    ReIndex;  // to be sure
+    case SortingProfile of
+      -2: fUsedSortSett := fDefaultSortSett;
+      -1: fUsedSortSett := fActualSortSett;
+    else
+      If (SortingProfile >= Low(fSortingProfiles)) and (SortingProfile <= High(fSortingProfiles)) then
+        fUsedSortSett := fSortingProfiles[SortingProfile].Settings
+      else
+        raise Exception.CreateFmt('TILManager_Sort.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
+    end;
+    If fReversedSort then
+      For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
+        fUsedSortSett.Items[i].Reversed := not fUsedSortSett.Items[i].Reversed;
     Sorter := TListQuickSorter.Create(ItemCompare,ItemExchange);
     try
       fSorting := True;

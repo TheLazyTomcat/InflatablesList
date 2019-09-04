@@ -16,6 +16,8 @@ type
     procedure InitLoadFunctions(Struct: UInt32); override;
     procedure SaveItemShop_00000000(Stream: TStream); virtual;
     procedure LoadItemShop_00000000(Stream: TStream); virtual;
+  public
+    class procedure Convert(Stream, ConvStream: TStream); virtual;
   end;
 
 implementation
@@ -23,7 +25,8 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
-  InflatablesList_Types;
+  InflatablesList_Types,
+  InflatablesList_ItemShopParsingSettings;
 
 procedure TILItemShop_IO_00000000.InitSaveFunctions(Struct: UInt32);
 begin
@@ -110,6 +113,46 @@ fNotes := Stream_ReadString(Stream);
 fParsingSettings.LoadFromStream(Stream);
 fLastUpdateRes := IL_NumToItemShopUpdateResult(Stream_ReadInt32(Stream));
 fLastUpdateMsg := Stream_ReadString(Stream);
+end;
+
+//==============================================================================
+
+class procedure TILItemShop_IO_00000000.Convert(Stream, ConvStream: TStream);
+var
+  Cntr: UInt32;
+  i:    Integer;
+begin
+Stream_WriteUInt32(ConvStream,IL_ITEMSHOP_SIGNATURE);
+Stream_WriteUInt32(ConvStream,IL_ITEMSHOP_STREAMSTRUCTURE_00000000);
+// data (no change)
+Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));     // Selected
+Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));     // Untracked
+Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));     // AltDownMethod
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // Name
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ShopURL
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ItemURL
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // Available
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // Price
+// avail history
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  begin
+    Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));     // Value
+    Stream_WriteFloat64(ConvStream,Stream_ReadFloat64(Stream)); // Time
+  end;
+// price history
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  begin
+    Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));     // Value
+    Stream_WriteFloat64(ConvStream,Stream_ReadFloat64(Stream)); // Time
+  end;
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // Notes
+TILItemShopParsingSettings.Convert(Stream,ConvStream);    // parsing settings
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // LastUpdateRes
+Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // LastUpdateMsg
 end;
 
 end.

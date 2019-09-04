@@ -1,5 +1,5 @@
-unit InflatablesList_Manager_IO_0000000A;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_Manager_IO_0000000A;
+{$message 'will be totally reworked later'}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 

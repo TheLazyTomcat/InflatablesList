@@ -1131,7 +1131,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapItemPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkMain);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkMain);
 end;
 
 //------------------------------------------------------------------------------
@@ -1139,7 +1139,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapSecondaryPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkSecondary);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkSecondary);
 end;
 
 //------------------------------------------------------------------------------
@@ -1147,7 +1147,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapPackagePicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkPackage);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkPackage);
 end;
 
 //------------------------------------------------------------------------------

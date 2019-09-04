@@ -49,7 +49,7 @@ type
     procedure SetCount(Value: Integer); override;
     Function GetItem(Index: Integer): TILITem; virtual;
     // handlers for item shop events
-    procedure ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject); virtual; 
+    procedure ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject; Index: Integer); virtual;
     procedure ShopUpdateValuesHandler(Sender: TObject; Shop: TObject); virtual; 
     procedure ShopUpdateAvailHistoryHandler(Sender: TObject; Shop: TObject); virtual; 
     procedure ShopUpdatePriceHistoryHandler(Sender: TObject; Shop: TObject); virtual; 
@@ -177,8 +177,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject);
+procedure TILManager_Base.ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject; Index: Integer);
 begin
+{$message 'reimplement'}
 If Assigned(fOnShopListItemUpdate) and (Sender is TILItem) and (Shop is TILItemShop) then
   fOnShopListItemUpdate(Self,Sender,Shop);
 end;

@@ -29,6 +29,8 @@ Function IL_StringOfChar(Ch: Char; Count: Integer): String;
 Function IL_UpperCase(const Str: String): String;
 Function IL_LowerCase(const Str: String): String;
 
+Function IL_FormatDateTime(const FormatStr: String; DateTIme: TDateTIme): String;
+
 //==============================================================================
 //- comparison functions used in sorting ---------------------------------------
 
@@ -67,7 +69,9 @@ Function IL_CheckHandler(Handler: TNotifyEvent): TNotifyEvent; overload;
 
 Function IL_CheckHandler(Handler: TILObjectL1Event): TILObjectL1Event; overload;
 Function IL_CheckHandler(Handler: TILObjectL2Event): TILObjectL2Event; overload;
-Function IL_CheckHandler(Handler: TILObjectL3Event): TILObjectL3Event; overload;
+
+Function IL_CheckHandler(Handler: TILIndexedObjectL1Event): TILIndexedObjectL1Event; overload;
+Function IL_CheckHandler(Handler: TILIndexedObjectL2Event): TILIndexedObjectL2Event; overload;
 
 //==============================================================================
 //- pictures manipulation ------------------------------------------------------
@@ -172,6 +176,13 @@ end;
 Function IL_LowerCase(const Str: String): String;
 begin
 Result := AnsiLowerCase(Str);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_FormatDateTime(const FormatStr: String; DateTIme: TDateTIme): String;
+begin
+Result := FormatDateTIme(FormatStr,DateTime,ILLocalFormatSettings);
 end;
 
 
@@ -418,12 +429,22 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Function IL_CheckHandler(Handler: TILObjectL3Event): TILObjectL3Event;
+Function IL_CheckHandler(Handler: TILIndexedObjectL1Event): TILIndexedObjectL1Event;
 begin
 If Assigned(Handler) then
   Result := Handler
 else
-  raise Exception.Create('IL_CheckAndAssign(TILObjectL3Event): Handler not assigned');
+  raise Exception.Create('IL_CheckAndAssign(TILIndexedObjectL1Event): Handler not assigned');
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_CheckHandler(Handler: TILIndexedObjectL2Event): TILIndexedObjectL2Event; overload;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TILIndexedObjectL2Event): Handler not assigned');
 end;
 
 

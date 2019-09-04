@@ -7,6 +7,8 @@ object fMainForm: TfMainForm
   ClientHeight = 707
   ClientWidth = 1264
   Color = clBtnFace
+  Constraints.MinHeight = 741
+  Constraints.MinWidth = 1272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

@@ -55,6 +55,8 @@ Function IL_ExtractFileNameNoExt(const FileName: String): String;
 
 Function IL_ChangeFileExt(const FileName,NewExt: String): String;
 
+Function IL_ExpandFileName(const FileName: String): String;
+
 procedure IL_CreateDirectory(const Directory: String);
 procedure IL_CreateDirectoryPath(const Path: String);
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
@@ -351,6 +353,13 @@ end;
 Function IL_ExtractFileNameNoExt(const FileName: String): String;
 begin
 Result := IL_ChangeFileExt(ExtractFileName(FileName),'');
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ExpandFileName(const FileName: String): String;
+begin
+Result := RTLToStr(ExpandFileName(StrToRTL(FileName)));
 end;
 
 //------------------------------------------------------------------------------

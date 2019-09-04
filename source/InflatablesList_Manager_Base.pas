@@ -1,5 +1,4 @@
-unit InflatablesList_Manager_Base;{$message 'revisit'}
-{$message 'll_rework'}
+unit InflatablesList_Manager_Base;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,27 +6,26 @@ interface
 
 uses
   StdCtrls,
-  AuxClasses, SimpleCmdLineParser,
+  AuxClasses,
   InflatablesList_Types,
   InflatablesList_Data,
   InflatablesList_Item;
 
 type
+  TILManagerUpdatedFlag = (ilmufMainList,ilmufSmallList,ilmufOverview,ilmufSettings);
+
+  TILManagerUpdatedFlags = set of TILManagerUpdatedFlag;
+
   TILManager_Base = class(TCustomListObject)
   protected
-    fStaticSettings:  TILStaticManagerSettings; // not changed at runtime
-    fDataProvider:    TILDataProvider;
-    fSorting:         Boolean;                  // used only during sorting to disable reindexing
-    fUpdateCounter:   Integer;
-    fUpdated:         Boolean;
-    // main list
-    fList:            array of TILItem;
-    fCount:           Integer;
-    // other data
-    fNotes:           String;
+    fStaticSettings:        TILStaticManagerSettings; // not changed at runtime
+    fDataProvider:          TILDataProvider;
+    fSorting:               Boolean;                  // used only during sorting to disable reindexing
+    fUpdateCounter:         Integer;
+    fUpdated:               TILManagerUpdatedFlags;
     // encryption
-    fEncrypted:       Boolean;
-    fListPassword:    String;
+    fEncrypted:             Boolean;
+    fListPassword:          String;
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILIndexedObjectL2Event;
     fOnShopValuesUpdate:    TILObjectL2Event;
@@ -43,7 +41,17 @@ type
     fOnMainListUpdate:      TNotifyEvent;
     fOnSmallListUpdate:     TNotifyEvent;
     fOnOverviewUpdate:      TNotifyEvent;
-    fOnSettingsChange:      TNotifyEvent;
+    fOnSettingsChange:      TNotifyEvent;    
+    // main list
+    fList:                  array of TILItem;
+    fCount:                 Integer;
+    // other data
+    fNotes:                 String;
+    // getters and setters
+    procedure SetEncrypted(Value: Boolean); virtual;
+    procedure SetListPassword(const Value: String); virtual;
+    procedure SetNotes(const Value: String); virtual;
+    // list methods
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
@@ -66,14 +74,16 @@ type
     // event callers
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
-    procedure UpdateOverview; virtual;    
+    procedure UpdateOverview; virtual;
+    procedure UpdateSettings; virtual;
+    // macro callers
+    procedure UpdateList; virtual;
     // inits/finals
     procedure InitializeStaticSettings; virtual;
     procedure FinalizeStaticSettings; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // other
-    procedure UpdateList; virtual;
     procedure ReIndex; virtual;
   public
     constructor Create;
@@ -101,12 +111,13 @@ type
     // properties
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
     property DataProvider: TILDataProvider read fDataProvider;
+    // encryption
+    property Encrypted: Boolean read fEncrypted write SetEncrypted;
+    property ListPassword: String read fListPassword write SetListPassword;
+    // list and data
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
-    property Notes: String read fNotes write fNotes;
-    // encryption
-    property Encrypted: Boolean read fEncrypted write fEncrypted;
-    property ListPassword: String read fListPassword write fListPassword;
+    property Notes: String read fNotes write SetNotes;
     // item shop events
     property OnShopListItemUpdate: TILIndexedObjectL2Event read fOnShopListItemUpdate write fOnShopListItemUpdate;
     property OnShopValuesUpdate: TILObjectL2Event read fOnShopValuesUpdate write fOnShopValuesUpdate;
@@ -129,11 +140,46 @@ implementation
 
 uses
   SysUtils,
+  SimpleCmdLineParser, StrRect,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
 
 const
-  DEFAULT_LIST_FILENAME = 'list.inl';
+  IL_DEFAULT_LIST_FILENAME = 'list.inl';
+
+procedure TILManager_Base.SetEncrypted(Value: Boolean);
+begin
+If fEncrypted <> Value then
+  begin
+    fEncrypted := Value;
+    UpdateSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SetListPassword(const Value: String);
+begin
+If not IL_SameStr(fListPassword,Value) then
+  begin
+    fListPassword := Value;
+    UniqueString(fListPassword);
+    UpdateSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SetNotes(const Value: String);
+begin
+If not IL_SameStr(fNotes,Value) then
+  begin
+    fNotes := Value;
+    UniqueString(fNotes);
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILManager_Base.GetCapacity: Integer;
 begin
@@ -147,8 +193,11 @@ var
   i:  Integer;
 begin
 If Value < fCount then
-  For i := Value to Pred(fCount) do
-    fList[i].Free;
+  begin
+    For i := Value to Pred(fCount) do
+      fList[i].Free;
+    fCount := Value;
+  end;
 SetLength(fList,Value);
 end;
 
@@ -275,7 +324,7 @@ procedure TILManager_Base.UpdateMainList;
 begin
 If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
   fOnMainListUpdate(Self);
-fUpdated := True;
+Include(fUpdated,ilmufMainList);
 end;
  
 //------------------------------------------------------------------------------
@@ -284,7 +333,7 @@ procedure TILManager_Base.UpdateSmallList;
 begin
 If Assigned(fOnSmallListUpdate) and (fUpdateCounter <= 0) then
   fOnSmallListUpdate(Self);
-fUpdated := True;
+Include(fUpdated,ilmufSmallList);
 end;
 
 //------------------------------------------------------------------------------
@@ -293,7 +342,25 @@ procedure TILManager_Base.UpdateOverview;
 begin
 If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
   fOnOverviewUpdate(Self);
-fUpdated := True;
+Include(fUpdated,ilmufOverview);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.UpdateSettings;
+begin
+If Assigned(fOnSettingsChange) and (fUpdateCounter <= 0) then
+  fOnSettingsChange(Self);
+Include(fUpdated,ilmufSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.UpdateList;
+begin
+UpdateMainList;
+UpdateSmallList;
+UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -314,8 +381,9 @@ try
   fStaticSettings.NoUpdateAutoLog := CMDLineParser.CommandPresent('no_updlog');
   // note that list_override also disables backups (equivalent to no_backup)
   fStaticSettings.ListOverride := False;
-  fStaticSettings.ListPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
-  fStaticSettings.ListFile := fStaticSettings.ListPath + DEFAULT_LIST_FILENAME;
+  fStaticSettings.DefaultPath := IL_ExtractFilePath(IL_ExpandFileName(RTLToStr(ParamStr(0))));
+  fStaticSettings.ListPath := fStaticSettings.DefaultPath;
+  fStaticSettings.ListFile := fStaticSettings.ListPath + IL_DEFAULT_LIST_FILENAME;
   If CMDLineParser.CommandPresent('list_override') then
     begin
       CMDLineParser.GetCommandData('list_override',CommandData);
@@ -323,12 +391,10 @@ try
         begin
           fStaticSettings.NoBackup := True;        
           fStaticSettings.ListOverride := True;
-          fStaticSettings.ListFile := ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
-          fStaticSettings.ListPath := ExtractFilePath(fStaticSettings.ListFile);
+          fStaticSettings.ListFile := IL_ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
+          fStaticSettings.ListPath := IL_ExtractFilePath(fStaticSettings.ListFile);
         end;
     end;
-  // other static option
-  fStaticSettings.DefaultPath := ExtractFilePath(ExpandFileName(ParamStr(0)));
 finally
   CMDLineParser.Free;
 end;
@@ -349,7 +415,7 @@ InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;
 fSorting := False;
 fUpdateCounter := 0;
-fUpdated := False;
+fUpdated := [];
 // list
 fCount := 0;
 SetLength(fList,0);
@@ -367,15 +433,6 @@ ItemClear;
 SetLength(fList,0);
 FreeAndNil(fDataProvider);
 FinalizeStaticSettings;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_Base.UpdateList;
-begin
-UpdateMainList;
-UpdateSmallList;
-UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -409,7 +466,7 @@ end;
 procedure TILManager_Base.BeginUpdate;
 begin
 If fUpdateCounter <= 0 then
-  fUpdated := False;
+  fUpdated := [];
 Inc(fUpdateCounter);
 end;
 
@@ -421,9 +478,15 @@ Dec(fUpdateCounter);
 If fUpdateCounter <= 0 then
   begin
     fUpdateCounter := 0;
-    If fUpdated then
-      UpdateList;
-    fUpdated := False;
+    If ilmufMainList in fUpdated then
+      UpdateMainList;
+    If ilmufSmallList in fUpdated then
+      UpdateSmallList;
+    If ilmufOverview in fUpdated then
+      UpdateOverview;
+    If ilmufSettings in fUpdated then
+      UpdateSettings;
+    fUpdated := [];
   end;
 end;
 
@@ -491,7 +554,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     Result := fCount;
     fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
     fList[Result].Index := Result;
-    // static Settings are copied in item constructor
+    fList[Result].StaticSettings := fStaticSettings;
     fList[Result].AssignInternalEvents(
       ShopUpdateShopListItemHandler,
       ShopUpdateValuesHandler,
@@ -520,9 +583,9 @@ begin
 If Idx1 <> Idx2 then
   begin
     // sanity checks
-    If (Idx1 < ItemLowIndex) or (Idx1 > ItemHighIndex) then
+    If not CheckIndex(Idx1) then
       raise Exception.CreateFmt('TILManager_Base.ItemExchange: Index 1 (%d) out of bounds.',[Idx1]);
-    If (Idx2 < ItemLowIndex) or (Idx2 > ItemHighIndex) then
+    If not CheckIndex(Idx2) then 
       raise Exception.CreateFmt('TILManager_Base.ItemExchange: Index 2 (%d) out of bounds.',[Idx1]);
     Temp := fList[Idx1];
     fList[Idx1] := fList[Idx2];
@@ -532,7 +595,8 @@ If Idx1 <> Idx2 then
         // full reindex not needed
         fList[Idx1].Index := Idx1;
         fList[Idx2].Index := Idx2;
-        UpdateList;
+        UpdateMainList;
+        UpdateSmallList;
       end;
   end;
 end;
@@ -547,9 +611,9 @@ begin
 If Src <> Dst then
   begin
     // sanity checks
-    If (Src < ItemLowIndex) or (Src > ItemHighIndex) then
+    If not CheckIndex(Src) then
       raise Exception.CreateFmt('TILManager_Base.ItemMove: Source index (%d) out of bounds.',[Src]);
-    If (Dst < ItemLowIndex) or (Dst > ItemHighIndex) then
+    If not CheckIndex(Dst) then 
       raise Exception.CreateFmt('TILManager_Base.ItemMove: Destination index (%d) out of bounds.',[Dst]);
     Temp := fList[Src];
     If Src < Dst then
@@ -566,7 +630,8 @@ If Src <> Dst then
       end;
     fList[Dst] := Temp;
     ReIndex;
-    UpdateList;
+    UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -582,8 +647,8 @@ If (Index >= ItemLowIndex) and (Index <= ItemHighIndex) then
     For i := Index to Pred(ItemHighIndex) do
       fList[i] := fList[i + 1];
     Dec(fCount);
-    ReIndex;
     Shrink;
+    ReIndex;    
     UpdateList;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemDelete: Index (%d) out of bounds.',[Index]);

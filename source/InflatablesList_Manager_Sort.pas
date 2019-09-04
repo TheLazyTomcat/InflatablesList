@@ -16,6 +16,7 @@ type
     fDefaultSortSett: TILSortingSettings;
     fActualSortSett:  TILSortingSettings;
     fSortingProfiles: TILSortingProfiles;
+    procedure SetReversedSort(Value: Boolean); virtual;
     Function GetSortProfileCount: Integer; virtual;
     Function GetSortProfile(Index: Integer): TILSortingProfile; virtual;
     procedure SetSortProfile(Index: Integer; Value: TILSortingProfile); virtual;
@@ -33,7 +34,7 @@ type
     procedure SortingProfileClear; virtual;
     procedure ItemSort(SortingProfile: Integer); overload; virtual;
     procedure ItemSort; overload; virtual;
-    property ReversedSort: Boolean read fReversedSort write fReversedSort;
+    property ReversedSort: Boolean read fReversedSort write SetReversedSort;
     property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
     property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
@@ -46,6 +47,17 @@ uses
   SysUtils,
   ListSorters,
   InflatablesList_Utils;
+
+procedure TILManager_Sort.SetReversedSort(Value: Boolean);
+begin
+If fReversedSort <> Value then
+  begin
+    fReversedSort := Value;
+    UpdateSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILManager_Sort.GetSortProfileCount: Integer;
 begin
@@ -242,6 +254,7 @@ If Length(fList) > 1 then
       Sorter.Free;
     end;
     ReIndex;
+    UpdateList;
   end;
 end;
 

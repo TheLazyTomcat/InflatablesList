@@ -1,5 +1,5 @@
 unit PromptForm;
-{$message 'll_rework'}
+
 interface
 
 uses

@@ -1,5 +1,4 @@
 unit TextEditForm;
-{$message 'll_rework'}
 
 interface
 

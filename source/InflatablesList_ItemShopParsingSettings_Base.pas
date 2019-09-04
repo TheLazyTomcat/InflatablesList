@@ -73,7 +73,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
 
 procedure TILItemShopParsingSettings_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
@@ -113,7 +114,7 @@ procedure TILItemShopParsingSettings_Base.SetVariable(Index: Integer; const Valu
 begin
 If (Index >= Low(fVariables.Vars)) and (Index <= High(fVariables.Vars)) then
   begin
-    If not AnsiSameStr(fVariables.Vars[Index],Value) then
+    If not IL_SameStr(fVariables.Vars[Index],Value) then
       begin
         fVariables.Vars[Index] := Value;
         UniqueString(fVariables.Vars[Index]);
@@ -126,7 +127,7 @@ end;
 
 procedure TILItemShopParsingSettings_Base.SetTemplateRef(const Value: String);
 begin
-If not AnsiSameStr(fTemplateRef,Value) then
+If not IL_SameStr(fTemplateRef,Value) then
   begin
     fTemplateRef := Value;
     UniqueString(fTemplateRef);

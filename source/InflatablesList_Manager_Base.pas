@@ -15,21 +15,21 @@ uses
 type
   TILManager_Base = class(TCustomListObject)
   protected
-    fStaticSettings: TILStaticManagerSettings;  // not changed at runtime
-    fDataProvider:  TILDataProvider;
-    fSorting:       Boolean;                  // used only during sorting to disable reindexing
-    fUpdateCounter: Integer;
-    fUpdated:       Boolean;
+    fStaticSettings:  TILStaticManagerSettings; // not changed at runtime
+    fDataProvider:    TILDataProvider;
+    fSorting:         Boolean;                  // used only during sorting to disable reindexing
+    fUpdateCounter:   Integer;
+    fUpdated:         Boolean;
     // main list
-    fList:          array of TILItem;
-    fCount:         Integer;
+    fList:            array of TILItem;
+    fCount:           Integer;
     // other data
-    fNotes:         String;
+    fNotes:           String;
     // encryption
-    fEncrypted:     Boolean;
-    fListPassword:  String;
+    fEncrypted:       Boolean;
+    fListPassword:    String;
     // internal events forwarded from item shops
-    fOnShopListItemUpdate:  TILObjectL2Event;
+    fOnShopListItemUpdate:  TILIndexedObjectL2Event;
     fOnShopValuesUpdate:    TILObjectL2Event;
     fOnShopAvailHistoryUpd: TILObjectL2Event;
     fOnShopPriceHistoryUpd: TILObjectL2Event;
@@ -43,6 +43,7 @@ type
     fOnMainListUpdate:      TNotifyEvent;
     fOnSmallListUpdate:     TNotifyEvent;
     fOnOverviewUpdate:      TNotifyEvent;
+    fOnSettingsChange:      TNotifyEvent;
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
@@ -72,7 +73,7 @@ type
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     // other
-    procedure DoUpdate; virtual;    
+    procedure UpdateList; virtual;
     procedure ReIndex; virtual;
   public
     constructor Create;
@@ -106,9 +107,8 @@ type
     // encryption
     property Encrypted: Boolean read fEncrypted write fEncrypted;
     property ListPassword: String read fListPassword write fListPassword;
-    // events
     // item shop events
-    property OnShopListItemUpdate: TILObjectL2Event read fOnShopListItemUpdate write fOnShopListItemUpdate;
+    property OnShopListItemUpdate: TILIndexedObjectL2Event read fOnShopListItemUpdate write fOnShopListItemUpdate;
     property OnShopValuesUpdate: TILObjectL2Event read fOnShopValuesUpdate write fOnShopValuesUpdate;
     property OnShopAvailHistoryUpdate: TILObjectL2Event read fOnShopAvailHistoryUpd write fOnShopAvailHistoryUpd;
     property OnShopPriceHistoryUpdate: TILObjectL2Event read fOnShopPriceHistoryUpd write fOnShopPriceHistoryUpd;
@@ -122,6 +122,7 @@ type
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
     property OnOverviewUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
+    property OnSettingsChange: TNotifyEvent read fOnSettingsChange write fOnSettingsChange;
   end;
 
 implementation
@@ -179,9 +180,8 @@ end;
 
 procedure TILManager_Base.ShopUpdateShopListItemHandler(Sender: TObject; Shop: TObject; Index: Integer);
 begin
-{$message 'reimplement'}
 If Assigned(fOnShopListItemUpdate) and (Sender is TILItem) and (Shop is TILItemShop) then
-  fOnShopListItemUpdate(Self,Sender,Shop);
+  fOnShopListItemUpdate(Self,Sender,Shop,Index);
 end;
 
 //------------------------------------------------------------------------------
@@ -371,7 +371,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.DoUpdate;
+procedure TILManager_Base.UpdateList;
 begin
 UpdateMainList;
 UpdateSmallList;
@@ -422,7 +422,7 @@ If fUpdateCounter <= 0 then
   begin
     fUpdateCounter := 0;
     If fUpdated then
-      DoUpdate;
+      UpdateList;
     fUpdated := False;
   end;
 end;
@@ -478,7 +478,7 @@ fList[Result].AssignInternalEvents(
   ItemUpdateValuesHandler,
   ItemUpdateShopListHandler);
 Inc(fCount);
-DoUpdate;
+UpdateList;
 end;
 
 //------------------------------------------------------------------------------
@@ -506,7 +506,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
       ItemUpdateValuesHandler,
       ItemUpdateShopListHandler);
     Inc(fCount);
-    DoUpdate;
+    UpdateList;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;
@@ -532,7 +532,7 @@ If Idx1 <> Idx2 then
         // full reindex not needed
         fList[Idx1].Index := Idx1;
         fList[Idx2].Index := Idx2;
-        DoUpdate;
+        UpdateList;
       end;
   end;
 end;
@@ -566,7 +566,7 @@ If Src <> Dst then
       end;
     fList[Dst] := Temp;
     ReIndex;
-    DoUpdate;
+    UpdateList;
   end;
 end;
 
@@ -584,7 +584,7 @@ If (Index >= ItemLowIndex) and (Index <= ItemHighIndex) then
     Dec(fCount);
     ReIndex;
     Shrink;
-    DoUpdate;
+    UpdateList;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -599,7 +599,7 @@ For i := ItemLowIndex to ItemHighIndex do
   FreeAndNil(fList[i]);
 fCount := 0;
 Shrink;
-DoUpdate;
+UpdateList;
 end;
 
 //------------------------------------------------------------------------------
@@ -665,7 +665,7 @@ end;
 
 Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): String;
 begin
-Result := Format('%s %s',[IL_BoolToStr(SortingItem.Reversed,'+','-'),
+Result := IL_Format('%s %s',[IL_BoolToStr(SortingItem.Reversed,'+','-'),
   fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
 end;
 

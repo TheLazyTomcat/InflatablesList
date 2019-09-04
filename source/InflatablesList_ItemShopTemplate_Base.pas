@@ -49,7 +49,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
 
 procedure TILItemShopTemplate_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
@@ -61,7 +62,7 @@ end;
 
 procedure TILItemShopTemplate_Base.SetName(const Value: String);
 begin
-If not AnsiSameStr(fName,Value) then
+If not IL_SameStr(fName,Value) then
   begin
     fName := Value;
     UniqueString(fName);    
@@ -73,7 +74,7 @@ end;
 
 procedure TILItemShopTemplate_Base.SetShopName(const Value: String);
 begin
-If not AnsiSameStr(fShopName,Value) then
+If not IL_SameStr(fShopName,Value) then
   begin
     fShopName := Value;
     UniqueString(fShopName);
@@ -104,7 +105,7 @@ end;
 
 procedure TILItemShopTemplate_Base.SetShopURL(const Value: String);
 begin
-If not AnsiSameStr(fShopURL,Value) then
+If not IL_SameStr(fShopURL,Value) then
   begin
     fShopURL := Value;
     UniqueString(fShopURL);
@@ -121,6 +122,7 @@ fUntracked := False;
 fAltDownMethod := False;
 fShopURL := '';
 fParsingSettings := TILItemShopParsingSettings.Create;
+fParsingSettings.StaticSettings := fStaticSettings;
 end;
 
 //------------------------------------------------------------------------------
@@ -169,6 +171,7 @@ fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
+fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.TemplateReference := fName;  // reference self
 end;
 

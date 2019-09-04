@@ -175,7 +175,7 @@ try
                 ItemUpdateShopListHandler);
             end;
           fCount := fCount + Result;
-          DoUpdate;
+          UpdateList;
         end;
     end
   else raise Exception.Create('TILItem_IO.ItemsImport: Invalid stream.');

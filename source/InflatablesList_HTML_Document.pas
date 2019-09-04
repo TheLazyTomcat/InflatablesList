@@ -364,7 +364,7 @@ var
 begin
 Strs.Add(IL_Format('%s<%s>',[IL_StringOfChar(' ',GetLevel * 2),fName.Str]));
 For i := CDA_Low(fAttributes) to CDA_High(fAttributes) do
-  Strs.Add(StringOfChar(' ',GetLevel * 2) + Format('  %s="%s"',
+  Strs.Add(StringOfChar(' ',GetLevel * 2) + IL_Format('  %s="%s"',
     [CDA_GetItem(fAttributes,i).Name.Str,CDA_GetItem(fAttributes,i).Value.Str]));
 For i := CDA_Low(fElements) to CDA_High(fElements) do
   TILHTMLElementNode(CDA_GetItem(fElements,i)).List(Strs);

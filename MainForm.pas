@@ -437,7 +437,7 @@ fSumsForm.Finalize;
 fSpecialsForm.Finalize;
 fOverviewForm.Finalize;
 //fSelectionForm.Finalize;
-//fUpdateForm.Finalize;
+fUpdateForm.Finalize;
 fItemSelectForm.Finalize;
 fUpdResLegendForm.Finalize;
 fSettingsLegendForm.Finalize;
@@ -1177,7 +1177,7 @@ end;
 
 procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
 begin
-fOverviewForm.Show;
+fOverviewForm.ShowOverview;
 end;
 
 //------------------------------------------------------------------------------

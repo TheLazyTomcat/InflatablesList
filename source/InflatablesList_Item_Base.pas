@@ -761,7 +761,10 @@ end;
 procedure TILItem_Base.ShopUpdateValuesHandler(Sender: TObject);
 begin
 If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
-  fOnShopValuesUpdate(Self,Sender);
+  begin
+    GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);  
+    fOnShopValuesUpdate(Self,Sender);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -847,9 +850,7 @@ end;
 procedure TILItem_Base.UpdateValues;
 begin
 If Assigned(fOnValuesUpdate) and (fUpdateCounter <= 0) then
-  begin
-    fOnValuesUpdate(Self);
-  end;
+  fOnValuesUpdate(Self);
 Include(fUpdated,iliufValues);
 end;
 
@@ -866,6 +867,7 @@ end;
 
 procedure TILItem_Base.UpdateShops;
 begin
+GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
 UpdateMainList;   // there can be shop count shown
 UpdateSmallList;  // well...
 UpdateOverview;   // -//-

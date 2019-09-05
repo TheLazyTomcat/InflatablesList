@@ -1,5 +1,5 @@
 unit SortForm;
-{$message 'll_rework'}
+
 interface
 
 uses
@@ -114,7 +114,7 @@ end;
 
 procedure TfSortForm.UpdateNumbers;
 begin
-lblSortBy.Caption := Format('Sort by values (%d/30):',[fLocalSortSett.Count]);
+lblSortBy.Caption := IL_Format('Sort by values (%d/30):',[fLocalSortSett.Count]);
 end;
 
 //==============================================================================
@@ -157,7 +157,7 @@ lbProfiles.Items.BeginUpdate;
 try
   lbProfiles.Clear;
   For i := 0 to Pred(fILManager.SortingProfileCount) do
-    lbProfiles.Items.Add(Format('%s (%d)',
+    lbProfiles.Items.Add(IL_Format('%s (%d)',
       [fILManager.SortingProfiles[i].Name,fILManager.SortingProfiles[i].Settings.Count]));
 finally
   lbProfiles.Items.EndUpdate;
@@ -286,7 +286,7 @@ If IL_InputQuery('Sorting profile name','Enter name for the new sorting profile:
     If Length(ProfileName) > 0 then
       begin
         fILManager.SortingProfileAdd(ProfileName);
-        lbProfiles.Items.Add(Format('%s (%d)',
+        lbProfiles.Items.Add(IL_Format('%s (%d)',
           [ProfileName,fILManager.SortingProfiles[Pred(fILManager.SortingProfileCount)].Settings.Count]));
         lbProfiles.ItemIndex := Pred(lbProfiles.Count);
         lbProfiles.OnClick(nil);
@@ -309,7 +309,7 @@ If lbProfiles.ItemIndex >= 0 then
         If Length(ProfileName) > 0 then
           begin
             fILManager.SortingProfileRename(lbProfiles.ItemIndex,ProfileName);
-            lbProfiles.Items[lbProfiles.ItemIndex] := Format('%s (%d)',
+            lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',
               [ProfileName,fILManager.SortingProfiles[lbProfiles.ItemIndex].Settings.Count]);
           end
         else MessageDlg('Empty name not allowed.',mtError,[mbOK],0);
@@ -324,7 +324,7 @@ var
   Index:  Integer;
 begin
 If lbProfiles.ItemIndex >= 0 then
-  If MessageDlg(Format('Are you sure you want to remove the sorting profile "%s"?',
+  If MessageDlg(IL_Format('Are you sure you want to remove the sorting profile "%s"?',
                 [fILManager.SortingProfiles[lbProfiles.ItemIndex].Name]),
                  mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin

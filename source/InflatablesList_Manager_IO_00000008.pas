@@ -237,7 +237,6 @@ var
 begin
 If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
   begin
-    ItemClear;
     SetLength(fList,Stream_ReadUInt32(Stream));
     fCount := Length(fList);
     For i := ItemLowIndex to ItemHighIndex do

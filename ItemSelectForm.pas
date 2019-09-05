@@ -1,5 +1,4 @@
 unit ItemSelectForm;
-{$message 'll_rework'}
 
 interface
 
@@ -52,6 +51,9 @@ var
 
 implementation
 
+uses
+  InflatablesList_Utils;
+
 {$R *.dfm}
 
 procedure TfItemSelectForm.UpdateIndex;
@@ -59,11 +61,11 @@ begin
 If clbItems.SelCount <= 1 then
   begin
     If clbItems.Count > 0 then
-      lblItems.Caption := Format('Items (%d/%d):',[clbItems.ItemIndex + 1,clbItems.Count])
+      lblItems.Caption := IL_Format('Items (%d/%d):',[clbItems.ItemIndex + 1,clbItems.Count])
     else
       lblItems.Caption := 'Items:';
   end
-else lblItems.Caption := Format('Items (%d/%d)(%d):',[clbItems.ItemIndex + 1,clbItems.Count,clbItems.SelCount])
+else lblItems.Caption := IL_Format('Items (%d/%d)(%d):',[clbItems.ItemIndex + 1,clbItems.Count,clbItems.SelCount])
 end;
 
 //------------------------------------------------------------------------------
@@ -112,13 +114,16 @@ try
   For i := fIlManager.ItemLowIndex to fILManager.ItemHighIndex do
     begin
       If Length(fILManager[i].SizeStr) > 0 then
-        TempStr := Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr])
+        TempStr := IL_Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr])
       else
-        TempStr :=Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]);
+        TempStr := IL_Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]);
       If Length(fILManager[i].TextTag) > 0 then
-        TempStr := TempStr + Format(' {%s}',[fILManager[i].TextTag]);
+        TempStr := TempStr + IL_Format(' {%s}',[fILManager[i].TextTag]);
       clbItems.Items.Add(TempStr);
     end;
+  For i := CDA_Low(Indices) to CDA_High(Indices) do
+    If (CDA_GetItem(Indices,i) >= 0) and (CDA_GetItem(Indices,i) < clbItems.Items.Count) then
+      clbItems.Checked[CDA_GetItem(Indices,i)] := True;
 finally
   clbItems.Items.EndUpdate;
 end;

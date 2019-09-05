@@ -1,5 +1,4 @@
 unit UpdateForm;
-{$message 'll_rework'}
 
 interface
 
@@ -52,6 +51,7 @@ type
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     Function ShowUpdate(var UpdateList: TILItemShopUpdateList): Boolean;
   end;
 
@@ -61,12 +61,13 @@ var
 implementation
 
 uses
-  StrRect;
+  StrRect,
+  InflatablesList_Utils;
 
 {$R *.dfm}
 
 const
-  NR_OF_THREADS_COEF = 2;
+  IL_NR_OF_THREADS_COEF = 2;
 
 //==============================================================================  
 
@@ -125,10 +126,10 @@ procedure TfUpdateForm.MakeLog(Index: Integer);
 var
   TagStr: String;
 begin
-If not AnsiSameText(fLastItemName,fUpdateList[Index].ItemTitle) then
+If not IL_SameText(fLastItemName,fUpdateList[Index].ItemTitle) then
   begin
     If meLog.Lines.Count > 0 then
-      meLog.Lines.Add('');
+      meLog.Lines.Add('');  // empty line
     meLog.Lines.Add(fUpdateList[Index].ItemTitle + sLineBreak);
     fLastItemName := fUpdateList[Index].ItemTitle;
   end;
@@ -136,7 +137,7 @@ If fUpdateList[Index].ItemShop.Selected then
   TagStr := '  * '
 else
   TagStr := '    ';
-meLog.Lines.Add(Format('%s%s %s... %s',[TagStr,fUpdateList[Index].ItemShop.Name,
+meLog.Lines.Add(IL_Format('%s%s %s... %s',[TagStr,fUpdateList[Index].ItemShop.Name,
   StringOfChar('.',fMaxShopNameLen - Length(fUpdateList[Index].ItemShop.Name)),
   fUpdateList[Index].ItemShop.LastUpdateMsg]));
 end;
@@ -188,7 +189,7 @@ If fDoneCount < Length(fUpdateList) then
       pbProgress.Position := Trunc((fDoneCount / Length(fUpdateList)) * pbProgress.Max)
     else
       pbProgress.Position := pbProgress.Max;
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fUpdateList) - fDoneCount]);
+    pnlInfo.Caption := IL_Format('%d item shops ready for update',[Length(fUpdateList) - fDoneCount]);
   end
 else
   begin
@@ -205,7 +206,14 @@ procedure TfUpdateForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 fUpdater := nil;
-seNumberOfThreads.Value := TCNTSManager.GetProcessorCount * NR_OF_THREADS_COEF;
+seNumberOfThreads.Value := TCNTSManager.GetProcessorCount * IL_NR_OF_THREADS_COEF;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfUpdateForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------
@@ -218,7 +226,7 @@ Result := False;
 If Length(UpdateList) > 0 then
   begin
     // init form
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(UpdateList)]);
+    pnlInfo.Caption := IL_Format('%d item shops ready for update',[Length(UpdateList)]);
     btnAction.Tag := 0;
     btnAction.Caption := 'Start';
     pbProgress.Position := 0;

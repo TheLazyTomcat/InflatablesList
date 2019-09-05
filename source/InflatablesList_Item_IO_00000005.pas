@@ -151,7 +151,6 @@ fAvailableLowest := Stream_ReadInt32(Stream);
 fAvailableHighest := Stream_ReadInt32(Stream);
 fAvailableSelected := Stream_ReadInt32(Stream);
 // shops
-ShopClear;
 SetLength(fShops,Stream_ReadUInt32(Stream));
 fShopCount := Length(fShops);
 For i := ShopLowIndex to ShopHighIndex do

@@ -1,5 +1,4 @@
 unit SpecialsForm;
-{$message 'll_rework'}
 
 interface
 
@@ -46,8 +45,8 @@ implementation
 {$R *.dfm}
 
 uses
-  StrUtils,
-  InflatablesList_Types;
+  InflatablesList_Types,
+  InflatablesList_Utils;
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin
@@ -95,7 +94,7 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    If AnsiSameText(fILManager[i][j].Name,leParam_1.Text) then
+    If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
       fILManager[i][j].AltDownMethod := True;
 end;
 
@@ -141,8 +140,8 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
-    fILManager[i].ItemPictureFile := AnsiReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
-    fILManager[i].PackagePictureFile := AnsiReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
+    fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+    fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
   end;
 end;
 
@@ -153,7 +152,7 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If AnsiSameText(fILManager[i].TextTag,leParam_1.Text) then
+  If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
     fILManager[i].TextTag := leParam_2.Text;
 end;
 
@@ -166,11 +165,7 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
     If not fILManager[i][j].Selected then
-      begin
-        fILManager[i].ShopDelete(j);
-        fILManager[i].GetAndFlagPriceAndAvail(
-          fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
-      end;
+      fILManager[i].ShopDelete(j);
 end;
 
 end.

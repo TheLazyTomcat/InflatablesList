@@ -31,6 +31,9 @@ Function IL_LowerCase(const Str: String): String;
 
 Function IL_FormatDateTime(const FormatStr: String; DateTIme: TDateTIme): String;
 
+Function IL_ReplaceText(const Text, FromText, ToText: String): String;
+Function IL_ReplaceStr(const Text, FromText, ToText: String): String;
+
 //==============================================================================
 //- comparison functions used in sorting ---------------------------------------
 
@@ -185,6 +188,20 @@ end;
 Function IL_FormatDateTime(const FormatStr: String; DateTIme: TDateTIme): String;
 begin
 Result := FormatDateTIme(FormatStr,DateTime,ILLocalFormatSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReplaceText(const Text, FromText, ToText: String): String;
+begin
+Result := AnsiReplaceText(Text,FromText,ToText);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ReplaceStr(const Text, FromText, ToText: String): String;
+begin
+Result := AnsiReplaceStr(Text,FromText,ToText);
 end;
 
 

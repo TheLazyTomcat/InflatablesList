@@ -406,10 +406,14 @@ end;
 
 procedure TfrmShopFrame.Load(OnlyRefillTepmlatesList: Boolean = False);
 begin
-If OnlyRefillTepmlatesList then
-  FillTemplatesList
-else
-  FrameLoad;
+If not OnlyRefillTepmlatesList then
+  begin
+    If Assigned(fCurrentItemShop) then
+      FrameLoad
+    else
+      FrameClear;
+  end
+else FillTemplatesList;
 end;
 
 //------------------------------------------------------------------------------
@@ -599,6 +603,8 @@ If Assigned(fCurrentItemShop) then
     Temp := meNotes.Text;
     fTextEditForm.ShowTextEditor('Edit item shop notes',Temp,False);
     meNotes.Text := Temp;
+    meNotes.SelStart := Length(meNotes.Text);
+    meNotes.SelLength := 0;
   end;
 end;
 

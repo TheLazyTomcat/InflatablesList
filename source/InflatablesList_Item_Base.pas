@@ -383,16 +383,20 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetPieces(Value: UInt32);
+var
+  i:  Integer;
 begin
 If fPieces <> Value then
   begin
     fPieces := Value;
+    For i := ShopLowIndex to ShopHighIndex do
+      fShops[i].RequiredCount := fPieces;    
     BeginUpdate;
     try
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateMainList;
       UpdateSmallList;
-      UpdateOverview;      
+      UpdateOverview;
       UpdateTitle;
       UpdateValues;
       // UpdteFlags is called in FlagPriceAndAvail only when needed
@@ -576,6 +580,7 @@ begin
 If fUnitWeight <> Value then
   begin
     fUnitWeight := Value;
+    UpdateOverview;
     UpdateValues;
   end;
 end;

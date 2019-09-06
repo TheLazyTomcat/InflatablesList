@@ -180,7 +180,10 @@ end;
 
 procedure TfrmComparatorFrame.Load;
 begin
-FrameLoad;
+If Assigned(fComparator) then
+  FrameLoad
+else
+  FrameClear;
 end;
 
 //------------------------------------------------------------------------------

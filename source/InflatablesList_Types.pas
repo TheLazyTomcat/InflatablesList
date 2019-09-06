@@ -76,6 +76,8 @@ type
                      ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
                      ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
 
+Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
+
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 Function IL_NumToItemType(Num: Int32): TILItemType;
 
@@ -396,6 +398,22 @@ end;
 
 //==============================================================================
 //- list item ------------------------------------------------------------------
+
+Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
+begin
+case PictureKind of
+  ilipkMain:      If FullString then Result := 'Item picture'
+                    else Result := 'item';
+  ilipkSecondary: If FullString then Result := 'Secondary picture'
+                    else Result := 'secondary';
+  ilipkPackage:   If FullString then Result := 'Package picture'
+                    else Result := 'package';
+else
+  Result := '';
+end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 begin

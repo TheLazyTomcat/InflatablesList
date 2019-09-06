@@ -131,7 +131,10 @@ end;
 
 procedure TfrmExtractionFrame.Load;
 begin
-FrameLoad;
+If Assigned(fExtractSett) then
+  FrameLoad
+else
+  FrameClear;
 end;
 
 //------------------------------------------------------------------------------

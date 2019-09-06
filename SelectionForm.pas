@@ -492,7 +492,7 @@ var
   TempItem:   TILShopSelectItemEntry;
 begin
 // draw on bitmap and then copy it using copyrect, this flickers
-If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
+If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index) then
     begin
       // adjust draw buffer size

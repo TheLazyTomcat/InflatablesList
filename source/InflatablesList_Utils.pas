@@ -61,6 +61,8 @@ Function IL_ChangeFileExt(const FileName,NewExt: String): String;
 
 Function IL_ExpandFileName(const FileName: String): String;
 
+Function IL_MinimizeName(const FileName: String; Canvas: TCanvas; MaxLen: Integer): String;
+
 procedure IL_CreateDirectory(const Directory: String);
 procedure IL_CreateDirectoryPath(const Path: String);
 procedure IL_CreateDirectoryPathForFile(const FileName: String);
@@ -100,7 +102,7 @@ procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
 implementation
 
 uses
-  StrUtils, ShellAPI,
+  StrUtils, ShellAPI, {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON}
   StrRect;
 
 //==============================================================================
@@ -385,6 +387,13 @@ end;
 Function IL_ExpandFileName(const FileName: String): String;
 begin
 Result := RTLToStr(ExpandFileName(StrToRTL(FileName)));
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_MinimizeName(const FileName: String; Canvas: TCanvas; MaxLen: Integer): String;
+begin
+Result := RTLToStr(MinimizeName(StrToRTL(FileName),Canvas,MaxLen));
 end;
 
 //------------------------------------------------------------------------------

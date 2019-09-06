@@ -236,7 +236,7 @@ type
 implementation
 
 uses
-  AuxTypes, StrRect,
+  StrRect,
   TextEditForm, ShopsForm, UpdateForm,
   InflatablesList_Utils,
   InflatablesList_ItemShop;

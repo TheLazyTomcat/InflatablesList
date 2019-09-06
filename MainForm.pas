@@ -1,5 +1,5 @@
-unit MainForm;{$message 'revisit'}
-{$message 'll_rework'}
+unit MainForm;
+
 interface
 
 uses
@@ -207,20 +207,27 @@ type
     procedure acExitExecute(Sender: TObject);
     procedure acSortByCommonExecute(Sender: TObject);
   private
+    fDrawBuffer:  TBitmap;
     fSaveOnExit:  Boolean;
     fILManager:   TILManager;
+  {
+    individual bits correspond to present sorting profiles
+    when the bit is set, a profile exists at an index matching the bit index
+    when the bit is not set, no profile exists at that position
+  }
     fActionMask:  UInt32;
   protected
     procedure RePositionMainForm;
+    procedure BuildSortBySubmenu;    
     procedure FillCopyright;
     procedure FillListFileName;
-    procedure BuildSortBySubmenu;
     procedure UpdateIndexAndCount;
     Function SaveList: Boolean;
     // event handlers
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
     procedure FocusList(Sender: TObject);
+    procedure SettingsChange(Sender: TObject);
   public
     procedure InitializeOtherForms; // called before Application.Run from project file
     procedure FinalizeOtherForms;
@@ -232,23 +239,23 @@ var
 implementation
 
 uses
-  {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON} CommCtrl,
-  WinFileInfo, BitOps, CountedDynArrayInteger, CountedDynArrayObject,
-  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
-  SettingsLegendForm, AboutForm, PromptForm,
+  CommCtrl,
+  WinFileInfo, BitOps, CountedDynArrayInteger,
+  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
+  UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm,
   InflatablesList_Types,
-  InflatablesList_Backup,
-  InflatablesList_Item;
+  InflatablesList_Utils,
+  InflatablesList_Backup;
 
 {$R *.dfm}
 
 const
-  STATUSBAR_PANEL_IDX_INDEX        = 0;
-  STATUSBAR_PANEL_IDX_STATIC_SETT  = 1;
-  STATUSBAR_PANEL_IDX_DYNAMIC_SETT = 2;
-  STATUSBAR_PANEL_IDX_FILENAME     = 3;
-  STATUSBAR_PANEL_IDX_COPYRIGHT    = 4;
+  IL_STATUSBAR_PANEL_IDX_INDEX        = 0;
+  IL_STATUSBAR_PANEL_IDX_STATIC_SETT  = 1;
+  IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT = 2;
+  IL_STATUSBAR_PANEL_IDX_FILENAME     = 3;
+  IL_STATUSBAR_PANEL_IDX_COPYRIGHT    = 4;
 
 //==============================================================================
 
@@ -266,7 +273,7 @@ var
   end;
 
 begin
-WorkRect := Screen.MonitorFromWindow(Self.Handle).WorkareaRect;
+WorkRect := Screen.MonitorFromWindow(Self.Handle).WorkAreaRect;
 WorkRectSize := Point(WorkRect.Right - WorkRect.Left,WorkRect.Bottom - WorkRect.Top);
 If Height > WorkRectSize.Y then
   begin
@@ -280,40 +287,6 @@ else If BoundsRect.Bottom > WorkRect.Bottom then
     PositionOnX;    
     Top := WorkRect.Top + (WorkRectSize.Y - Height) div 2;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.FillCopyright;
-begin
-with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
-try
-  sbStatusBar.Panels[STATUSBAR_PANEL_IDX_COPYRIGHT].Text := Format('%s, version %d.%d.%d %s%s #%d %s',[
-    VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
-    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
-    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
-    {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
-finally
-  Free;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.FillListFileName;
-begin
-If sbStatusBar.Canvas.TextWidth(fILManager.StaticSettings.ListFile) >
-  (sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width - (2 * GetSystemMetrics(SM_CXFIXEDFRAME))) then
-  begin
-    sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text :=
-      MinimizeName(fILManager.StaticSettings.ListFile,sbStatusBar.Canvas,
-        sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Width -
-        (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
-  end
-else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticSettings.ListFile;
 end;
 
 //------------------------------------------------------------------------------
@@ -335,7 +308,7 @@ fActionMask := 0;
 For i := 0 to Pred(fILManager.SortingProfileCount) do
   begin
     MITemp := TMenuItem.Create(Self);
-    MITemp.Name := Format('mniLM_SB_Profile%d',[i]);
+    MITemp.Name := IL_Format('mniLM_SB_Profile%d',[i]);
     MITemp.Caption := fILManager.SortingProfiles[i].Name;
     MITemp.OnClick := mniLM_SortByClick;
     MITemp.Tag := i;
@@ -348,16 +321,51 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.FillCopyright;
+begin
+with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
+try
+  sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_COPYRIGHT].Text := IL_Format('%s, version %d.%d.%d %s%s #%d %s',[
+    VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright'],
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
+    {$IFDEF FPC}'L'{$ELSE}'D'{$ENDIF},{$IFDEF x64}'64'{$ELSE}'32'{$ENDIF},
+    VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
+    {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
+finally
+  Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FillListFileName;
+begin
+If sbStatusBar.Canvas.TextWidth(fILManager.StaticSettings.ListFile) >
+  (sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width -
+   (2 * GetSystemMetrics(SM_CXFIXEDFRAME))) then
+  begin
+    sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Text :=
+      IL_MinimizeName(fILManager.StaticSettings.ListFile,sbStatusBar.Canvas,
+        sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width -
+        (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
+  end
+else sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticSettings.ListFile;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.UpdateIndexAndCount;
 begin
 If lbList.ItemIndex < 0 then
   begin
     If fILManager.ItemCount > 0 then
-      sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := Format('-/%d',[fILManager.ItemCount])
+      sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDEX].Text := IL_Format('-/%d',[fILManager.ItemCount])
     else
-      sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := '-/-';
+      sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDEX].Text := '-/-';
   end
-else sbStatusBar.Panels[STATUSBAR_PANEL_IDX_INDEX].Text := Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
+else sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDEX].Text := IL_Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
 end;
 
 //------------------------------------------------------------------------------
@@ -368,8 +376,9 @@ Result := False;
 If not fILManager.StaticSettings.NoSave then
   begin
     If not fILManager.StaticSettings.NoBackup then
-      If FileExists(fILManager.StaticSettings.ListFile) then
-        DoBackup(fILManager.StaticSettings.ListFile,IncludeTrailingPathDelimiter(fILManager.StaticSettings.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
+      If IL_FileExists(fILManager.StaticSettings.ListFile) then
+        DoBackup(fILManager.StaticSettings.ListFile,
+                 IncludeTrailingPathDelimiter(fILManager.StaticSettings.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
     fILManager.SaveToFile;
     FillListFileName;
     Result := True;
@@ -402,6 +411,13 @@ end;
 procedure TfMainForm.FocusList(Sender: TObject);
 begin
 lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.SettingsChange(Sender: TObject);
+begin
+sbStatusBar.Invalidate;
 end;
 
 //==============================================================================
@@ -466,18 +482,23 @@ mniLM_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 acSortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 acUpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 acUpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
-// shortcuts of sort-by actions
+// shortcuts of sort-by actions (menu items are set in creation)
 For i := 0 to Pred(ComponentCount) do
   If Components[i] is TAction then
-    If AnsiSameText(TAction(Components[i]).Category,'sorting_by') then
-      TAction(Components[i]).ShortCut :=
-        ShortCut(Ord('0') + ((TAction(Components[i]).Tag + 1) mod 10),[ssCtrl]);
+    If IL_SameText(TAction(Components[i]).Category,'sorting_by') then
+      TAction(Components[i]).ShortCut := ShortCut(Ord('0') +
+        ((TAction(Components[i]).Tag + 1) mod 10),[ssCtrl]);
+// fill some texts
 FillCopyright;
 eSearchFor.OnExit(nil);
 // prepare variables/fields
+fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
 fSaveOnExit := True;
 fILManager := TILManager.Create;
 fILManager.OnMainListUpdate := InvalidateList;
+fILManager.OnSettingsChange := SettingsChange;
+fActionMask := 0;
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
@@ -504,7 +525,8 @@ else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
 mniLM_SortRev.Checked := fILManager.ReversedSort;
-sbStatusBar.Invalidate;
+sbStatusBar.Invalidate; // to show settings
+// build some things and final touches
 BuildSortBySubmenu;
 RePositionMainForm;
 end;
@@ -515,16 +537,18 @@ procedure TfMainForm.FormDestroy(Sender: TObject);
 begin
 frmItemFrame.SetItem(nil,True);
 frmItemFrame.Finalize;
-lbList.Items.Clear; // to be sure
 If fSaveOnExit then
   SaveList;
+lbList.Items.Clear; // to be sure
 FreeAndNil(fILManager);
+FreeAndNil(fDrawBuffer);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
+// first drawing
 fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
 lbList.SetFocus;
 end;
@@ -559,17 +583,12 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLM_AddClick(Sender: TObject);
-var
-  Index:  Integer;
-begin 
-Index := lbList.ItemIndex;
-If Index >= 0 then
-  frmItemFrame.SetItem(fILManager[Index],False);
-lbList.Items.Add(IntToStr(lbList.Count));  
+begin
+lbList.Items.Add(IntToStr(lbList.Count));
 lbList.ItemIndex := fILManager.ItemAddEmpty;
-fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems); // will also redraw and update the list
-lbList.OnClick(nil);
-UpdateIndexAndCount;
+// following will also redraw new item and update the list
+fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+lbList.OnClick(nil);  // also calls UpdateIndexAndCount
 end;
 
 //------------------------------------------------------------------------------
@@ -580,14 +599,12 @@ var
 begin
 If lbList.ItemIndex >= 0 then
   begin
+    frmItemFrame.Save;  // save unsaved data for copying
     Index := lbList.ItemIndex;
-    If Index >= 0 then
-      frmItemFrame.SetItem(fILManager[Index],False);
     lbList.Items.Add(IntToStr(lbList.Count));
     lbList.ItemIndex := fILManager.ItemAddCopy(Index);
     fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
     lbList.OnClick(nil);
-    UpdateIndexAndCount;
   end;
 end;
 
@@ -598,11 +615,10 @@ var
   Index:  Integer;
 begin
 If lbList.ItemIndex >= 0 then
-  If MessageDlg(Format('Are you sure you want to remove the item "%s"?',
+  If MessageDlg(IL_Format('Are you sure you want to remove the item "%s"?',
        [fILManager[lbList.ItemIndex].TitleStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
-      frmItemFrame.Save;
-      frmItemFrame.SetItem(nil,False);
+      frmItemFrame.SetItem(nil,False);  // the item will be delted, so unbind it
       Index := lbList.ItemIndex;
       fILManager.ItemDelete(Index);
       lbList.Items.Delete(Index);
@@ -616,7 +632,6 @@ If lbList.ItemIndex >= 0 then
         end
       else lbList.ItemIndex := -1;
       lbList.OnClick(nil);
-      UpdateIndexAndCount;
     end;
 end;
 
@@ -629,7 +644,7 @@ If lbList.Count > 0 then
        mtWarning,[mbYes,mbNo],0) = mrYes then
     begin
       lbList.ItemIndex := -1;
-      lbList.OnClick(nil);
+      lbList.OnClick(nil);  // also clears item frame
       lbList.Items.Clear;
       fILManager.ItemClear;
       UpdateIndexAndCount;
@@ -760,12 +775,8 @@ procedure TfMainForm.mniLM_ItemShopsClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   begin
-    frmItemFrame.Save;
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
-    // load potential changes
-    frmItemFrame.Load;
-    fILManager[lbList.ItemIndex].ReDraw;
     lbList.SetFocus;
   end;
 end;
@@ -800,7 +811,7 @@ If CDA_Count(Indices) > 0 then
       For i := Low(IndicesArr) to High(IndicesArr) do
         IndicesArr[i] := CDA_GetItem(Indices,i);
       fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
-      MessageDlg(Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
+      MessageDlg(IL_Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
       lbList.SetFocus;
     end;
 end;
@@ -813,8 +824,6 @@ var
 begin
 If diaItemsImport.Execute then
   begin
-    If lbList.ItemIndex >= 0 then
-      frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
     Cntr := fILManager.ItemsImport(diaItemsImport.FileName);
     If Cntr > 0 then
       begin
@@ -824,9 +833,8 @@ If diaItemsImport.Execute then
         fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
       end;
     lbList.OnClick(nil);
-    UpdateIndexAndCount;
     If Cntr > 0 then
-      MessageDlg(Format('%d items imported.',[Cntr]),mtInformation,[mbOK],0)
+      MessageDlg(IL_Format('%d items imported.',[Cntr]),mtInformation,[mbOK],0)
     else
       MessageDlg('No item imported.',mtInformation,[mbOK],0)
   end;
@@ -936,7 +944,6 @@ else
       frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
-sbStatusBar.Invalidate;
 BuildSortBySubmenu;
 lbList.SetFocus;
 end;
@@ -947,7 +954,6 @@ procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
 mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
 fILManager.ReversedSort := mniLM_SortRev.Checked;
-sbStatusBar.Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -972,33 +978,11 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.mniLN_UpdateCommon(UpdateList: TILItemShopUpdateList);
-var
-  i:        Integer;
-  OldAvail: Int32;
-  OldPrice: UInt32;
-  ItemList: TCountedDynArrayObject;
 begin
 If Length(UpdateList) > 0 then
-  begin
-    // update
-    fUpdateForm.ShowUpdate(UpdateList);
-    // build list of updated items
-    CDA_Init(ItemList);
-    For i := Low(UpdateList) to High(UpdateList) do
-      If UpdateList[i].Done and not CDA_CheckIndex(ItemList,CDA_IndexOf(ItemList,UpdateList[i].Item)) then
-        CDA_Add(ItemList,UpdateList[i].Item);
-    // recalc prices
-    For i := CDA_Low(ItemList) to CDA_High(ItemList) do
-      begin
-        OldAvail := TILItem(CDA_GetItem(ItemList,i)).AvailableSelected;
-        OldPrice := TILItem(CDA_GetItem(ItemList,i)).UnitPriceSelected;
-        //TILItem(CDA_GetItem(ItemList,i)).UpdatePriceAndAvail;
-        //TILItem(CDA_GetItem(ItemList,i)).FlagPriceAndAvail(OldPrice,OldAvail);
-      end;
-    // show changes
-    frmItemFrame.Load;
-  end
-else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
+  fUpdateForm.ShowUpdate(UpdateList)
+else
+  MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;
 
 //------------------------------------------------------------------------------
@@ -1010,14 +994,13 @@ var
 begin
 If lbList.ItemIndex >= 0 then
   begin
-    frmItemFrame.Save;
+    fILManager[lbList.ItemIndex].BroadcastReqCount;  
     // create update list
     SetLength(List,fILManager[lbList.ItemIndex].ShopCount);
-    fILManager[lbList.ItemIndex].BroadcastReqCount;
     For i := fILManager[lbList.ItemIndex].ShopLowIndex to fILManager[lbList.ItemIndex].ShopHighIndex do
       begin
         List[i].Item := fILManager[lbList.ItemIndex];
-        List[i].ItemTitle := Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
+        List[i].ItemTitle := IL_Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
         List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
         List[i].Done := False;
       end;
@@ -1034,7 +1017,6 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1050,7 +1032,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     begin
       List[Cntr].Item := fILManager[i];
-      List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
+      List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
       List[Cntr].ItemShop := fILManager[i].Shops[j];
       List[Cntr].Done := False;
       Inc(Cntr);
@@ -1067,7 +1049,6 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1085,7 +1066,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       begin
         List[Cntr].Item := fILManager[i];
-        List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
+        List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
         List[Cntr].ItemShop := fILManager[i].Shops[j];
         List[Cntr].Done := False;
         Inc(Cntr);
@@ -1102,7 +1083,6 @@ var
   i,j:  Integer;
   Cntr: Integer;
 begin
-frmItemFrame.Save;
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
@@ -1120,7 +1100,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     If fILManager[i].Shops[j].Selected then
       begin
         List[Cntr].Item := fILManager[i];
-        List[Cntr].ItemTitle := Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
+        List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
         List[Cntr].ItemShop := fILManager[i].Shops[j];
         List[Cntr].Done := False;
         Inc(Cntr);
@@ -1186,9 +1166,8 @@ procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
 begin
 frmItemFrame.Save;
 fSelectionForm.ShowSelection;
-// load potential changes
+// load potential changes (tags mainly)
 frmItemFrame.Load;
-lbList.Invalidate;
 lbList.SetFocus;
 end;
 
@@ -1295,28 +1274,40 @@ end;
 
 procedure TfMainForm.lbListDrawItem(Control: TWinControl; Index: Integer;
   Rect: TRect; State: TOwnerDrawState);
+var
+  BoundsRect: TRect;
 begin
-// content
-lbList.Canvas.Draw(Rect.Left,Rect.Top,fILManager.Items[Index].Render);
-// separator line
-lbList.Canvas.Pen.Style := psSolid;
-lbList.Canvas.Pen.Color := clSilver;
-lbList.Canvas.MoveTo(Rect.Left,Pred(Rect.Bottom));
-lbList.Canvas.LineTo(Rect.Right,Pred(Rect.Bottom));
-// states
-If odSelected	in State then
+If Assigned(fDrawBuffer) then
   begin
-    lbList.Canvas.Pen.Style := psClear;
-    lbList.Canvas.Brush.Style := bsSolid;
-    lbList.Canvas.Brush.Color := clLime;
-    lbList.Canvas.Rectangle(Rect.Left,Rect.Top,Rect.Left + 11,Rect.Bottom);
-  end;
-If odFocused in State then
-  begin
-    lbList.Canvas.Pen.Style := psDot;
-    lbList.Canvas.Pen.Color := clSilver;
-    lbList.Canvas.Brush.Style := bsClear;
-    lbList.Canvas.DrawFocusRect(Rect);
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    with fDrawBuffer.Canvas do
+      begin
+        // content
+        Draw(BoundsRect.Left,BoundsRect.Top,fILManager.Items[Index].Render);
+        // separator line
+        Pen.Style := psSolid;
+        Pen.Color := clSilver;
+        MoveTo(BoundsRect.Left,Pred(BoundsRect.Bottom));
+        LineTo(BoundsRect.Right,Pred(BoundsRect.Bottom));
+        // states
+        If odSelected	in State then
+          begin
+            Pen.Style := psClear;
+            Brush.Style := bsSolid;
+            Brush.Color := clLime;
+            Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 11,BoundsRect.Bottom);
+          end;
+      end;
+    // move drawbuffer to the canvas
+    lbList.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+    // disable focus rect
+    If odFocused in State then
+      lbList.Canvas.DrawFocusRect(Rect);
   end;
 end;
 
@@ -1376,52 +1367,68 @@ procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
 const
   STAT_OPTS_SPC = 5;
 var
-  i:        Integer;
-  TempInt:  Integer;
+  BoundsRect: TRect;
+  i:          Integer;
+  TempInt:    Integer;
 
   procedure DrawOptText(const Text: String; var Left: Integer; Enabled: Boolean; Shift: Integer = 0);
   begin
     If Enabled then
-      sbStatusBar.Canvas.Font.Color := sbStatusBar.Font.Color
+      fDrawBuffer.Canvas.Font.Color := sbStatusBar.Font.Color
     else
-      sbStatusBar.Canvas.Font.Color := clGrayText;
-    sbStatusBar.Canvas.TextOut(Left,Rect.Top,Text);
+      fDrawBuffer.Canvas.Font.Color := clGrayText;
+    fDrawBuffer.Canvas.TextOut(Left,BoundsRect.Top,Text);
     If Shift > 0 then
-      Inc(Left,sbStatusBar.Canvas.TextWidth(Text) + Shift);
+      Inc(Left,fDrawBuffer.Canvas.TextWidth(Text) + Shift);
   end;
 
 begin
-case Panel.Index of
-  STATUSBAR_PANEL_IDX_STATIC_SETT:
-    with sbStatusBar.Canvas do
-      begin
-        TempInt := 0;
-        For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
-          If i < High(IL_STATIC_SETTINGS_TAGS) then
-            Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]) + STAT_OPTS_SPC)
-          else
-            Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]));
-        TempInt := Rect.Left + (Rect.Right - Rect.Left - TempInt) div 2;
-        Brush.Style := bsClear;
-        Pen.Style := psClear;           
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[0],TempInt,fILManager.StaticSettings.NoPictures,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[1],TempInt,fILManager.StaticSettings.TestCode,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[2],TempInt,fILManager.StaticSettings.SavePages,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[3],TempInt,fILManager.StaticSettings.LoadPages,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[4],TempInt,fILManager.StaticSettings.NoSave,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,STAT_OPTS_SPC);
-        DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,STAT_OPTS_SPC);
-      end;
-  STATUSBAR_PANEL_IDX_DYNAMIC_SETT:
-    with sbStatusBar.Canvas do
-      begin
-        TempInt := Rect.Left + (Rect.Right - Rect.Left - TextWidth('s.rev')) div 2;
-        Brush.Style := bsClear;
-        Pen.Style := psClear;
-        DrawOptText('s.rev',TempInt,fILManager.ReversedSort);
-      end;
-end;
+If Assigned(fDrawBuffer) then
+  begin
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    fDrawBuffer.Canvas.Font.Assign(sbStatusBar.Canvas.Font);
+    // get background (it is pre-drawn by the system)
+    fDrawBuffer.Canvas.CopyRect(BoundsRect,sbStatusBar.Canvas,Rect);
+    // draw panels
+    case Panel.Index of
+      IL_STATUSBAR_PANEL_IDX_STATIC_SETT:
+        with fDrawBuffer.Canvas do
+          begin
+            TempInt := 0;
+            For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
+              If i < High(IL_STATIC_SETTINGS_TAGS) then
+                Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]) + STAT_OPTS_SPC)
+              else
+                Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]));
+            TempInt := BoundsRect.Left + (BoundsRect.Right - BoundsRect.Left - TempInt) div 2;
+            Brush.Style := bsClear;
+            Pen.Style := psClear;
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[0],TempInt,fILManager.StaticSettings.NoPictures,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[1],TempInt,fILManager.StaticSettings.TestCode,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[2],TempInt,fILManager.StaticSettings.SavePages,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[3],TempInt,fILManager.StaticSettings.LoadPages,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[4],TempInt,fILManager.StaticSettings.NoSave,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,STAT_OPTS_SPC);
+          end;
+      IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT:
+        with fDrawBuffer.Canvas do
+          begin
+            TempInt := BoundsRect.Left + (BoundsRect.Right - BoundsRect.Left - TextWidth('s.rev')) div 2;
+            Brush.Style := bsClear;
+            Pen.Style := psClear;
+            DrawOptText('s.rev',TempInt,fILManager.ReversedSort);
+          end;
+    end;
+    // move drawbuffer to the canvas
+    sbStatusBar.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1450,9 +1457,9 @@ If Button = mbLeft then
             Break{For i};
           end;
     case Index of
-      STATUSBAR_PANEL_IDX_STATIC_SETT,
-      STATUSBAR_PANEL_IDX_DYNAMIC_SETT: mniLM_SettingsLegend.OnClick(nil);
-      STATUSBAR_PANEL_IDX_COPYRIGHT:    mniLM_About.OnClick(nil);
+      IL_STATUSBAR_PANEL_IDX_STATIC_SETT,
+      IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT: mniLM_SettingsLegend.OnClick(nil);
+      IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniLM_About.OnClick(nil);
     end;
   end;
 end;

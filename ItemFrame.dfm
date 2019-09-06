@@ -902,7 +902,10 @@ object frmItemFrame: TfrmItemFrame
       Top = 448
       Width = 25
       Height = 21
+      Hint = 'Select item picture file...'
       Caption = '...'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 20
       OnClick = btnBrowseItemPictureFileClick
     end
@@ -911,7 +914,10 @@ object frmItemFrame: TfrmItemFrame
       Top = 528
       Width = 25
       Height = 21
+      Hint = 'Select package picture file...'
       Caption = '...'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 24
       OnClick = btnBrowsePackagePictureFileClick
     end
@@ -942,7 +948,10 @@ object frmItemFrame: TfrmItemFrame
       Top = 408
       Width = 25
       Height = 21
+      Hint = 'Open review URL in web browser'
       Caption = '>'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 18
       OnClick = btnReviewOpenClick
     end
@@ -1003,7 +1012,10 @@ object frmItemFrame: TfrmItemFrame
       Top = 488
       Width = 25
       Height = 21
+      Hint = 'Select secondary picture file...'
       Caption = '...'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 22
       OnClick = btnBrowseSecondaryPictureFileClick
     end

@@ -148,7 +148,10 @@ object fParsingForm: TfParsingForm
       Top = 24
       Width = 17
       Height = 25
+      Hint = 'Next entry'
       Caption = '>'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 3
       OnClick = btnExtrNextClick
     end
@@ -157,7 +160,10 @@ object fParsingForm: TfParsingForm
       Top = 24
       Width = 17
       Height = 25
+      Hint = 'Previous entry'
       Caption = '<'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 2
       OnClick = btnExtrPrevClick
     end
@@ -166,7 +172,10 @@ object fParsingForm: TfParsingForm
       Top = 24
       Width = 17
       Height = 25
+      Hint = 'Add new entry'
       Caption = '+'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 0
       OnClick = btnExtrAddClick
     end
@@ -175,7 +184,10 @@ object fParsingForm: TfParsingForm
       Top = 24
       Width = 17
       Height = 25
+      Hint = 'Remove selected entry'
       Caption = '-'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 1
       OnClick = btnExtrRemoveClick
     end

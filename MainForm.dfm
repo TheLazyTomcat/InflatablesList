@@ -123,6 +123,7 @@ object fMainForm: TfMainForm
     Top = 659
     Width = 16
     Height = 21
+    Hint = 'Find previous'
     Caption = '3'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -130,6 +131,8 @@ object fMainForm: TfMainForm
     Font.Name = 'Webdings'
     Font.Style = []
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 3
     OnClick = btnFindPrevClick
   end
@@ -138,6 +141,7 @@ object fMainForm: TfMainForm
     Top = 659
     Width = 16
     Height = 21
+    Hint = 'Find next'
     Caption = '4'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -145,6 +149,8 @@ object fMainForm: TfMainForm
     Font.Name = 'Webdings'
     Font.Style = []
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 4
     OnClick = btnFindNextClick
   end

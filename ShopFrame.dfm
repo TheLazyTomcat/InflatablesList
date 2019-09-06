@@ -116,7 +116,10 @@ object frmShopFrame: TfrmShopFrame
       Top = 56
       Width = 25
       Height = 21
+      Hint = 'Open shop URL in web browser'
       Caption = '>'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 5
       OnClick = btnShopURLOpenClick
     end
@@ -136,7 +139,10 @@ object frmShopFrame: TfrmShopFrame
       Top = 96
       Width = 25
       Height = 21
+      Hint = 'Open item URL in web browser'
       Caption = '>'
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 7
       OnClick = btnShopItemURLOpenClick
     end
@@ -240,6 +246,7 @@ object frmShopFrame: TfrmShopFrame
       Top = 136
       Width = 25
       Height = 21
+      Hint = 'Add available count to history'
       Caption = '6'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -247,6 +254,8 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 9
       OnClick = btnAvailToHistoryClick
     end
@@ -255,6 +264,7 @@ object frmShopFrame: TfrmShopFrame
       Top = 136
       Width = 25
       Height = 21
+      Hint = 'Add price to history'
       Caption = '6'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -262,6 +272,8 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 12
       OnClick = btnPriceToHistoryClick
     end
@@ -453,6 +465,7 @@ object frmShopFrame: TfrmShopFrame
       Top = 0
       Width = 16
       Height = 16
+      Hint = 'Predefined messages'
       Caption = '6'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -460,6 +473,8 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = [fsBold]
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       TabOrder = 14
       TabStop = False
       OnClick = btnPredefNotesClick

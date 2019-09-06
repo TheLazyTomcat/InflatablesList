@@ -90,7 +90,10 @@ object fSortForm: TfSortForm
     Top = 160
     Width = 57
     Height = 25
+    Hint = 'Add value to sorting'
     Caption = '<<'
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 7
     OnClick = btnAddClick
   end
@@ -99,7 +102,10 @@ object fSortForm: TfSortForm
     Top = 192
     Width = 41
     Height = 25
+    Hint = 'Toggle reverse'
     Caption = '+/-'
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 8
     OnClick = btnToggleOrderClick
   end
@@ -108,7 +114,10 @@ object fSortForm: TfSortForm
     Top = 224
     Width = 57
     Height = 25
+    Hint = 'Remove value from sorting'
     Caption = '>>'
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 9
     OnClick = btnRemoveClick
   end

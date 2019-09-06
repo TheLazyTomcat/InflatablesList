@@ -240,10 +240,10 @@ implementation
 
 uses
   CommCtrl,
-  WinFileInfo, BitOps, CountedDynArrayInteger,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
   UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm,
+  WinFileInfo, BitOps, CountedDynArrayInteger,  
   InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_Backup;

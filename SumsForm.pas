@@ -46,12 +46,12 @@ type
     lblSumsByTextTag: TLabel;
     sgSumsByTextTag: TStringGrid;
     btnClose: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure CommonFilterCheckBoxClick(Sender: TObject);
     procedure CommonStateCheckBoxClick(Sender: TObject);
     procedure CommonDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure btnCloseClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
   private
     fDrawBuffer:    TBitmap;
     fFillingFilter: Boolean;

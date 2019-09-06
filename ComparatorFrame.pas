@@ -1,5 +1,4 @@
-unit ComparatorFrame;{$message 'revisit'}
-{$message 'll_rework'}
+unit ComparatorFrame;
 
 interface
 
@@ -35,13 +34,16 @@ type
     fComparator:    TILFinderBaseClass;
   protected
     procedure PropagateChange;
-    procedure FrameClear;
     procedure FramePrepare;
-    procedure SaveSettings;
-    procedure LoadSettings;
+    procedure FrameClear;
+    procedure FrameSave;
+    procedure FrameLoad;
   public
     OnChange: TNotifyEvent;
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
+    procedure Save;
+    procedure Load;
     procedure SetComparator(Comparator: TILFinderBaseClass; ProcessChange: Boolean);
   end;
 
@@ -53,6 +55,22 @@ procedure TfrmComparatorFrame.PropagateChange;
 begin
 If Assigned(OnChange) then
   OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmComparatorFrame.FramePrepare;
+begin
+leString.Visible := fComparator is TILTextComparator;
+lblVarIndex.Visible := fComparator is TILTextComparator;
+seVarIndex.Visible := fComparator is TILTextComparator;
+cbCaseSensitive.Visible := fComparator is TILTextComparator;
+cbAllowPartial.Visible := fComparator is TILTextComparator;
+bvlStrSeparator.Visible := (fComparator is TILTextComparator) and not fComparator.IsLeading;
+lblOperator.Visible := (fComparator is TILComparatorBase)  and not fComparator.IsLeading;
+cmbOperator.Visible := (fComparator is TILComparatorBase) and not fComparator.IsLeading;
+cbNegate.Visible := (fComparator is TILComparatorBase) and not fComparator.IsLeading;
+cbNestedText.Visible := fComparator is TILElementComparator;
 end;
 
 //------------------------------------------------------------------------------
@@ -70,23 +88,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmComparatorFrame.FramePrepare;
-begin
-leString.Visible := fComparator is TILTextComparator;
-lblVarIndex.Visible := fComparator is TILTextComparator;
-seVarIndex.Visible := fComparator is TILTextComparator;
-cbCaseSensitive.Visible := fComparator is TILTextComparator;
-cbAllowPartial.Visible := fComparator is TILTextComparator;
-bvlStrSeparator.Visible := fComparator is TILTextComparator;
-lblOperator.Visible := fComparator is TILComparatorBase;
-cmbOperator.Visible := fComparator is TILComparatorBase;
-cbNegate.Visible := fComparator is TILComparatorBase; 
-cbNestedText.Visible := fComparator is TILElementComparator;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmComparatorFrame.SaveSettings;
+procedure TfrmComparatorFrame.FrameSave;
 begin
 If Assigned(fComparator) then
   begin
@@ -111,7 +113,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmComparatorFrame.LoadSettings;
+procedure TfrmComparatorFrame.FrameLoad;
 begin
 If Assigned(fComparator) then
   begin
@@ -148,11 +150,37 @@ var
 begin
 fILManager := ILManager;
 // fill combobox
-cmbOperator.Clear;
-For i := Low(TILSearchOperator) to High(TILSearchOperator) do
-  cmbOperator.Items.Add(IL_SearchOperatorAsStr(i));
+cmbOperator.Items.BeginUpdate;
+try
+  cmbOperator.Clear;
+  For i := Low(TILSearchOperator) to High(TILSearchOperator) do
+    cmbOperator.Items.Add(IL_SearchOperatorAsStr(i));
+finally
+  cmbOperator.Items.EndUpdate;
+end;
 If cmbOperator.Items.Count > 0 then
   cmbOperator.ItemIndex := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmComparatorFrame.Finalize;
+begin
+// nothing to o here
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmComparatorFrame.Save;
+begin
+FrameSave;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmComparatorFrame.Load;
+begin
+FrameLoad;
 end;
 
 //------------------------------------------------------------------------------
@@ -162,11 +190,11 @@ begin
 If ProcessChange then
   begin
     If Assigned(fComparator) then
-      SaveSettings;
+      FrameSave;
     If Assigned(Comparator) then
       begin
         fComparator := Comparator;
-        LoadSettings;
+        FrameLoad;
       end
     else
       begin
@@ -229,7 +257,7 @@ procedure TfrmComparatorFrame.cmbOperatorChange(Sender: TObject);
 begin
 If (fComparator is TILComparatorBase) and not fInitializing then
   begin
-    TILTextComparator(fComparator).Operator := TILSearchOperator(cmbOperator.ItemIndex);
+    TILComparatorBase(fComparator).Operator := TILSearchOperator(cmbOperator.ItemIndex);
     PropagateChange;
   end;
 end;
@@ -240,7 +268,7 @@ procedure TfrmComparatorFrame.cbNegateClick(Sender: TObject);
 begin
 If (fComparator is TILComparatorBase) and not fInitializing then
   begin
-    TILTextComparator(fComparator).Negate := cbNegate.Checked;
+    TILComparatorBase(fComparator).Negate := cbNegate.Checked;
     PropagateChange;
   end;
 end;

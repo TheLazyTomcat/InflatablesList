@@ -1,5 +1,4 @@
-unit ExtractionFrame;{$message 'revisit'}
-{$message 'll_rework'}
+unit ExtractionFrame;
 
 interface
 
@@ -21,15 +20,20 @@ type
     bvlExtrSeparator: TBevel;
   private
     fILManager:   TILManager;
+    {
+      a pointer is allowed here, as it is not pointing to item in listed object,
+      but to a storage in parsing form (ie. it is comletely local)
+    }
     fExtractSett: PILItemShopParsingExtrSett;
   protected
-    procedure ClearFrame;
-    procedure SaveFrame;
-    procedure LoadFrame;
+    procedure FrameClear;
+    procedure FrameSave;
+    procedure FrameLoad;
   public
-    procedure SaveItem;
-    procedure LoadItem;
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
+    procedure Save;
+    procedure Load;
     procedure SetExtractSett(ExtractSett: PILItemShopParsingExtrSett; ProcessChange: Boolean);
   end;
 
@@ -37,7 +41,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmExtractionFrame.ClearFrame;
+procedure TfrmExtractionFrame.FrameClear;
 begin
 If cmbExtractFrom.Items.Count > 0 then
   cmbExtractFrom.ItemIndex := 0;
@@ -49,7 +53,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmExtractionFrame.SaveFrame;
+procedure TfrmExtractionFrame.FrameSave;
 begin
 If Assigned(fExtractSett) then
   begin
@@ -64,7 +68,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmExtractionFrame.LoadFrame;
+procedure TfrmExtractionFrame.FrameLoad;
 begin
 If Assigned(fExtractSett) then
   begin
@@ -76,20 +80,6 @@ If Assigned(fExtractSett) then
 end;
 
 //==============================================================================
-
-procedure TfrmExtractionFrame.SaveItem;
-begin
-SaveFrame;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmExtractionFrame.LoadItem;
-begin
-LoadFrame;
-end;
-
-//------------------------------------------------------------------------------
 
 procedure TfrmExtractionFrame.Initialize(ILManager: TILManager);
 var
@@ -125,21 +115,42 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmExtractionFrame.Finalize;
+begin
+//nothing to do here
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmExtractionFrame.Save;
+begin
+FrameSave;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmExtractionFrame.Load;
+begin
+FrameLoad;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmExtractionFrame.SetExtractSett(ExtractSett: PILItemShopParsingExtrSett; ProcessChange: Boolean);
 begin
 If ProcessChange then
   begin
     If Assigned(fExtractSett) then
-      SaveFrame;
+      FrameSave;
     If Assigned(ExtractSett) then
       begin
         fExtractSett := ExtractSett;
-        LoadFrame;
+        FrameLoad;
       end
     else
       begin
         fExtractSett := nil;
-        ClearFrame;
+        FrameClear;
       end;
     Visible := Assigned(fExtractSett);
     Enabled := Assigned(fExtractSett);

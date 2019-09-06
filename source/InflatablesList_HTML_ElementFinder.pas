@@ -21,6 +21,7 @@ type
     fStringSuffix:  String;   // appended to all returned strings, not saved
     fIndex:         Integer;  // index in comparator croup
     fEmptyStrAllow: Boolean;  // marks whether AsString can return an empty string or must return at least a placeholder
+    fIsLeading:     Boolean;
     procedure SetStringPrefix(const Value: String);
     procedure SetStringSuffix(const Value: String);
     Function GetTotalItemCount: Integer; virtual;
@@ -41,6 +42,12 @@ type
       false for other groups (more than one subitem, or no subitem)
     }
     property IsSimple: Boolean read GetIsSimple;
+    {
+      IsLeading is true when object is first in a group or is standalone,
+      false otherwise.
+      It is initialized to true and must be managed externally.
+    }
+    property IsLeading: Boolean read fIsLeading write fIsLeading;
   end;
 
 //------------------------------------------------------------------------------
@@ -103,6 +110,7 @@ type
     Function GetTotalItemCount: Integer; override;
     Function GetIsSimple: Boolean; override;
     procedure ReIndex; virtual;
+    procedure MarkLeading; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILTextComparatorGroup);
@@ -163,6 +171,7 @@ type
     Function GetTotalItemCount: Integer; override;
     Function GetIsSimple: Boolean; override;
     procedure ReIndex; virtual;
+    procedure MarkLeading; virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILAttributeComparatorGroup);
@@ -397,6 +406,7 @@ fStringPrefix := '';
 fStringSuffix := '';
 fIndex := -1;
 fEmptyStrAllow := True;
+fIsLeading := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -657,6 +667,16 @@ For i := Low(fItems) to High(fItems) do
   fItems[i].Index := i;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILTextComparatorGroup.MarkLeading;
+var
+  i:  Integer;
+begin
+For i := Low(fItems) to High(fItems) do
+  fItems[i].IsLeading := i <= Low(fItems);
+end;
+
 //==============================================================================
 
 constructor TILTextComparatorGroup.Create;
@@ -678,6 +698,7 @@ For i := Low(fItems) to High(fItems) do
     fItems[i] := TILTextComparatorGroup.CreateAsCopy(TILTextComparatorGroup(Source.Items[i]))
   else
     fItems[i] := TILTextComparator.CreateAsCopy(TILTextComparator(Source.Items[i]));
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -774,6 +795,7 @@ fItems[High(fItems)] := Result;
 Result.Index := High(fItems);
 Result.Negate := Negate;
 Result.Operator := Operator;
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -787,6 +809,7 @@ Result.Index := High(fItems);
 Result.EmptyStringAllowed := False;
 Result.Negate := Negate;
 Result.Operator := Operator;
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -811,6 +834,7 @@ If (Index >= Low(fItems)) and (Index <= High(fItems)) then
       fItems[i] := fItems[i + 1];
     SetLength(fItems,Length(fItems) - 1);
     ReIndex;
+    MarkLeading;
   end
 else raise Exception.CreateFmt('TILTextComparatorGroup.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -896,6 +920,7 @@ For i := Low(fItems) to High(fItems) do
     fItems[i].Index := i;
     If fItems[i] is TILTextComparatorGroup then
       fItems[i].EmptyStringAllowed := False;
+    fItems[i].IsLeading := i <= Low(fItems);
   end;
 end;
 
@@ -1099,6 +1124,16 @@ For i := Low(fItems) to High(fItems) do
   fItems[i].Index := i;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILAttributeComparatorGroup.MarkLeading;
+var
+  i:  Integer;
+begin
+For i := Low(fItems) to High(fItems) do
+  fItems[i].IsLeading := i <= Low(fItems);
+end;
+
 //==============================================================================
 
 constructor TILAttributeComparatorGroup.Create;
@@ -1120,6 +1155,7 @@ For i := Low(fItems) to High(fItems) do
     fItems[i] := TILAttributeComparatorGroup.CreateAsCopy(TILAttributeComparatorGroup(Source.Items[i]))
   else
     fItems[i] := TILAttributeComparator.CreateAsCopy(TILAttributeComparator(Source.Items[i]));
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -1215,6 +1251,7 @@ Result.Index := High(fItems);
 Result.EmptyStringAllowed := False;
 Result.Negate := Negate;
 Result.Operator := Operator;
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -1227,6 +1264,7 @@ fItems[High(fItems)] := Result;
 Result.Index := High(fItems);
 Result.Negate := Negate;
 Result.Operator := Operator;
+MarkLeading;
 end;
 
 //------------------------------------------------------------------------------
@@ -1251,6 +1289,7 @@ If (Index >= Low(fItems)) and (Index <= High(fItems)) then
       fItems[i] := fItems[i + 1];
     SetLength(fItems,Length(fItems) - 1);
     ReIndex;
+    MarkLeading;
   end
 else raise Exception.CreateFmt('TILAttributeComparatorGroup.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -1324,6 +1363,7 @@ For i := Low(fItems) to High(fItems) do
     fItems[i].Index := i;
     If fItems[i] is TILAttributeComparatorGroup then
       fItems[i].EmptyStringAllowed := False;
+    fItems[i].IsLeading := i <= Low(fItems);
   end;
 end;
 

@@ -199,7 +199,7 @@ try
   For i := 0 to Pred(Shop.ParsingSettings.VariableCount) do
     If Length(Shop.ParsingSettings.Variables[i]) <= 0 then
       Shop.ParsingSettings.Variables[i] := fParsingSettings.Variables[i];
-  // copy only reference to self, not actual parsing settings (objects)    
+  // copy only reference to self, not actual parsing settings (objects)
   Shop.ParsingSettings.TemplateReference := fParsingSettings.TemplateReference;
   Shop.ParsingSettings.DisableParsingErrors := fParsingSettings.DisableParsingErrors;
 finally

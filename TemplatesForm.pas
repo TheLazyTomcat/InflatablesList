@@ -1,5 +1,4 @@
-unit TemplatesForm;{$message 'revisit'}
-{$message 'll_rework'}
+unit TemplatesForm;
 
 interface
 
@@ -60,7 +59,8 @@ var
 implementation
 
 uses
-  PromptForm;
+  PromptForm,
+  InflatablesList_Utils;
 
 {$R *.dfm}
 
@@ -118,7 +118,7 @@ procedure TfTemplatesForm.btnSaveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
-If Assigned(fCurrentShop) then
+If Assigned(fCurrentShop) and not fAsInit then
   begin
     If Length(leName.Text) > 0 then
       begin
@@ -201,7 +201,7 @@ var
   Index:  Integer;
 begin
 If lbTemplates.ItemIndex >= 0 then
-  If MessageDlg(Format('Are you sure you want to remove template "%s"?',
+  If MessageDlg(IL_Format('Are you sure you want to remove template "%s"?',
       [fILManager.ShopTemplates[lbTemplates.ItemIndex].Name]),
       mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
@@ -303,7 +303,7 @@ If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
       CanProceed := True
     else
       CanProceed := MessageDlg(
-        Format('Are you sure you want to replace current shop settings with template "%s"?',
+        IL_Format('Are you sure you want to replace current shop settings with template "%s"?',
         [fILManager.ShopTemplates[lbTemplates.ItemIndex].Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes;
     If CanProceed then
       begin

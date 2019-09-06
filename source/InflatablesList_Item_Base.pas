@@ -28,6 +28,7 @@ type
     fFilteredOut:           Boolean;
     fUpdateCounter:         Integer;
     fUpdated:               TILItemUpdatedFlags;
+    fClearingSelected:      Boolean;
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILIndexedObjectL1Event;
     fOnShopValuesUpdate:    TILObjectL1Event;
@@ -723,15 +724,26 @@ end;
 
 procedure TILItem_Base.ShopClearSelectedHandler(Sender: TObject);
 var
-  Index,i:  Integer;
+  i:  Integer;
 begin
-If Sender is TILItemShop then
+If not fClearingSelected then
   begin
-    Index := ShopIndexOf(TILItemShop(Sender));
-    If CheckIndex(Index) then
-      For i := ShopLowIndex to ShopHighIndex do
-        If i <> Index then
-          fShops[i].Selected := False
+    fClearingSelected := True;
+    try
+      BeginUpdate;
+      try
+        If Sender is TILItemShop then
+          For i := ShopLowIndex to ShopHighIndex do
+            If fShops[i] <> Sender then
+              fShops[i].Selected := False;
+        // update overview will be called by shop that called this routine
+        Exclude(fUpdated,iliufOverview);
+      finally
+        EndUpdate;
+      end;
+    finally
+      fClearingSelected := False;
+    end;
   end;
 end;
 
@@ -762,7 +774,8 @@ procedure TILItem_Base.ShopUpdateValuesHandler(Sender: TObject);
 begin
 If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
   begin
-    GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);  
+    If not fClearingSelected then
+      GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);  
     fOnShopValuesUpdate(Self,Sender);
   end;
 end;
@@ -973,6 +986,7 @@ fRenderSmall.PixelFormat := pf24bit;
 fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
+fClearingSelected := False;
 InitializeData;
 end;
 

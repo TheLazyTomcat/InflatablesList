@@ -186,15 +186,19 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmComparatorFrame.SetComparator(Comparator: TILFinderBaseClass; ProcessChange: Boolean);
+var
+  Reassigned: Boolean;
 begin
+Reassigned := fComparator = Comparator;
 If ProcessChange then
   begin
-    If Assigned(fComparator) then
+    If Assigned(fComparator) and not Reassigned then
       FrameSave;
     If Assigned(Comparator) then
       begin
         fComparator := Comparator;
-        FrameLoad;
+        If not Reassigned then
+          FrameLoad;
       end
     else
       begin

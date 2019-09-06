@@ -44,13 +44,15 @@ type
     procedure mniTL_ImportClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
   private
-    fILManager:   TILManager;
-    fAsInit:      Boolean;
-    fCurrentShop: TILItemShop;
+    fILManager:         TILManager;
+    fAsInit:            Boolean;
+    fCurrentShop:       TILItemShop;
+    fSelectedTemplate:  Integer;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
-    procedure ShowTemplates(CurrentShop: TILItemShop; AsInit: Boolean);
+    // current shop can be nil
+    Function ShowTemplates(CurrentShop: TILItemShop): Integer;
   end;
 
 var
@@ -80,14 +82,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfTemplatesForm.ShowTemplates(CurrentShop: TILItemShop; AsInit: Boolean);
+Function TfTemplatesForm.ShowTemplates(CurrentShop: TILItemShop): Integer;
 var
   i:  Integer;
 begin
-fAsInit := AsInit;
+fSelectedTemplate := -1;
 fCurrentShop := CurrentShop;
-btnSave.Enabled := not AsInit;
-leName.Text := fCurrentShop.Name;
+btnSave.Enabled := Assigned(fCurrentShop);
+If Assigned(fCurrentShop) then
+  leName.Text := fCurrentShop.Name
+else
+  leName.Text := '';
 // fill list of templates
 lbTemplates.Items.BeginUpdate;
 try
@@ -103,6 +108,7 @@ else
   lbTemplates.ItemIndex := -1;
 lbTemplates.OnClick(nil);
 ShowModal;
+Result := fSelectedTemplate;
 end;
 
 //==============================================================================
@@ -182,7 +188,7 @@ procedure TfTemplatesForm.mniTL_RenameClick(Sender: TObject);
 var
   NewName:  String;
 begin
-If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
+If lbTemplates.ItemIndex >= 0 then
   begin
     NewName := lbTemplates.Items[lbTemplates.ItemIndex];
     If IL_InputQuery('New template name','Enter new template name:',NewName) then
@@ -294,23 +300,9 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfTemplatesForm.btnLoadClick(Sender: TObject);
-var
-  CanProceed: Boolean;
 begin
-If Assigned(fCurrentShop) and (lbTemplates.ItemIndex >= 0) then
-  begin
-    If fAsInit then
-      CanProceed := True
-    else
-      CanProceed := MessageDlg(
-        IL_Format('Are you sure you want to replace current shop settings with template "%s"?',
-        [fILManager.ShopTemplates[lbTemplates.ItemIndex].Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes;
-    If CanProceed then
-      begin
-        fILManager.ShopTemplates[lbTemplates.ItemIndex].CopyTo(fCurrentShop);
-        Close;
-      end;
-  end;
+fSelectedTemplate := lbTemplates.ItemIndex;
+Close;
 end;
 
 end.

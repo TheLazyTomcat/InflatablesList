@@ -18,35 +18,36 @@ type
 
   TILManager_Base = class(TCustomListObject)
   protected
-    fStaticSettings:        TILStaticManagerSettings; // not changed at runtime
-    fDataProvider:          TILDataProvider;
-    fSorting:               Boolean;                  // used only during sorting to disable reindexing
-    fUpdateCounter:         Integer;
-    fUpdated:               TILManagerUpdatedFlags;
+    fStaticSettings:              TILStaticManagerSettings; // not changed at runtime
+    fDataProvider:                TILDataProvider;
+    fSorting:                     Boolean;                  // used only during sorting to disable reindexing
+    fUpdateCounter:               Integer;
+    fUpdated:                     TILManagerUpdatedFlags;
     // encryption
-    fEncrypted:             Boolean;
-    fListPassword:          String;
+    fEncrypted:                   Boolean;
+    fListPassword:                String;
     // internal events forwarded from item shops
-    fOnShopListItemUpdate:  TILIndexedObjectL2Event;
-    fOnShopValuesUpdate:    TILObjectL2Event;
-    fOnShopAvailHistoryUpd: TILObjectL2Event;
-    fOnShopPriceHistoryUpd: TILObjectL2Event;
+    fOnShopListItemUpdate:        TILIndexedObjectL2Event;
+    fOnShopValuesUpdate:          TILObjectL2Event;
+    fOnShopAvailHistoryUpd:       TILObjectL2Event;
+    fOnShopPriceHistoryUpd:       TILObjectL2Event;
     // internal events forwarded from items
-    fOnItemTitleUpdate:     TILObjectL1Event;
-    fOnItemPicturesUpdate:  TILObjectL1Event;
-    fOnItemFlagsUpdate:     TILObjectL1Event;
-    fOnItemValuesUpdate:    TILObjectL1Event;
-    fOnItemShopListUpdate:  TILObjectL1Event;
+    fOnItemTitleUpdate:           TILObjectL1Event;
+    fOnItemPicturesUpdate:        TILObjectL1Event;
+    fOnItemFlagsUpdate:           TILObjectL1Event;
+    fOnItemValuesUpdate:          TILObjectL1Event; // reserved for item frame
+    fOnItemShopListUpdate:        TILObjectL1Event;
+    fOnItemShopListValuesUpdate:  TILObjectL1Event; // reserved for shop form
     // events
-    fOnMainListUpdate:      TNotifyEvent;
-    fOnSmallListUpdate:     TNotifyEvent;
-    fOnOverviewUpdate:      TNotifyEvent;
-    fOnSettingsChange:      TNotifyEvent;    
+    fOnMainListUpdate:            TNotifyEvent;
+    fOnSmallListUpdate:           TNotifyEvent;
+    fOnOverviewUpdate:            TNotifyEvent;
+    fOnSettingsChange:            TNotifyEvent;
     // main list
-    fList:                  array of TILItem;
-    fCount:                 Integer;
+    fList:                        array of TILItem;
+    fCount:                       Integer;
     // other data
-    fNotes:                 String;
+    fNotes:                       String;
     // getters and setters
     procedure SetEncrypted(Value: Boolean); virtual;
     procedure SetListPassword(const Value: String); virtual;
@@ -129,6 +130,7 @@ type
     property OnItemFlagsUpdate: TILObjectL1Event read fOnItemFlagsUpdate write fOnItemFlagsUpdate;
     property OnItemValuesUpdate: TILObjectL1Event read fOnItemValuesUpdate write fOnItemValuesUpdate;
     property OnItemShopListUpdate: TILObjectL1Event read fOnItemShopListUpdate write fOnItemShopListUpdate;
+    property OnItemShopListValuesUpdate: TILObjectL1Event read fOnItemShopListValuesUpdate write fOnItemShopListValuesUpdate;
     // global events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
@@ -275,7 +277,7 @@ end;
 
 procedure TILManager_Base.ItemUpdateOverviewHandler(Sender: TObject);
 begin
-UpdateOverview
+UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -306,8 +308,13 @@ end;
 
 procedure TILManager_Base.ItemUpdateValuesHandler(Sender: TObject);
 begin
-If Assigned(fOnItemValuesUpdate) and (Sender is TILItem) then
-  fOnItemValuesUpdate(Self,Sender);
+If Sender is TILItem then
+  begin
+    If Assigned(fOnItemValuesUpdate) then
+      fOnItemValuesUpdate(Self,Sender);
+    If Assigned(fOnItemShopListValuesUpdate) then
+      fOnItemShopListValuesUpdate(Self,Sender);
+  end;
 end;
 
 //------------------------------------------------------------------------------

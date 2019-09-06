@@ -1,5 +1,5 @@
-unit ShopFrame;{$message 'revisit'}
-{$message 'll_rework'}
+unit ShopFrame;
+
 interface
 
 uses
@@ -104,7 +104,7 @@ type
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
     procedure Save;
-    procedure Load;
+    procedure Load(OnlyRefillTepmlatesList: Boolean = False);
     procedure SetItemShop(ItemShop: TILItemShop; ProcessChange: Boolean);
   end;
 
@@ -169,11 +169,11 @@ If Assigned(fCurrentItemShop) and (Shop = fCurrentItemShop) then
       For i := Pred(fCurrentItemShop.AvailHistoryEntryCount) downto 0 do
         with lvAvailHistory.Items[Pred(lvAvailHistory.Items.Count) - i] do
           begin
-            Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.AvailHistoryEntries[i].Time);
+            Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.AvailHistoryEntries[i].Time);
             If fCurrentItemShop.AvailHistoryEntries[i].Value > 0 then
-              SubItems[0] := Format('%d',[fCurrentItemShop.AvailHistoryEntries[i].Value])
+              SubItems[0] := IL_Format('%d',[fCurrentItemShop.AvailHistoryEntries[i].Value])
             else If fCurrentItemShop.AvailHistoryEntries[i].Value < 0 then
-              SubItems[0] := Format('> %d',[Abs(fCurrentItemShop.AvailHistoryEntries[i].Value)])
+              SubItems[0] := IL_Format('> %d',[Abs(fCurrentItemShop.AvailHistoryEntries[i].Value)])
             else
               SubItems[0] := '-';
           end;
@@ -212,9 +212,9 @@ If Assigned(fCurrentItemShop) and (Shop = fCurrentItemShop) then
       For i := Pred(fCurrentItemShop.PriceHistoryEntryCount) downto 0 do
         with lvPriceHistory.Items[Pred(lvPriceHistory.Items.Count) - i] do
           begin
-            Caption := FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.PriceHistoryEntries[i].Time);
+            Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.PriceHistoryEntries[i].Time);
             If fCurrentItemShop.PriceHistoryEntries[i].Value > 0 then
-              SubItems[0] := Format('%d Kè',[fCurrentItemShop.PriceHistoryEntries[i].Value])
+              SubItems[0] := IL_Format('%d Kè',[fCurrentItemShop.PriceHistoryEntries[i].Value])
             else
               SubItems[0] := '-';
           end;
@@ -235,7 +235,7 @@ pmnPredefNotes.Items.Clear;
 For i := Low(IL_SHOP_PREDEFNOTES) to High(IL_SHOP_PREDEFNOTES) do
   begin
     Temp := TMenuItem.Create(Self);
-    Temp.Name := Format('mniPN_Item%d',[i]);
+    Temp.Name := IL_Format('mniPN_Item%d',[i]);
     Temp.Caption := IL_SHOP_PREDEFNOTES[i];
     Temp.Tag := i;
     Temp.OnClick := Self.mniPredefNotesClick;
@@ -404,9 +404,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.Load;
+procedure TfrmShopFrame.Load(OnlyRefillTepmlatesList: Boolean = False);
 begin
-FrameLoad;
+If OnlyRefillTepmlatesList then
+  FillTemplatesList
+else
+  FrameLoad;
 end;
 
 //------------------------------------------------------------------------------
@@ -594,7 +597,7 @@ begin
 If Assigned(fCurrentItemShop) then
   begin
     Temp := meNotes.Text;
-    fTextEditForm.ShowTextEditor('Edit item notes',Temp,False);
+    fTextEditForm.ShowTextEditor('Edit item shop notes',Temp,False);
     meNotes.Text := Temp;
   end;
 end;
@@ -641,8 +644,12 @@ begin
 If Assigned(fCurrentItemShop) then
   If MessageDlg('Are you sure you want to replace existing finder objects with the ones from selected template?',
     mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    fCurrentItemShop.ReplaceParsingSettings(
-      fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ParsingSettings);
+      begin
+        Save;
+        fCurrentItemShop.ReplaceParsingSettings(fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].ParsingSettings);
+        fCurrentItemShop.ParsingSettings.TemplateReference := '';
+        Load; // to change selected template reference (which is none)
+      end;
 end;
 
 //------------------------------------------------------------------------------
@@ -682,18 +689,10 @@ If Assigned(fCurrentItemShop) then
         Index := fILManager.ShopTemplateIndexOf(Temp.ParsingSettings.TemplateReference);
         If Index >= 0 then
           Temp.ReplaceParsingSettings(fILManager.ShopTemplates[Index].ParsingSettings);
-        Result := Temp.Update;
+        Result := Temp.Update;  // result is only used to select shown message
         // retrieve results
-        fCurrentItemShop.BeginUpdate;
-        try
-          fCurrentItemShop.Available := Temp.Available;
-          fCurrentItemShop.Price := Temp.Price;
-          fCurrentItemShop.LastUpdateRes := Temp.LastUpdateRes;
-          fCurrentItemShop.LastUpdateMsg := Temp.LastUpdateMsg;
-          // this updates the frame, no need to call load
-        finally
-          fCurrentItemShop.EndUpdate;
-        end;
+        fCurrentItemShop.SetValues(Temp.LastUpdateMsg,Temp.LastUpdateRes,Temp.Available,Temp.Price);
+        // this updates the frame, no need to call load
       finally
         FreeAndNil(Temp);
       end;
@@ -710,18 +709,26 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.btnTemplatesClick(Sender: TObject);
+var
+  Index:  Integer;
 begin
 If Assigned(fCurrentItemShop) then
   begin
     Save;
-    fTemplatesForm.ShowTemplates(fCurrentItemShop,False);
+    Index := fTemplatesForm.ShowTemplates(fCurrentItemShop);
     // in case a template was deleted or added...
     FillTemplatesList;
-    Load;
-    leShopItemURL.SetFocus;
     // rebuild templates submenu in shops form
     If Assigned(OnTemplatesChange) then
-      OnTemplatesChange(Self);
+      OnTemplatesChange(Self);    
+    If Index >= 0 then
+      If MessageDlg(IL_Format('Are you sure you want to replace current shop settings with template "%s"?',
+        [fILManager.ShopTemplates[Index].Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+        begin
+          fILManager.ShopTemplates[Index].CopyTo(fCurrentItemShop);
+          Load; // to show proper template reference
+          leShopItemURL.SetFocus;
+        end;
   end;
 end;
 

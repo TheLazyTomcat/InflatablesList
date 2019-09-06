@@ -1,8 +1,8 @@
-object fOptionsLegendForm: TfOptionsLegendForm
+object fSettingsLegendForm: TfSettingsLegendForm
   Left = 1002
   Top = 120
   BorderStyle = bsDialog
-  Caption = 'Options legend'
+  Caption = 'Settings legend'
   ClientHeight = 88
   ClientWidth = 248
   Color = clBtnFace
@@ -16,20 +16,20 @@ object fOptionsLegendForm: TfOptionsLegendForm
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object grbStaticOptions: TGroupBox
+  object grbStaticSettings: TGroupBox
     Left = 8
     Top = 8
     Width = 233
     Height = 33
-    Caption = 'Static options (command-line parameters)'
+    Caption = 'Static settings (command-line parameters)'
     TabOrder = 0
   end
-  object grbOptions: TGroupBox
+  object grbDynamicSettings: TGroupBox
     Left = 8
     Top = 48
     Width = 233
     Height = 33
-    Caption = 'Options'
+    Caption = 'Dynamic settings'
     TabOrder = 1
   end
 end

@@ -46,11 +46,14 @@ type
     lblSumsByTextTag: TLabel;
     sgSumsByTextTag: TStringGrid;
     btnClose: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure CommonFilterCheckBoxClick(Sender: TObject);
     procedure CommonStateCheckBoxClick(Sender: TObject);
     procedure CommonDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure btnCloseClick(Sender: TObject);
   private
+    fDrawBuffer:    TBitmap;
     fFillingFilter: Boolean;
     fILManager:     TILManager;
     fSelectedShops: TStringCountedDynArray;
@@ -72,6 +75,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowSums;
   end;
 
@@ -84,34 +88,35 @@ implementation
 
 uses
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_ItemShop;
 
-procedure WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
+procedure IL_WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
 begin
 If Value > 0 then
   begin
     If Length(UnitStr) > 0 then
-      Grid.Cells[Col,Row] := Format('%d %s',[Value,UnitStr])
+      Grid.Cells[Col,Row] := IL_Format('%d %s',[Value,UnitStr])
     else
-      Grid.Cells[Col,Row] := IntToStr(Value);
+      Grid.Cells[Col,Row] := IL_Format('%d',[Value]);
     If Marked then
-      Grid.Cells[Col,Row] := Format('%%%s',[Grid.Cells[Col,Row]]);
+      Grid.Cells[Col,Row] := IL_Format('%%%s',[Grid.Cells[Col,Row]]);
   end
 else Grid.Cells[Col,Row] := '-';
 end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Double; const UnitStr: String; Marked: Boolean = False); overload;
+procedure IL_WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Double; const UnitStr: String; Marked: Boolean = False); overload;
 begin
 If Value > 0 then
   begin
     If Length(UnitStr) > 0 then
-      Grid.Cells[Col,Row] := Format('%g %s',[Value,UnitStr])
+      Grid.Cells[Col,Row] := IL_Format('%g %s',[Value,UnitStr])
     else
-      Grid.Cells[Col,Row] := Format('%g',[Value]);
+      Grid.Cells[Col,Row] := IL_Format('%g',[Value]);
     If Marked then
-      Grid.Cells[Col,Row] := Format('%%%s',[Grid.Cells[Col,Row]]);
+      Grid.Cells[Col,Row] := IL_Format('%%%s',[Grid.Cells[Col,Row]]);
   end
 else Grid.Cells[Col,Row] := '-';
 end;
@@ -202,7 +207,6 @@ For i := Ord(Low(TILItemManufacturer)) to Ord(High(TILItemManufacturer)) do
     end;
 end;
 
-
 //------------------------------------------------------------------------------
 
 procedure TfSumsForm.InitializeTable_SumsBySelectedShop;
@@ -213,10 +217,9 @@ begin
 CDA_Clear(fSelectedShops);
 // enumerate all unique shops (by name)
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If fIlManager[i].ShopsSelected(SelShop) then
-    If not fIlManager[i].FilteredOut then
-      If CDA_IndexOf(fSelectedShops,SelShop.Name,False) < 0 then
-        CDA_Add(fSelectedShops,SelShop.Name);
+  If not fIlManager[i].FilteredOut and fIlManager[i].ShopsSelected(SelShop) then
+    If not CDA_CheckIndex(fSelectedShops,CDA_IndexOf(fSelectedShops,SelShop.Name,False)) then
+      CDA_Add(fSelectedShops,SelShop.Name);
 CDA_Add(fSelectedShops,'<none>'); // for items without a selected shop
 // set table size
 sgSumsBySelShop.RowCount := 10;
@@ -253,10 +256,9 @@ begin
 CDA_Clear(fTextTags);
 // enumerate all unique text tags, case-sensitive
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
-    If Length(fIlManager[i].TextTag) > 0 then
-      If CDA_IndexOf(fTextTags,fIlManager[i].TextTag,True) < 0 then
-        CDA_Add(fTextTags,fIlManager[i].TextTag);
+  If not fIlManager[i].FilteredOut and (Length(fIlManager[i].TextTag) > 0) then
+    If not CDA_CheckIndex(fTextTags,CDA_IndexOf(fTextTags,fIlManager[i].TextTag,True)) then
+      CDA_Add(fTextTags,fIlManager[i].TextTag);
 CDA_Sort(fTextTags,False,True);
 CDA_Add(fTextTags,'<none>');  // for items without a text tag
 // set table size
@@ -307,17 +309,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       Inc(Sums.TotalPrice,fILManager[i].TotalPrice);
     end;
 // fill table
-WriteCellValueCond(sgSumsGrandTotal,0,1,Sums.Items,'');
-WriteCellValueCond(sgSumsGrandTotal,1,1,Sums.Pieces,'');
-WriteCellValueCond(sgSumsGrandTotal,2,1,Sums.UnitWeigth / 1000,'kg');
-WriteCellValueCond(sgSumsGrandTotal,3,1,Sums.TotalWeight / 1000,'kg');
-WriteCellValueCond(sgSumsGrandTotal,4,1,Sums.UnitPriceLow,'Kè');
-WriteCellValueCond(sgSumsGrandTotal,5,1,Sums.UnitPriceSel,'Kè',
+IL_WriteCellValueCond(sgSumsGrandTotal,0,1,Sums.Items,'');
+IL_WriteCellValueCond(sgSumsGrandTotal,1,1,Sums.Pieces,'');
+IL_WriteCellValueCond(sgSumsGrandTotal,2,1,Sums.UnitWeigth / 1000,'kg');
+IL_WriteCellValueCond(sgSumsGrandTotal,3,1,Sums.TotalWeight / 1000,'kg');
+IL_WriteCellValueCond(sgSumsGrandTotal,4,1,Sums.UnitPriceLow,'Kè');
+IL_WriteCellValueCond(sgSumsGrandTotal,5,1,Sums.UnitPriceSel,'Kè',
   (Sums.UnitPriceLow <> Sums.UnitPriceSel) and (Sums.UnitPriceSel > 0));
-WriteCellValueCond(sgSumsGrandTotal,6,1,Sums.TotalPriceLow,'Kè');
-WriteCellValueCond(sgSumsGrandTotal,7,1,Sums.TotalPriceSel,'Kè',
+IL_WriteCellValueCond(sgSumsGrandTotal,6,1,Sums.TotalPriceLow,'Kè');
+IL_WriteCellValueCond(sgSumsGrandTotal,7,1,Sums.TotalPriceSel,'Kè',
   (Sums.TotalPriceLow <> Sums.TotalPriceSel) and (Sums.TotalPriceSel > 0));
-WriteCellValueCond(sgSumsGrandTotal,8,1,Sums.TotalPrice,'Kè');
+IL_WriteCellValueCond(sgSumsGrandTotal,8,1,Sums.TotalPrice,'Kè');
 end;
 
 //------------------------------------------------------------------------------
@@ -345,17 +347,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
-    WriteCellValueCond(sgSumsByType,i + 1,1,Sums[TILItemType(i)].Items,'');
-    WriteCellValueCond(sgSumsByType,i + 1,2,Sums[TILItemType(i)].Pieces,'');
-    WriteCellValueCond(sgSumsByType,i + 1,3,Sums[TILItemType(i)].UnitWeigth / 1000,'kg');
-    WriteCellValueCond(sgSumsByType,i + 1,4,Sums[TILItemType(i)].TotalWeight / 1000,'kg');
-    WriteCellValueCond(sgSumsByType,i + 1,5,Sums[TILItemType(i)].UnitPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByType,i + 1,6,Sums[TILItemType(i)].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByType,i + 1,1,Sums[TILItemType(i)].Items,'');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,2,Sums[TILItemType(i)].Pieces,'');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,3,Sums[TILItemType(i)].UnitWeigth / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,4,Sums[TILItemType(i)].TotalWeight / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,5,Sums[TILItemType(i)].UnitPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,6,Sums[TILItemType(i)].UnitPriceSel,'Kè',
       (Sums[TILItemType(i)].UnitPriceLow <> Sums[TILItemType(i)].UnitPriceSel) and (Sums[TILItemType(i)].UnitPriceSel > 0));
-    WriteCellValueCond(sgSumsByType,i + 1,7,Sums[TILItemType(i)].TotalPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByType,i + 1,8,Sums[TILItemType(i)].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByType,i + 1,7,Sums[TILItemType(i)].TotalPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,8,Sums[TILItemType(i)].TotalPriceSel,'Kè',
       (Sums[TILItemType(i)].TotalPriceLow <> Sums[TILItemType(i)].TotalPriceSel) and (Sums[TILItemType(i)].TotalPriceSel > 0));
-    WriteCellValueCond(sgSumsByType,i + 1,9,Sums[TILItemType(i)].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,9,Sums[TILItemType(i)].TotalPrice,'Kè');
   end;
 end;
 
@@ -384,17 +386,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,1,Sums[TILItemManufacturer(i)].Items,'');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,2,Sums[TILItemManufacturer(i)].Pieces,'');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,3,Sums[TILItemManufacturer(i)].UnitWeigth / 1000,'kg');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,4,Sums[TILItemManufacturer(i)].TotalWeight / 1000,'kg');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,5,Sums[TILItemManufacturer(i)].UnitPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,6,Sums[TILItemManufacturer(i)].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,1,Sums[TILItemManufacturer(i)].Items,'');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,2,Sums[TILItemManufacturer(i)].Pieces,'');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,3,Sums[TILItemManufacturer(i)].UnitWeigth / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,4,Sums[TILItemManufacturer(i)].TotalWeight / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,5,Sums[TILItemManufacturer(i)].UnitPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,6,Sums[TILItemManufacturer(i)].UnitPriceSel,'Kè',
       (Sums[TILItemManufacturer(i)].UnitPriceLow <> Sums[TILItemManufacturer(i)].UnitPriceSel) and (Sums[TILItemManufacturer(i)].UnitPriceSel > 0));
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,7,Sums[TILItemManufacturer(i)].TotalPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,8,Sums[TILItemManufacturer(i)].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,7,Sums[TILItemManufacturer(i)].TotalPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,8,Sums[TILItemManufacturer(i)].TotalPriceSel,'Kè',
       (Sums[TILItemManufacturer(i)].TotalPriceLow <> Sums[TILItemManufacturer(i)].TotalPriceSel) and (Sums[TILItemManufacturer(i)].TotalPriceSel > 0));
-    WriteCellValueCond(sgSumsByManufacturer,i + 1,9,Sums[TILItemManufacturer(i)].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,9,Sums[TILItemManufacturer(i)].TotalPrice,'Kè');
   end;
 end;
 
@@ -412,9 +414,10 @@ SetLength(Sums,CDA_Count(fSelectedShops));
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
-      Index := -1;
       If fILManager[i].ShopsSelected(SelShop) then
-        Index := CDA_IndexOf(fSelectedShops,SelShop.Name,False);
+        Index := CDA_IndexOf(fSelectedShops,SelShop.Name,False)
+      else
+        Index := -1;
       If CDA_CheckIndex(fSelectedShops,Index) then
         begin
           Inc(Sums[Index].Items);
@@ -444,17 +447,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
-    WriteCellValueCond(sgSumsBySelShop,i + 1,1,Sums[i].Items,'');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,2,Sums[i].Pieces,'');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,5,Sums[i].UnitPriceLow,'Kè');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,6,Sums[i].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,1,Sums[i].Items,'');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,2,Sums[i].Pieces,'');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,5,Sums[i].UnitPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,6,Sums[i].UnitPriceSel,'Kè',
       (Sums[i].UnitPriceLow <> Sums[i].UnitPriceSel) and (Sums[i].UnitPriceSel > 0));
-    WriteCellValueCond(sgSumsBySelShop,i + 1,7,Sums[i].TotalPriceLow,'Kè');
-    WriteCellValueCond(sgSumsBySelShop,i + 1,8,Sums[i].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,7,Sums[i].TotalPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,8,Sums[i].TotalPriceSel,'Kè',
       (Sums[i].TotalPriceLow <> Sums[i].TotalPriceSel) and (Sums[i].TotalPriceSel > 0));
-    WriteCellValueCond(sgSumsBySelShop,i + 1,9,Sums[i].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,9,Sums[i].TotalPrice,'Kè');
   end;
 end;
 
@@ -471,9 +474,10 @@ SetLength(Sums,CDA_Count(fTextTags));
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If not fIlManager[i].FilteredOut then
     begin
-      Index := -1;
       If Length(fILManager[i].TextTag) > 0 then
-        Index := CDA_IndexOf(fTextTags,fILManager[i].TextTag,True);
+        Index := CDA_IndexOf(fTextTags,fILManager[i].TextTag,True)
+      else
+        Index := -1;
       If CDA_CheckIndex(fTextTags,Index) then
         begin
           Inc(Sums[Index].Items);
@@ -503,17 +507,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
 // fill table
 For i := Ord(Low(Sums)) to Ord(High(Sums)) do
   begin
-    WriteCellValueCond(sgSumsByTextTag,i + 1,1,Sums[i].Items,'');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,2,Sums[i].Pieces,'');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,5,Sums[i].UnitPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,6,Sums[i].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,1,Sums[i].Items,'');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,2,Sums[i].Pieces,'');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,5,Sums[i].UnitPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,6,Sums[i].UnitPriceSel,'Kè',
       (Sums[i].UnitPriceLow <> Sums[i].UnitPriceSel) and (Sums[i].UnitPriceSel > 0));
-    WriteCellValueCond(sgSumsByTextTag,i + 1,7,Sums[i].TotalPriceLow,'Kè');
-    WriteCellValueCond(sgSumsByTextTag,i + 1,8,Sums[i].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,7,Sums[i].TotalPriceLow,'Kè');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,8,Sums[i].TotalPriceSel,'Kè',
       (Sums[i].TotalPriceLow <> Sums[i].TotalPriceSel) and (Sums[i].TotalPriceSel > 0));
-    WriteCellValueCond(sgSumsByTextTag,i + 1,9,Sums[i].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,9,Sums[i].TotalPrice,'Kè');
   end;
 end;
 
@@ -642,6 +646,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfSumsForm.Finalize;
+begin
+// nothing to do here
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfSumsForm.ShowSums;
 begin
 // fill filter
@@ -653,6 +664,22 @@ SaveFilterSettings;
 end;
 
 //==============================================================================
+
+procedure TfSumsForm.FormCreate(Sender: TObject);
+begin
+fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
+end;
+
+//------------------------------------------------------------------------------
+
+
+procedure TfSumsForm.FormDestroy(Sender: TObject);
+begin
+FreeAndNil(fDrawBuffer);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfSumsForm.CommonFilterCheckBoxClick(Sender: TObject);
 begin
@@ -677,107 +704,124 @@ end;
 
 procedure TfSumsForm.CommonDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
-  TempInt:  Integer;
-  TempStr:  String;
+  TempInt:    Integer;
+  TempStr:    String;
+  BoundsRect: TRect;
 begin
-If Sender is TStringGrid then
-  with TStringGrid(Sender).Canvas do
-    begin
-      // background
-      Pen.Style := psClear;
-      Brush.Style := bsSolid;
-      If gdFixed in State then
-        begin
-          // fixed cells
-          If (ACol = 0) and (ARow = 0) and (Sender <> sgSumsGrandTotal) then
-            begin
-              // upper left corner
-              Brush.Color := $00F5B86B;
-              Rectangle(Rect);
-            end
-          else
-            begin
-              TempInt := Rect.Top + ((Rect.Bottom - Rect.Top) div 2);
-              If Sender = sgSumsGrandTotal then
-                begin
-                  // grand totals table
-                  Brush.Color := $00D7FFD8;
-                  Rectangle(Rect.Left,Rect.Top,Rect.Right,TempInt);
-                  Brush.Color := $0095FF98;
-                end
+If (Sender is TStringGrid) and Assigned(fDrawBuffer) then
+  begin
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    with fDrawBuffer.Canvas do
+      begin
+        // background
+        Pen.Style := psClear;
+        Brush.Style := bsSolid;
+        If gdFixed in State then
+          begin
+            // fixed cells
+            If (ACol = 0) and (ARow = 0) and (Sender <> sgSumsGrandTotal) then
+              begin
+                // upper left corner
+                Brush.Color := $00F5B86B;
+                Rectangle(BoundsRect);
+              end
+            else
+              begin
+                TempInt := (BoundsRect.Bottom - BoundsRect.Top) div 2;
+                If Sender = sgSumsGrandTotal then
+                  begin
+                    // grand totals table
+                    Brush.Color := $00D7FFD8;
+                    Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Right,TempInt);
+                    Brush.Color := $0095FF98;
+                  end
+                else
+                  begin
+                    // other tables
+                    TempInt := (BoundsRect.Bottom - BoundsRect.Top) div 2;
+                    Brush.Color := $00F0F0F0;
+                    Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Right,TempInt);
+                    Brush.Color := $00E4E4E4;
+                  end;
+                Rectangle(BoundsRect.Left,TempInt - 1,BoundsRect.Right,BoundsRect.Bottom);
+              end;
+          end
+        else
+          begin
+            // normal cells
+            If Length(TStringGrid(Sender).Cells[ACol,ARow]) > 0 then
+              case TStringGrid(Sender).Cells[ACol,ARow][1] of
+                '-':  If gdSelected in State then
+                        Brush.Color := $00D6D6D6
+                      else
+                        Brush.Color := $00F8F8F8;
+                '%':  If gdSelected in State then
+                        Brush.Color := clYellow
+                      else
+                        Brush.Color := $0097FFFF;
               else
-                begin
-                  // other tables
-                  TempInt := Rect.Top + ((Rect.Bottom - Rect.Top) div 2);
-                  Brush.Color := $00F0F0F0;
-                  Rectangle(Rect.Left,Rect.Top,Rect.Right,TempInt);
-                  Brush.Color := $00E4E4E4;
-                end;
-              Rectangle(Rect.Left,TempInt - 1,Rect.Right,Rect.Bottom);                
-            end;
-        end
-      else
-        begin
-          // normal cells
-          If Length(TStringGrid(Sender).Cells[ACol,ARow]) > 0 then
-            case TStringGrid(Sender).Cells[ACol,ARow][1] of
-              '-':  If gdSelected in State then Brush.Color := $00D6D6D6
-                      else Brush.Color := $00F8F8F8;
-              '%':  If gdSelected in State then Brush.Color := clYellow
-                      else Brush.Color := $0097FFFF;
-            else
-              If gdSelected in State then Brush.Color := $00D6D6D6
-                else Brush.Color := clWhite;
-            end
-          else Brush.Color := clWhite;
-          Rectangle(Rect);
-        end;
-      // grid lines
-      Pen.Style := psSolid;
-      If gdFixed in State then
-        Pen.Color := clGray
-      else
-        Pen.Color := clSilver;
-      MoveTo(Rect.Left,Rect.Bottom - 1);
-      LineTo(Rect.Right - 1,Rect.Bottom - 1);
-      LineTo(Rect.Right - 1,Rect.Top - 1);
-      // text
-      Font := TStringGrid(Sender).Font;
-      Brush.Style := bsClear;
-      If gdFixed in State then
-        begin
-          // fixed cells
-          If ARow = 0 then
-            begin
-              TempInt := ((Rect.Right - Rect.Left) - TextWidth(TStringGrid(Sender).Cells[ACol,ARow])) div 2;
-              TextOut(Rect.Left + TempInt,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-            end
-          else TextOut(Rect.Left + 5,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-        end
-      else
-        begin
-          // normal cells
-          If Length(TStringGrid(Sender).Cells[ACol,ARow]) > 0 then
-            case TStringGrid(Sender).Cells[ACol,ARow][1] of
-              '-':  ; // draw nothing
-              '%':  begin
-                      TempStr := Copy(TStringGrid(Sender).Cells[ACol,ARow],2,Length(TStringGrid(Sender).Cells[ACol,ARow]));
-                      TextOut(Rect.Right - TextWidth(TempStr) - 5,Rect.Top + 3,TempStr);
-                    end;
-            else
-              TempInt := TextWidth(TStringGrid(Sender).Cells[ACol,ARow]);
-              TextOut(Rect.Right - TempInt - 5,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-            end;
-        end;
-      // focus box
-      If gdFocused in State then
-        begin
-          Pen.Style := psDot;
-          Pen.Color := clBlack;
-          Brush.Style := bsClear;
-          Rectangle(Rect);
-        end;
-    end;
+                If gdSelected in State then
+                  Brush.Color := $00D6D6D6
+                else
+                  Brush.Color := clWhite;
+              end
+            else Brush.Color := clWhite;
+            Rectangle(BoundsRect);
+          end;
+        // grid lines
+        Pen.Style := psSolid;
+        If gdFixed in State then
+          Pen.Color := clGray
+        else
+          Pen.Color := clSilver;
+        MoveTo(BoundsRect.Left,BoundsRect.Bottom - 1);
+        LineTo(BoundsRect.Right - 1,BoundsRect.Bottom - 1);
+        LineTo(BoundsRect.Right - 1,BoundsRect.Top - 1);
+        // text
+        Font.Assign(TStringGrid(Sender).Font);
+        Brush.Style := bsClear;
+        If gdFixed in State then
+          begin
+            // fixed cells
+            If ARow = 0 then
+              begin
+                TempInt := ((BoundsRect.Right - BoundsRect.Left) - TextWidth(TStringGrid(Sender).Cells[ACol,ARow])) div 2;
+                TextOut(BoundsRect.Left + TempInt,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+              end
+            else TextOut(BoundsRect.Left + 5,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+          end
+        else
+          begin
+            // normal cells
+            If Length(TStringGrid(Sender).Cells[ACol,ARow]) > 0 then
+              case TStringGrid(Sender).Cells[ACol,ARow][1] of
+                '-':  ; // draw nothing
+                '%':  begin
+                        TempStr := Copy(TStringGrid(Sender).Cells[ACol,ARow],2,Length(TStringGrid(Sender).Cells[ACol,ARow]));
+                        TextOut(BoundsRect.Right - TextWidth(TempStr) - 5,BoundsRect.Top + 3,TempStr);
+                      end;
+              else
+                TempInt := TextWidth(TStringGrid(Sender).Cells[ACol,ARow]);
+                TextOut(BoundsRect.Right - TempInt - 5,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+              end;
+          end;
+        // focus box
+        If gdFocused in State then
+          begin
+            Pen.Style := psDot;
+            Pen.Color := clBlack;
+            Brush.Style := bsClear;
+            Rectangle(BoundsRect);
+          end;
+      end;
+    // move drawbuffer to the canvas
+    TStringGrid(Sender).Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+  end;
 end;
 
 //------------------------------------------------------------------------------

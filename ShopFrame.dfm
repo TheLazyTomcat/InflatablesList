@@ -66,6 +66,7 @@ object frmShopFrame: TfrmShopFrame
       Top = -4
       Width = 16
       Height = 19
+      Hint = 'Open editor...'
       Alignment = taRightJustify
       Caption = '2'
       Font.Charset = DEFAULT_CHARSET
@@ -74,6 +75,8 @@ object frmShopFrame: TfrmShopFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       OnClick = lblNotesEditClick
       OnMouseEnter = lblNotesEditMouseEnter
       OnMouseLeave = lblNotesEditMouseLeave

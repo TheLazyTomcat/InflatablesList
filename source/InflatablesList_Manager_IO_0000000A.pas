@@ -1,4 +1,7 @@
 unit InflatablesList_Manager_IO_0000000A;
+{$IFDEF DevelMsgs}
+{$message 'will be totally reworked later'}
+{$endif}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -155,7 +158,7 @@ try
       TempStream.Seek(0,soBeginning);
       LoadList_00000009(TempStream);
     end
-  else raise EWrongPassword.Create('TILManager_IO_0000000A.LoadList_0000000A: Decryption failed. (wrong password?)');
+  else raise EILWrongPassword.Create('TILManager_IO_0000000A.LoadList_0000000A: Decryption failed. (wrong password?)');
 finally
   TempStream.Free;
 end;

@@ -5,13 +5,12 @@ unit InflatablesList_ItemShop_Base;
 interface
 
 uses
-  Classes,
-  AuxTypes,
+  AuxTypes, AuxClasses{for TNotifyEvent},
   InflatablesList_Types,
   InflatablesList_ItemShopParsingSettings;
 
 type
-  TILItemShopUpdateFlag = (ilisufClearSelected,ilisufOverviewUpdate,ilisufListUpdate,
+  TILItemShopUpdateFlag = (ilisufClearSelected,ilisufOverviewUpdate,ilisufShopListItemUpdate,
                            ilisufValuesUpdate,ilisufAvailHistUpdate,ilisufPriceHistUpdate);
   
   TILItemShopUpdateFlags = set of TILItemShopUpdateFlag;
@@ -19,35 +18,35 @@ type
   TILItemShop_Base = class(TObject)
   protected
     // internals
-    fRequiredCount:     UInt32;   // used internally in updates, ignored otherwise
-    fUpdateCounter:     Integer;
-    fUpdated:           TILItemShopUpdateFlags;
-    fStaticOptions:     TILStaticManagerOptions;
-    // events    
-    fOnClearSelected:   TNotifyEvent;
-    fOnOverviewUpdate:  TNotifyEvent;
-    fOnListUpdate:      TNotifyEvent;
-    fOnValuesUpdate:    TNotifyEvent;
-    fOnAvailHistUpdate: TNotifyEvent;
-    fOnPriceHistUpdate: TNotifyEvent;
+    fStaticSettings:        TILStaticManagerSettings;
+    fRequiredCount:         UInt32;   // used internally in updates, ignored otherwise
+    fUpdateCounter:         Integer;
+    fUpdated:               TILItemShopUpdateFlags;
+    // internal events
+    fOnClearSelected:       TNotifyEvent;
+    fOnOverviewUpdate:      TNotifyEvent;
+    fOnShopListItemUpdate:  TNotifyEvent;
+    fOnValuesUpdate:        TNotifyEvent;
+    fOnAvailHistUpdate:     TNotifyEvent;
+    fOnPriceHistUpdate:     TNotifyEvent;    
     // data
-    fSelected:          Boolean;
-    fUntracked:         Boolean;
-    fAltDownMethod:     Boolean;
-    fName:              String;
-    fShopURL:           String;
-    fItemURL:           String;
-    fAvailable:         Int32;
-    fPrice:             UInt32;
-    fAvailHistory:      TILItemShopHistory;
-    fPriceHistory:      TILItemShopHistory;
-    fNotes:             String;
+    fSelected:              Boolean;
+    fUntracked:             Boolean;
+    fAltDownMethod:         Boolean;
+    fName:                  String;
+    fShopURL:               String;
+    fItemURL:               String;
+    fAvailable:             Int32;
+    fPrice:                 UInt32;
+    fAvailHistory:          TILItemShopHistory;
+    fPriceHistory:          TILItemShopHistory;
+    fNotes:                 String;
     // parsing stuff
-    fParsingSettings:   TILItemShopParsingSettings;
-    fLastUpdateRes:     TILItemShopUpdateResult;
-    fLastUpdateMsg:     String;
+    fParsingSettings:       TILItemShopParsingSettings;
+    fLastUpdateRes:         TILItemShopUpdateResult;
+    fLastUpdateMsg:         String;
     procedure SetRequiredCount(Value: UInt32); virtual;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     // data getters and setters
     procedure SetSelected(Value: Boolean); virtual;
     procedure SetUntracked(Value: Boolean); virtual;
@@ -62,18 +61,20 @@ type
     Function GetPriceHistoryEntryCount: Integer; virtual;
     Function GetPriceHistoryEntry(Index: Integer): TILItemShopHistoryEntry; virtual;
     procedure SetNotes(const Value: String); virtual;
+    procedure SetLastUpdateRes(Value: TILItemShopUpdateResult); virtual;
+    procedure SetLastUpdateMsg(const Value: String); virtual;
+    // event callers
+    procedure ClearSelected; virtual;
+    procedure UpdateOverview; virtual;
+    procedure UpdateShopListItem; virtual;
+    procedure UpdateValues; virtual;
+    procedure UpdateAvailHistory; virtual;
+    procedure UpdatePriceHistory; virtual;
     // other protected methods
     procedure InitializeData; virtual;
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
-    // event callers
-    procedure ClearSelected; virtual;       // internal
-    procedure UpdateOverview; virtual;      // internal
-    procedure UpdateList; virtual;          // internal
-    procedure UpdateValues; virtual;        // internal
-    procedure UpdateAvailHistory; virtual;  // internal
-    procedure UpdatePriceHistory; virtual;  // internal
   public
     constructor Create; overload;
     constructor CreateAsCopy(Source: TILItemShop_Base); overload;
@@ -90,17 +91,19 @@ type
     procedure AvailAndPriceHistoryAdd; virtual;
     procedure UpdateAvailAndPriceHistory; virtual;
     // other methods
+    procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
     procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
+    procedure AssignInternalEvents(
+      ClearSelected,
+      OverviewUpdate,
+      ShopListItemUpdate,
+      ValuesUpdate,
+      AvailHistUpdate,
+      PriceHistUpdate: TNotifyEvent); virtual;
+    procedure ClearInternalEvents; virtual;
     // properties
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property RequiredCount: UInt32 read fRequiredCount write SetRequiredCount;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
-    // events
-    property OnClearSelected: TNotifyEvent read fOnClearSelected write fOnClearSelected;
-    property OnOverviewUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
-    property OnListUpdate: TNotifyEvent read fOnListUpdate write fOnListUpdate;
-    property OnValuesUpdate: TNotifyEvent read fOnValuesUpdate write fOnValuesUpdate;
-    property OnAvailHistoryUpdate: TNotifyEvent read fOnAvailHistUpdate write fOnAvailHistUpdate;
-    property OnPriceHistoryUpdate: TNotifyEvent read fOnPriceHistUpdate write fOnPriceHistUpdate;
     // data
     property Selected: Boolean read fSelected write SetSelected;
     property Untracked: Boolean read fUntracked write SetUntracked;
@@ -116,27 +119,28 @@ type
     property PriceHistoryEntries[Index: Integer]: TILItemShopHistoryEntry read GetPriceHistoryEntry;
     property Notes: String read fNotes write SetNotes;
     property ParsingSettings: TILItemShopParsingSettings read fParsingSettings;
-    property LastUpdateRes: TILItemShopUpdateResult read fLastUpdateRes write fLastUpdateRes;
-    property LastUpdateMsg: String read fLastUpdateMsg write fLastUpdateMsg;
+    property LastUpdateRes: TILItemShopUpdateResult read fLastUpdateRes write SetLastUpdateRes;
+    property LastUpdateMsg: String read fLastUpdateMsg write SetLastUpdateMsg;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
+
+procedure TILItemShop_Base.SetStaticSettings(Value: TILStaticManagerSettings);
+begin
+fStaticSettings := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticSettings := Value;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILItemShop_Base.SetRequiredCount(Value: UInt32);
 begin
 fRequiredCount := Value;
 fParsingSettings.RequiredCount := Value;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemShop_Base.SetStaticOptions(Value: TILStaticManagerOptions);
-begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
-fParsingSettings.StaticOptions := Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -148,7 +152,7 @@ If fSelected <> Value then
     ClearSelected;
     fSelected := Value;
     UpdateOverview;
-    UpdateList;
+    UpdateShopListItem;
     UpdateValues;     
   end;
 end;
@@ -160,7 +164,7 @@ begin
 If fUntracked <> Value then
   begin
     fUntracked := Value;
-    UpdateList;
+    UpdateShopListItem;
   end;
 end;
 
@@ -178,11 +182,12 @@ end;
 
 procedure TILItemShop_Base.SetName(const Value: String);
 begin
-If not AnsiSameStr(fName,Value) then
+If not IL_SameStr(fName,Value) then
   begin
     fName := Value;
+    UniqueString(fName);
     UpdateOverview;
-    UpdateList;
+    UpdateShopListItem;
   end;
 end;
  
@@ -190,9 +195,10 @@ end;
 
 procedure TILItemShop_Base.SetShopURL(const Value: String);
 begin
-If not AnsiSameStr(fShopURL,Value) then
+If not IL_SameStr(fShopURL,Value) then
   begin
     fShopURL := Value;
+    UniqueString(fShopURL);
   end;
 end;
   
@@ -200,10 +206,11 @@ end;
 
 procedure TILItemShop_Base.SetItemURL(const Value: String);
 begin
-If not AnsiSameStr(fItemURL,Value) then
+If not IL_SameStr(fItemURL,Value) then
   begin
     fItemURL := Value;
-    UpdateList;
+    UniqueString(fItemURL);
+    UpdateShopListItem;
   end;
 end;
    
@@ -215,7 +222,7 @@ If fAvailable <> Value then
   begin
     fAvailable := Value;
     UpdateOverview;
-    UpdateList;
+    UpdateShopListItem;
     UpdateValues;    
   end;
 end;
@@ -228,7 +235,7 @@ If fPrice <> Value then
   begin
     fPrice := Value;
     UpdateOverview;
-    UpdateList;
+    UpdateShopListItem;
     UpdateValues;
   end;
 end;
@@ -271,57 +278,33 @@ end;
 
 procedure TILItemShop_Base.SetNotes(const Value: String);
 begin
-If not AnsiSameStr(fNotes,Value) then
+If not IL_SameStr(fNotes,Value) then
   begin
     fNotes := Value;
+    UniqueString(fNotes);
   end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShop_Base.InitializeData;
+procedure TILItemShop_Base.SetLastUpdateRes(Value: TILItemShopUpdateResult);
 begin
-fSelected := False;
-fUntracked := False;
-fAltDownMethod := False;
-fName := '';
-fShopURL := '';
-fItemURL := '';
-fAvailable := 0;
-fPrice := 0;
-SetLength(fAvailHistory,0);
-SetLength(fPriceHistory,0);
-fNotes := '';
-fParsingSettings := TILItemShopParsingSettings.Create;
-fParsingSettings.StaticOptions := fStaticOptions;
-fLastUpdateRes := ilisurSuccess;
-fLastUpdateMsg := '';
+If fLastUpdateRes <> Value then
+  begin
+    fLastUpdateRes := Value;
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShop_Base.FinalizeData;
+procedure TILItemShop_Base.SetLastUpdateMsg(const Value: String);
 begin
-SetLength(fAvailHistory,0);
-SetLength(fPriceHistory,0);
-FreeAndNil(fParsingSettings);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemShop_Base.Initialize;
-begin
-fRequiredCount := 0;
-fUpdateCounter := 0;
-fUpdated := [];
-InitializeData;
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TILItemShop_Base.Finalize;
-begin
-FinalizeData;
+If not IL_SameStr(fLastUpdateMsg,Value) then
+  begin
+    fLastUpdateMsg := Value;
+    UniqueString(fLastUpdateMsg);
+    UpdateValues;     
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -344,11 +327,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShop_Base.UpdateList;
+procedure TILItemShop_Base.UpdateShopListItem;
 begin
-If Assigned(fOnListUpdate) and (fUpdateCounter <= 0) then
-  fOnListUpdate(Self);
-Include(fUpdated,ilisufListUpdate);
+If Assigned(fOnShopListItemUpdate) and (fUpdateCounter <= 0) then
+  fOnShopListItemUpdate(Self);
+Include(fUpdated,ilisufShopListItemUpdate);
 end;
 
 //------------------------------------------------------------------------------
@@ -378,6 +361,55 @@ If Assigned(fOnPriceHistUpdate) and (fUpdateCounter <= 0) then
 Include(fUpdated,ilisufPriceHistUpdate);
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.InitializeData;
+begin
+fSelected := False;
+fUntracked := False;
+fAltDownMethod := False;
+fName := '';
+fShopURL := '';
+fItemURL := '';
+fAvailable := 0;
+fPrice := 0;
+SetLength(fAvailHistory,0);
+SetLength(fPriceHistory,0);
+fNotes := '';
+fParsingSettings := TILItemShopParsingSettings.Create;
+fParsingSettings.StaticSettings := fStaticSettings;
+fParsingSettings.RequiredCount := fRequiredCount;
+fLastUpdateRes := ilisurSuccess;
+fLastUpdateMsg := '';
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.FinalizeData;
+begin
+SetLength(fAvailHistory,0);
+SetLength(fPriceHistory,0);
+FreeAndNil(fParsingSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.Initialize;
+begin
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
+fRequiredCount := 0;
+fUpdateCounter := 0;
+fUpdated := [];
+InitializeData;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.Finalize;
+begin
+FinalizeData;
+end;
+
 //==============================================================================
 
 constructor TILItemShop_Base.Create;
@@ -393,8 +425,11 @@ var
   i:  Integer;
 begin
 inherited Create;
+// do not call initialize
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 fRequiredCount := Source.RequiredCount;
-fStaticOptions := IL_ThreadSafeCopy(Source.StaticOptions);
+fUpdateCounter := 0;
+fUpdated := [];
 // copy data...
 fSelected := Source.Selected;
 fUntracked := Source.Untracked;
@@ -409,7 +444,7 @@ fAvailable := Source.Available;
 fPrice := Source.Price;
 SetLength(fAvailHistory,Source.AvailHistoryEntryCount);
 For i := Low(fAvailHistory) to High(fAvailHistory) do
-  fAvailHistory[i] := Source.AvailHistoryEntries[i];
+  fAvailHistory[i] := Source.AvailHistoryEntries[i];  // no need to care for thread safety
 SetLength(fPriceHistory,Source.PriceHistoryEntryCount);
 For i := Low(fPriceHistory) to High(fPriceHistory) do
   fPriceHistory[i] := Source.PriceHistoryEntries[i];
@@ -417,6 +452,8 @@ fNotes := Source.Notes;
 UniqueString(fNotes);
 // parsing stuff
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
+fParsingSettings.StaticSettings := fStaticSettings;
+fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := Source.LastUpdateRes;
 fLastUpdateMsg := Source.LastUpdateMsg;
 UniqueString(fLastUpdateMsg);
@@ -451,8 +488,8 @@ If fUpdateCounter <= 0 then
       ClearSelected;
     If ilisufOverviewUpdate in fUpdated then
       UpdateOverview;
-    If ilisufListUpdate in fUpdated then
-      UpdateList;
+    If ilisufShopListItemUpdate in fUpdated then
+      UpdateShopListItem;
     If ilisufValuesUpdate in fUpdated then
       UpdateValues;
     If ilisufAvailHistUpdate in fUpdated then
@@ -571,8 +608,22 @@ else
     If (Length(fPriceHistory) > 0) then
       If ((fAvailHistory[High(fAvailHistory)].Value <> fAvailable) or
           (fPriceHistory[High(fPriceHistory)].Value <> Int32(fPrice))) then
-      AvailAndPriceHistoryAdd;
+        AvailAndPriceHistoryAdd;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
+begin
+fAvailable := Avail;
+fPrice := Price;
+fLastUpdateRes := Res;
+fLastUpdateMsg := Msg;
+UniqueString(fLastUpdateMsg);
+UpdateOverview;
+UpdateShopListItem;
+UpdateValues;
 end;
 
 //------------------------------------------------------------------------------
@@ -582,13 +633,40 @@ var
   Variables:  TILItemShopParsingVariables;
   i:          Integer;
 begin
+// keep variables
+// no need to care for thread safety, strings are cured when assigned to new object
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
+fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
-fParsingSettings.StaticOptions := fStaticOptions;
 For i := 0 to Pred(fParsingSettings.VariableCount) do
   fParsingSettings.Variables[i] := Variables.Vars[i];
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.AssignInternalEvents(ClearSelected,OverviewUpdate,
+  ShopListItemUpdate,ValuesUpdate,AvailHistUpdate,PriceHistUpdate: TNotifyEvent);
+begin
+fOnClearSelected := IL_CheckHandler(ClearSelected);
+fOnOverviewUpdate := IL_CheckHandler(OverviewUpdate);
+fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
+fOnValuesUpdate := IL_CheckHandler(ValuesUpdate);
+fOnAvailHistUpdate := IL_CheckHandler(AvailHistUpdate);
+fOnPriceHistUpdate := IL_CheckHandler(PriceHistUpdate);
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.ClearInternalEvents;
+begin
+fOnClearSelected := nil;
+fOnOverviewUpdate := nil;
+fOnShopListItemUpdate := nil;
+fOnValuesUpdate := nil;
+fOnAvailHistUpdate := nil;
+fOnPriceHistUpdate := nil;
 end;
 
 end.

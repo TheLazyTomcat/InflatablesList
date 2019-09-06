@@ -28,6 +28,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowInfo;
   end;
 
@@ -44,21 +45,20 @@ uses
 
 procedure TfAboutForm.BuildForm;
 begin
-lblTitleShadow.Caption := lblTitle.Caption;
 with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
 try
   lblTitle.Caption := VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'FileDescription'];
   lblTitleShadow.Caption := lblTitle.Caption;
-  lblVersion.Caption := Format('version %d.%d.%d (build #%d, %s)',
+  lblVersion.Caption := IL_Format('version %d.%d.%d (build #%d, %s)',
    [VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release,
     VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build,
     {$IFDEF Debug}'debug'{$ELSE}'release'{$ENDIF}]);
-  lblCompiler.Caption := Format('compiled in %s %s',
+  lblCompiler.Caption := IL_Format('compiled in %s %s',
     [{$IFDEF FPC}'Lazarus/FPC'{$ELSE}'Delphi'{$ENDIF},
      {$IFDEF x64}'64bit'{$ELSE}'32bit'{$ENDIF}]);
-  lblCopyright.Caption := Format('%s, all rights reserved',
+  lblCopyright.Caption := IL_Format('%s, all rights reserved',
     [VersionInfoValues[VersionInfoTranslations[0].LanguageStr,'LegalCopyright']]);
 finally
   Free;
@@ -70,6 +70,13 @@ end;
 procedure TfAboutForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfAboutForm.Finalize;
+begin
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------
@@ -90,7 +97,7 @@ end;
 
 procedure TfAboutForm.lblMailClick(Sender: TObject);
 begin
-InflatablesList_Utils.IL_ShellOpen(Self.Handle,'mailto:' + lblMail.Caption);
+IL_ShellOpen(Self.Handle,'mailto:' + lblMail.Caption);
 end;
 
 //------------------------------------------------------------------------------

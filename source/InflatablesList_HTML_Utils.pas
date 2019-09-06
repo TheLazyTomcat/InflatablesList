@@ -8,8 +8,17 @@ uses
   SysUtils,
   AuxTypes;
 
-Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
+//==============================================================================
+//- special parsing exception --------------------------------------------------      
+
+type
+  EILHTMLParseError = class(Exception);
+
+//==============================================================================
+//- unicode strings manipulation -----------------------------------------------    
+
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
+Function IL_UTF16LowSurrogate(CodePoint: UInt32): UnicodeChar;
 Function IL_UTF16CodePoint(HighSurrogate,LowSurrogate: UnicodeChar): UInt32;
 
 Function IL_UTF16CharInSet(UTF16Char: UnicodeChar; CharSet: TSysCharSet): Boolean;
@@ -18,6 +27,12 @@ Function IL_UnicodeCompareString(const A,B: UnicodeString; CaseSensitive: Boolea
 Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean): Boolean;
 
 implementation
+
+uses
+  StrRect;
+
+//==============================================================================
+//- unicode strings manipulation -----------------------------------------------
 
 Function IL_UTF16HighSurrogate(CodePoint: UInt32): UnicodeChar;
 begin
@@ -58,34 +73,14 @@ end;
 
 Function IL_UnicodeCompareString(const A,B: UnicodeString; CaseSensitive: Boolean): Integer;
 begin
-{$IFDEF Unicode}
-If CaseSensitive then
-  Result := AnsiCompareStr(A,B)
-else
-  Result := AnsiCompareText(A,B);
-{$ELSE}
-If CaseSensitive then
-  Result := WideCompareStr(A,B)
-else
-  Result := WideCompareText(A,B);
-{$ENDIF}
+Result := StrRect.UnicodeStringCompare(A,B,CaseSensitive);
 end;
 
 //------------------------------------------------------------------------------
 
 Function IL_UnicodeSameString(const A,B: UnicodeString; CaseSensitive: Boolean): Boolean;
 begin
-{$IFDEF Unicode}
-If CaseSensitive then
-  Result := AnsiSameStr(A,B)
-else
-  Result := AnsiSameText(A,B);
-{$ELSE}
-If CaseSensitive then
-  Result := WideSameStr(A,B)
-else
-  Result := WideSameText(A,B);
-{$ENDIF}
+Result := StrRect.UnicodeStringCompare(A,B,CaseSensitive) = 0;
 end;
 
 end.

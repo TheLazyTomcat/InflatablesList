@@ -3,7 +3,7 @@ object fOverviewForm: TfOverviewForm
   Top = 116
   BorderStyle = bsDialog
   Caption = 'Selected shops overview'
-  ClientHeight = 552
+  ClientHeight = 544
   ClientWidth = 496
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,7 +14,8 @@ object fOverviewForm: TfOverviewForm
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnShow = FormShow
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object sgOverview: TStringGrid
@@ -34,7 +35,7 @@ object fOverviewForm: TfOverviewForm
   end
   object cbStayOnTop: TCheckBox
     Left = 8
-    Top = 523
+    Top = 520
     Width = 81
     Height = 17
     Caption = 'Stay on top'
@@ -42,14 +43,5 @@ object fOverviewForm: TfOverviewForm
     State = cbChecked
     TabOrder = 1
     OnClick = cbStayOnTopClick
-  end
-  object btnUpdate: TButton
-    Left = 392
-    Top = 520
-    Width = 97
-    Height = 25
-    Caption = 'Update overview'
-    TabOrder = 2
-    OnClick = btnUpdateClick
   end
 end

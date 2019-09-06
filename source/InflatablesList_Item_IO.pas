@@ -32,7 +32,6 @@ type
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
-    procedure AfterLoad; virtual;
   public
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;    
@@ -44,7 +43,7 @@ implementation
 
 uses
   SysUtils,
-  BinaryStreaming;
+  BinaryStreaming, StrRect;
 
 procedure TILItem_IO.Save(Stream: TStream; Struct: UInt32);
 begin
@@ -58,13 +57,6 @@ procedure TILItem_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
-AfterLoad;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_IO.AfterLoad;
-begin
 RenderSmallPictures;
 end;
 
@@ -96,7 +88,7 @@ begin
 FileStream := TMemoryStream.Create;
 try
   SaveToStream(FileStream);
-  FileStream.SaveToFile(FileName);
+  FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
 end;
@@ -110,7 +102,7 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(StrToRTL(FileName));
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
 finally

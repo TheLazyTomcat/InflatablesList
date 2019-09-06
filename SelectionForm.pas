@@ -53,7 +53,7 @@ type
 //******************************************************************************
 
 const
-  WM_USER_LVITEMSELECTED = WM_USER + 234;
+  IL_WM_USER_LVITEMSELECTED = WM_USER + 234;
 
 type
   TfSelectionForm = class(TForm)
@@ -78,6 +78,7 @@ type
     lvItemShops: TListView;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);    
     procedure lvShopsSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure lbItemsDrawItem(Control: TWinControl; Index: Integer;
@@ -98,6 +99,7 @@ type
     procedure lvItemShopsDblClick(Sender: TObject);
   private
     { Private declarations }
+    fDrawBuffer:        TBitmap;
     fILManager:         TILManager;
     fShopTable:         TILCountedDynArraySelectionShops;
     fCurrentShopIndex:  Integer;
@@ -107,7 +109,7 @@ type
     procedure FillItems;
     procedure FillItemShop;
     procedure RecountAndFillSelected;
-    procedure ListViewItemSelected(var Msg: TMessage); overload; message WM_USER_LVITEMSELECTED;
+    procedure ListViewItemSelected(var Msg: TMessage); overload; message IL_WM_USER_LVITEMSELECTED;
     procedure ListViewItemSelected; overload;
     procedure ShopsListSelect(ItemIndex: Integer);
     procedure UpdateShopIndex;
@@ -115,6 +117,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     procedure ShowSelection;
   end;
 
@@ -233,6 +236,7 @@ try
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
       lbItems.Items.Add(IntToStr(i));
+  // get width for drawing
   If (lbItems.Count > (lbItems.ClientHeight div lbItems.ItemHeight)) then
     begin
       If VScroll then
@@ -247,6 +251,7 @@ try
       else
         Temp := lbItems.ClientWidth;
     end;
+  // reinit draw size only for items that are shown, not for everything in the list
   If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -294,21 +299,21 @@ try
           For i := ItemObject.ShopLowIndex to ItemObject.ShopHighIndex do
             with lvItemShops.Items[i] do
               begin
-                Caption := Format('%s%s',[
+                Caption := IL_Format('%s%s',[
                   IL_BoolToStr(ItemObject[i].Selected,'','*'),
                   IL_BoolToStr(ItemObject[i].Untracked,'','^')]);
                 SubItems[0] := ItemObject[i].Name;
                 SubItems[1] := ItemObject[i].ItemURL;
                 // avail
                 If ItemObject[i].Available < 0 then
-                  SubItems[2] := Format('more than %d',[Abs(ItemObject[i].Available)])
+                  SubItems[2] := IL_Format('more than %d',[Abs(ItemObject[i].Available)])
                 else If ItemObject[i].Available > 0 then
-                  SubItems[2] := Format('%d',[Abs(ItemObject[i].Available)])
+                  SubItems[2] := IL_Format('%d',[Abs(ItemObject[i].Available)])
                 else
                   SubItems[2] := '-';
                 // price
                 If ItemObject[i].Price > 0 then
-                  SubItems[3] := Format('%d Kè',[ItemObject[i].Price])
+                  SubItems[3] := IL_Format('%d Kè',[ItemObject[i].Price])
                 else
                   SubItems[3] := '-';
               end;
@@ -318,11 +323,11 @@ finally
 end;
 If lvItemShops.Items.Count > 0 then
   begin
-    TempStr := Format('Item shops for %s',[
+    TempStr := IL_Format('Item shops for %s',[
       // if there is something in the list, indices were already successfully checked
       CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex).ItemObject.TitleStr]);
     If lvItemShops.Items.Count > 1 then
-      TempStr := TempStr + Format('%s (%d)',[TempStr,lvItemShops.Items.Count]);
+      TempStr := IL_Format('%s (%d)',[TempStr,lvItemShops.Items.Count]);
   end
 else TempStr := 'Item shops';
 grbItemShops.Caption := TempStr;
@@ -344,11 +349,11 @@ For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
         If Index >= 0 then
           begin
             CDA_GetItemPtr(CDA_GetItem(fShopTable,i).Items,j)^.Selected :=
-              CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).ItemObject[Index].Selected;
+              CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).ItemObject.Shops[Index].Selected;
             If CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).Selected then
               Inc(CDA_GetItemPtr(fShopTable,i)^.Selected);
           end
-        else raise Exception.Create('Some wierd shit is happening...');
+        else raise Exception.Create('Some weird things are happening...');
       end;
     lvShops.Items[i].SubItems[2] := IntToStr(CDA_GetItem(fShopTable,i).Selected);
   end;
@@ -358,7 +363,7 @@ end;
 
 procedure TfSelectionForm.ListViewItemSelected(var Msg: TMessage);
 begin
-If Msg.Msg = WM_USER_LVITEMSELECTED then
+If Msg.Msg = IL_WM_USER_LVITEMSELECTED then
   ListViewItemSelected;
 end;
 
@@ -371,7 +376,7 @@ If lvShops.ItemIndex <> fCurrentShopIndex then
     fCurrentShopIndex := lvShops.ItemIndex;
     FillItems;
   end;
-If (lvShops.ItemIndex >= 0) then
+If (lvShops.ItemIndex >= 0) and Assigned(lvShops.Selected) then
   lvShops.Selected.MakeVisible(False);
 UpdateShopIndex;
 end;
@@ -399,11 +404,11 @@ begin
 If lvShops.ItemIndex < 0 then
   begin
     If lvShops.Items.Count > 0 then
-      lblShops.Caption := Format('Shops (%d):',[lvShops.Items.Count])
+      lblShops.Caption := IL_Format('Shops (%d):',[lvShops.Items.Count])
     else
       lblShops.Caption := 'Shops:';
   end
-else lblShops.Caption := Format('Shops (%d/%d):',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
+else lblShops.Caption := IL_Format('Shops (%d/%d):',[lvShops.ItemIndex + 1,lvShops.Items.Count]);
 end;
 
 //------------------------------------------------------------------------------
@@ -413,11 +418,11 @@ begin
 If lbItems.ItemIndex < 0 then
   begin
     If lbItems.Items.Count > 0 then
-      lblItems.Caption := Format('Items available in the selected shop (%d):',[lbItems.Items.Count])
+      lblItems.Caption := IL_Format('Items available in the selected shop (%d):',[lbItems.Items.Count])
     else
       lblItems.Caption := 'Items available in the selected shop:';
   end
-else lblItems.Caption := Format('Items available in the selected shop (%d/%d):',[lbItems.ItemIndex + 1,lbItems.Items.Count]);
+else lblItems.Caption := IL_Format('Items available in the selected shop (%d/%d):',[lbItems.ItemIndex + 1,lbItems.Items.Count]);
 end;
 
 //==============================================================================
@@ -429,9 +434,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfSelectionForm.Finalize;
+begin
+// nothing to do here
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfSelectionForm.ShowSelection;
 begin
-fCurrentShopIndex := -2; // must not be -1
+fCurrentShopIndex := -2; // must be below -1
 BuildTable;
 FillShops;
 ShowModal;
@@ -441,6 +453,7 @@ end;
 
 procedure TfSelectionForm.FormCreate(Sender: TObject);
 begin
+fDrawBuffer := TBitmap.Create;
 lvShops.DoubleBuffered := True;
 lbItems.DoubleBuffered := True;
 lvItemShops.DoubleBuffered := True;
@@ -455,11 +468,18 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfSelectionForm.FormDestroy(Sender: TObject);
+begin
+FreeAndNil(fDrawBuffer);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfSelectionForm.lvShopsSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 begin
 //this deffers reaction to change and prevents flickering
-PostMessage(Handle,WM_USER_LVITEMSELECTED,Ord(Selected),0);
+PostMessage(Handle,IL_WM_USER_LVITEMSELECTED,Ord(Selected),0);
 end;
 
 //------------------------------------------------------------------------------
@@ -467,53 +487,70 @@ end;
 procedure TfSelectionForm.lbItemsDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
-  TempStr:  String;
+  TempStr:    String;
+  BoundsRect: TRect;
+  TempItem:   TILShopSelectItemEntry;
 begin
-If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
+// draw on bitmap and then copy it using copyrect, this flickers
+If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index) then
     begin
-      // content
-      lbItems.Canvas.Draw(Rect.Left,Rect.Top,
-        CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index).ItemObject.RenderSmall);
-      // separator line
-      lbItems.Canvas.Pen.Style := psSolid;
-      lbItems.Canvas.Pen.Color := clSilver;
-      lbItems.Canvas.MoveTo(Rect.Left,Pred(Rect.Bottom));
-      lbItems.Canvas.LineTo(Rect.Right,Pred(Rect.Bottom));
-      // marker
-      lbItems.Canvas.Pen.Style := psClear;
-      lbItems.Canvas.Brush.Style := bsSolid;
-      If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index).Selected then
-        lbItems.Canvas.Brush.Color := clBlue
-      else If CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index).Available then
-        lbItems.Canvas.Brush.Color := $00D5FFD2
-      else
-        lbItems.Canvas.Brush.Color := $00F7F7F7;
-      lbItems.Canvas.Rectangle(Rect.Left,Rect.Top,Rect.Left + 20,Rect.Bottom);
-      // shop price
-      TempStr := Format('%d Kè',[CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index).Price]);
-      lbItems.Canvas.Brush.Style := bsClear;
-      lbItems.Canvas.Font.Style := [fsBold];
-      lbItems.Canvas.Font.Color := clWindowText;
-      lbItems.Canvas.Font.Size := 10;
-      lbItems.Canvas.TextOut(
-        Rect.Left + lbItems.ClientWidth - lbItems.Canvas.TextWidth(TempStr) - 64,
-        Rect.Top + 2,TempStr);
-      // states
-      If odSelected	in State then
+      // adjust draw buffer size
+      If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+        fDrawBuffer.Width := Rect.Right - Rect.Left;
+      If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+        fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+      BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+
+      with fDrawBuffer.Canvas do
         begin
-          lbItems.Canvas.Pen.Style := psClear;
-          lbItems.Canvas.Brush.Style := bsSolid;
-          lbItems.Canvas.Brush.Color := clLime;
-          lbItems.Canvas.Rectangle(Rect.Left,Rect.Top,Rect.Left + 11,Rect.Bottom);
+          TempItem := CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index);
+          Font.Assign(lbItems.Font);
+          
+          // content
+          Draw(BoundsRect.Left,BoundsRect.Top,TempItem.ItemObject.RenderSmall);
+
+          // separator line
+          Pen.Style := psSolid;
+          Pen.Color := clSilver;
+          MoveTo(BoundsRect.Left,Pred(BoundsRect.Bottom));
+          LineTo(BoundsRect.Right,Pred(BoundsRect.Bottom));
+
+          // marker
+          Pen.Style := psClear;
+          Brush.Style := bsSolid;
+          If TempItem.Selected then
+            Brush.Color := clBlue
+          else If TempItem.Available then
+            Brush.Color := $00D5FFD2
+          else
+            Brush.Color := $00F7F7F7;
+          Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 20,BoundsRect.Bottom);
+
+          // shop price
+          TempStr := IL_Format('%d Kè',[TempItem.Price]);
+          Brush.Style := bsClear;
+          Font.Style := [fsBold];
+          Font.Color := clWindowText;
+          Font.Size := 10;
+          TextOut(
+            BoundsRect.Left + lbItems.ClientWidth - TextWidth(TempStr) - 64,
+            BoundsRect.Top + 2,TempStr);
+
+          // states
+          If odSelected	in State then
+            begin
+              Pen.Style := psClear;
+              Brush.Style := bsSolid;
+              Brush.Color := clLime;
+              Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 11,BoundsRect.Bottom);
+            end;
         end;
+      // move drawbuffer to the canvas
+      lbItems.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+      // as focus rect is drawn automatically, following pretty much removes it (it looks ugly)
       If odFocused in State then
-        begin
-          lbItems.Canvas.Pen.Style := psDot;
-          lbItems.Canvas.Pen.Color := clSilver;
-          lbItems.Canvas.Brush.Style := bsClear;
-          lbItems.Canvas.DrawFocusRect(Rect);
-        end;
+        lbItems.Canvas.DrawFocusRect(Rect);
     end;
 end;
 
@@ -539,7 +576,6 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
         If ShopIndex >= 0 then
           begin
             ItemObject[ShopIndex].Selected := not ItemObject[ShopIndex].Selected;
-            ItemObject.UpdatePriceAndAvail;
             Selected := ItemObject[ShopIndex].Selected;
             RecountAndFillSelected;
             FillItemShop;
@@ -602,7 +638,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
       begin
         Temp := ItemObject.TextTag;
-        If IL_InputQuery(Format('Edit textual tag of %s',[ItemObject.TitleStr]),'Textual tag:',Temp) then
+        If IL_InputQuery(IL_Format('Edit textual tag of %s',[ItemObject.TitleStr]),'Textual tag:',Temp) then
           begin
             ItemObject.TextTag := Temp;
             lbItems.Invalidate;
@@ -621,7 +657,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
       begin
         Temp := Integer(ItemObject.NumTag);
-        If IL_InputQuery(Format('Edit numerical tag of %s',[ItemObject.TitleStr]),
+        If IL_InputQuery(IL_Format('Edit numerical tag of %s',[ItemObject.TitleStr]),
           'Numerical tag:',Temp,fMainForm.frmItemFrame.seNumTag.MinValue,
           fMainForm.frmItemFrame.seNumTag.MaxValue) then
           begin
@@ -748,8 +784,7 @@ begin
 If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
-      If (lvItemShops.ItemIndex >= ItemObject.ShopLowIndex) and
-         (lvItemShops.ItemIndex <= ItemObject.ShopHighIndex) then
+      If ItemObject.CheckIndex(lvItemShops.ItemIndex) then
         IL_ShellOpen(Self.Handle,ItemObject[lvItemShops.ItemIndex].ItemURL);
 end;
 

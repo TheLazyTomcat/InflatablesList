@@ -7,6 +7,8 @@ object fMainForm: TfMainForm
   ClientHeight = 707
   ClientWidth = 1264
   Color = clBtnFace
+  Constraints.MinHeight = 741
+  Constraints.MinWidth = 1272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -40,6 +42,13 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      inherited pnlMain: TPanel
+        inherited lblNotesEdit: TLabel
+          Hint = 'Open editor...'
+          ParentShowHint = False
+          ShowHint = True
+        end
+      end
     end
   end
   object sbStatusBar: TStatusBar
@@ -78,8 +87,14 @@ object fMainForm: TfMainForm
     Width = 625
     Height = 646
     Style = lbOwnerDrawFixed
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
     IntegralHeight = True
     ItemHeight = 107
+    ParentFont = False
     PopupMenu = pmnListMenu
     TabOrder = 0
     OnClick = lbListClick
@@ -341,9 +356,9 @@ object fMainForm: TfMainForm
       Caption = 'Worst update result mark colors...'
       OnClick = mniLM_ResMarkLegendClick
     end
-    object mniLM_OptionsLegend: TMenuItem
-      Caption = 'Options tag legend...'
-      OnClick = mniLM_OptionsLegendClick
+    object mniLM_SettingsLegend: TMenuItem
+      Caption = 'Settings tag legend...'
+      OnClick = mniLM_SettingsLegendClick
     end
     object mniLM_About: TMenuItem
       Caption = 'About the program...'

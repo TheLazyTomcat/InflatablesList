@@ -7,10 +7,10 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Manager_IO_Converter;
+  InflatablesList_Manager_IO;
 
 type
-  TILManager_IO_00000008 = class(TILManager_IO_Converter)
+  TILManager_IO_00000008 = class(TILManager_IO)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
@@ -24,6 +24,14 @@ type
     procedure LoadFilterSettings_00000008(Stream: TStream); virtual;
     procedure SaveItems_00000008(Stream: TStream); virtual;
     procedure LoadItems_00000008(Stream: TStream); virtual;
+    // conversion from version 7 to 8
+    class procedure Convert_SortingSettings(Stream, ConvStream: TStream); virtual;
+    class procedure Convert_ShopTemplates(Stream, ConvStream: TStream); virtual;
+    class procedure Convert_FilterSettings(Stream, ConvStream: TStream); virtual;
+    class procedure Convert_Items(Stream, ConvStream: TStream); virtual;
+    procedure Load(Stream: TStream; Struct: UInt32); override;
+  public
+    class procedure Convert(Stream: TStream); virtual;      
   end;
 
 implementation
@@ -32,9 +40,9 @@ uses
   SysUtils,
   BinaryStreaming,
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_Item,
-  InflatablesList_ItemShopTemplate,
-  InflatablesList_Manager_IO;
+  InflatablesList_ItemShopTemplate;
 
 procedure TILManager_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin
@@ -68,7 +76,7 @@ end;
 
 procedure TILManager_IO_00000008.SaveList_00000008(Stream: TStream);
 begin
-Stream_WriteString(Stream,FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now));
+Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now));
 fFNSaveSortingSettings(Stream);
 fFNSaveShopTemplates(Stream);
 fFNSaveFilterSettings(Stream);
@@ -138,7 +146,7 @@ var
   end;
 
 begin
-If AnsiSameStr(Stream_ReadString(Stream),'SORT') then
+If IL_SameStr(Stream_ReadString(Stream),'SORT') then
   begin
     // load resed flag
     fReversedSort := Stream_ReadBool(Stream);
@@ -174,13 +182,14 @@ procedure TILManager_IO_00000008.LoadShopTemplates_00000008(Stream: TStream);
 var
   i:  Integer;
 begin
-If AnsiSameStr(Stream_ReadString(Stream),'TEMPLATES') then
+If IL_SameStr(Stream_ReadString(Stream),'TEMPLATES') then
   begin
     ShopTemplateClear;
     SetLength(fShopTemplates,Stream_ReadUInt32(Stream));
     For i := 0 to Pred(ShopTemplateCount) do
       begin
         fShopTemplates[i] := TILItemShopTemplate.Create;
+        fShopTemplates[i].StaticSettings := fStaticSettings;
         fShopTemplates[i].LoadFromStream(Stream);
       end;
   end
@@ -200,7 +209,7 @@ end;
 
 procedure TILManager_IO_00000008.LoadFilterSettings_00000008(Stream: TStream);
 begin
-If AnsiSameStr(Stream_ReadString(Stream),'FILTER') then
+If IL_SameStr(Stream_ReadString(Stream),'FILTER') then
   begin
     fFilterSettings.Operator := IL_NumToFilterOperator(Stream_ReadInt32(Stream));
     fFilterSettings.Flags := IL_DecodeFilterFlags(Stream_ReadUInt32(Stream));
@@ -226,24 +235,149 @@ procedure TILManager_IO_00000008.LoadItems_00000008(Stream: TStream);
 var
   i:  Integer;
 begin
-If AnsiSameStr(Stream_ReadString(Stream),'ITEMS') then
+If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
   begin
-    ItemClear;
     SetLength(fList,Stream_ReadUInt32(Stream));
     fCount := Length(fList);
     For i := ItemLowIndex to ItemHighIndex do
       begin
         fList[i] := TILItem.Create(fDataProvider);
-        // StaticOptions must be set must be before load so it is propagated to item shops
-        fList[i].StaticOptions := fStaticOptions;
+        // StaticSettings must be set must be before load so it is propagated to item shops
+        fList[i].StaticSettings := fStaticSettings;
         fList[i].LoadFromStream(Stream);
         fList[i].Index := i;
-        fList[i].OnMainListUpdate := MainListUpdateHandler;
-        fList[i].OnSmallListUpdate := SmallListUpdateHandler;
-        fList[i].OnOverviewListUpdate := OverviewUpdateHandler;
+        fList[i].AssignInternalEvents(
+          ShopUpdateShopListItemHandler,
+          ShopUpdateValuesHandler,
+          ShopUpdateAvailHistoryHandler,
+          ShopUpdatePriceHistoryHandler,
+          ItemUpdateMainListHandler,
+          ItemUpdateSmallListHandler,
+          ItemUpdateOverviewHandler,
+          ItemUpdateTitleHandler,
+          ItemUpdatePicturesHandler,
+          ItemUpdateFlagsHandler,
+          ItemUpdateValuesHandler,
+          ItemUpdateShopListHandler);
       end;
   end
 else raise Exception.Create('TILManager_IO_00000008.LoadItems_00000008: Invalid stream.');
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_IO_00000008.Convert_SortingSettings(Stream, ConvStream: TStream);
+var
+  Cntr: UInt32;
+  i:    Integer;
+
+  procedure ConvertSortingSettings;
+  var
+    ii: Integer;
+  begin
+    Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream));
+    For ii := 0 to 29 do 
+      begin
+        Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));
+        Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));
+      end;
+  end;
+
+begin
+Stream_WriteString(ConvStream,'SORT');
+// data itself are the same, do plain copy...
+// reversed flag
+Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));
+// actual sort settings
+ConvertSortingSettings;
+// sorting profiles
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  begin
+    Stream_WriteString(ConvStream,Stream_ReadString(Stream));
+    ConvertSortingSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_IO_00000008.Convert_ShopTemplates(Stream, ConvStream: TStream);
+var
+  Cntr: UInt32;
+  i:    Integer;
+begin
+Stream_WriteString(ConvStream,'TEMPLATES');
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  TILItemShopTemplate.Convert(Stream,ConvStream);
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_IO_00000008.Convert_FilterSettings(Stream, ConvStream: TStream);
+begin
+Stream_WriteString(ConvStream,'FILTER');
+// no change to data
+Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // Operator
+Stream_WriteUInt32(ConvStream,Stream_ReadUInt32(Stream)); // Flags
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILManager_IO_00000008.Convert_Items(Stream, ConvStream: TStream);
+var
+  Cntr: UInt32;
+  i:    Integer;
+begin
+Stream_WriteString(ConvStream,'ITEMS');
+Cntr := Stream_ReadUInt32(Stream);
+Stream_WriteUInt32(ConvStream,Cntr);
+For i := 0 to Pred(Cntr) do
+  TILItem.Convert(Stream,ConvStream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO_00000008.Load(Stream: TStream; Struct: UInt32);
+begin
+If Struct = IL_LISTFILE_STREAMSTRUCTURE_00000007 then
+  begin
+    Convert(Stream);
+    inherited Load(Stream,IL_LISTFILE_STREAMSTRUCTURE_00000008);
+  end
+else inherited Load(Stream,Struct);
+end;
+
+//==============================================================================
+
+class procedure TILManager_IO_00000008.Convert(Stream: TStream);
+var
+  ConvertStream:  TMemoryStream;
+  StartPos:       Int64;
+begin
+// at this point, stream position is just after structure selection
+ConvertStream := TMemoryStream.Create;
+try
+  ConvertStream.Size := Stream.Size - Stream.Position;
+  ConvertStream.Seek(0,soBeginning);
+  StartPos := Stream.Position;
+  try
+    Stream_WriteString(ConvertStream,Stream_ReadString(Stream)); // time
+    Convert_SortingSettings(Stream,ConvertStream);
+    Convert_ShopTemplates(Stream,ConvertStream);
+    Convert_FilterSettings(Stream,ConvertStream);
+    Convert_Items(Stream,ConvertStream);
+    Stream.Seek(StartPos,soBeginning);
+    Stream.CopyFrom(ConvertStream,0);
+    // do not alter stream size
+  finally
+    Stream.Seek(StartPos,soBeginning);
+  end;
+finally
+  ConvertStream.Free;
+end;
 end;
 
 end.

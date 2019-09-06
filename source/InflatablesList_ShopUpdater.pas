@@ -1,4 +1,4 @@
-unit InflatablesList_ShopUpdate;
+unit InflatablesList_ShopUpdater;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -10,7 +10,7 @@ uses
   InflatablesList_Types,
   InflatablesList_HTML_Document,
   InflatablesList_HTML_ElementFinder,
-  InflatablesList_ItemShop_Base;
+  InflatablesList_ItemShop_Update;
 
 type
   TILShopUpdaterResult = (
@@ -27,7 +27,7 @@ type
 
   TILShopUpdater = class(TObject)
   private
-    fShopData:      TILItemShop_Base;
+    fShopObject:    TILItemShop_Update;
     // internals
     fDownStream:    TMemoryStream;
     // results
@@ -36,7 +36,6 @@ type
     fErrorString:   String;
     fAvailable:     Int32;
     fPrice:         UInt32;
-    fStaticOptions: TILStaticManagerOptions;
   protected
     procedure InitializeResults; virtual;
     Function FindElementNode(Document: TILHTMLDocument; Finder: TILElementFinder): TILHTMLElements; virtual;
@@ -50,7 +49,7 @@ type
     Function ExtractAvailable(Nodes: TILHTMLElements): Int32; virtual;
     Function ExtractPrice(Nodes: TILHTMLElements): UInt32; virtual;
   public
-    constructor Create(ShopData: TILItemShop_Base; StaticOptions: TILStaticManagerOptions);
+    constructor Create(ShopObject: TILItemShop_Update);
     destructor Destroy; override;
     Function Run(AlternativeDownload: Boolean): TILShopUpdaterResult; virtual;
     property DownloadResultCode: Integer read fDownResCode;
@@ -58,14 +57,13 @@ type
     property ErrorString: String read fErrorString;
     property Available: Int32 read fAvailable;
     property Price: UInt32 read fPrice;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions;
   end;
 
 implementation
 
 uses
-  SysUtils, StrUtils,
-  CRC32, CountedDynArrayObject,
+  SysUtils,
+  CRC32, StrRect,
   InflatablesList_Utils,
   InflatablesList_HTML_Download,
   InflatablesList_HTML_Parser;
@@ -125,7 +123,7 @@ end;
 Function TILShopUpdater.ExtractValue_ContainsTag(const Text,Tag: String): Boolean;
 begin
 If Length(Tag) > 0 then
-  Result := AnsiContainsText(Text,Tag)
+  Result := IL_ContainsText(Text,Tag)
 else
   Result := True;
 end;
@@ -182,6 +180,7 @@ Function TILShopUpdater.ExtractValue_GetText(Node: TILHTMLElementNode; ExtractFr
 var
   Index:  Integer;
 begin
+// no need to care for thread safety as result does not leave this object
 Result := IL_ReconvString('');
 case ExtractFrom of
   ilpefNestedText:  Result := Node.NestedText;
@@ -204,8 +203,8 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := 0 to Pred(fShopData.ParsingSettings.AvailExtractionSettingsCount) do
-  with fShopData.ParsingSettings.AvailExtractionSettingsPtrs[i]^ do
+For i := 0 to Pred(fShopObject.ParsingSettings.AvailExtractionSettingsCount) do
+  with fShopObject.ParsingSettings.AvailExtractionSettings[i] do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin
@@ -221,7 +220,7 @@ For i := 0 to Pred(fShopData.ParsingSettings.AvailExtractionSettingsCount) do
               end;
             ilpemNegTagIsCount:
               If ExtractValue_ContainsTag(Text,NegativeTag) then
-                Result := fShopData.RequiredCount;
+                Result := fShopObject.RequiredCount;
             ilpemFirstNumber:
               Result := Int32(ExtractValue_FirstNumber(Text));
             ilpemFirstNumberTag:
@@ -250,8 +249,8 @@ var
   i,j:  Integer;
 begin
 Result := 0;
-For i := 0 to Pred(fShopData.ParsingSettings.PriceExtractionSettingsCount) do
-  with fShopData.ParsingSettings.PriceExtractionSettingsPtrs[i]^ do
+For i := 0 to Pred(fShopObject.ParsingSettings.PriceExtractionSettingsCount) do
+  with fShopObject.ParsingSettings.PriceExtractionSettings[i] do
     begin
       For j := Low(Nodes) to High(Nodes) do
         begin
@@ -261,7 +260,7 @@ For i := 0 to Pred(fShopData.ParsingSettings.PriceExtractionSettingsCount) do
           case ExtractionMethod of
             ilpemNegTagIsCount:
               If ExtractValue_ContainsTag(Text,NegativeTag) then
-                Result := fShopData.RequiredCount;
+                Result := fShopObject.RequiredCount;
             // price cannot be negative, ignore tag
             ilpemFirstNumber,
             ilpemFirstNumberTag:
@@ -282,13 +281,12 @@ end;
 
 //==============================================================================
 
-constructor TILShopUpdater.Create(ShopData: TILItemShop_Base; StaticOptions: TILStaticManagerOptions);
+constructor TILShopUpdater.Create(ShopObject: TILItemShop_Update);
 begin
 inherited Create;
-fShopData := TILItemShop_Base.CreateAsCopy(ShopData);
+fShopObject := TILItemShop_Update.CreateAsCopy(ShopObject);
 fDownStream := TMemoryStream.Create;
 InitializeResults;
-fStaticOptions := IL_ThreadSafeCopy(StaticOptions);
 end;
 
 //------------------------------------------------------------------------------
@@ -296,7 +294,7 @@ end;
 destructor TILShopUpdater.Destroy;
 begin
 fDownStream.Free;
-fShopData.Free;
+fShopObject.Free;
 inherited;
 end;
 
@@ -313,18 +311,18 @@ var
 
   Function CallDownload: Boolean;
   begin
-    If not fStaticOptions.LoadPages then
+    If not fShopObject.StaticSettings.LoadPages then
       begin
         If AlternativeDownload then
-          Result := IL_WGETDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode)
+          Result := IL_WGETDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode)
         else
-          Result := IL_SYNDownloadURL(fShopData.ItemURL,fDownStream,fDownResCode);
+          Result := IL_SYNDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode);
       end
     else
       begin
-        If FileExists(OfflineFile) then
+        If IL_FileExists(OfflineFile) then
           begin
-            fDownStream.LoadFromFile(OfflineFile);
+            fDownStream.LoadFromFile(StrToRTL(OfflineFile));
             Result := True;
           end
         else Result := False;
@@ -334,51 +332,51 @@ var
 begin
 SetLength(AvailNodes,0);
 SetLength(PriceNodes,0);
-OfflineFile := ExtractFilePath(ParamStr(0)) + 'saved_pages\' +
-  AnsiUpperCase(CRC32ToStr(StringCRC32(fShopData.ItemURL))) + '.txt';
-If Length(fShopData.ItemURL) > 0 then
+OfflineFile := fShopObject.StaticSettings.ListPath +
+  IL_ExtractFileNameNoExt(fShopObject.StaticSettings.ListFile) + '_saved_pages\' +
+  IL_UpperCase(CRC32ToStr(WideStringCRC32(StrToUnicode(fShopObject.ItemURL))));
+If Length(fShopObject.ItemURL) > 0 then
   begin
-    If (fShopData.ParsingSettings.AvailFinder.StageCount > 0) and
-       (fShopData.ParsingSettings.PriceFinder.StageCount > 0) then
+    If (fShopObject.ParsingSettings.AvailFinder.StageCount > 0) and
+       (fShopObject.ParsingSettings.PriceFinder.StageCount > 0) then
       try
         InitializeResults;
         // download
         fDownStream.Clear;
         If CallDownload then
           begin
-            If fStaticOptions.TestCode then
-              fDownStream.SaveToFile(ExtractFilePath(ParamStr(0)) + 'page.txt');
-            If fStaticOptions.SavePages then
+            If fShopObject.StaticSettings.TestCode then
+              fDownStream.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'page.txt'));
+            If fShopObject.StaticSettings.SavePages then
               begin
-                ForceDirectories(ExtractFilePath(ParamStr(0)) + 'saved_pages');
-                fDownStream.SaveToFile(OfflineFile);
+                IL_CreateDirectoryPathForFile(OfflineFile);
+                fDownStream.SaveToFile(StrToRTL(OfflineFile));
               end;
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
             Parser := TILHTMLParser.Create(fDownStream);
             try
               try
-                Parser.RaiseParseErrors := not fShopData.ParsingSettings.DisableParsingErrors;
-                // parse
-                Parser.Run;
+                Parser.RaiseParseErrors := not fShopObject.ParsingSettings.DisableParsingErrors;
+                Parser.Run; // whole parsing
                 Document := Parser.GetDocument;
                 try
-                  If fStaticOptions.TestCode then
+                  If fShopObject.StaticSettings.TestCode then
                     begin
                       ElementList := TStringList.Create;
                       try
                         Document.List(ElementList);
-                        ElementList.SaveToFile(ExtractFilePath(ParamStr(0)) + 'elements.txt');
+                        ElementList.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'elements.txt'));
                       finally
                         ElementList.Free;
                       end;
                     end;
                   // prepare finders
-                  fShopData.ParsingSettings.AvailFinder.Prepare(fShopData.ParsingSettings.VariablesRec);
-                  fShopData.ParsingSettings.PriceFinder.Prepare(fShopData.ParsingSettings.VariablesRec);
+                  fShopObject.ParsingSettings.AvailFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
+                  fShopObject.ParsingSettings.PriceFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
                   // search
-                  AvailNodes := FindElementNode(Document,fShopData.ParsingSettings.AvailFinder);
-                  PriceNodes := FindElementNode(Document,fShopData.ParsingSettings.PriceFinder);
+                  AvailNodes := FindElementNode(Document,fShopObject.ParsingSettings.AvailFinder);
+                  PriceNodes := FindElementNode(Document,fShopObject.ParsingSettings.PriceFinder);
                   // process found nodes
                   If (Length(AvailNodes) > 0) and (Length(PriceNodes) > 0) then
                     begin
@@ -410,7 +408,7 @@ If Length(fShopData.ItemURL) > 0 then
               except
                 on E: Exception do
                   begin
-                    fErrorString := Format('%s: %s',[E.ClassName,E.Message]);
+                    fErrorString := IL_Format('%s: %s',[E.ClassName,E.Message]);
                     Result := ilurFailParse;
                   end;
               end;
@@ -422,7 +420,7 @@ If Length(fShopData.ItemURL) > 0 then
       except
         on E: Exception do
           begin
-            fErrorString := Format('%s: %s',[E.ClassName,E.Message]);
+            fErrorString := IL_Format('%s: %s',[E.ClassName,E.Message]);
             Result := ilurFail;
           end;
       end

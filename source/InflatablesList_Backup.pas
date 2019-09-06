@@ -1,20 +1,24 @@
 unit InflatablesList_Backup;
+{$IFDEF DevelMsgs}
+{$message 'will be totally reworked later'}
+{$endif}
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
 interface
 
 const
-  BACKUP_MAX_DEPTH_DEFAULT  = 25;
-  BACKUP_UTILFILENAME       = 'backups.ini';
-  BACKUP_BACKUP_DIR_DEFAULT = 'list_backup';
+  IL_BACKUP_MAX_DEPTH_DEFAULT  = 25;
+  IL_BACKUP_UTILFILENAME       = 'backups.ini';
+  IL_BACKUP_BACKUP_DIR_DEFAULT = 'list_backup';
 
 procedure DoBackup(const FileName,BackupPath: String);
 
 implementation
 
 uses
-  Windows, SysUtils, IniFiles;
+  Windows, SysUtils, IniFiles,
+  InflatablesList_Utils;
 
 type
   TILBackupManager = class(TObject)
@@ -60,7 +64,7 @@ var
   Temp: String;
 begin
 SetLength(fBackups,0);
-Ini := TIniFile.Create(fBackupPath + BACKUP_UTILFILENAME);
+Ini := TIniFile.Create(fBackupPath + IL_BACKUP_UTILFILENAME);
 try
   For i := 0 to Pred(Ini.ReadInteger('Backups','Count',0)) do
     If Ini.ValueExists('Backups',Format('Backup[%d]',[i])) then
@@ -86,14 +90,14 @@ var
   Ini:    TIniFile;
 begin
 // traverse list of backup files and delete all above depth limit
-For i := BACKUP_MAX_DEPTH_DEFAULT to High(fBackups) do
+For i := IL_BACKUP_MAX_DEPTH_DEFAULT to High(fBackups) do
   If FileExists(fBackupPath + fBackups[i]) then
     DeleteFile(fBackupPath + fBackups[i]);
 // truncate the list
-If Length(fBackups) > BACKUP_MAX_DEPTH_DEFAULT then
-  SetLength(fBackups,BACKUP_MAX_DEPTH_DEFAULT);
+If Length(fBackups) > IL_BACKUP_MAX_DEPTH_DEFAULT then
+  SetLength(fBackups,IL_BACKUP_MAX_DEPTH_DEFAULT);
 // save the list
-Ini := TIniFile.Create(fBackupPath + BACKUP_UTILFILENAME);
+Ini := TIniFile.Create(fBackupPath + IL_BACKUP_UTILFILENAME);
 try
   Ini.WriteInteger('Backups','Count',Length(fBackups));
   For i := Low(fBackups) to High(fBackups) do
@@ -140,7 +144,7 @@ var
 begin
 BackupFileName := FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now) + '.inl';
 If not DirectoryExists(ExtractFileDir(fBackupPath + BackupFileName)) then
-  ForceDirectories(ExtractFileDir(fBackupPath + BackupFileName));
+  IL_CreateDirectoryPathForFile(ExtractFileDir(fBackupPath + BackupFileName));
 If FileExists(fBackupPath + BackupFileName) then
   DeleteFile(fBackupPath + BackupFileName);
 CopyFile(PChar(FileName),PChar(fBackupPath + BackupFileName),False);

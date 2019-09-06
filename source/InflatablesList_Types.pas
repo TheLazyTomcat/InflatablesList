@@ -9,10 +9,20 @@ uses
   AuxTypes;
 
 //==============================================================================
-//- encryption exceptions ------------------------------------------------------  
+//- special encryption exceptions ----------------------------------------------  
 
 type
-  EWrongPassword = class(Exception);
+  EILWrongPassword = class(Exception);
+
+//==============================================================================
+//- event prototypes -----------------------------------------------------------
+
+type
+  TILObjectL1Event = procedure(Sender: TObject; O1: TObject) of object;
+  TILObjectL2Event = procedure(Sender: TObject; O1,O2: TObject) of object;
+
+  TILIndexedObjectL1Event = procedure(Sender: TObject; IndexedObj: TObject; Index: Integer) of object;
+  TILIndexedObjectL2Event = procedure(Sender: TObject; Obj: TObject; IndexedObj: TObject; Index: Integer) of object;
 
 //==============================================================================
 //- reconverted string ---------------------------------------------------------
@@ -27,7 +37,7 @@ type
 Function IL_UTF8Reconvert(const Str: String): String;
 Function IL_ANSIReconvert(const Str: String): String;
 
-Function IL_ReconvString(const Str: String): TILReconvString;
+Function IL_ReconvString(const Str: String; RemoveNullChars: Boolean = True): TILReconvString;
 
 Function IL_ReconvCompareStr(const A,B: TILReconvString): Integer;
 Function IL_ReconvCompareText(const A,B: TILReconvString): Integer;
@@ -35,6 +45,8 @@ Function IL_ReconvSameStr(const A,B: TILReconvString): Boolean;
 Function IL_ReconvSameText(const A,B: TILReconvString): Boolean;
 
 procedure IL_UniqueReconvStr(var Str: TILReconvString);
+
+Function IL_ThreadSafeCopy(const Str: TILReconvString): TILReconvString; overload;
 
 //==============================================================================
 //- items ----------------------------------------------------------------------
@@ -64,6 +76,8 @@ type
                      ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
                      ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
 
+Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
+
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 Function IL_NumToItemType(Num: Int32): TILItemType;
 
@@ -80,6 +94,9 @@ Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
+
+const
+  IL_ITEMSHOP_PARSING_VARS_COUNT = 8; // never change the number (8 is enough for everyone :P)!
 
 type
   TILItemShopParsingExtrFrom = (ilpefText,ilpefNestedText,ilpefAttrValue);
@@ -99,15 +116,18 @@ type
   TILItemShopParsingExtrSettList = array of TILItemShopParsingExtrSett;
 
   TILItemShopParsingVariables = record
-    Vars: array[0..7] of String;  // never change the number (8 is enough for everyone :P)!
+    Vars: array[0..Pred(IL_ITEMSHOP_PARSING_VARS_COUNT)] of String;
   end;
-  PILItemShopParsingVariables = ^TILItemShopParsingVariables; 
 
 Function IL_ExtractFromToNum(ExtractFrom: TILItemShopParsingExtrFrom): Int32;
 Function IL_NumToExtractFrom(Num: Int32): TILItemShopParsingExtrFrom;
 
 Function IL_ExtrMethodToNum(ExtrMethod: TILItemShopParsingExtrMethod): Int32;
 Function IL_NumToExtrMethod(Num: Int32): TILItemShopParsingExtrMethod;
+
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett; overload;
+
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables; overload;
 
 //==============================================================================
 //- item shop ------------------------------------------------------------------
@@ -138,6 +158,9 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //==============================================================================
 //- searching ------------------------------------------------------------------
 
+{$IFDEF DevelMsgs}
+{$message 'wip'}
+{$endif}
 type
   TILSrcResItemValue = (srifNone);
   TILSrcResShopValue = (srsfNone);
@@ -175,19 +198,20 @@ type
 
   TILSortingSettings = record
     Count:  Integer;
-    Items:  array[0..29] of TILSortingItem;
+    Items:  array[0..29] of TILSortingItem; // length of this array will newer change ;)
   end;
 
   TILSortingProfile = record
     Name:     String;
     Settings: TILSortingSettings;
   end;
-  PILSortingProfile = ^TILSortingProfile;
 
   TILSortingProfiles = array of TILSortingProfile;
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
+
+Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
 
 //==============================================================================
 //- sum filters ----------------------------------------------------------------
@@ -243,10 +267,15 @@ type
   TILSumsArray = array of TILSumRec;
 
 //==============================================================================
-//- command-line options -------------------------------------------------------
+//- static settings ------------------------------------------------------------
+
+const
+  IL_STATIC_SETTINGS_TAGS: array[0..7] of String =
+    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
 
 type
-  TILStaticManagerOptions = record
+  TILStaticManagerSettings = record
+    // command-line options
     NoPictures:       Boolean;
     TestCode:         Boolean;
     SavePages:        Boolean;
@@ -254,16 +283,14 @@ type
     NoSave:           Boolean;
     NoBackup:         Boolean;
     NoUpdateAutoLog:  Boolean;
-    ListOverride:     String;
+    ListOverride:     Boolean;
     // automatically filled
-    DefaultPath:      String;
+    DefaultPath:      String; // initialized to program path
+    ListPath:         String; // filled with list path
+    ListFile:         String; // file, where the list will be saved, or was loaded from
   end;
 
-Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
-
-const
-  IL_STAT_OPT_TAGS: array[0..7] of String =
-    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings; overload;
 
 implementation
 
@@ -309,15 +336,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ReconvString(const Str: String): TILReconvString;
+Function IL_ReconvString(const Str: String; RemoveNullChars: Boolean = True): TILReconvString;
 var
   i:  Integer;
 begin
 Result.Str := Str;
-// remove null characters as they might break comparation function
-For i := 1 to Length(Result.Str) do
-  If Ord(Result.Str[i]) = 0 then
-    Result.Str[i] := Char(' ');
+UniqueString(Result.Str);
+// null characters might break some functions
+If RemoveNullChars then
+  For i := 1 to Length(Result.Str) do
+    If Ord(Result.Str[i]) = 0 then
+      Result.Str[i] := Char(' ');
 Result.UTF8Reconv := IL_UTF8Reconvert(Str);
 Result.AnsiReconv := IL_ANSIReconvert(Str);
 end;
@@ -359,8 +388,32 @@ UniqueString(Str.UTF8Reconv);
 UniqueString(Str.AnsiReconv);
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(const Str: TILReconvString): TILReconvString;
+begin
+Result := Str;
+IL_UniqueReconvStr(Result);
+end;
+
 //==============================================================================
 //- list item ------------------------------------------------------------------
+
+Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
+begin
+case PictureKind of
+  ilipkMain:      If FullString then Result := 'Item picture'
+                    else Result := 'item';
+  ilipkSecondary: If FullString then Result := 'Secondary picture'
+                    else Result := 'secondary';
+  ilipkPackage:   If FullString then Result := 'Package picture'
+                    else Result := 'package';
+else
+  Result := '';
+end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
 begin
@@ -612,6 +665,28 @@ else
 end;
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingExtrSett): TILItemShopParsingExtrSett;
+begin
+Result := Value;
+UniqueString(Result.ExtractionData);
+UniqueString(Result.NegativeTag);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(const Value: TILItemShopParsingVariables): TILItemShopParsingVariables;
+var
+  i:  Integer;
+begin
+For i := Low(Value.Vars) to High(Value.Vars) do
+  begin
+    Result.Vars[i] := Value.Vars[i];
+    UniqueString(Result.Vars[i]);
+  end;
+end;
+
 //==============================================================================
 //- item shop ------------------------------------------------------------------
 
@@ -814,6 +889,14 @@ else
 end;
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile;
+begin
+Result := Value;
+UniqueString(Result.Name);
+end;
+
 //==============================================================================
 //- sum filters ----------------------------------------------------------------
 
@@ -926,13 +1009,13 @@ IL_SetFilterSettingsFlagValue(Result,ilffDiscardedClr,GetFlagState(Flags,$200000
 end;
 
 //==============================================================================
-//- command-line options -------------------------------------------------------
+//- static settings ------------------------------------------------------------
 
-Function IL_ThreadSafeCopy(const Value: TILStaticManagerOptions): TILStaticManagerOptions;
+Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings;
 begin
 Result := Value;
-UniqueString(Result.ListOverride);
 UniqueString(Result.DefaultPath);
+UniqueString(Result.ListPath);
 end;
 
 end.

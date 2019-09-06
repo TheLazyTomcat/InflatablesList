@@ -36,7 +36,7 @@ implementation
 
 uses
   SysUtils,
-  BinaryStreaming;
+  StrRect, BinaryStreaming;
 
 procedure TILItemShopParsingSettings_IO.Save(Stream: TStream; Struct: UInt32);
 begin
@@ -80,7 +80,7 @@ begin
 FileStream := TMemoryStream.Create;
 try
   SaveToStream(FileStream);
-  FileStream.SaveToFile(FileName);
+  FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
 end;
@@ -94,7 +94,7 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(StrToRTL(FileName));
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
 finally

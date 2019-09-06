@@ -200,36 +200,43 @@ type
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
   private
-    fInitializing:    Boolean;
-    fILManager:       TILManager;
-    fCurrentItem:     TILItem;
+    fPicturesManager: TILItemFramePicturesManager;    
     fLastSmallPicDir: String;
     fLastPicDir:      String;
-    fPicturesManager: TILItemFramePicturesManager;
+    fInitializing:    Boolean;
+    fILManager:       TILManager;
+    fCurrentItem:     TILItem; 
   protected
-    procedure UpdateTitle(Sender: TObject);
-    procedure UpdateManufacturerLogo(Sender: TObject);
-    procedure UpdatePictures(Sender: TObject);
-    procedure ProcessAndShowReadOnlyInfo;
-    procedure ShowSelectedShop(const SelectedShop: String);
+    // item event handlers (manager)
+    procedure UpdateTitle(Sender: TObject; Item: TObject);
+    procedure UpdatePictures(Sender: TObject; Item: TObject);
+    procedure UpdateFlags(Sender: TObject; Item: TObject);
+    procedure UpdateValues(Sender: TObject; Item: TObject);
+    // helper methods
+    procedure ReplaceManufacturerLogo;
+    procedure BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
+    procedure FillFlagsFromItem;
+    procedure FillValues;
+    procedure FillSelectedShop(const SelectedShop: String);
+    Function BrowsePicture(const FileStr: String; var FileName: String): Boolean;
+    // frame methods
+    procedure FrameClear;
     procedure FrameSave;
     procedure FrameLoad;
-    procedure FrameClear;
-    procedure BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
   public
     OnShowSelectedItem: TNotifyEvent;
     OnFocusList:        TNotifyEvent;
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
-    procedure SaveItem;
-    procedure LoadItem;
+    procedure Save;
+    procedure Load;
     procedure SetItem(Item: TILItem; ProcessChange: Boolean);
   end;
 
 implementation
 
 uses
-  AuxTypes,
+  StrRect,
   TextEditForm, ShopsForm, UpdateForm,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
@@ -346,13 +353,7 @@ If Assigned(Picture) then
         fImages[i].PicKind := PictureKind;
         fImages[i].PicAssigned := True;
         fImages[i].Image.ShowHint := PictureKind <> ilipkUnknown;
-        case PictureKind of
-          ilipkMain:      fImages[i].Image.Hint := 'Item picture';
-          ilipkSecondary: fImages[i].Image.Hint := 'Secondary picture';
-          ilipkPackage:   fImages[i].Image.Hint := 'Package picture';
-        else
-          fImages[i].Image.Hint := '';
-        end;
+        fImages[i].Image.Hint := IL_ItemPictureKindToStr(PictureKind,True);
         Include(fPictureKinds,PictureKind);
         Result := i;
         Break{For i};
@@ -377,12 +378,12 @@ end;
 //==============================================================================
 //******************************************************************************
 
-procedure TfrmItemFrame.UpdateTitle(Sender: TObject);
+procedure TfrmItemFrame.UpdateTitle(Sender: TObject; Item: TObject);
 var
   ManufStr: String;
   TypeStr:  String;
 begin
-If Assigned(fCurrentItem) then
+If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   begin
     // construct manufacturer + ID string
     ManufStr := fCurrentItem.TitleStr;
@@ -390,9 +391,9 @@ If Assigned(fCurrentItem) then
     TypeStr := fCurrentItem.TypeStr;
     // final concatenation
     If Length(TypeStr) > 0 then
-      ManufStr := Format('%s - %s',[ManufStr,TypeStr]);
+      ManufStr := IL_Format('%s - %s',[ManufStr,TypeStr]);
     If fCurrentItem.Pieces > 1 then
-      ManufStr := Format('%s (%dx)',[ManufStr,fCurrentItem.Pieces]);
+      ManufStr := IL_Format('%s (%dx)',[ManufStr,fCurrentItem.Pieces]);
     lblItemTitle.Caption := ManufStr;
   end
 else lblItemTitle.Caption := '';
@@ -400,7 +401,48 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.UpdateManufacturerLogo(Sender: TObject);
+procedure TfrmItemFrame.UpdatePictures(Sender: TObject; Item: TObject);
+begin
+fPicturesManager.PictureAssignStart;
+try
+  If Assigned(fCurrentItem) and (Item = fCurrentItem) and
+    not fILManager.StaticSettings.NoPictures then
+  begin
+    fPicturesManager.PictureAssign(fCurrentItem.PackagePicture,ilipkPackage);
+    fPicturesManager.PictureAssign(fCurrentItem.SecondaryPicture,ilipkSecondary);
+    fPicturesManager.PictureAssign(fCurrentItem.ItemPicture,ilipkMain);
+  end;
+finally
+  fPicturesManager.PictureAssignEnd;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.UpdateFlags(Sender: TObject; Item: TObject);
+begin
+If Assigned(fCurrentItem) and (Item = fCurrentItem) then
+  begin
+    fInitializing := True;
+    try
+      FillFlagsFromItem;
+    finally
+      fInitializing := False;
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.UpdateValues(Sender: TObject; Item: TObject);
+begin
+If Assigned(fCurrentItem) and (Item = fCurrentItem) then
+  FillValues;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.ReplaceManufacturerLogo;
 begin
 If Assigned(fCurrentItem) then
   begin
@@ -418,39 +460,67 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.UpdatePictures(Sender: TObject);
+procedure TfrmItemFrame.BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
 begin
-fPicturesManager.PictureAssignStart;
-try
-  If Assigned(fCurrentItem) and not fILManager.StaticOptions.NoPictures then
-  begin
-    fPicturesManager.PictureAssign(fCurrentItem.PackagePicture,ilipkPackage);
-    fPicturesManager.PictureAssign(fCurrentItem.SecondaryPicture,ilipkSecondary);
-    fPicturesManager.PictureAssign(fCurrentItem.ItemPicture,ilipkMain);
+diaPicOpenDialog.Title := IL_Format('Select %s picture',[FileStr]);
+diaPicOpenDialog.Filter := 'BMP image files|*.bmp|All files|*.*';
+diaPicOpenDialog.FileName := '';
+diaPicOpenDialog.InitialDir := fLastSmallPicDir;
+If diaPicOpenDialog.Execute then
+  try
+    fLastSmallPicDir := IL_ExtractFileDir(diaPicOpenDialog.FileName);
+    Bitmap := TBitmap.Create;
+    Bitmap.LoadFromFile(StrToRTL(diaPicOpenDialog.FileName));
+    If Assigned(StoredBitmap) then
+      begin
+        If MessageDlg(IL_Format('Replace current %s picture?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) <> mrYes then
+          FreeAndNil(Bitmap);
+      end;
+  except
+    // supress error
+    If Assigned(Bitmap) then
+      FreeAndNil(Bitmap);
+    MessageDlg('Error while loading the file.',mtError,[mbOK],0);
   end;
-finally
-  fPicturesManager.PictureAssignEnd;
-end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.ProcessAndShowReadOnlyInfo;
+procedure TfrmItemFrame.FillFlagsFromItem;
+begin
+If fInitializing and Assigned(fCurrentItem) then
+  begin
+    cbFlagOwned.Checked := ilifOwned in fCurrentItem.Flags;
+    cbFlagWanted.Checked := ilifWanted in fCurrentItem.Flags;
+    cbFlagOrdered.Checked := ilifOrdered in fCurrentItem.Flags;
+    cbFlagBoxed.Checked := ilifBoxed in fCurrentItem.Flags;
+    cbFlagElsewhere.Checked := ilifElsewhere in fCurrentItem.Flags;
+    cbFlagUntested.Checked := ilifUntested in fCurrentItem.Flags;
+    cbFlagTesting.Checked := ilifTesting in fCurrentItem.Flags;
+    cbFlagTested.Checked := ilifTested in fCurrentItem.Flags;
+    cbFlagDamaged.Checked := ilifDamaged in fCurrentItem.Flags;
+    cbFlagRepaired.Checked := ilifRepaired in fCurrentItem.Flags;
+    cbFlagPriceChange.Checked := ilifPriceChange in fCurrentItem.Flags;
+    cbFlagAvailChange.Checked := ilifAvailChange in fCurrentItem.Flags;
+    cbFlagNotAvailable.Checked := ilifNotAvailable in fCurrentItem.Flags;
+    cbFlagLost.Checked := ilifLost in fCurrentItem.Flags;
+    cbFlagDiscarded.Checked := ilifDiscarded in fCurrentItem.Flags;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.FillValues;
 var
   SelectedShop: TILItemShop;
 begin
 If Assigned(fCurrentItem) then
   begin
-    // total weight
-    If fCurrentItem.TotalWeight > 0 then
-      lblTotalWeight.Caption := fCurrentItem.TotalWeightStr
-    else
-      lblTotalWeight.Caption := '-';
     // selected shop
     If fCurrentItem.ShopsSelected(SelectedShop) then
-      ShowSelectedShop(SelectedShop.Name)
+      FillSelectedShop(SelectedShop.Name)
     else
-      ShowSelectedShop('-');
+      FillSelectedShop('-');
     // number of shops
     If fCurrentItem.ShopCount > 0 then
       lblShopCount.Caption := fCurrentItem.ShopsCountStr
@@ -465,29 +535,34 @@ If Assigned(fCurrentItem) then
           lblAvailPieces.Caption := IntToStr(fCurrentItem.AvailableSelected);
       end
     else lblAvailPieces.Caption := '-';
-    // unit price lowest
+    // total weight
+    If fCurrentItem.TotalWeight > 0 then
+      lblTotalWeight.Caption := fCurrentItem.TotalWeightStr
+    else
+      lblTotalWeight.Caption := '-';
+    // price lowest
     If fCurrentItem.UnitPriceLowest > 0 then
       begin
-        lblUnitPriceLowest.Caption := Format('%d Kè',[fCurrentItem.UnitPriceLowest]);
-        lblTotalPriceLowest.Caption := Format('%d Kè',[fCurrentItem.TotalPriceLowest]);
+        lblUnitPriceLowest.Caption := IL_Format('%d Kè',[fCurrentItem.UnitPriceLowest]);
+        lblTotalPriceLowest.Caption := IL_Format('%d Kè',[fCurrentItem.TotalPriceLowest]);
       end
     else
       begin
         lblUnitPriceLowest.Caption := '-';
         lblTotalPriceLowest.Caption := '-';
       end;
-    // unit price selected
+    // price selected
     If fCurrentItem.UnitPriceSelected > 0 then
       begin
-        lblUnitPriceSelected.Caption := Format('%d Kè',[fCurrentItem.UnitPriceSelected]);
-        lblTotalPriceSelected.Caption := Format('%d Kè',[fCurrentItem.TotalPriceSelected]);
+        lblUnitPriceSelected.Caption := IL_Format('%d Kè',[fCurrentItem.UnitPriceSelected]);
+        lblTotalPriceSelected.Caption := IL_Format('%d Kè',[fCurrentItem.TotalPriceSelected]);
       end
     else
       begin
         lblUnitPriceSelected.Caption := '-';
         lblTotalPriceSelected.Caption := '-';
       end;
-    // unit price selected background
+    // price selected background
     If (fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest) and
       (fCurrentItem.UnitPriceSelected > 0) and (fCurrentItem.UnitPriceLowest > 0) then
       begin
@@ -502,15 +577,14 @@ If Assigned(fCurrentItem) then
   end
 else
   begin
-    // ignore time of creation, it is set in loading
+    FillSelectedShop('');
+    lblShopCount.Caption := '-';
+    lblAvailPieces.Caption := '-';
     lblTotalWeight.Caption := '-';
-    ShowSelectedShop('');
-    lblShopCount.Caption := '0';
     lblUnitPriceLowest.Caption := '-';
+    lblTotalPriceLowest.Caption := '-';    
     lblUnitPriceSelected.Caption := '-';
-    shpUnitPriceSelectedBcgr.Visible := False;
-    lblAvailPieces.Caption := '0';
-    lblTotalPriceLowest.Caption := '-';
+    shpUnitPriceSelectedBcgr.Visible := False; 
     lblTotalPriceSelected.Caption := '-';
     shpTotalPriceSelectedBcgr.Visible := False;
   end;
@@ -518,7 +592,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.ShowSelectedShop(const SelectedShop: String);
+procedure TfrmItemFrame.FillSelectedShop(const SelectedShop: String);
 begin
 If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
   (lblShopCount.BoundsRect.Right - lblSelectedShopTitle.BoundsRect.Right - 8) then
@@ -526,6 +600,100 @@ If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
 else
   lblSelectedShop.Left := lblSelectedShopTitle.BoundsRect.Right + 8;
 lblSelectedShop.Caption := SelectedShop;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TfrmItemFrame.BrowsePicture(const FileStr: String; var FileName: String): Boolean;
+begin
+Result := False;
+diaPicOpenDialog.Title := IL_Format('Select %s picture file',[FileStr]);
+diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
+diaPicOpenDialog.FileName := '';
+diaPicOpenDialog.InitialDir := fLastPicDir;
+If diaPicOpenDialog.Execute then
+  begin
+    fLastPicDir := IL_ExtractFileDir(diaPicOpenDialog.FileName);
+    Result := True;
+    If Length(FileName) > 0 then
+      begin
+        If MessageDlg(IL_Format('Replace current %s picture file?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
+          FileName := IL_PathRelative(fILManager.StaticSettings.ListPath,diaPicOpenDialog.FileName)
+        else
+          Result := False;
+      end
+    else FileName := IL_PathRelative(fILManager.StaticSettings.ListPath,diaPicOpenDialog.FileName);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.FrameClear;
+begin
+fInitializing := True;
+try
+  UpdateTitle(nil,nil);
+  ReplaceManufacturerLogo;
+  UpdatePictures(nil,nil);
+  // basic specs
+  cmbItemType.ItemIndex := 0;
+  cmbItemType.OnChange(nil);
+  leItemTypeSpecification.Text := '';
+  sePieces.Value := 1;
+  cmbManufacturer.ItemIndex := 0;
+  cmbManufacturer.OnChange(nil);
+  leManufacturerString.Text := '';
+  leTextID.Text := '';
+  seID.Value := 0;
+  // flags
+  cbFlagOwned.Checked := False;
+  cbFlagWanted.Checked := False;
+  cbFlagOrdered.Checked := False;
+  cbFlagUntested.Checked := False;
+  cbFlagTesting.Checked := False;
+  cbFlagTested.Checked := False;
+  cbFlagBoxed.Checked := False;
+  cbFlagDamaged.Checked := False;
+  cbFlagRepaired.Checked := False;
+  cbFlagElsewhere.Checked := False;
+  cbFlagPriceChange.Checked := False;
+  cbFlagAvailChange.Checked := False;
+  cbFlagNotAvailable.Checked := False;
+  cbFlagLost.Checked := False;
+  cbFlagDiscarded.Checked := False;
+  eTextTag.Text := '';
+  seNumTag.Value := 0;
+  // ext. specs
+  seWantedLevel.Value := 0;
+  leVariant.Text := '';
+  cmbMaterial.ItemIndex := 0; 
+  seSizeX.Value := 0;
+  seSizeY.Value := 0;
+  seSizeZ.Value := 0;
+  seUnitWeight.Value := 0;
+  seThickness.Value := 0;
+  // other info
+  meNotes.Text := '';
+  leReviewURL.Text := '';
+  leItemPictureFile.Text := '';
+  leSecondaryPictureFile.Text := '';
+  lePackagePictureFile.Text := '';
+  seUnitPriceDefault.Value := 0;
+  seRating.Value := 0;
+  // read-only things
+  lblTotalWeight.Caption := '-';
+  FillSelectedShop('');
+  lblShopCount.Caption := '0';
+  lblUnitPriceLowest.Caption := '-';
+  lblUnitPriceSelected.Caption := '-';
+  shpUnitPriceSelectedBcgr.Visible := False;
+  lblAvailPieces.Caption := '0';
+  lblTotalPriceLowest.Caption := '-';
+  lblTotalPriceSelected.Caption := '-';
+  shpTotalPriceSelectedBcgr.Visible := False;
+finally
+  fInitializing := False;
+end;
 end;
 
 //------------------------------------------------------------------------------
@@ -602,11 +770,12 @@ If Assigned(fCurrentItem) then
     try
       // internals
       lblUniqueID.Caption := GUIDToString(fCurrentItem.UniqueID);
-      lblTimeOfAddition.Caption := FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItem.TimeOfAddition);
+      lblTimeOfAddition.Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItem.TimeOfAddition);
+      // header
+      UpdateTitle(nil,fCurrentItem);
+      ReplaceManufacturerLogo;
+      UpdatePictures(nil,fCurrentItem);
       // basic specs
-      UpdateTitle(nil);
-      UpdateManufacturerLogo(nil);      
-      UpdatePictures(nil);
       cmbItemType.ItemIndex := Ord(fCurrentItem.ItemType);
       leItemTypeSpecification.Text := fCurrentItem.ItemTypeSpec;
       sePieces.Value := fCurrentItem.Pieces;
@@ -615,21 +784,7 @@ If Assigned(fCurrentItem) then
       leTextID.Text := fCurrentItem.TextID;
       seID.Value := fCurrentItem.ID;
       // tags, flags
-      cbFlagOwned.Checked := ilifOwned in fCurrentItem.Flags;
-      cbFlagWanted.Checked := ilifWanted in fCurrentItem.Flags;
-      cbFlagOrdered.Checked := ilifOrdered in fCurrentItem.Flags;
-      cbFlagBoxed.Checked := ilifBoxed in fCurrentItem.Flags;
-      cbFlagElsewhere.Checked := ilifElsewhere in fCurrentItem.Flags;
-      cbFlagUntested.Checked := ilifUntested in fCurrentItem.Flags;
-      cbFlagTesting.Checked := ilifTesting in fCurrentItem.Flags;
-      cbFlagTested.Checked := ilifTested in fCurrentItem.Flags;
-      cbFlagDamaged.Checked := ilifDamaged in fCurrentItem.Flags;
-      cbFlagRepaired.Checked := ilifRepaired in fCurrentItem.Flags;
-      cbFlagPriceChange.Checked := ilifPriceChange in fCurrentItem.Flags;
-      cbFlagAvailChange.Checked := ilifAvailChange in fCurrentItem.Flags;
-      cbFlagNotAvailable.Checked := ilifNotAvailable in fCurrentItem.Flags;
-      cbFlagLost.Checked := ilifLost in fCurrentItem.Flags;
-      cbFlagDiscarded.Checked := ilifDiscarded in fCurrentItem.Flags;
+      FillFlagsFromItem;
       eTextTag.Text := fCurrentItem.TextTag;
       seNumTag.Value := fCurrentITem.NumTag;
       // extended specs
@@ -649,107 +804,10 @@ If Assigned(fCurrentItem) then
       lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
       seUnitPriceDefault.Value := fCurrentItem.UnitPriceDefault;
       seRating.Value := fCurrentItem.Rating;
-      ProcessAndShowReadOnlyInfo;
+      FillValues;
     finally
       fInitializing := False;
     end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.FrameClear;
-begin
-fInitializing := True;
-try
-  // only called in init
-  UpdateTitle(nil);
-  UpdateManufacturerLogo(nil);
-  UpdatePictures(nil);
-  // basic specs
-  cmbItemType.ItemIndex := 0;
-  cmbItemType.OnChange(nil);
-  leItemTypeSpecification.Text := '';
-  sePieces.Value := 1;
-  cmbManufacturer.ItemIndex := 0;
-  cmbManufacturer.OnChange(nil);
-  leManufacturerString.Text := '';
-  leTextID.Text := '';
-  seID.Value := 0;
-  // flags
-  cbFlagOwned.Checked := False;
-  cbFlagWanted.Checked := False;
-  cbFlagOrdered.Checked := False;
-  cbFlagUntested.Checked := False;
-  cbFlagTesting.Checked := False;
-  cbFlagTested.Checked := False;
-  cbFlagBoxed.Checked := False;
-  cbFlagDamaged.Checked := False;
-  cbFlagRepaired.Checked := False;
-  cbFlagElsewhere.Checked := False;
-  cbFlagPriceChange.Checked := False;
-  cbFlagAvailChange.Checked := False;
-  cbFlagNotAvailable.Checked := False;
-  cbFlagLost.Checked := False;
-  cbFlagDiscarded.Checked := False;
-  eTextTag.Text := '';
-  seNumTag.Value := 0;
-  // ext. specs
-  seWantedLevel.Value := 0;
-  leVariant.Text := '';
-  cmbMaterial.ItemIndex := 0; 
-  seSizeX.Value := 0;
-  seSizeY.Value := 0;
-  seSizeZ.Value := 0;
-  seUnitWeight.Value := 0;
-  seThickness.Value := 0;
-  // other info
-  meNotes.Text := '';
-  leReviewURL.Text := '';
-  leItemPictureFile.Text := '';
-  leSecondaryPictureFile.Text := '';
-  lePackagePictureFile.Text := '';
-  seUnitPriceDefault.Value := 0;
-  seRating.Value := 0;
-  // read-only things
-  lblTotalWeight.Caption := '-';
-  ShowSelectedShop('');
-  lblShopCount.Caption := '0';
-  lblUnitPriceLowest.Caption := '-';
-  lblUnitPriceSelected.Caption := '-';
-  shpUnitPriceSelectedBcgr.Visible := False;
-  lblAvailPieces.Caption := '0';
-  lblTotalPriceLowest.Caption := '-';
-  lblTotalPriceSelected.Caption := '-';
-  shpTotalPriceSelectedBcgr.Visible := False;
-finally
-  fInitializing := False;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
-begin
-diaPicOpenDialog.Title := Format('Select %s picture',[FileStr]);
-diaPicOpenDialog.Filter := 'BMP image files|*.bmp|All files|*.*';
-diaPicOpenDialog.FileName := '';
-diaPicOpenDialog.InitialDir := fLastSmallPicDir;
-If diaPicOpenDialog.Execute then
-  try
-    fLastSmallPicDir := ExtractFileDir(diaPicOpenDialog.FileName);
-    Bitmap := TBitmap.Create;
-    Bitmap.LoadFromFile(diaPicOpenDialog.FileName);
-    If Assigned(StoredBitmap) then
-      begin
-        If MessageDlg(Format('Replace current %s picture?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) <> mrYes then
-          FreeAndNil(Bitmap);
-      end;
-  except
-    // supress error
-    If Assigned(Bitmap) then
-      FreeAndNil(Bitmap);
-    MessageDlg('Error while loading the file.',mtError,[mbOK],0);
   end;
 end;
 
@@ -763,8 +821,15 @@ fPicturesManager := TILItemFramePicturesManager.Create;
 fPicturesManager.Add(imgPictureA);
 fPicturesManager.Add(imgPictureB);
 fPicturesManager.Add(imgPictureC);
+fLastSmallPicDir := '';
+fLastPicDir := '';
 fInitializing := False;
 fILManager := ILManager;
+fILManager.OnItemTitleUpdate := UpdateTitle;
+fILManager.OnItemPicturesUpdate := UpdatePictures;
+fILManager.OnItemFlagsUpdate := UpdateFlags;
+fILManager.OnItemValuesUpdate := UpdateValues;
+SetItem(nil,True);
 // fill drop-down lists...
 // types
 cmbItemType.Items.BeginUpdate;
@@ -793,9 +858,6 @@ try
 finally
   cmbMaterial.Items.EndUpdate;
 end;
-SetItem(nil,True);
-fLastSmallPicDir := '';
-fLastPicDir := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -807,14 +869,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.SaveItem;
+procedure TfrmItemFrame.Save;
 begin
 FrameSave;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.LoadItem;
+procedure TfrmItemFrame.Load;
 begin
 If Assigned(fCurrentItem) then
   FrameLoad
@@ -829,8 +891,6 @@ var
   Reassigned: Boolean;
 begin
 Reassigned := fCurrentItem = Item;
-If Assigned(fCurrentItem) then
-  fCurrentItem.Release(True);
 If ProcessChange then
   begin
     If Assigned(fCurrentItem) and not Reassigned then
@@ -838,8 +898,6 @@ If ProcessChange then
     If Assigned(Item) then
       begin
         fCurrentItem := Item;
-        fCurrentItem.OnTitleUpdate := UpdateTitle;
-        fCurrentItem.OnPicturesUpdate := UpdatePictures;
         If not Reassigned then
           FrameLoad;
       end
@@ -868,8 +926,8 @@ procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
 
   procedure OpenPicture(const FileName: String);
   begin
-    If FileExists(IL_PathAbsolute(fILManager.ListFilePath,FileName)) then
-      IL_ShellOpen(Self.Handle,IL_PathAbsolute(fILManager.ListFilePath,FileName));
+    If IL_FileExists(IL_PathAbsolute(fILManager.StaticSettings.ListPath,FileName)) then
+      IL_ShellOpen(Handle,IL_PathAbsolute(fILManager.StaticSettings.ListPath,FileName));
   end;
 
 begin
@@ -940,9 +998,12 @@ If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
   begin
     TempBitmap := nil;
     case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-      ilipkMain:      BrowseSmallPicture('item',TempBitmap,fCurrentItem.ItemPicture);
-      ilipkSecondary: BrowseSmallPicture('secondary',TempBitmap,fCurrentItem.SecondaryPicture);
-      ilipkPackage:   BrowseSmallPicture('package',TempBitmap,fCurrentItem.PackagePicture);
+      ilipkMain:
+        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkMain),TempBitmap,fCurrentItem.ItemPicture);
+      ilipkSecondary:
+        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkSecondary),TempBitmap,fCurrentItem.SecondaryPicture);
+      ilipkPackage:
+        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkPackage),TempBitmap,fCurrentItem.PackagePicture);
     else
       raise Exception.CreateFmt('Invalid picture kind (%d).',
         [Ord(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)))]);
@@ -964,7 +1025,7 @@ var
   TempBitmap: TBitmap;
 begin
 TempBitmap := nil;
-BrowseSmallPicture('item',TempBitmap,fCurrentItem.ItemPicture);
+BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkMain),TempBitmap,fCurrentItem.ItemPicture);
 If Assigned(TempBitmap) then
   fCurrentItem.ItemPicture := TempBitmap;
 end;
@@ -976,7 +1037,7 @@ var
   TempBitmap: TBitmap;
 begin
 TempBitmap := nil;
-BrowseSmallPicture('secondary',TempBitmap,fCurrentItem.SecondaryPicture);
+BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkSecondary),TempBitmap,fCurrentItem.SecondaryPicture);
 If Assigned(TempBitmap) then
   fCurrentItem.SecondaryPicture := TempBitmap;
 end;
@@ -988,7 +1049,7 @@ var
   TempBitmap: TBitmap;
 begin
 TempBitmap := nil;
-BrowseSmallPicture('package',TempBitmap,fCurrentItem.PackagePicture);
+BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkPackage),TempBitmap,fCurrentItem.PackagePicture);
 If Assigned(TempBitmap) then
   fCurrentItem.PackagePicture := TempBitmap;
 end;
@@ -1001,19 +1062,22 @@ procedure TfrmItemFrame.mniPM_ExportPicClick(Sender: TObject);
   begin
     If Assigned(StoredBitmap) then
       begin
-        diaPicExport.Title := Format('Export %s picture',[FileStr]);
+        diaPicExport.Title := IL_Format('Export %s picture',[FileStr]);
         diaPicExport.FileName := '';
         If diaPicExport.Execute then
-          StoredBitmap.SaveToFile(diaPicExport.FileName);
+          StoredBitmap.SaveToFile(StrToRTL(diaPicExport.FileName));
       end;
   end;
 
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
   case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-    ilipkMain:      ExportPicture('item',fCurrentItem.ItemPicture);
-    ilipkSecondary: ExportPicture('secondary',fCurrentItem.SecondaryPicture);
-    ilipkPackage:   ExportPicture('package',fCurrentItem.PackagePicture);
+    ilipkMain:
+      ExportPicture(IL_ItemPictureKindToStr(ilipkMain),fCurrentItem.ItemPicture);
+    ilipkSecondary:
+      ExportPicture(IL_ItemPictureKindToStr(ilipkSecondary),fCurrentItem.SecondaryPicture);
+    ilipkPackage:
+      ExportPicture(IL_ItemPictureKindToStr(ilipkPackage),fCurrentItem.PackagePicture);
   end;
 end;
 
@@ -1022,8 +1086,9 @@ end;
 procedure TfrmItemFrame.mniPM_RemovePicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  If MessageDlg('Are you sure you want to remove this picture?',
-                mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
+       [IL_ItemPictureKindToStr(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)))]),
+       mtConfirmation,[mbYes,mbNo],0) = mrYes then
     case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
       ilipkMain:      fCurrentItem.ItemPicture := nil;
       ilipkSecondary: fCurrentItem.SecondaryPicture := nil;
@@ -1036,7 +1101,8 @@ end;
 procedure TfrmItemFrame.mniPM_RemoveItemPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) then
-  If MessageDlg('Are you sure you want to remove item picture?',
+  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
+                [IL_ItemPictureKindToStr(ilipkMain)]),
                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
     fCurrentItem.ItemPicture := nil;
 end;
@@ -1046,7 +1112,8 @@ end;
 procedure TfrmItemFrame.mniPM_RemoveSecondaryPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) then
-  If MessageDlg('Are you sure you want to remove secondary picture?',
+  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
+                [IL_ItemPictureKindToStr(ilipkSecondary)]),
                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
     fCurrentItem.SecondaryPicture := nil;
 end;
@@ -1056,7 +1123,8 @@ end;
 procedure TfrmItemFrame.mniPM_RemovePackagePicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) then
-  If MessageDlg('Are you sure you want to remove package picture?',
+  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
+                [IL_ItemPictureKindToStr(ilipkPackage)]),
                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
     fCurrentItem.PackagePicture := nil;
 end;
@@ -1066,7 +1134,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapItemPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkMain);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkMain);
 end;
 
 //------------------------------------------------------------------------------
@@ -1074,7 +1142,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapSecondaryPicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkSecondary);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkSecondary);
 end;
 
 //------------------------------------------------------------------------------
@@ -1082,7 +1150,7 @@ end;
 procedure TfrmItemFrame.mniPM_SwapPackagePicClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwitchPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkPackage);
+  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkPackage);
 end;
 
 //------------------------------------------------------------------------------
@@ -1106,18 +1174,7 @@ end;
 procedure TfrmItemFrame.sePiecesChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
-  begin
-    SaveItem;
-    fCurrentItem.BeginUpdate;
-    try
-      fCurrentItem.Pieces := sePieces.Value;
-      fCurrentItem.FlagPriceAndAvail(fCurrentItem.UnitPriceSelected,fCurrentItem.AvailableSelected);
-    finally
-      fCurrentItem.EndUpdate;
-    end;
-    LoadItem;
-    // no need to explicitly update render and list, it is done when setting pieces
-  end;
+  fCurrentItem.Pieces := sePieces.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1127,7 +1184,7 @@ begin
 If not fInitializing and Assigned(fCurrentItem) then
   begin
     fCurrentItem.Manufacturer := TILItemManufacturer(cmbManufacturer.ItemIndex);
-    UpdateManufacturerLogo(nil);
+    ReplaceManufacturerLogo;
   end;
 end;
 
@@ -1160,37 +1217,25 @@ end;
 procedure TfrmItemFrame.CommonFlagClick(Sender: TObject);
 begin
 If Sender is TCheckBox then
-  If not fInitializing then
-    begin
-      If Assigned(fCurrentItem) then
-        case TCheckBox(Sender).Tag of
-          1:  fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
-          2:  begin
-                fCurrentItem.BeginUpdate;
-                try
-                  SaveItem; // wanted flag is set here
-                  fCurrentItem.FlagPriceAndAvail(fCurrentItem.UnitPriceSelected,fCurrentItem.AvailableSelected);
-                  LoadItem;
-                finally
-                  fCurrentItem.EndUpdate;
-                end;
-              end;
-          3:  fCurrentItem.SetFlagValue(ilifOrdered,cbFlagOrdered.Checked);
-          4:  fCurrentItem.SetFlagValue(ilifBoxed,cbFlagBoxed.Checked);
-          5:  fCurrentItem.SetFlagValue(ilifElsewhere,cbFlagElsewhere.Checked);
-          6:  fCurrentItem.SetFlagValue(ilifUntested,cbFlagUntested.Checked);
-          7:  fCurrentItem.SetFlagValue(ilifTesting,cbFlagTesting.Checked);
-          8:  fCurrentItem.SetFlagValue(ilifTested,cbFlagTested.Checked);
-          9:  fCurrentItem.SetFlagValue(ilifDamaged,cbFlagDamaged.Checked);
-          10: fCurrentItem.SetFlagValue(ilifRepaired,cbFlagRepaired.Checked);
-          11: fCurrentItem.SetFlagValue(ilifPriceChange,cbFlagPriceChange.Checked);
-          12: fCurrentItem.SetFlagValue(ilifAvailChange,cbFlagAvailChange.Checked);
-          13: fCurrentItem.SetFlagValue(ilifNotAvailable,cbFlagNotAvailable.Checked);
-          14: fCurrentItem.SetFlagValue(ilifLost,cbFlagLost.Checked);
-          15: fCurrentItem.SetFlagValue(ilifDiscarded,cbFlagDiscarded.Checked);
-        else
-          Exit;
-        end;
+  If not fInitializing and Assigned(fCurrentItem) then
+    case TCheckBox(Sender).Tag of
+      1:  fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
+      2:  fCurrentItem.SetFlagValue(ilifWanted,cbFlagWanted.Checked);
+      3:  fCurrentItem.SetFlagValue(ilifOrdered,cbFlagOrdered.Checked);
+      4:  fCurrentItem.SetFlagValue(ilifBoxed,cbFlagBoxed.Checked);
+      5:  fCurrentItem.SetFlagValue(ilifElsewhere,cbFlagElsewhere.Checked);
+      6:  fCurrentItem.SetFlagValue(ilifUntested,cbFlagUntested.Checked);
+      7:  fCurrentItem.SetFlagValue(ilifTesting,cbFlagTesting.Checked);
+      8:  fCurrentItem.SetFlagValue(ilifTested,cbFlagTested.Checked);
+      9:  fCurrentItem.SetFlagValue(ilifDamaged,cbFlagDamaged.Checked);
+      10: fCurrentItem.SetFlagValue(ilifRepaired,cbFlagRepaired.Checked);
+      11: fCurrentItem.SetFlagValue(ilifPriceChange,cbFlagPriceChange.Checked);
+      12: fCurrentItem.SetFlagValue(ilifAvailChange,cbFlagAvailChange.Checked);
+      13: fCurrentItem.SetFlagValue(ilifNotAvailable,cbFlagNotAvailable.Checked);
+      14: fCurrentItem.SetFlagValue(ilifLost,cbFlagLost.Checked);
+      15: fCurrentItem.SetFlagValue(ilifDiscarded,cbFlagDiscarded.Checked);
+    else
+      Exit;
     end;
 end;
 
@@ -1254,12 +1299,8 @@ end;
 
 procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItem) then
-      fCurrentItem.UnitWeight := seUnitWeight.Value;
-    ProcessAndShowReadOnlyInfo;
-  end;
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.UnitWeight := seUnitWeight.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1330,24 +1371,14 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnBrowseItemPictureFileClick(Sender: TObject);
+var
+  Temp: String;
 begin
-If Assigned(fCurrentItem) then
+If not fInitializing and Assigned(fCurrentItem) then
   begin
-    diaPicOpenDialog.Title := 'Select item picture file';
-    diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
-    diaPicOpenDialog.FileName := '';
-    diaPicOpenDialog.InitialDir := fLastPicDir;
-    If diaPicOpenDialog.Execute then
-    begin
-      fLastPicDir := ExtractFileDir(diaPicOpenDialog.FileName);
-      If Length(fCurrentItem.ItemPictureFile) > 0 then
-        begin
-          If MessageDlg('Replace current main picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.ItemPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-        end
-      else fCurrentItem.ItemPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-      leItemPictureFile.Text := fCurrentItem.ItemPictureFile;
-    end;
+    Temp := fCurrentItem.ItemPictureFile;
+    If BrowsePicture(IL_ItemPictureKindToStr(ilipkMain),Temp) then
+      leItemPictureFile.Text := Temp; // also sets field in current item
   end;
 end;
 
@@ -1362,24 +1393,14 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnBrowseSecondaryPictureFileClick(Sender: TObject);
+var
+  Temp: String;
 begin
-If Assigned(fCurrentItem) then
+If not fInitializing and Assigned(fCurrentItem) then
   begin
-    diaPicOpenDialog.Title := 'Select secondary picture file';
-    diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
-    diaPicOpenDialog.FileName := '';
-    diaPicOpenDialog.InitialDir := fLastPicDir;
-    If diaPicOpenDialog.Execute then
-    begin
-      fLastPicDir := ExtractFileDir(diaPicOpenDialog.FileName);
-      If Length(fCurrentItem.SecondaryPictureFile) > 0 then
-        begin
-          If MessageDlg('Replace current secondary picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.SecondaryPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-        end
-      else fCurrentItem.SecondaryPictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-      leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
-    end;
+    Temp := fCurrentItem.SecondaryPictureFile;
+    If BrowsePicture(IL_ItemPictureKindToStr(ilipkSecondary),Temp) then
+      leSecondaryPictureFile.Text := Temp;
   end;
 end;
 
@@ -1394,24 +1415,14 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.btnBrowsePackagePictureFileClick(Sender: TObject);
+var
+  Temp: String;
 begin
-If Assigned(fCurrentItem) then
+If not fInitializing and Assigned(fCurrentItem) then
   begin
-    diaPicOpenDialog.Title := 'Select package picture file';
-    diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
-    diaPicOpenDialog.FileName := '';
-    diaPicOpenDialog.InitialDir := fLastPicDir;
-    If diaPicOpenDialog.Execute then
-    begin
-      fLastPicDir := ExtractFileDir(diaPicOpenDialog.FileName);
-      If Length(fCurrentItem.PackagePictureFile) > 0 then
-        begin
-          If MessageDlg('Replace current package picture file?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
-            fCurrentItem.PackagePictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-        end
-      else fCurrentItem.PackagePictureFile := IL_PathRelative(fILManager.ListFilePath,diaPicOpenDialog.FileName);
-      lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
-    end;
+    Temp := fCurrentItem.PackagePictureFile;
+    If BrowsePicture(IL_ItemPictureKindToStr(ilipkPackage),Temp) then
+      lePackagePictureFile.Text := Temp;
   end;
 end;
 
@@ -1419,12 +1430,8 @@ end;
 
 procedure TfrmItemFrame.seUnitPriceDefaultChange(Sender: TObject);
 begin
-If not fInitializing then
-  begin
-    If Assigned(fCurrentItem) then
-      fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
-    ProcessAndShowReadOnlyInfo;
-  end;
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1439,32 +1446,24 @@ end;
 
 procedure TfrmItemFrame.btnUpdateShopsClick(Sender: TObject);
 var
-  i:        Integer;
-  Temp:     TILItemShopUpdateList;
-  OldAvail: Int32;
-  OldPrice: UInt32;
+  i:    Integer;
+  Temp: TILItemShopUpdateList;
 begin
 If Assigned(fCurrentItem) then
   begin
     If fCurrentItem.ShopCount > 0 then
       begin
-        SaveItem;
-        fCurrentItem.BroadcastReqCount;
+        fCurrentItem.BroadcastReqCount; // should not be needed
         SetLength(Temp,fCurrentItem.ShopCount);
         For i := Low(Temp) to High(Temp) do
           begin
             Temp[i].Item := fCurrentItem;
-            Temp[i].ItemTitle := Format('[#%d] %s',[fCurrentItem.Index + 1,fCurrentItem.TitleStr]);
+            Temp[i].ItemTitle := IL_Format('[#%d] %s',[fCurrentItem.Index + 1,fCurrentItem.TitleStr]);
             Temp[i].ItemShop := fCurrentItem.Shops[i];
             Temp[i].Done := False;
           end;
         fUpdateForm.ShowUpdate(Temp);
-        OldAvail := fCurrentItem.AvailableSelected;
-        OldPrice := fCurrentItem.UnitPriceSelected;
-        fCurrentItem.UpdatePriceAndAvail;
-        fCurrentItem.FlagPriceAndAvail(OldPrice,OldAvail);
-        LoadItem;
-        fCurrentItem.ReDraw;
+        // changes are loaded automatically
         If Assigned(OnFocusList) then
           OnFocusList(Self);
       end
@@ -1478,12 +1477,8 @@ procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) then
   begin
-    SaveItem;
-    fCurrentItem.BroadcastReqCount;
+    fCurrentItem.BroadcastReqCount; // should not be needed, but to be sure
     fShopsForm.ShowShops(fCurrentItem);
-    // load potential changes
-    LoadItem;
-    fCurrentItem.ReDraw;
     If Assigned(OnFocusList) then
       OnFocusList(Self);
   end;

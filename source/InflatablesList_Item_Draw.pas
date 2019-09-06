@@ -13,19 +13,18 @@ type
   protected
     fMainWidth:   Integer;
     fMainHeight:  Integer;
-    fMainFont:    TFont;
     fSmallWidth:  Integer;
     fSmallHeight: Integer;
-    fSmallFont:   TFont;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
+    class procedure RenderSmallPicture(LargePicture: TBitmap; var SmallPicture: TBitmap); virtual;
     procedure RenderSmallItemPicture; override;
     procedure RenderSmallSecondaryPicture; override;
     procedure RenderSmallPackagePicture; override;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
-  public
     procedure Initialize; override;
+  public
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
     procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); virtual;
     procedure ReDraw; virtual;
@@ -34,15 +33,15 @@ type
 implementation
 
 uses
-  SysUtils, Classes, Math,
-  AuxTypes,
+  SysUtils,
+  Classes, Math,
   InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
 
 procedure TILItem_Draw.ReDrawMain;
 const
-  WL_STRIP_WIDTH  = 20;
+  SIDE_STRIP_WIDTH = 20;
 var
   TempStr:  String;
   TempInt:  Integer;
@@ -53,7 +52,6 @@ var
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
                       FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 10);
   begin
-    // reset brush, pen and font to default settings
     fRender.Canvas.Brush.Style := BStyle;
     fRender.Canvas.Brush.Color := BColor;
     fRender.Canvas.Pen.Style := PStyle;
@@ -63,79 +61,114 @@ var
     fRender.Canvas.Font.Size := FTSize;
   end;
 
-  procedure DrawWantedLevelStrip(Canvas: TCanvas);
+  // called only when the gradient image is not present
+  procedure DrawWantedLevelStrip;
   const
     WL_STRIP_COLORS: array[0..7] of TColor =
       (clWhite,$00FFB4D9,$00FF97CA,$00FF7CBD,$00FF60AF,$00FF44A1,$00FF2894,$00FF0C85);
   var
-    ii: UInt32;
+    ii: Integer;
   begin
-    with Canvas do
+    with fRender,fRender.Canvas do
       For ii := 7 downto 0 do
         begin
           Brush.Color := WL_STRIP_COLORS[ii];
-          If fWantedLevel >= ii then
-            Rectangle(0,fMainHeight - Trunc(fMainHeight * (ii / 7)),WL_STRIP_WIDTH,fMainHeight);
+          If Integer(fWantedLevel) >= ii then
+            Rectangle(0,Height - Trunc(Height * (ii / 7)),SIDE_STRIP_WIDTH,Height);
         end;
+  end;
+
+  procedure DrawPictureIndication(Small,Large: Boolean; OffX,OffY: Integer);
+  const
+    PIC_INDICATOR_SIZE = 8;
+  begin
+    with fRender,fRender.Canvas do
+      begin
+        If Small then
+          begin
+            SetCanvas(bsSolid,$00E7E7E7,psClear);
+            FillRect(Rect(
+              Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
+              Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
+              Width - (OffX * PIC_INDICATOR_SIZE) - 1,
+              Height - (OffY * PIC_INDICATOR_SIZE) - 2));
+          end;
+        If Large then
+          begin
+            SetCanvas(bsClear,clSilver,psClear);
+            FrameRect(Rect(
+              Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
+              Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
+              Width - (OffX * PIC_INDICATOR_SIZE) - 1,
+              Height - (OffY * PIC_INDICATOR_SIZE) - 2));
+          end;
+      end;
   end;
 
 begin
 with fRender,fRender.Canvas do
   begin
-    Font := fMainFont;
-
     // background
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
 
-    // wanted level strip
+    // side strip
     SetCanvas(bsSolid,$00F7F7F7,psClear);
-    Rectangle(0,0,WL_STRIP_WIDTH,fMainHeight);
+    Rectangle(0,0,SIDE_STRIP_WIDTH,Height);
     If ilifWanted in fFlags then
       begin
+        // wanted level strip
         If Assigned(fDataProvider.WantedGradientImage) then
           begin
-            TempInt := fMainHeight - Trunc((fMainHeight / 7) * fWantedLevel);
+            TempInt := Height - Trunc((Height / 7) * fWantedLevel);
             If fWantedLevel > 0 then
-              CopyRect(Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight),
+              CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
                 fDataProvider.WantedGradientImage.Canvas,
-                Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight));
+                Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
           end
-        else DrawWantedLevelStrip(fRender.Canvas);
+        else DrawWantedLevelStrip;
+      end
+    else If (fRating <> 0) and (ilifOwned in fFLags) then
+      begin
+        // rating strip
+        TempInt := Height - Ceil((Height * Integer(fRating)) / 100);
+        CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
+                 fDataProvider.RatingGradientImage.Canvas,
+                 Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
       end;
 
     // title + count
     If fPieces > 1 then
-      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
+      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
     else
       TempStr := TitleStr;
     If ilifDiscarded in fFlags then
       begin
         SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
-        Rectangle(WL_STRIP_WIDTH - 1,0,WL_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+        Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
       end
     else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
-    TextOut(WL_STRIP_WIDTH + 5,5,TempStr);
+    TextOut(SIDE_STRIP_WIDTH + 5,5,TempStr);
 
     // type + size
     SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
     TempStr := SizeStr;
     If Length(TempStr) > 0 then
-      TextOut(WL_STRIP_WIDTH + 5,30,Format('%s - %s',[TypeStr,TempStr]))
+      TextOut(SIDE_STRIP_WIDTH + 5,30,IL_Format('%s - %s',[TypeStr,TempStr]))
     else
-      TextOut(WL_STRIP_WIDTH + 5,30,TypeStr);
+      TextOut(SIDE_STRIP_WIDTH + 5,30,TypeStr);
 
     // variant/color
     SetCanvas;
-    TextOut(WL_STRIP_WIDTH + 5,50,fVariant);
+    TextOut(SIDE_STRIP_WIDTH + 5,50,fVariant);
 
     // flag icons
     SetCanvas;
-    TempInt := WL_STRIP_WIDTH + 5;
+    TempInt := SIDE_STRIP_WIDTH + 5;
     For ItemFlag := Low(TILItemFlag) to High(TILItemFlag) do
       If ItemFlag in fFlags then
         begin
-          Draw(TempInt,fMainHeight - (fDataProvider.ItemFlagIcons[ItemFlag].Height + 10),
+          Draw(TempInt,Height - (fDataProvider.ItemFlagIcons[ItemFlag].Height + 10),
                fDataProvider.ItemFlagIcons[ItemFlag]);
           Inc(TempInt,fDataProvider.ItemFlagIcons[ItemFlag].Width + 5);
         end;
@@ -144,7 +177,7 @@ with fRender,fRender.Canvas do
     SetCanvas;
     If Length(fReviewURL) > 0 then
       begin
-        Draw(TempInt,fMainHeight - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
+        Draw(TempInt,Height - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
         Inc(TempInt,fDataProvider.ItemReviewIcon.Width + 5);
       end;
 
@@ -153,13 +186,13 @@ with fRender,fRender.Canvas do
     If Length(fTextTag) > 0 then
       begin
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
-        TextOut(TempInt,fMainHeight - 25,fTextTag);
+        TextOut(TempInt,Height - 25,fTextTag);
         Inc(TempInt,TextWidth(fTextTag) + 5);
       end;
     If fNumTag <> 0 then
       begin
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
-        TextOut(TempInt,fMainHeight - 25,Format('[%d]',[fNumTag]))
+        TextOut(TempInt,Height - 25,IL_Format('[%d]',[fNumTag]))
       end;
 
     // selected shop and available count
@@ -168,19 +201,19 @@ with fRender,fRender.Canvas do
     If ShopsSelected(SelShop) then
       begin
         If ShopCount > 1 then
-          TempStr := Format('%s (%s)',[SelShop.Name,ShopsCountStr])
+          TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
         else
           TempStr := SelShop.Name;
-        TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
+        TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
         Inc(TempInt,17);
 
         If fAvailableSelected <> 0 then
           begin
             If fAvailableSelected < 0 then
-              TempStr := Format('more than %d pcs',[Abs(fAvailableSelected)])
+              TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
             else
-              TempStr := Format('%d pcs',[fAvailableSelected]);
-            TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
+              TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+            TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
             Inc(TempInt,17);
           end;
       end;
@@ -190,59 +223,39 @@ with fRender,fRender.Canvas do
     If TotalPrice > 0 then
       begin
         If fPieces > 1 then
-          TempStr := Format('%d (%d) Kè',[TotalPrice,UnitPrice])
+          TempStr := IL_Format('%d (%d) Kè',[TotalPrice,UnitPrice])
         else
-          TempStr := Format('%d Kè',[TotalPrice]);
-        TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt,TempStr);
+          TempStr := IL_Format('%d Kè',[TotalPrice]);
+        TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
       end;
 
     SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
     If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
       begin
         If fPieces > 1 then
-          TempStr := Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
+          TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
         else
-          TempStr := Format('%d Kè',[TotalPriceLowest]);
-        TextOut(fMainWidth - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
-      end;
-
-    // rating strip
-    If (fRating <> 0) and (ilifOwned in fFLags) and not(ilifWanted in fFlags) then
-      begin
-        TempInt := fMainHeight - Ceil((fMainHeight * Integer(fRating)) / 100);
-        CopyRect(Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight),
-                 fDataProvider.RatingGradientImage.Canvas,
-                 Rect(0,TempInt,Pred(WL_STRIP_WIDTH),fMainHeight));
+          TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
+        TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
       end;
 
     // main picture
-    If Assigned(fItemPicture) and not StaticOptions.NoPictures then
-      Draw(fMainWidth - 103,5,fItemPicture)
+    If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
+      Draw(Width - 103,5,fItemPicture)
     else
-      Draw(fMainWidth - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+      Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
 
     // worst result indication
     If (fShopCount > 0) and (ilifWanted in fFlags) then
       begin
         SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
-        Polygon([Point(fMainWidth - 15,0),Point(fMainWidth,0),Point(fMainWidth,15)]);
+        Polygon([Point(Width - 15,0),Point(Width,0),Point(Width,15)]);
       end;
 
     // picture presence indication
-    SetCanvas(bsSolid,$00E7E7E7,psClear);
-    If Assigned(fItemPicture) then
-      FillRect(Rect(fMainWidth - 8,fMainHeight - 9,fMainWidth - 1,fMainHeight - 2));
-    If Assigned(fSecondaryPicture) then
-      FillRect(Rect(fMainWidth - 8,fMainHeight - 17,fMainWidth - 1,fMainHeight - 10));
-    If Assigned(fPackagePicture) then
-      FillRect(Rect(fMainWidth - 16,fMainHeight - 9,fMainWidth - 9,fMainHeight - 2));
-    SetCanvas(bsClear,clSilver,psClear);
-    If Length(fItemPictureFile) > 0 then
-      FrameRect(Rect(fMainWidth - 8,fMainHeight - 9,fMainWidth - 1,fMainHeight - 2));
-    If Length(fSecondaryPictureFile) > 0 then
-      FrameRect(Rect(fMainWidth - 8,fMainHeight - 17,fMainWidth - 1,fMainHeight - 10));
-    If Length(fPackagePictureFile) > 0 then
-      FrameRect(Rect(fMainWidth - 16,fMainHeight - 9,fMainWidth - 9,fMainHeight - 2));
+    DrawPictureIndication(Assigned(fItemPicture),Length(fItemPictureFile) > 0,0,0);
+    DrawPictureIndication(Assigned(fSecondaryPicture),Length(fSecondaryPictureFile) > 0,0,1);
+    DrawPictureIndication(Assigned(fPackagePicture),Length(fPackagePictureFile) > 0,1,0);
   end;
 end;
 
@@ -250,7 +263,7 @@ end;
 
 procedure TILItem_Draw.ReDrawSmall;
 const
-  WL_STRIP_WIDTH  = 20;
+  SIDE_STRIP_WIDTH  = 20;
 var
   TempStr:  String;
 
@@ -258,7 +271,6 @@ var
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
                       FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 8);
   begin
-    // reset brush, pen and font to default settings
     fRenderSmall.Canvas.Brush.Style := BStyle;
     fRenderSmall.Canvas.Brush.Color := BColor;
     fRenderSmall.Canvas.Pen.Style := PStyle;
@@ -271,43 +283,41 @@ var
 begin
 with fRenderSmall,fRenderSmall.Canvas do
   begin
-    Font := fSmallFont;
-
     // background
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
 
     // title + count
     If fPieces > 1 then
-      TempStr := Format('%s (%dx)',[TitleStr,fPieces])
+      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
     else
       TempStr := TitleStr;
     If ilifDiscarded in fFlags then
       begin
         SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);
-        Rectangle(WL_STRIP_WIDTH - 1,0,WL_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+        Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
       end
     else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,10);
-    TextOut(WL_STRIP_WIDTH + 5,2,TempStr); 
+    TextOut(SIDE_STRIP_WIDTH + 5,2,TempStr); 
 
     // type + size
     SetCanvas;
     TempStr := SizeStr;
     If Length(TempStr) > 0 then
-      TextOut(WL_STRIP_WIDTH + 5,20,Format('%s - %s',[TypeStr,TempStr]))
+      TextOut(SIDE_STRIP_WIDTH + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
     else
-      TextOut(WL_STRIP_WIDTH + 5,20,TypeStr);
+      TextOut(SIDE_STRIP_WIDTH + 5,20,TypeStr);
 
     // variant/color
     SetCanvas;
-    TextOut(WL_STRIP_WIDTH + 5,35,fVariant);
+    TextOut(SIDE_STRIP_WIDTH + 5,35,fVariant);
 
     // lowest price
     SetCanvas;
     If fUnitPriceLowest > 0 then
       begin
-        TempStr := Format('%d Kè',[fUnitPriceLowest]);
-        TextOut(fSmallWidth - 64 - TextWidth(TempStr),20,TempStr);
+        TempStr := IL_Format('%d Kè',[fUnitPriceLowest]);
+        TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
       end;
 
     // text and num tag
@@ -316,76 +326,57 @@ with fRenderSmall,fRenderSmall.Canvas do
     If Length(fTextTag) > 0 then
       TempStr := fTextTag;
     If fNumTag <> 0 then
-      TempStr := Format('%s [%d]',[TempStr,fNumTag]);
+      TempStr := IL_Format('%s [%d]',[TempStr,fNumTag]);
     If Length(TempStr) > 0 then
-      TextOut(fSmallWidth - 64 - TextWidth(TempStr),35,TempStr);
+      TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
 
     // picture
-    If Assigned(fItemPictureSmall) and not StaticOptions.NoPictures then
-      Draw(fSmallWidth - 54,2,fItemPictureSmall)
+    If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
+      Draw(Width - 54,2,fItemPictureSmall)
     else
-      Draw(fSmallWidth - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+      Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+class procedure TILItem_Draw.RenderSmallPicture(LargePicture: TBitmap; var SmallPicture: TBitmap);
+begin
+If Assigned(LargePicture) then
+  begin
+    If not Assigned(SmallPicture) then
+      begin
+        SmallPicture := TBitmap.Create;
+        SmallPicture.PixelFormat := pf24bit;
+        SmallPicture.Width := 48;
+        SmallPicture.Height := 48;
+      end;
+    IL_PicShrink(LargePicture,SmallPicture,2);
+  end
+else
+  If Assigned(SmallPicture) then
+    FreeAndNil(SmallPicture);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallItemPicture;
 begin
-If Assigned(fItemPicture) then
-  begin
-    If not Assigned(fItemPictureSmall) then
-      begin
-        fItemPictureSmall := TBitmap.Create;
-        fItemPictureSmall.PixelFormat := pf24bit;
-        fItemPictureSmall.Width := 48;
-        fItemPictureSmall.Height := 48;
-      end;
-    IL_PicShrink(fItemPicture,fItemPictureSmall);
-  end
-else
-  If Assigned(fItemPictureSmall) then
-    FreeAndNil(fItemPictureSmall);
+RenderSmallPicture(fItemPicture,fItemPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallSecondaryPicture;
 begin
-If Assigned(fSecondaryPicture) then
-  begin
-    If not Assigned(fSecondaryPictureSmall) then
-      begin
-        fSecondaryPictureSmall := TBitmap.Create;
-        fSecondaryPictureSmall.PixelFormat := pf24bit;
-        fSecondaryPictureSmall.Width := 48;
-        fSecondaryPictureSmall.Height := 48;
-      end;
-    IL_PicShrink(fSecondaryPicture,fSecondaryPictureSmall);
-  end
-else
-  If Assigned(fSecondaryPictureSmall) then
-    FreeAndNil(fSecondaryPictureSmall);
+RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallPackagePicture;
 begin
-If Assigned(fPackagePicture) then
-  begin
-    If not Assigned(fPackagePictureSmall) then
-      begin
-        fPackagePictureSmall := TBitmap.Create;
-        fPackagePictureSmall.PixelFormat := pf24bit;
-        fPackagePictureSmall.Width := 48;
-        fPackagePictureSmall.Height := 48;
-      end;
-    IL_PicShrink(fPackagePicture,fPackagePictureSmall);
-  end
-else
-  If Assigned(fPackagePictureSmall) then
-    FreeAndNil(fPackagePictureSmall);
+RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
 end;
 
 //------------------------------------------------------------------------------
@@ -406,24 +397,22 @@ If fUpdateCounter <= 0 then
 inherited;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
 procedure TILItem_Draw.Initialize;
 begin
 inherited;
 fMainWidth := 0;
 fMainHeight := 0;
-fMainFont := nil;
 fSmallWidth := 0;
 fSmallHeight := 0;
-fSmallFont := nil;
 fRender.Width := fMainWidth;
 fRender.Height := fMainHeight;
 fRenderSmall.Width := fSmallWidth;
 fRenderSmall.Height := fSmallHeight;
 end;
 
-//------------------------------------------------------------------------------
+//==============================================================================
 
 procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
 begin
@@ -431,19 +420,19 @@ If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) 
   begin
     fMainWidth := MainList.ClientWidth;
     fMainHeight := MainList.ItemHeight;
-    fMainFont := MainList.Font;
     fRender.Width := fMainWidth;
     fRender.Height := fMainHeight;
+    fRender.Canvas.Font.Assign(MainList.Font);
     ReDrawMain;
-    inherited UpdateMainList;   // so redraw is not called again
+    inherited UpdateMainList; // call inherited code so ReDrawMain is not called again
   end;
 If (fSmallWidth <> SmallList.ClientWidth) or (fSmallHeight <> SmallList.ItemHeight) then
   begin
     fSmallWidth := SmallList.ClientWidth;
     fSmallHeight := SmallList.ItemHeight;
-    fSmallFont := SmallList.Font;
     fRenderSmall.Width := fSmallWidth;
     fRenderSmall.Height := fSmallHeight;
+    fRenderSmall.Canvas.Font.Assign(SmallList.Font);
     ReDrawSmall;
     inherited UpdateSmallList;
   end;
@@ -451,15 +440,15 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Draw.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); 
+procedure TILItem_Draw.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
 begin
 If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
   begin
     fSmallWidth := SmallWidth;
     fSmallHeight := SmallHeight;
-    fSmallFont := SmallFont;
     fRenderSmall.Width := fSmallWidth;
     fRenderSmall.Height := fSmallHeight;
+    fRenderSmall.Canvas.Font.Assign(SmallFont);
     ReDrawSmall;
     inherited UpdateSmallList;
   end;

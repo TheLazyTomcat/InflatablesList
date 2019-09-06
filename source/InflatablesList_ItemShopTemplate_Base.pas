@@ -13,7 +13,7 @@ type
   TILItemShopTemplate_Base = class(TObject)
   protected
     // internals
-    fStaticOptions:   TILStaticManagerOptions;
+    fStaticSettings:  TILStaticManagerSettings;
     // data
     fName:            String;
     fShopName:        String;
@@ -21,7 +21,15 @@ type
     fAltDownMethod:   Boolean;
     fShopURL:         String;
     fParsingSettings: TILItemShopParsingSettings;
-    procedure SetStaticOptions(Value: TILStaticManagerOptions); virtual;
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
+    // data setters
+    procedure SetName(const Value: String); virtual;
+    procedure SetShopName(const Value: String); virtual;
+    procedure SetUntracked(const Value: Boolean); virtual;
+    procedure SetAltDownMethod(const Value: Boolean); virtual;
+    procedure SetShopURL(const Value: String); virtual;
+    procedure InitializeData; virtual;
+    procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -29,46 +37,114 @@ type
     constructor Create(BaseOn: TILItemShop); overload;
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
-    property StaticOptions: TILStaticManagerOptions read fStaticOptions write SetStaticOptions;
-    property Name: String read fName write fName;
-    property ShopName: String read fShopName write fShopName;
-    property Untracked: Boolean read fUntracked write fUntracked;
-    property AltDownMethod: Boolean read fAltDownMethod write fAltDownMethod;
-    property ShopURL: String read fShopURL write fShopURL;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
+    property Name: String read fName write SetName;
+    property ShopName: String read fShopName write SetShopName;
+    property Untracked: Boolean read fUntracked write SetUntracked;
+    property AltDownMethod: Boolean read fAltDownMethod write SetAltDownMethod;
+    property ShopURL: String read fShopURL write SetShopURL;
     property ParsingSettings: TILItemShopParsingSettings read fParsingSettings;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
 
-procedure TILItemShopTemplate_Base.SetStaticOptions(Value: TILStaticManagerOptions);
+procedure TILItemShopTemplate_Base.SetStaticSettings(Value: TILStaticManagerSettings);
 begin
-fStaticOptions := IL_ThreadSafeCopy(Value);
+fStaticSettings := IL_ThreadSafeCopy(Value);
+fParsingSettings.StaticSettings := fStaticSettings;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemShopTemplate_Base.Initialize;
+procedure TILItemShopTemplate_Base.SetName(const Value: String);
 begin
-fStaticOptions.NoPictures := False;
-fStaticOptions.TestCode := False;
-fStaticOptions.SavePages := False;
-fStaticOptions.LoadPages := False;
+If not IL_SameStr(fName,Value) then
+  begin
+    fName := Value;
+    UniqueString(fName);    
+    fParsingSettings.TemplateReference := fName;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetShopName(const Value: String);
+begin
+If not IL_SameStr(fShopName,Value) then
+  begin
+    fShopName := Value;
+    UniqueString(fShopName);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetUntracked(const Value: Boolean);
+begin
+If fUntracked <> Value then
+  begin
+    fUntracked := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetAltDownMethod(const Value: Boolean);
+begin
+If fAltDownMethod <> Value then
+  begin
+    fAltDownMethod := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.SetShopURL(const Value: String);
+begin
+If not IL_SameStr(fShopURL,Value) then
+  begin
+    fShopURL := Value;
+    UniqueString(fShopURL);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.InitializeData;
+begin
 fName := '';
 fShopName := '';
 fUntracked := False;
 fAltDownMethod := False;
 fShopURL := '';
 fParsingSettings := TILItemShopParsingSettings.Create;
+fParsingSettings.StaticSettings := fStaticSettings;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.FinalizeData;
+begin
+FreeAndNil(fParsingSettings);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShopTemplate_Base.Initialize;
+begin
+FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
+InitializeData;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItemShopTemplate_Base.Finalize;
 begin
-FreeAndNil(fParsingSettings);
+FinalizeData;
 end;
 
 //==============================================================================
@@ -84,8 +160,10 @@ end;
 constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
 inherited Create;
-fStaticOptions := IL_ThreadSafeCopy(BaseOn.StaticOptions);
-fName := '';
+// do not call initialize
+fStaticSettings := IL_ThreadSafeCopy(BaseOn.StaticSettings);
+fName := BaseOn.Name;
+UniqueString(fName);
 fShopName := BaseOn.Name;
 UniqueString(fShopName);
 fUntracked := BaseOn.Untracked;
@@ -93,6 +171,8 @@ fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
+fParsingSettings.StaticSettings := fStaticSettings;
+fParsingSettings.TemplateReference := fName;  // reference self
 end;
 
 //------------------------------------------------------------------------------
@@ -119,7 +199,8 @@ try
   For i := 0 to Pred(Shop.ParsingSettings.VariableCount) do
     If Length(Shop.ParsingSettings.Variables[i]) <= 0 then
       Shop.ParsingSettings.Variables[i] := fParsingSettings.Variables[i];
-  Shop.ParsingSettings.TemplateReference := fParsingSettings.TemplateReference;
+  // copy only reference to self, not actual parsing settings (objects)
+  Shop.ParsingSettings.TemplateReference := fName;
   Shop.ParsingSettings.DisableParsingErrors := fParsingSettings.DisableParsingErrors;
 finally
   Shop.EndUpdate;

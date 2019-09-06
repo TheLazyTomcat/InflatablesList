@@ -14,13 +14,19 @@ uses
   InflatablesList_Types;
 
 type
-  TILTagAttribute = record
+  TILHTMLTagAttribute = record
     Name:   TILReconvString;
     Value:  TILReconvString;
   end;
-  PILTagAttribute = ^TILTagAttribute;
 
-  TCDABaseType = TILTagAttribute;
+procedure IL_UniqueHTMLTagAtribute(var Value: TILHTMLTagAttribute);
+
+Function IL_ThreadSafeCopy(Value: TILHTMLTagAttribute): TILHTMLTagAttribute; overload;
+
+//==============================================================================
+
+type
+  TCDABaseType = TILHTMLTagAttribute;
   PCDABaseType = ^TCDABaseType;
 
   TILCountedDynArrayTagAttribute = record
@@ -48,8 +54,23 @@ implementation
 
 uses
   SysUtils,
-  ListSorters,
-  InflatablesList_HTML_Utils;
+  ListSorters;
+
+procedure IL_UniqueHTMLTagAtribute(var Value: TILHTMLTagAttribute);
+begin
+IL_UniqueReconvStr(Value.Name);
+IL_UniqueReconvStr(Value.Value);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(Value: TILHTMLTagAttribute): TILHTMLTagAttribute;
+begin
+Result := Value;
+IL_UniqueHTMLTagAtribute(Result);
+end;
+
+//==============================================================================
 
 Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
 begin
@@ -60,8 +81,7 @@ end;
 
 procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
 begin
-IL_UniqueReconvStr(Item.Name);
-IL_UniqueReconvStr(Item.Value);
+IL_UniqueHTMLTagAtribute(Item);
 end;
 
 //------------------------------------------------------------------------------

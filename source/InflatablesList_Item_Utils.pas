@@ -25,9 +25,6 @@ type
     Function TotalPriceHighest: UInt32; virtual;
     Function TotalPriceSelected: UInt32; virtual;
     Function TotalPrice: UInt32; virtual;
-    procedure UpdatePriceAndAvail; virtual;
-    procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
-    procedure UpdateAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     Function ShopsUsefulCount: Integer; virtual;
     Function ShopsUsefulRatio: Double; virtual;
     Function ShopsCountStr: String; virtual;
@@ -38,7 +35,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  InflatablesList_Utils;
 
 Function TILItem_Utils.TitleStr: String;
 begin
@@ -53,7 +51,7 @@ else Result := fDataProvider.ItemManufacturers[fManufacturer].Str;
 If Length(IDStr) <> 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s %s',[Result,IDStr])
+      Result := IL_Format('%s %s',[Result,IDStr])
     else
       Result := IDStr;
   end;
@@ -66,7 +64,7 @@ begin
 If not(fItemType in [ilitUnknown,ilitOther]) then
   begin
     If Length(fItemTypeSpec) > 0 then
-      Result := Format('%s (%s)',[fDataProvider.GetItemTypeString(fItemType),fItemTypeSpec])
+      Result := IL_Format('%s (%s)',[fDataProvider.GetItemTypeString(fItemType),fItemTypeSpec])
     else
       Result := fDataProvider.GetItemTypeString(fItemType);
   end
@@ -114,23 +112,23 @@ Function TILItem_Utils.SizeStr: String;
 begin
 Result := '';
 If fSizeX > 0 then
-  Result := Format('%g',[fSizeX / 10]);
+  Result := IL_Format('%g',[fSizeX / 10]);
 If fSizeY > 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s x %g',[Result,fSizeY / 10])
+      Result := IL_Format('%s x %g',[Result,fSizeY / 10])
     else
-      Result := Format('%g',[fSizeY / 10]);
+      Result := IL_Format('%g',[fSizeY / 10]);
   end;
 If fSizeZ > 0 then
   begin
     If Length(Result) > 0 then
-      Result := Format('%s x %g',[Result,fSizeZ / 10])
+      Result := IL_Format('%s x %g',[Result,fSizeZ / 10])
     else
-      Result := Format('%g',[fSizeZ / 10]);
+      Result := IL_Format('%g',[fSizeZ / 10]);
   end;
 If Length(Result) > 0 then
-  Result := Format('%s cm',[Result]);
+  Result := IL_Format('%s cm',[Result]);
 end;
 
 //------------------------------------------------------------------------------
@@ -145,7 +143,7 @@ end;
 Function TILItem_Utils.TotalWeightStr: String;
 begin
 If TotalWeight > 0 then
-  Result := Format('%g kg',[TotalWeight / 1000])
+  Result := IL_Format('%g kg',[TotalWeight / 1000])
 else
   Result := '';
 end;
@@ -190,123 +188,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Utils.UpdatePriceAndAvail;
-var
-  i:          Integer;
-  Selected:   Boolean;
-  LowPrice:   Int64;
-  HighPrice:  Int64;
-  LowAvail:   Int64;
-  HighAvail:  Int64;
-
-  Function AvailIsLess(A,B: Int32): Boolean;
-  begin
-    If Abs(A) = Abs(B) then
-      Result := B > 0
-    else
-      Result := Abs(A) < Abs(B);
-  end;
-
-  Function AvailIsMore(A,B: Int32): Boolean;
-  begin
-    If Abs(A) = Abs(B) then
-      Result := A < 0
-    else
-      Result := Abs(A) > Abs(B);
-  end;
-
-begin
-// first make sure only one shop is selected
-Selected := False;
-For i := ShopLowIndex to ShopHighIndex do
-  If fShops[i].Selected and not Selected then
-    Selected := True
-  else
-    fShops[i].Selected := False;
-// get price and avail extremes (availability must be non-zero) and selected
-LowPrice := 0;
-HighPrice := 0;
-LowAvail := 0;
-HighAvail := 0;
-fUnitPriceSelected := 0;
-fAvailableSelected := 0;
-For i := ShopLowIndex to ShopHighIndex do
-  begin
-    If (fShops[i].Available <> 0) and (fShops[i].Price > 0) then
-      begin
-        If (fShops[i].Price < LowPrice) or (LowPrice <= 0) then
-          LowPrice := fShops[i].Price;
-        If (fShops[i].Price > HighPrice) or (HighPrice <= 0) then
-          HighPrice := fShops[i].Price;
-        If AvailIsLess(fShops[i].Available,LowAvail) or (LowAvail <= 0) then
-          LowAvail := fShops[i].Available;
-        If AvailIsMore(fShops[i].Available,HighAvail) or (HighAvail <= 0) then
-          HighAvail := fShops[i].Available;
-      end;
-    If fShops[i].Selected then
-      begin
-        fUnitPriceSelected := fShops[i].Price;
-        fAvailableSelected := fShops[i].Available;
-      end;
-  end;
-fUnitPriceLowest := LowPrice;
-fUnitPriceHighest := HighPrice;
-fAvailableLowest := LowAvail;
-fAvailableHighest := HighAvail;
-UpdateMainList;
-UpdateSmallList;
-UpdateOverview;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Utils.FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32);
-begin
-If (ilifWanted in fFlags) and (fShopCount > 0) then
-  begin
-    Exclude(fFlags,ilifNotAvailable);
-    If (fAvailableSelected <> 0) and (fUnitPriceSelected > 0) then
-      begin
-        If fAvailableSelected > 0 then
-          begin
-            If UInt32(fAvailableSelected) < fPieces then
-              Include(fFlags,ilifNotAvailable);
-          end
-        else
-          begin
-            If UInt32(Abs(fAvailableSelected) * 2) < fPieces then
-              Include(fFlags,ilifNotAvailable);
-          end;
-        If fAvailableSelected <> OldAvail then
-          Include(fFlags,ilifAvailChange);
-        If fUnitPriceSelected <> OldPrice then
-          Include(fFlags,ilifPriceChange);
-      end
-    else
-      begin
-        Include(fFlags,ilifNotAvailable);
-        If (fAvailableSelected <> OldAvail) then
-          Include(fFlags,ilifAvailChange);
-      end;
-    UpdateMainList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Utils.UpdateAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32);
-begin
-BeginUpdate;
-try
-  UpdatePriceAndAvail;
-  FlagPriceAndAvail(OldPrice,OldAvail);
-finally
-  EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
 Function TILItem_Utils.ShopsUsefulCount: Integer;
 var
   i:  Integer;
@@ -332,7 +213,7 @@ end;
 Function TILItem_Utils.ShopsCountStr: String;
 begin
 If ShopsUsefulCount <> ShopCount then
-  Result := Format('%d/%d',[ShopsUsefulCount,ShopCount])
+  Result := IL_Format('%d/%d',[ShopsUsefulCount,ShopCount])
 else
   Result := IntToStr(ShopCount);
 end;
@@ -349,6 +230,7 @@ For i := ShopLowIndex to ShopHighIndex do
     begin
       Shop := fShops[i];
       Result := True;
+      Break{For i}; // there should be only one selected shop, no need to continue
     end;
 end;
 

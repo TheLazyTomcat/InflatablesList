@@ -71,6 +71,7 @@ type
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
     Function ShowSortingSettings: Boolean;
   end;
 
@@ -80,7 +81,8 @@ var
 implementation
 
 uses
-  PromptForm;
+  PromptForm,
+  InflatablesList_Utils;
 
 {$R *.dfm}
 
@@ -112,7 +114,7 @@ end;
 
 procedure TfSortForm.UpdateNumbers;
 begin
-lblSortBy.Caption := Format('Sort by values (%d/30):',[fLocalSortSett.Count]);
+lblSortBy.Caption := IL_Format('Sort by values (%d/30):',[fLocalSortSett.Count]);
 end;
 
 //==============================================================================
@@ -122,6 +124,7 @@ var
   i:  TILItemValueTag;
 begin
 fILManager := ILManager;
+// fill list of available values 
 lbAvailable.Items.BeginUpdate;
 try
   lbAvailable.Clear;
@@ -132,6 +135,13 @@ finally
 end;
 If lbAvailable.Count > 0  then
   lbAvailable.ItemIndex := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSortForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //------------------------------------------------------------------------------
@@ -147,7 +157,7 @@ lbProfiles.Items.BeginUpdate;
 try
   lbProfiles.Clear;
   For i := 0 to Pred(fILManager.SortingProfileCount) do
-    lbProfiles.Items.Add(Format('%s (%d)',
+    lbProfiles.Items.Add(IL_Format('%s (%d)',
       [fILManager.SortingProfiles[i].Name,fILManager.SortingProfiles[i].Settings.Count]));
 finally
   lbProfiles.Items.EndUpdate;
@@ -243,13 +253,15 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfSortForm.btnProfileSaveClick(Sender: TObject);
+var
+  Temp: TILSortingProfile;
 begin
 If lbProfiles.ItemIndex >= 0 then
   begin
-    fILManager.SortingProfilePtrs[lbProfiles.ItemIndex]^.Settings := fLocalSortSett;
-    lbProfiles.Items[lbProfiles.ItemIndex] := Format('%s (%d)',
-      [fILManager.SortingProfiles[lbProfiles.ItemIndex].Name,
-       fILManager.SortingProfiles[lbProfiles.ItemIndex].Settings.Count]);
+    Temp := fILManager.SortingProfiles[lbProfiles.ItemIndex];
+    Temp.Settings := fLocalSortSett;
+    fILManager.SortingProfiles[lbProfiles.ItemIndex] := Temp;
+    lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',[Temp.Name,Temp.Settings.Count]);
   end;
 end;
 
@@ -274,7 +286,7 @@ If IL_InputQuery('Sorting profile name','Enter name for the new sorting profile:
     If Length(ProfileName) > 0 then
       begin
         fILManager.SortingProfileAdd(ProfileName);
-        lbProfiles.Items.Add(Format('%s (%d)',
+        lbProfiles.Items.Add(IL_Format('%s (%d)',
           [ProfileName,fILManager.SortingProfiles[Pred(fILManager.SortingProfileCount)].Settings.Count]));
         lbProfiles.ItemIndex := Pred(lbProfiles.Count);
         lbProfiles.OnClick(nil);
@@ -297,7 +309,7 @@ If lbProfiles.ItemIndex >= 0 then
         If Length(ProfileName) > 0 then
           begin
             fILManager.SortingProfileRename(lbProfiles.ItemIndex,ProfileName);
-            lbProfiles.Items[lbProfiles.ItemIndex] := Format('%s (%d)',
+            lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',
               [ProfileName,fILManager.SortingProfiles[lbProfiles.ItemIndex].Settings.Count]);
           end
         else MessageDlg('Empty name not allowed.',mtError,[mbOK],0);
@@ -312,7 +324,7 @@ var
   Index:  Integer;
 begin
 If lbProfiles.ItemIndex >= 0 then
-  If MessageDlg(Format('Are you sure you want to remove the sorting profile "%s"?',
+  If MessageDlg(IL_Format('Are you sure you want to remove the sorting profile "%s"?',
                 [fILManager.SortingProfiles[lbProfiles.ItemIndex].Name]),
                  mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
@@ -341,6 +353,7 @@ If lbProfiles.ItemIndex > 0 then
     lbProfiles.Items.Exchange(Index,Index - 1);
     fILManager.SortingProfileExchange(Index,Index - 1);
     lbProfiles.ItemIndex := Index - 1;
+    lbProfiles.OnClick(nil);
   end;
 end;
 
@@ -356,6 +369,7 @@ If (lbProfiles.Count > 0) and (lbProfiles.ItemIndex < Pred(lbProfiles.Count)) th
     lbProfiles.Items.Exchange(Index,Index + 1);
     fILManager.SortingProfileExchange(Index,Index + 1);
     lbProfiles.ItemIndex := Index + 1;
+    lbProfiles.OnClick(nil);
   end;
 end;
 

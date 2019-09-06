@@ -6,8 +6,7 @@ interface
 
 uses
   AuxTypes,
-  CountedDynArrayUnicodeChar,
-  CountedDynArrayUnicodeString,
+  CountedDynArrayUnicodeChar, CountedDynArrayUnicodeString,
   InflatablesList_HTML_UnicodeTagAttributeArray;
 
 type
@@ -67,6 +66,11 @@ type
     AppropriateEndTag:  Boolean;
   end;
 
+procedure IL_UniqueHTMLToken(var Value: TILHTMLToken);
+
+Function IL_ThreadSafeCopy(Value: TILHTMLToken): TILHTMLToken; overload;
+
+type
   TILHTMLTokenEvent = procedure(Sender: TObject; Token: TILHTMLToken; var Ack: Boolean) of object;
 
   TILHTMLTokenizer = class(TObject)
@@ -215,8 +219,8 @@ implementation
 uses
   SysUtils,
   StrRect,
+  InflatablesList_Utils,
   InflatablesList_HTML_Utils,
-  InflatablesList_HTML_Common,
   InflatablesList_HTML_NamedCharRefs;
 
 type
@@ -251,6 +255,26 @@ const
 
 //==============================================================================
 
+procedure IL_UniqueHTMLToken(var Value: TILHTMLToken);
+begin
+UniqueString(Value.Name);
+UniqueString(Value.PublicIdentifier);
+UniqueString(Value.SystemIdentifier);
+UniqueString(Value.TagName);
+CDA_UniqueArray(Value.Attributes);
+UniqueString(Value.Data);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(Value: TILHTMLToken): TILHTMLToken;
+begin
+Result := Value;
+IL_UniqueHTMLToken(Result);
+end;
+
+//==============================================================================
+
 Function TILHTMLTokenizer.GetProgress: Double;
 begin
 If Length(fData) > 0 then
@@ -271,14 +295,14 @@ Function TILHTMLTokenizer.ParseError(const Msg: String): Boolean;
 begin
 Result := fRaiseParseErrs;
 If fRaiseParseErrs then
-  raise EILParseError.Create(Msg);
+  raise EILHTMLParseError.Create(Msg);
 end;
 
 //------------------------------------------------------------------------------
 
 Function TILHTMLTokenizer.ParseError(const Msg: String; Args: array of const): Boolean;
 begin
-Result := ParseError(Format(Msg,Args));
+Result := ParseError(IL_Format(Msg,Args));
 end;
 
 //------------------------------------------------------------------------------
@@ -371,7 +395,7 @@ end;
 
 procedure TILHTMLTokenizer.CreateNewAttribute(const Name,Value: UnicodeString);
 var
-  NewItem:  TILUnicodeTagAttribute;
+  NewItem:  TILHTMLUnicodeTagAttribute;
 begin
 NewItem.Name := Name;
 NewItem.Value := Value;
@@ -414,14 +438,15 @@ If CDA_Count(Token.Attributes) > 0 then
     begin
       Index := CDA_IndexOf(Token.Attributes,CDA_GetItem(Token.Attributes,i));
       If (Index >= 0) and (Index < i) then
-        If not ParseError('Duplicit attribute %s',[CDA_GetItem(Token.Attributes,i).Name]) then
+        If not ParseError('Duplicit attribute %s',[UnicodeToStr(CDA_GetItem(Token.Attributes,i).Name)]) then
           CDA_Delete(Token.Attributes,i);
     end;
 If Assigned(fOnTokenEmit) then
   case Token.TokenType of
     ilttStartTag: begin
-                    fOnTokenEmit(Self,Token,Acknowledged);
-                    CDA_Add(fLastStartTag,Token.TagName);
+                    fOnTokenEmit(Self,IL_ThreadSafeCopy(Token),Acknowledged);
+                    If not Token.SelfClosing then
+                      CDA_Add(fLastStartTag,Token.TagName);
                     If Token.SelfClosing and not Acknowledged then
                       ParseError('Self closing start tag not acknowledged.');
                   end;
@@ -430,7 +455,7 @@ If Assigned(fOnTokenEmit) then
                       If not Token.SelfClosing then
                         begin
                           Token.AppropriateEndTag := IsAppropriateEndTagToken(Token);
-                          fOnTokenEmit(Self,Token,Acknowledged);
+                          fOnTokenEmit(Self,IL_ThreadSafeCopy(Token),Acknowledged);
                           If Token.AppropriateEndTag then
                             CDA_Delete(fLastStartTag,CDA_High(fLastStartTag));
                         end
@@ -442,11 +467,11 @@ If Assigned(fOnTokenEmit) then
                       Include(Token.PresentFields,iltfPublicIdent);
                     If Length(Token.SystemIdentifier) > 0 then
                       Include(Token.PresentFields,iltfSystemIdent);
-                    fOnTokenEmit(Self,Token,Acknowledged);
+                    fOnTokenEmit(Self,IL_ThreadSafeCopy(Token),Acknowledged);
                   end;
   else
     {Comment,Character,EndOfFile}
-    fOnTokenEmit(Self,Token,Acknowledged);
+    fOnTokenEmit(Self,IL_ThreadSafeCopy(Token),Acknowledged);
   end;
 end;
 
@@ -1617,7 +1642,7 @@ else If IsCurrentInputString(UnicodeString('DOCTYPE'),False) then
 else If IsCurrentInputString(UnicodeString('[CDATA['),False) then
   begin
   {$IFDEF DevelMsgs}
-    {$message 'implement'}
+    {$message 'implement CDATA'}
   {$ENDIF}
     raise Exception.Create('not implemented');
   end
@@ -2491,8 +2516,8 @@ var
     // find index of named refrence stored in a temporary buffer
     // if not found, returns -1
     Result := -1;
-    For i := Low(IL_TOKENIZER_CHAR_NAMEDREF) to High(IL_TOKENIZER_CHAR_NAMEDREF) do
-      If IL_UnicodeSameString(IL_TOKENIZER_CHAR_NAMEDREF[i].Name,Ref,True) then
+    For i := Low(IL_HTML_NAMED_CHAR_REFS) to High(IL_HTML_NAMED_CHAR_REFS) do
+      If IL_UnicodeSameString(IL_HTML_NAMED_CHAR_REFS[i].Name,Ref,True) then
         begin
           If NextInputChar = UnicodeChar(';') then
             begin
@@ -2533,7 +2558,7 @@ while not EndOfFile and not fParserPause do
   begin
     CDA_Add(fTemporaryBuffer,ConsumeNextInputChar);
     // search the table only when there is really chance to find anything
-    If CDA_Count(fTemporaryBuffer) <= IL_TOKENIZER_CHAR_NAMEDREF_MAXLEN then
+    If CDA_Count(fTemporaryBuffer) <= IL_HTML_NAMED_CHAR_REF_MAXLEN then
       begin
         Index := IndexOfNamedRef(TemporaryBufferAsStr);
         If Index >= 0 then
@@ -2557,20 +2582,20 @@ If Index >= 0 then
           ParseError('Invalid character reference "%s".',[UnicodeToStr(TemporaryBufferAsStr)]);
         // put resolved chars to temp. buffer
         CDA_Clear(fTemporaryBuffer);
-        If IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointA >= $10000 then
+        If IL_HTML_NAMED_CHAR_REFS[Index].CodePointA >= $10000 then
           begin
-            CDA_Add(fTemporaryBuffer,IL_UTF16HighSurrogate(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointA));
-            CDA_Add(fTemporaryBuffer,IL_UTF16LowSurrogate(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointA));
+            CDA_Add(fTemporaryBuffer,IL_UTF16HighSurrogate(IL_HTML_NAMED_CHAR_REFS[Index].CodePointA));
+            CDA_Add(fTemporaryBuffer,IL_UTF16LowSurrogate(IL_HTML_NAMED_CHAR_REFS[Index].CodePointA));
           end
-        else CDA_Add(fTemporaryBuffer,UnicodeChar(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointA));
-        If IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointA > 0 then
+        else CDA_Add(fTemporaryBuffer,UnicodeChar(IL_HTML_NAMED_CHAR_REFS[Index].CodePointA));
+        If IL_HTML_NAMED_CHAR_REFS[Index].CodePointA > 0 then
           begin
-            If IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointB >= $10000 then
+            If IL_HTML_NAMED_CHAR_REFS[Index].CodePointB >= $10000 then
               begin
-                CDA_Add(fTemporaryBuffer,IL_UTF16HighSurrogate(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointB));
-                CDA_Add(fTemporaryBuffer,IL_UTF16LowSurrogate(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointB));
+                CDA_Add(fTemporaryBuffer,IL_UTF16HighSurrogate(IL_HTML_NAMED_CHAR_REFS[Index].CodePointB));
+                CDA_Add(fTemporaryBuffer,IL_UTF16LowSurrogate(IL_HTML_NAMED_CHAR_REFS[Index].CodePointB));
               end
-            else CDA_Add(fTemporaryBuffer,UnicodeChar(IL_TOKENIZER_CHAR_NAMEDREF[Index].CodePointB));
+            else CDA_Add(fTemporaryBuffer,UnicodeChar(IL_HTML_NAMED_CHAR_REFS[Index].CodePointB));
           end;
         fState := iltsCharacterReferenceEnd;
       end
@@ -2594,7 +2619,7 @@ else
     // reference could not be resolved, temp. buffer by now contains rest of the file
     If CheckTempBuffForValidCharRef then
       begin
-        If CDA_Count(fTemporaryBuffer) <= IL_TOKENIZER_CHAR_NAMEDREF_MAXLEN then
+        If CDA_Count(fTemporaryBuffer) <= IL_HTML_NAMED_CHAR_REF_MAXLEN then
           ParseError('Invalid character reference "%s".',[UnicodeToStr(TemporaryBufferAsStr)])
         else
           ParseError('Invalid character reference.')
@@ -2968,6 +2993,7 @@ procedure TILHTMLTokenizer.Initialize(const Data: UnicodeString);
 begin
 // internals
 fData := Data;
+UniqueString(fData);
 fPosition := 1;
 // state machine
 fParserPause := False;

@@ -34,6 +34,7 @@ type
     fILManager: TILManager;
   public
     procedure Initialize(ILManager: TILManager);
+    procedure Finalize;
   end;
 
 var
@@ -44,13 +45,19 @@ implementation
 {$R *.dfm}
 
 uses
-  StrUtils,
-  AuxTypes,
-  InflatablesList_Types;
+  InflatablesList_Types,
+  InflatablesList_Utils;
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Finalize;
+begin
+// nothing to do here
 end;
 
 //==============================================================================
@@ -61,7 +68,6 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].TextTag := '';
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -78,7 +84,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
       fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
     end;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -89,27 +94,19 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    If AnsiSameText(fILManager[i][j].Name,leParam_1.Text) then
+    If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
       fILManager[i][j].AltDownMethod := True;
-Close;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfSpecialsForm.btnUpdateAllAPFClick(Sender: TObject);
 var
-  i:        Integer;
-  OldPrice: UInt32;
-  OldAvail: Int32;
+  i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    OldPrice := fILManager[i].UnitPriceSelected;
-    OldAvail := fILManager[i].AvailableSelected;
-    fILManager[i].UpdatePriceAndAvail;
-    fILManager[i].FlagPriceAndAvail(OldPrice,OldAvail);
-  end;
-Close;
+  fILManager[i].GetAndFlagPriceAndAvail(
+    fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
 end;
 
 //------------------------------------------------------------------------------
@@ -120,7 +117,6 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].Material := ilimtPolyvinylchloride;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -134,7 +130,6 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].SetFlagValue(ilifPriceChange,False);
     fILManager[i].SetFlagValue(ilifAvailChange,False)
   end;
-Close
 end;
 
 //------------------------------------------------------------------------------
@@ -145,10 +140,9 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
-    fILManager[i].ItemPictureFile := AnsiReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
-    fILManager[i].PackagePictureFile := AnsiReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
+    fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+    fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
   end;
-Close
 end;
 
 //------------------------------------------------------------------------------
@@ -158,9 +152,8 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If AnsiSameText(fILManager[i].TextTag,leParam_1.Text) then
+  If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
     fILManager[i].TextTag := leParam_2.Text;
-Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -172,12 +165,7 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
     If not fILManager[i][j].Selected then
-      begin
-        fILManager[i].ShopDelete(j);
-        fILManager[i].UpdateAndFlagPriceAndAvail(
-          fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
-      end;
-Close;
+      fILManager[i].ShopDelete(j);
 end;
 
 end.

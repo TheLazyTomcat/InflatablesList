@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, StdCtrls, ExtCtrls, Spin,
+  Dialogs, Grids, StdCtrls,
   CountedDynArrayString,
   InflatablesList_Manager;
 
@@ -12,24 +12,27 @@ type
   TfOverviewForm = class(TForm)
     sgOverview: TStringGrid;
     cbStayOnTop: TCheckBox;
-    btnUpdate: TButton; 
-    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure sgOverviewDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure cbStayOnTopClick(Sender: TObject);
-    procedure btnUpdateClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:   TILManager;
     fSelShopList: TStringCountedDynArray;
-    procedure OnOverviewUpdate(Sender: TObject);
+    fDrawBuffer:  TBitmap;
   protected
+    // manager event handlers
+    procedure OnOverviewUpdate(Sender: TObject);
+    // other methods
     procedure InitializeTable;
     procedure UpdateOverview;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
-    procedure Disconnect;
+    procedure Finalize;
+    procedure ShowOverview;
   end;
 
 var
@@ -41,6 +44,7 @@ implementation
 
 uses
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_ItemShop;
 
 procedure TfOverviewForm.OnOverviewUpdate(Sender: TObject);
@@ -135,16 +139,16 @@ For i := Low(Sums) to Pred(High(Sums)) do
   begin
     sgOverview.Cells[1,i + 1] := IntToStr(Sums[i].Items);
     sgOverview.Cells[2,i + 1] := IntToStr(Sums[i].Pieces);
-    sgOverview.Cells[3,i + 1] := Format('%g kg',[Sums[i].TotalWeight / 1000]);
-    sgOverview.Cells[4,i + 1] := Format('%d Kè',[Sums[i].TotalPrice]);
+    sgOverview.Cells[3,i + 1] := IL_Format('%g kg',[Sums[i].TotalWeight / 1000]);
+    sgOverview.Cells[4,i + 1] := IL_Format('%d Kè',[Sums[i].TotalPrice]);
   end;
 // last row (combined total)
 If sgOverview.RowCount > 2 then
   begin
     sgOverview.Cells[1,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Items);
     sgOverview.Cells[2,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Pieces);
-    sgOverview.Cells[3,Pred(sgOverview.RowCount)] := Format('%g kg',[Sums[High(Sums)].TotalWeight / 1000]);
-    sgOverview.Cells[4,Pred(sgOverview.RowCount)] := Format('%d Kè',[Sums[High(Sums)].TotalPrice]);
+    sgOverview.Cells[3,Pred(sgOverview.RowCount)] := IL_Format('%g kg',[Sums[High(Sums)].TotalWeight / 1000]);
+    sgOverview.Cells[4,Pred(sgOverview.RowCount)] := IL_Format('%d Kè',[Sums[High(Sums)].TotalPrice]);
   end;
 end;
 
@@ -159,100 +163,127 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfOverviewForm.Disconnect;
+procedure TfOverviewForm.Finalize;
 begin
 fILManager.OnOverviewUpdate := nil;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
-procedure TfOverviewForm.FormShow(Sender: TObject);
+procedure TfOverviewForm.ShowOverview;
 begin
 UpdateOverview;
+Show;
 BringToFront;
+end;
+
+//==============================================================================
+
+procedure TfOverviewForm.FormCreate(Sender: TObject);
+begin
+fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfOverviewForm.FormDestroy(Sender: TObject);
+begin
+FreeAndNil(fDrawBuffer);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfOverviewForm.sgOverviewDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
-  TempInt:  Integer;
+  TempInt:    Integer;
+  BoundsRect: TRect;
 begin
-If Sender is TStringGrid then
-  with TStringGrid(Sender).Canvas do
-    begin
-      // background
-      Pen.Style := psClear;
-      Brush.Style := bsSolid;
-      If gdFixed in State then
-        begin
-          // fixed cells
-          If (ACol = 0) and (ARow = 0) then
-            begin
-              // upper left corner
-              Brush.Color := $00F5B86B;
-              Rectangle(Rect);
-            end
-          else
-            begin
-              TempInt := Rect.Top + ((Rect.Bottom - Rect.Top) div 2);
-              Brush.Color := $00F0F0F0;
-              Rectangle(Rect.Left,Rect.Top,Rect.Right,TempInt);
-              Brush.Color := $00E4E4E4;
-              Rectangle(Rect.Left,TempInt - 1,Rect.Right,Rect.Bottom);                
-            end;
-        end
-      else
-        begin
-          // normal cells
-          If AnsiSameText(TStringGrid(Sender).Cells[ACol,ARow],'%') then
-            begin
-              If gdSelected in State then
-                Brush.Color := $00D6D6D6
-              else
-                Brush.Color := $00E0E0E0;
-            end
-          else
-            begin
-              If gdSelected in State then
-                Brush.Color := $00D6D6D6
-              else
-                Brush.Color := clWhite;
-            end;
-          Rectangle(Rect);
-        end;
-      // grid lines
-      Pen.Style := psSolid;
-      If gdFixed in State then
-        Pen.Color := clGray
-      else
-        Pen.Color := clSilver;
-      MoveTo(Rect.Left,Rect.Bottom - 1);
-      LineTo(Rect.Right - 1,Rect.Bottom - 1);
-      LineTo(Rect.Right - 1,Rect.Top - 1);
-      // text
-      Font := TStringGrid(Sender).Font;
-      Brush.Style := bsClear;
-      If gdFixed in State then
-        begin
-          // fixed cells
-          If ARow = 0 then
-            begin
-              TempInt := ((Rect.Right - Rect.Left) - TextWidth(TStringGrid(Sender).Cells[ACol,ARow])) div 2;
-              TextOut(Rect.Left + TempInt,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-            end
-          else TextOut(Rect.Left + 5,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-        end
-      else
-        begin
-          // normal cells
-          If not AnsiSameText(TStringGrid(Sender).Cells[ACol,ARow],'%') then
-            begin
-              TempInt := TextWidth(TStringGrid(Sender).Cells[ACol,ARow]);
-              TextOut(Rect.Right - TempInt - 5,Rect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
-            end;
-        end;
-    end;
+If (Sender is TStringGrid) and Assigned(fDrawBuffer) then
+  begin
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    with fDrawBuffer.Canvas do
+      begin
+        // background
+        Pen.Style := psClear;
+        Brush.Style := bsSolid;
+        If gdFixed in State then
+          begin
+            // fixed cells
+            If (ACol = 0) and (ARow = 0) then
+              begin
+                // upper left corner
+                Brush.Color := $00F5B86B;
+                Rectangle(BoundsRect);
+              end
+            else
+              begin
+                TempInt := (BoundsRect.Bottom - BoundsRect.Top) div 2;
+                Brush.Color := $00F0F0F0;
+                Rectangle(0,0,fDrawBuffer.Width,TempInt);
+                Brush.Color := $00E4E4E4;
+                Rectangle(0,TempInt - 1,fDrawBuffer.Width,fDrawBuffer.Height);
+              end;
+          end
+        else
+          begin
+            // normal cells
+            If IL_SameText(TStringGrid(Sender).Cells[ACol,ARow],'%') then
+              begin
+                If gdSelected in State then
+                  Brush.Color := $00D6D6D6
+                else
+                  Brush.Color := $00E0E0E0;
+              end
+            else
+              begin
+                If gdSelected in State then
+                  Brush.Color := $00D6D6D6
+                else
+                  Brush.Color := clWhite;
+              end;
+            Rectangle(BoundsRect);
+          end;
+        // grid lines
+        Pen.Style := psSolid;
+        If gdFixed in State then
+          Pen.Color := clGray
+        else
+          Pen.Color := clSilver;
+        MoveTo(BoundsRect.Left,BoundsRect.Bottom - 1);
+        LineTo(BoundsRect.Right - 1,BoundsRect.Bottom - 1);
+        LineTo(BoundsRect.Right - 1,BoundsRect.Top - 1);
+        // text
+        Font.Assign(TStringGrid(Sender).Font);
+        Brush.Style := bsClear;
+        If gdFixed in State then
+          begin
+            // fixed cells
+            If ARow = 0 then
+              begin
+                TempInt := ((BoundsRect.Right - BoundsRect.Left) - TextWidth(TStringGrid(Sender).Cells[ACol,ARow])) div 2;
+                TextOut(BoundsRect.Left + TempInt,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+              end
+            else TextOut(BoundsRect.Left + 5,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+          end
+        else
+          begin
+            // normal cells
+            If not IL_SameText(TStringGrid(Sender).Cells[ACol,ARow],'%') then
+              begin
+                TempInt := TextWidth(TStringGrid(Sender).Cells[ACol,ARow]);
+                TextOut(BoundsRect.Right - TempInt - 5,BoundsRect.Top + 3,TStringGrid(Sender).Cells[ACol,ARow]);
+              end;
+          end;
+      end;
+    // move drawbuffer to the canvas
+    TStringGrid(Sender).Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+  end;
 end;
  
 //------------------------------------------------------------------------------
@@ -264,12 +295,5 @@ If cbStayOnTop.Checked then
 else
   FormStyle := fsNormal;
 end;
- 
-//------------------------------------------------------------------------------
 
-procedure TfOverviewForm.btnUpdateClick(Sender: TObject);
-begin
-UpdateOverview;
-end;
- 
 end.

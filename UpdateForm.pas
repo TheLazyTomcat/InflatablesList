@@ -51,7 +51,8 @@ type
     procedure TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
   public
     procedure Initialize(ILManager: TILManager);
-    procedure ShowUpdate(var UpdateList: TILItemShopUpdateList);
+    procedure Finalize;
+    Function ShowUpdate(var UpdateList: TILItemShopUpdateList): Boolean;
   end;
 
 var
@@ -59,10 +60,14 @@ var
 
 implementation
 
+uses
+  StrRect,
+  InflatablesList_Utils;
+
 {$R *.dfm}
 
 const
-  NR_OF_THREADS_COEF = 2;
+  IL_NR_OF_THREADS_COEF = 2;
 
 //==============================================================================  
 
@@ -88,6 +93,7 @@ begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
 fItemShop := TILItemShop.CreateAsCopy(ItemShop);
+// resolve reference and make local copy of processing settings
 Index := ILManager.ShopTemplateIndexOf(fItemShop.ParsingSettings.TemplateReference);
 If Index >= 0 then
   fItemShop.ReplaceParsingSettings(ILManager.ShopTemplates[Index].ParsingSettings);
@@ -120,10 +126,10 @@ procedure TfUpdateForm.MakeLog(Index: Integer);
 var
   TagStr: String;
 begin
-If not AnsiSameText(fLastItemName,fUpdateList[Index].ItemTitle) then
+If not IL_SameText(fLastItemName,fUpdateList[Index].ItemTitle) then
   begin
     If meLog.Lines.Count > 0 then
-      meLog.Lines.Add('');
+      meLog.Lines.Add('');  // empty line
     meLog.Lines.Add(fUpdateList[Index].ItemTitle + sLineBreak);
     fLastItemName := fUpdateList[Index].ItemTitle;
   end;
@@ -131,7 +137,7 @@ If fUpdateList[Index].ItemShop.Selected then
   TagStr := '  * '
 else
   TagStr := '    ';
-meLog.Lines.Add(Format('%s%s %s... %s',[TagStr,fUpdateList[Index].ItemShop.Name,
+meLog.Lines.Add(IL_Format('%s%s %s... %s',[TagStr,fUpdateList[Index].ItemShop.Name,
   StringOfChar('.',fMaxShopNameLen - Length(fUpdateList[Index].ItemShop.Name)),
   fUpdateList[Index].ItemShop.LastUpdateMsg]));
 end;
@@ -156,30 +162,24 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfUpdateForm.TaskFinishHandler(Sender: TObject; TaskIndex: Integer);
-var
-  TempStr:  String;
 begin
 Inc(fDoneCount);
 // retrieve results from the task
 with TILUpdateTask(fUpdater.Tasks[TaskIndex].TaskObject) do
   begin
-    fUpdateList[ProcessingIndex].ItemShop.Available := ItemShop.Available;
-    fUpdateList[ProcessingIndex].ItemShop.Price := ItemShop.Price;
-    fUpdateList[ProcessingIndex].ItemShop.LastUpdateRes := ItemShop.LastUpdateRes;
-    TempStr := ItemShop.LastUpdateMsg;
-    UniqueString(TempStr);
-    fUpdateList[ProcessingIndex].ItemShop.LastUpdateMsg := TempStr;
+    fUpdateList[ProcessingIndex].ItemShop.SetValues(ItemShop.LastUpdateMsg,
+      ItemShop.LastUpdateRes,ItemShop.Available,ItemShop.Price);
     fUpdateList[ProcessingIndex].Done := True;
   end;
 // log
 while fLoggedIndex <= High(fUpdateList) do
   begin
-  If fUpdateList[fLoggedIndex].Done then
-    begin
-      MakeLog(fLoggedIndex);
-      Inc(fLoggedIndex);
-    end
-  else Break{while...};
+    If fUpdateList[fLoggedIndex].Done then
+      begin
+        MakeLog(fLoggedIndex);
+        Inc(fLoggedIndex);
+      end
+    else Break{while...};
   end;
 //progress
 If fDoneCount < Length(fUpdateList) then
@@ -189,7 +189,7 @@ If fDoneCount < Length(fUpdateList) then
       pbProgress.Position := Trunc((fDoneCount / Length(fUpdateList)) * pbProgress.Max)
     else
       pbProgress.Position := pbProgress.Max;
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(fUpdateList) - fDoneCount]);
+    pnlInfo.Caption := IL_Format('%d item shops ready for update',[Length(fUpdateList) - fDoneCount]);
   end
 else
   begin
@@ -206,26 +206,33 @@ procedure TfUpdateForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 fUpdater := nil;
-seNumberOfThreads.Value := TCNTSManager.GetProcessorCount * NR_OF_THREADS_COEF;
+seNumberOfThreads.Value := TCNTSManager.GetProcessorCount * IL_NR_OF_THREADS_COEF;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfUpdateForm.ShowUpdate(var UpdateList: TILItemShopUpdateList);
+procedure TfUpdateForm.Finalize;
+begin
+// nothing to do here
+end;
+
+//------------------------------------------------------------------------------
+
+Function TfUpdateForm.ShowUpdate(var UpdateList: TILItemShopUpdateList): Boolean;
 var
   i:  Integer;
 begin
+Result := False;
 If Length(UpdateList) > 0 then
   begin
     // init form
-    pnlInfo.Caption := Format('%d item shops ready for update',[Length(UpdateList)]);
+    pnlInfo.Caption := IL_Format('%d item shops ready for update',[Length(UpdateList)]);
     btnAction.Tag := 0;
     btnAction.Caption := 'Start';
     pbProgress.Position := 0;
     meLog.Clear;
     // init list of shops for processing
     fUpdateList := UpdateList;
-    SetLength(fUpdateList,Length(fUpdateList));
     For i := Low(fUpdateList) to High(fUpdateList) do
       fUpdateList[i].Done := False;  // should be false atm, but to be sure
     // init processing vars
@@ -251,10 +258,19 @@ If Length(UpdateList) > 0 then
       FreeAndNil(fUpdater);
     end;
     tmrUpdate.Enabled := False;
-    If meLog.Lines.Count > 0 then
-      meLog.Lines.SaveToFile(fILManager.ListFilePath + 'list.update.log');
-    // return the changed list (done flag is read)
+    // save log
+    If (meLog.Lines.Count > 0) and not fILManager.StaticSettings.NoUpdateAutoLog then
+      meLog.Lines.SaveToFile(StrToRTL(fILManager.StaticSettings.ListPath +
+        IL_ExtractFileNameNoExt(fILManager.StaticSettings.ListFile) + '.update.log'));
+    // return the changed list (done flag is used)
     UpdateList := fUpdateList;
+    // indicate whether something was done
+    For i := Low(UpdateList) to High(UpdateList) do
+      If UpdateList[i].Done then
+        begin
+          Result := True;
+          Break{For i};
+        end;
   end
 else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
 end;
@@ -264,6 +280,7 @@ end;
 procedure TfUpdateForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
 fCanContinue := False;
+CanClose := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -313,7 +330,7 @@ end;
 
 procedure TfUpdateForm.tmrUpdateTimer(Sender: TObject);
 begin
-if Assigned(fUpdater) then
+If Assigned(fUpdater) then
   begin
     fUpdater.Update;
     fUpdater.ClearCompletedTasks;

@@ -17,7 +17,7 @@ const
   IL_ITEMSHOP_STREAMSTRUCTURE_SAVE = IL_ITEMSHOP_STREAMSTRUCTURE_00000000;
 
 type
-  TILItemShop_IO = class(TILITemShop_Update)
+  TILItemShop_IO = class(TILItemShop_Update)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;
@@ -36,7 +36,7 @@ implementation
 
 uses
   SysUtils,
-  BinaryStreaming;
+  BinaryStreaming, StrRect;
 
 procedure TILItemShop_IO.Save(Stream: TStream; Struct: UInt32);
 begin
@@ -80,7 +80,7 @@ begin
 FileStream := TMemoryStream.Create;
 try
   SaveToStream(FileStream);
-  FileStream.SaveToFile(FileName);
+  FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
 end;
@@ -94,7 +94,7 @@ var
 begin
 FileStream := TMemoryStream.Create;
 try
-  FileStream.LoadFromFile(FileName);
+  FileStream.LoadFromFile(StrToRTL(FileName));
   FileStream.Seek(0,soBeginning);
   LoadFromStream(FileStream);
 finally

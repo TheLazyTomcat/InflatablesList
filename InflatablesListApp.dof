@@ -90,17 +90,17 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=Release\win_x86\
+OutputDir=release\win_x86\
 UnitOutputDir=.\DCU
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=source\libs\;source\libs\synapse
+SearchPath=source;source\libs;source\libs\synapse
 Packages=vcl;rtl;vclx;VclSmp;vclshlctrls;_AltFixUnit;_GlobalInstanceControl;_XPAdminMan;AdvCircularProgressPkgD7;TMSMenusD7;AdvShaperPkgD7;_alignedit;_ALProgressBar;_SuperLabel;_ButtonComps;_PJVersionInfo;EZJTexturePanelD6;FormShapePkgD7;GradientLabelPkgD7;_adpInstanceControl;_Label3D;_lfreg;_FadeWorks;_MMJLabel;PNGDelphi;_AlphaShowHide;_QProgBar;_ShadowLabel;_VistaAltFixUnit;shape;_XiButton;GR32_D7
 Conditionals=
-DebugSourceDirs=F:\Programy\Private\InflatablesList\Dev\source\libs\
+DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=--load_pages --no_updlog
+RunParams=--load_pages --no_updlog --no_save --no_pics
 HostApplication=
 Launcher=
 UseLauncher=0
@@ -109,11 +109,11 @@ DebugCWD=
 IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=1
-MinorVer=6
-Release=4
-Build=602
-Debug=0
-PreRelease=0
+MinorVer=7
+Release=0
+Build=691
+Debug=1
+PreRelease=1
 Special=0
 Private=0
 DLL=0
@@ -122,24 +122,28 @@ CodePage=1250
 [Version Info Keys]
 CompanyName=František Milt
 FileDescription=Inflatables List application
-FileVersion=1.6.4.602
+FileVersion=1.7.0.691
 InternalName=Inflatables List
 LegalCopyright=© 2019 František Milt
 LegalTrademarks=Inflatables List
 OriginalFilename=InflatablesList.exe
 ProductName=Inflatables List
-ProductVersion=1.6.4
+ProductVersion=1.7.0
 Comments=Main program of Inflatables List project
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=F:\Programy\Private\InflatablesList\Dev\source\libs\
+[HistoryLists\hlConditionals]
+Count=1
+Item0=DevelMsgs
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=2
-Item0=source\libs\;source\libs\synapse
-Item1=source\libs\
+Count=3
+Item0=source;source\libs;source\libs\synapse
+Item1=source\libs\;source\libs\synapse
+Item2=source\libs\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=.\DCU

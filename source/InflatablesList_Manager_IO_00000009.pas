@@ -23,6 +23,7 @@ implementation
 uses
   SysUtils,
   BinaryStreaming,
+  InflatablesList_Utils,
   InflatablesList_Manager_IO;
 
 procedure TILManager_IO_00000009.InitSaveFunctions(Struct: UInt32);
@@ -58,7 +59,7 @@ end;
 
 procedure TILManager_IO_00000009.SaveList_00000009(Stream: TStream);
 begin
-Stream_WriteString(Stream,FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now));
+Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Now));
 fFNSaveSortingSettings(Stream);
 fFNSaveShopTemplates(Stream);
 fFNSaveFilterSettings(Stream);

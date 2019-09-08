@@ -12,7 +12,7 @@ type
   TILItem_Comp = class(TILItem_Draw)
   public
     Function Contains(const Text: String): Boolean; virtual;
-    Function Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean): Integer; virtual;
+    Function Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean; CaseSensitive: Boolean): Integer; virtual;
     procedure Filter(FilterSettings: TILFilterSettings); virtual;
   end;
 
@@ -77,10 +77,19 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILItem_Comp.Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean): Integer;
+Function TILItem_Comp.Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean; CaseSensitive: Boolean): Integer;
 var
   SelShop1: TILItemShop;
   SelShop2: TILItemShop;
+
+  Function CompareText_Internal(const A,B: String): Integer;
+  begin
+    If CaseSensitive then
+      Result := IL_SortCompareStr(A,B)
+    else
+      Result := IL_SortCompareText(A,B)
+  end;
+
 begin
 case WithValue of
   // internals = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -94,49 +103,52 @@ case WithValue of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtPackagePicture:    Result := IL_SortCompareBool(Assigned(fPackagePicture),Assigned(WithItem.PackagePicture));
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtItemType:          If not(fItemType in [ilitUnknown,ilitOther]) and not(WithItem.ItemType in [ilitUnknown,ilitOther]) then
-                            Result := IL_SortCompareText(
-                              fDataProvider.GetItemTypeString(fItemType),
-                              fDataProvider.GetItemTypeString(WithItem.ItemType))
-                          // push others and unknowns to the end
-                          else If not(fItemType in [ilitUnknown,ilitOther]) then
-                            Result := IL_NegateValue(+1,Reversed)
-                          else If not(WithItem.ItemType in [ilitUnknown,ilitOther]) then
-                            Result := IL_NegateValue(-1,Reversed)
-                          // both are either unknown or other, push unknown to the end...
-                          else If fItemType <> WithItem.ItemType then
+  ilivtItemType:          If fItemType <> WithItem.ItemType then
                             begin
-                              If fItemType = ilitOther then
+                              If not(fItemType in [ilitUnknown,ilitOther]) and not(WithItem.ItemType in [ilitUnknown,ilitOther]) then
+                                Result := CompareText_Internal(
+                                  fDataProvider.GetItemTypeString(fItemType),
+                                  fDataProvider.GetItemTypeString(WithItem.ItemType))
+                              // push others and unknowns to the end
+                              else If not(fItemType in [ilitUnknown,ilitOther]) and (WithItem.ItemType in [ilitUnknown,ilitOther]) then
                                 Result := IL_NegateValue(+1,Reversed)
-                              else If WithItem.ItemType = ilitOther then
+                              else If (fItemType in [ilitUnknown,ilitOther]) and not(WithItem.ItemType in [ilitUnknown,ilitOther]) then
                                 Result := IL_NegateValue(-1,Reversed)
+                              // both are either unknown or other, but differs, push unknown to the end...
                               else
-                                Result := 0;
+                                begin
+                                  If fItemType = ilitOther then
+                                    Result := IL_NegateValue(+1,Reversed)
+                                  else If WithItem.ItemType = ilitOther then
+                                    Result := IL_NegateValue(-1,Reversed)
+                                  else
+                                    Result := 0;
+                                end;
                             end
                           else Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtItemTypeSpec:      Result := IL_SortCompareText(fItemTypeSpec,WithItem.ItemTypeSpec);
+  ilivtItemTypeSpec:      Result := CompareText_Internal(fItemTypeSpec,WithItem.ItemTypeSpec);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtCount:             Result := IL_SortCompareUInt32(fPieces,WithItem.Pieces);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtManufacturer:      If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
-                            Result := IL_SortCompareText(
+                            Result := CompareText_Internal(
                               fDataProvider.ItemManufacturers[fManufacturer].Str,
                               fDataProvider.ItemManufacturers[WithItem.Manufacturer].Str)
-                          else If fManufacturer = ilimOthers then
+                          else If (fManufacturer = ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
                             Result := IL_NegateValue(-1,Reversed) // push other to the end
-                          else If WithItem.Manufacturer = ilimOthers then
+                          else If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer = ilimOthers) then
                             Result := IL_NegateValue(+1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtManufacturerStr:   Result := IL_SortCompareText(fManufacturerStr,WithItem.ManufacturerStr);
+  ilivtManufacturerStr:   Result := CompareText_Internal(fManufacturerStr,WithItem.ManufacturerStr);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtTextID:            Result := IL_SortCompareText(fTextID,WithItem.TextID);
+  ilivtTextID:            Result := CompareText_Internal(fTextID,WithItem.TextID);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtID:                Result := IL_SortCompareInt32(fID,WithItem.ID);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtIDStr:             Result := IL_SortCompareText(IDStr,WithItem.IDStr);
+  ilivtIDStr:             Result := CompareText_Internal(IDStr,WithItem.IDStr);
 
   // flags = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtFlagOwned:         Result := IL_SortCompareBool(ilifOwned in fFlags,ilifOwned in WithItem.Flags);
@@ -170,19 +182,19 @@ case WithValue of
   ilivtFlagDiscarded:     Result := IL_SortCompareBool(ilifDiscarded in fFlags,ilifDiscarded in WithItem.Flags);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtTextTag:           If (Length(fTextTag) > 0) and (Length(WithItem.TextTag) > 0) then
-                            Result := IL_SortCompareText(fTextTag,WithItem.TextTag)
-                          else If Length(fTextTag) > 0 then
+                            Result := CompareText_Internal(fTextTag,WithItem.TextTag)
+                          else If (Length(fTextTag) > 0) and (Length(WithItem.TextTag) <= 0) then
                             Result := IL_NegateValue(+1,Reversed)
-                          else If Length(WithItem.TextTag) > 0 then
+                          else If (Length(fTextTag) <= 0) and (Length(WithItem.TextTag) > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtNumTag:            If (fNumTag <> 0) and (WithItem.NumTag <> 0) then
                             Result := IL_SortCompareInt32(fNumTag,WithItem.NumTag)
-                          else If fNumTag <> 0 then
+                          else If (fNumTag <> 0) and (WithItem.NumTag = 0) then
                             Result := IL_NegateValue(+1,Reversed)
-                          else If WithItem.NumTag <> 0 then
+                          else If (fNumTag = 0) and (WithItem.NumTag <> 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
@@ -190,33 +202,36 @@ case WithValue of
   // extended specs  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   ilivtWantedLevel:       If (ilifWanted in fFlags) and (ilifWanted in WithItem.Flags) then
                             Result := IL_SortCompareUInt32(fWantedLevel,WithItem.WantedLevel)
-                          else If ilifWanted in fFlags then
-                            Result := IL_NegateValue(+1,Reversed)
-                          else If ilifWanted in WithItem.Flags then
+                          else If not(ilifWanted in fFlags) and (ilifWanted in WithItem.Flags) then
                             Result := IL_NegateValue(-1,Reversed) // those without the flag set goes at the end
+                          else If (ilifWanted in fFlags) and not(ilifWanted in WithItem.Flags) then
+                            Result := IL_NegateValue(+1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtVariant:           Result := IL_SortCompareText(fVariant,WithItem.Variant);
+  ilivtVariant:           Result := CompareText_Internal(fVariant,WithItem.Variant);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtMaterial:          If not(fMaterial in [ilimtUnknown,ilimtOther]) and not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
-                            Result := IL_SortCompareText(
-                              fDataProvider.GetItemMaterialString(fMaterial),
-                              fDataProvider.GetItemMaterialString(WithItem.Material))
-                          // push others and unknowns to the end
-                          else If not(fMaterial in [ilimtUnknown,ilimtOther]) then
-                            Result := IL_NegateValue(+1,Reversed)
-                          else If not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
-                            Result := IL_NegateValue(-1,Reversed)
-                          // both are either unknown or other, push unknown to the end...
-                          else If fMaterial <> WithItem.Material then
+  ilivtMaterial:          If fMaterial <> WithItem.Material then
                             begin
-                              If fMaterial = ilimtOther then
+                              If not(fMaterial in [ilimtUnknown,ilimtOther]) and not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
+                                Result := CompareText_Internal(
+                                  fDataProvider.GetItemMaterialString(fMaterial),
+                                  fDataProvider.GetItemMaterialString(WithItem.Material))
+                              // push others and unknowns to the end
+                              else If not(fMaterial in [ilimtUnknown,ilimtOther]) and (WithItem.Material in [ilimtUnknown,ilimtOther]) then
                                 Result := IL_NegateValue(+1,Reversed)
-                              else If WithItem.Material = ilimtOther then
+                              else If (fMaterial in [ilimtUnknown,ilimtOther]) and not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
                                 Result := IL_NegateValue(-1,Reversed)
+                              // both are either unknown or other, but differs, push unknown to the end...
                               else
-                                Result := 0;
+                                begin
+                                  If fMaterial = ilimtOther then
+                                    Result := IL_NegateValue(+1,Reversed)
+                                  else If WithItem.Material = ilimtOther then
+                                    Result := IL_NegateValue(-1,Reversed)
+                                  else
+                                    Result := 0;  // this should not happen
+                                end;
                             end
                           else Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -228,56 +243,56 @@ case WithValue of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtTotalSize:         If (TotalSize > 0) and (WithItem.TotalSize > 0) then
                             Result := IL_SortCompareInt64(TotalSize,WithItem.TotalSize)
-                          else If TotalSize > 0 then
+                          else If (TotalSize > 0) and (WithItem.TotalSize <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with 0 total size to the end
-                          else If WithItem.TotalSize > 0 then
+                          else If (TotalSize <= 0) and (WithItem.TotalSize > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
                             Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
-                          else If fUnitWeight > 0 then
+                          else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
-                          else If WithItem.UnitWeight > 0 then
+                          else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
                             Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
-                          else If TotalWeight > 0 then
+                          else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
-                          else If WithItem.TotalWeight > 0 then
+                          else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
                             Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
-                          else If fThickness > 0 then
+                          else If (fThickness > 0) and (WithItem.Thickness <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
-                          else If WithItem.Thickness > 0 then
+                          else If (fThickness <= 0) and (WithItem.Thickness > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
 
   // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-  ilivtNotes:             Result := IL_SortCompareText(fNotes,WithItem.Notes);
+  ilivtNotes:             Result := CompareText_Internal(fNotes,WithItem.Notes);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtReviewURL:         Result := IL_SortCompareText(fReviewURL,WithItem.ReviewURL);
+  ilivtReviewURL:         Result := CompareText_Internal(fReviewURL,WithItem.ReviewURL);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtReview:            Result := IL_SortCompareBool(Length(fReviewURL) > 0,Length(WithItem.ReviewURL) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtMainPictureFile:   Result := IL_SortCompareText(fItemPictureFile,WithItem.ItemPictureFile);
+  ilivtMainPictureFile:   Result := CompareText_Internal(fItemPictureFile,WithItem.ItemPictureFile);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtMainPicFilePres:   Result := IL_SortCompareBool(Length(fItemPictureFile) > 0,Length(WithItem.ItemPictureFile) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtSecondaryPictureFile:  Result := IL_SortCompareText(fSecondaryPictureFile,WithItem.SecondaryPictureFile);
+  ilivtSecondaryPictureFile:  Result := CompareText_Internal(fSecondaryPictureFile,WithItem.SecondaryPictureFile);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSecondaryPicFilePres:  Result := IL_SortCompareBool(Length(fSecondaryPictureFile) > 0,Length(WithItem.SecondaryPictureFile) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtPackPictureFile:   Result := IL_SortCompareText(fPackagePictureFile,WithItem.PackagePictureFile);
+  ilivtPackPictureFile:   Result := CompareText_Internal(fPackagePictureFile,WithItem.PackagePictureFile);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtPackPicFilePres:   Result := IL_SortCompareBool(Length(fPackagePictureFile) > 0,Length(WithItem.PackagePictureFile) > 0);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -287,12 +302,14 @@ case WithValue of
                              ((ilifOwned in WithItem.Flags) and not(ilifWanted in WithItem.Flags)) then
                             Result := IL_SortCompareUInt32(fRating,WithItem.Rating)
                           // those without proper flag combination goes at the end
-                          else If ((ilifOwned in fFlags) and not(ilifWanted in fFlags)) then
+                          else If ((ilifOwned in fFlags) and not(ilifWanted in fFlags)) and
+                                 not((ilifOwned in WithItem.Flags) and not(ilifWanted in WithItem.Flags)) then
                             Result := IL_NegateValue(+1,Reversed)
-                          else If ((ilifOwned in WithItem.Flags) and not(ilifWanted in WithItem.Flags)) then
+                          else If not((ilifOwned in fFlags) and not(ilifWanted in fFlags)) and
+                                 ((ilifOwned in WithItem.Flags) and not(ilifWanted in WithItem.Flags)) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
-                            Result := 0; 
+                            Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtUnitPriceLowest:   Result := IL_SortCompareUInt32(fUnitPriceLowest,WithItem.UnitPriceLowest);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -306,12 +323,21 @@ case WithValue of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtAvailable:         If (fAvailableSelected < 0) and (WithItem.AvailableSelected < 0) then
                             Result := IL_SortCompareInt32(Abs(fAvailableSelected),Abs(WithItem.AvailableSelected))
-                          else If (fAvailableSelected < 0) then
-                            Result := IL_SortCompareInt32(Abs(fAvailableSelected) + 1,WithItem.AvailableSelected)
-                          else If (WithItem.AvailableSelected < 0) then
-                            Result := IL_SortCompareInt32(fAvailableSelected,Abs(WithItem.AvailableSelected) + 1)
-                          else
-                            Result := IL_SortCompareInt32(fAvailableSelected,WithItem.AvailableSelected);
+                          else If (fAvailableSelected < 0) and (WithItem.AvailableSelected >= 0) then
+                            begin
+                              If Abs(fAvailableSelected) = WithItem.AvailableSelected then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := IL_SortCompareInt32(Abs(fAvailableSelected),WithItem.AvailableSelected)
+                            end
+                          else If (fAvailableSelected >= 0) and (WithItem.AvailableSelected < 0) then
+                            begin
+                              If fAvailableSelected = Abs(WithItem.AvailableSelected) then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else
+                                Result := IL_SortCompareInt32(fAvailableSelected,Abs(WithItem.AvailableSelected))
+                            end
+                          else Result := IL_SortCompareInt32(fAvailableSelected,WithItem.AvailableSelected);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtShopCount:         Result := IL_SortCompareUInt32(fShopCount,WithItem.ShopCount);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -319,27 +345,27 @@ case WithValue of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtUsefulShopRatio:   If (fShopCount > 0) and (WithItem.ShopCount > 0) then
                             Result := IL_SortCompareFloat(ShopsUsefulRatio,WithItem.ShopsUsefulRatio)
-                          else If fShopCount > 0 then
+                          else If (fShopCount > 0) and (WithItem.ShopCount <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
-                          else If WithItem.ShopCount > 0 then
+                          else If (fShopCount <= 0) and (WithItem.ShopCount > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtSelectedShop:      If ShopsSelected(SelShop1) and WithItem.ShopsSelected(SelShop2) then
-                            Result := IL_SortCompareText(SelShop1.Name,SelShop2.Name)
-                          else If ShopsSelected(SelShop1) then
+                            Result := CompareText_Internal(SelShop1.Name,SelShop2.Name)
+                          else If ShopsSelected(SelShop1) and not WithItem.ShopsSelected(SelShop2) then
                             Result := IL_NegateValue(+1,Reversed)
-                          else If WithItem.ShopsSelected(SelShop2) then
+                          else If not ShopsSelected(SelShop1) and WithItem.ShopsSelected(SelShop2) then
                             Result := IL_NegateValue(-1,Reversed) // push items with no shop selected at the end
                           else
                             Result := 0;
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtWorstUpdateResult: If (fShopCount > 0) and (WithItem.ShopCount > 0) then
                             Result := IL_SortCompareInt32(Ord(ShopsWorstUpdateResult),Ord(WithItem.ShopsWorstUpdateResult))
-                          else If fShopCount > 0 then
+                          else If (fShopCount > 0) and (WithItem.ShopCount <= 0) then
                             Result := IL_NegateValue(+1,Reversed) // push items with no shop to the end
-                          else If WithItem.ShopCount > 0 then
+                          else If (fShopCount <= 0) and (WithItem.ShopCount > 0) then
                             Result := IL_NegateValue(-1,Reversed)
                           else
                             Result := 0;

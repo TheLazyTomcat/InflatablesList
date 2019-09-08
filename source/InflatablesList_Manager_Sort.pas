@@ -12,11 +12,13 @@ type
   TILManager_Sort = class(TILManager_Base)
   protected
     fReversedSort:    Boolean;
+    fCaseSensSort:    Boolean;
     fUsedSortSett:    TILSortingSettings;
-    fDefaultSortSett: TILSortingSettings;
+    fDefaultSortSett: TILSortingSettings;    
     fActualSortSett:  TILSortingSettings;
     fSortingProfiles: TILSortingProfiles;
     procedure SetReversedSort(Value: Boolean); virtual;
+    procedure SetCaseSensSort(Value: Boolean); virtual;
     Function GetSortProfileCount: Integer; virtual;
     Function GetSortProfile(Index: Integer): TILSortingProfile; virtual;
     procedure SetSortProfile(Index: Integer; Value: TILSortingProfile); virtual;
@@ -24,7 +26,9 @@ type
     procedure FinalizeSortingSettings; virtual;
     procedure Initialize; override;
     procedure Finalize; override;
-    Function ItemCompare(Idx1,Idx2: Integer): Integer; virtual;
+    Function ItemCompare(Idx1,Idx2: Integer; CaseSensitive: Boolean): Integer; virtual;
+    Function ItemCompare_CaseSensitive(Idx1,Idx2: Integer): Integer; virtual;
+    Function ItemCompare_CaseInsensitive(Idx1,Idx2: Integer): Integer; virtual;
   public
     Function SortingProfileIndexOf(const Name: String): Integer; virtual;
     Function SortingProfileAdd(const Name: String): Integer; virtual;
@@ -35,6 +39,7 @@ type
     procedure ItemSort(SortingProfile: Integer); overload; virtual;
     procedure ItemSort; overload; virtual;
     property ReversedSort: Boolean read fReversedSort write SetReversedSort;
+    property CaseSensitiveSort: Boolean read fCaseSensSort write SetCaseSensSort;
     property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
     property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
@@ -53,6 +58,17 @@ begin
 If fReversedSort <> Value then
   begin
     fReversedSort := Value;
+    UpdateSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Sort.SetCaseSensSort(Value: Boolean);
+begin
+If fCaseSensSort <> Value then
+  begin
+    fCaseSensSort := Value;
     UpdateSettings;
   end;
 end;
@@ -88,7 +104,8 @@ end;
 
 procedure TILManager_Sort.InitializeSortingSettings;
 begin
-fSorting := False;
+fReversedSort := False;
+fCaseSensSort := False;
 FillChar(fDefaultSortSett,SizeOf(fDefaultSortSett),0);
 fDefaultSortSett.Count := 2;
 fDefaultSortSett.Items[0].ItemValueTag := ilivtManufacturer;
@@ -125,7 +142,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Sort.ItemCompare(Idx1,Idx2: Integer): Integer;
+Function TILManager_Sort.ItemCompare(Idx1,Idx2: Integer; CaseSensitive: Boolean): Integer;
 var
   i:  Integer;
 begin
@@ -134,11 +151,25 @@ If Idx1 <> Idx2 then
   begin
     For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
       Result := (Result shl 1) + fList[Idx1].Compare(fList[Idx2],
-        fUsedSortSett.Items[i].ItemValueTag,fUsedSortSett.Items[i].Reversed);
+        fUsedSortSett.Items[i].ItemValueTag,fUsedSortSett.Items[i].Reversed,CaseSensitive);
     // stabilize sorting using indices
     If Result = 0 then
       Result := IL_SortCompareInt32(fList[Idx1].Index,fList[Idx2].Index);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Sort.ItemCompare_CaseSensitive(Idx1,Idx2: Integer): Integer;
+begin
+Result := ItemCompare(Idx1,Idx2,True);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Sort.ItemCompare_CaseInsensitive(Idx1,Idx2: Integer): Integer;
+begin
+Result := ItemCompare(Idx1,Idx2,False);
 end;
 
 //==============================================================================
@@ -238,7 +269,10 @@ If Length(fList) > 1 then
       else
         raise Exception.CreateFmt('TILManager_Sort.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
     end;
-    Sorter := TListQuickSorter.Create(ItemCompare,ItemExchange);
+    If fCaseSensSort then
+      Sorter := TListQuickSorter.Create(ItemCompare_CaseSensitive,ItemExchange)
+    else
+      Sorter := TListQuickSorter.Create(ItemCompare_CaseInsensitive,ItemExchange);
     try
       fSorting := True;
       try

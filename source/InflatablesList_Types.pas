@@ -273,8 +273,8 @@ const
   IL_STATIC_SETTINGS_TAGS: array[0..7] of String =
     ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
 
-  IL_DYNAMIC_SETTINGS_TAGS: array[0..2] of String =
-    ('l.cmp','l.enc','s.rev');
+  IL_DYNAMIC_SETTINGS_TAGS: array[0..3] of String =
+    ('l.cmp','l.enc','s.rev','s.cas');
 
 type
   TILStaticManagerSettings = record

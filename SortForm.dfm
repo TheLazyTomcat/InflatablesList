@@ -136,7 +136,7 @@ object fSortForm: TfSortForm
     Width = 89
     Height = 25
     Caption = 'Close'
-    TabOrder = 14
+    TabOrder = 15
     OnClick = btnCloseClick
   end
   object btnSort: TButton
@@ -145,7 +145,7 @@ object fSortForm: TfSortForm
     Width = 89
     Height = 25
     Caption = 'Sort and close'
-    TabOrder = 13
+    TabOrder = 14
     OnClick = btnSortClick
   end
   object lbProfiles: TListBox
@@ -195,7 +195,8 @@ object fSortForm: TfSortForm
     Height = 17
     Alignment = taLeftJustify
     Caption = 'Reversed sort'
-    TabOrder = 12
+    TabOrder = 13
+    OnClick = cbSortRevClick
   end
   object btnClear: TButton
     Left = 200
@@ -205,6 +206,16 @@ object fSortForm: TfSortForm
     Caption = 'Clear'
     TabOrder = 3
     OnClick = btnClearClick
+  end
+  object cbSortCase: TCheckBox
+    Left = 552
+    Top = 412
+    Width = 113
+    Height = 17
+    Alignment = taLeftJustify
+    Caption = 'Case sensitive sort'
+    TabOrder = 12
+    OnClick = cbSortCaseClick
   end
   object pmnProfiles: TPopupMenu
     OnPopup = pmnProfilesPopup

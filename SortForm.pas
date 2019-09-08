@@ -33,6 +33,7 @@ type
     btnRemove: TButton;
     btnMoveDown: TButton;
     bvlSplitter: TBevel;
+    cbSortCase: TCheckBox;    
     cbSortRev: TCheckBox;
     btnSort: TButton;
     btnClose: TButton;
@@ -58,10 +59,13 @@ type
     procedure btnRemoveClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
     procedure lbAvailableDblClick(Sender: TObject);
+    procedure cbSortCaseClick(Sender: TObject);
+    procedure cbSortRevClick(Sender: TObject);
     procedure btnSortClick(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
   private
     { Private declarations }
+    fInitializing:  Boolean;
     fILManager:     TILManager;
     fLocalSortSett: TILSortingSettings;
     fSorted:        Boolean;
@@ -123,6 +127,7 @@ procedure TfSortForm.Initialize(ILManager: TILManager);
 var
   i:  TILItemValueTag;
 begin
+fInitializing := False;
 fILManager := ILManager;
 // fill list of available values 
 lbAvailable.Items.BeginUpdate;
@@ -167,11 +172,16 @@ If lbProfiles.Count > 0 then
 lbProfiles.OnClick(nil);
 // fill list of used
 FillSortByList(True);
-cbSortRev.Checked := fILManager.ReversedSort;
+fInitializing := True;
+try
+  cbSortCase.Checked := fILManager.CaseSensitiveSort;
+  cbSortRev.Checked := fILManager.ReversedSort;
+finally
+  fInitializing := False;
+end;
 // show the window
 ShowModal;
 fILManager.ActualSortingSettings := fLocalSortSett;
-fILManager.ReversedSort := cbSortRev.Checked;
 Result := fSorted;
 end;
 
@@ -478,13 +488,28 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfSortForm.cbSortCaseClick(Sender: TObject);
+begin
+If not fInitializing then
+  fILManager.CaseSensitiveSort := cbSortCase.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSortForm.cbSortRevClick(Sender: TObject);
+begin
+If not fInitializing then
+  fILManager.ReversedSort := cbSortRev.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfSortForm.btnSortClick(Sender: TObject);
 begin
 Screen.Cursor := crHourGlass;
 try
   fSorted := True;
   fILManager.ActualSortingSettings := fLocalSortSett;
-  fILManager.ReversedSort := cbSortRev.Checked;
   fILManager.ItemSort;
 finally
   Screen.Cursor := crDefault;
@@ -498,5 +523,5 @@ procedure TfSortForm.btnCloseClick(Sender: TObject);
 begin
 Close;
 end;
-
+ 
 end.

@@ -69,10 +69,10 @@ object fMainForm: TfMainForm
       item
         Alignment = taCenter
         Style = psOwnerDraw
-        Width = 100
+        Width = 130
       end
       item
-        Width = 450
+        Width = 420
       end
       item
         Alignment = taRightJustify
@@ -264,6 +264,10 @@ object fMainForm: TfMainForm
       ShortCut = 16466
       OnClick = mniLM_SortRevClick
     end
+    object mniLM_SortCase: TMenuItem
+      Caption = 'Case sensitive sort'
+      OnClick = mniLM_SortCaseClick
+    end
     object mniLM_Sort: TMenuItem
       Caption = 'Sort'
       ShortCut = 16463
@@ -451,6 +455,11 @@ object fMainForm: TfMainForm
       Caption = 'acSortRev'
       ShortCut = 16466
       OnExecute = acSortRevExecute
+    end
+    object acSortCase: TAction
+      Category = 'sorting'
+      Caption = 'acSortCase'
+      OnExecute = acSortCaseExecute
     end
     object acSort: TAction
       Category = 'sorting'

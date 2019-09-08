@@ -36,6 +36,8 @@ type
     procedure InitPreloadFunctions(Struct: UInt32); override;
     procedure SaveList_0000000A(Stream: TStream); virtual;
     procedure LoadList_0000000A(Stream: TStream); virtual;
+    procedure SaveSortingSettings_0000000A(Stream: TStream); virtual;
+    procedure LoadSortingSettings_0000000A(Stream: TStream); virtual;
     procedure SaveList_Plain_0000000A(Stream: TStream); virtual;
     procedure LoadList_Plain_0000000A(Stream: TStream); virtual;
     procedure SaveList_Processed_0000000A(Stream: TStream); virtual;
@@ -47,7 +49,7 @@ implementation
 
 uses
   SysUtils,
-  BinaryStreaming, StrRect, BitOps, MD5, SHA2, AES, SimpleCompress,
+  BinaryStreaming, StrRect, WinFileInfo, BitOps, MD5, SHA2, AES, SimpleCompress,
   InflatablesList_Types,
   InflatablesList_Utils;
 
@@ -218,7 +220,7 @@ begin
 If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
   begin
     fFNSaveToStream := SaveList_0000000A;
-    fFNSaveSortingSettings := SaveSortingSettings_00000008;
+    fFNSaveSortingSettings := SaveSortingSettings_0000000A;
     fFNSaveShopTemplates := SaveShopTemplates_00000008;
     fFNSaveFilterSettings := SaveFilterSettings_00000008;
     fFNSaveItems := SaveItems_00000008;
@@ -235,7 +237,7 @@ begin
 If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
   begin
     fFNLoadFromStream := LoadList_0000000A;
-    fFNLoadSortingSettings := LoadSortingSettings_00000008;
+    fFNLoadSortingSettings := LoadSortingSettings_0000000A;
     fFNLoadShopTemplates := LoadShopTemplates_00000008;
     fFNLoadFilterSettings := LoadFilterSettings_00000008;
     fFNLoadItems := LoadItems_00000008;
@@ -279,10 +281,38 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILManager_IO_0000000A.SaveSortingSettings_0000000A(Stream: TStream);
+begin
+// use old structure and just append case sensitivity flag
+SaveSortingSettings_00000008(Stream);
+Stream_WriteBool(Stream,fCaseSensSort);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO_0000000A.LoadSortingSettings_0000000A(Stream: TStream);
+begin
+LoadSortingSettings_00000008(Stream);
+fCaseSensSort := Stream_ReadBool(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILManager_IO_0000000A.SaveList_Plain_0000000A(Stream: TStream);
 var
   Time: TDateTIme;
 begin
+// save version of the program (for reference and debugging)
+with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
+try
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build);
+finally
+  Free;
+end;
+// save time
 Time := Now;
 Stream_WriteFloat64(Stream,Time);
 Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time));
@@ -297,6 +327,7 @@ end;
 
 procedure TILManager_IO_0000000A.LoadList_Plain_0000000A(Stream: TStream);
 begin
+Stream_ReadInt64(Stream);   // discard version of the program in which the file was saved
 Stream_ReadFloat64(Stream); // discard time
 Stream_ReadString(Stream);  // discard time string
 fFNLoadSortingSettings(Stream);

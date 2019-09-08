@@ -41,6 +41,7 @@ type
     N4: TMenuItem;
     mniLM_SortSett: TMenuItem;
     mniLM_SortRev: TMenuItem;
+    mniLM_SortCase: TMenuItem;    
     mniLM_Sort: TMenuItem;
     mniLM_SortBy: TMenuItem;
     N5: TMenuItem;
@@ -86,6 +87,7 @@ type
     acAdvSearch: TAction;    
     acSortSett: TAction;
     acSortRev: TAction;
+    acSortCase: TAction;
     acSort: TAction;
     acUpdateItem: TAction;
     acUpdateAll: TAction;
@@ -143,6 +145,7 @@ type
     procedure mniLM_SortCommon(Profile: Integer);
     procedure mniLM_SortSettClick(Sender: TObject);
     procedure mniLM_SortRevClick(Sender: TObject);
+    procedure mniLM_SortCaseClick(Sender: TObject);
     procedure mniLM_SortClick(Sender: TObject);
     procedure mniLM_SortByClick(Sender: TObject);
     // ---
@@ -199,6 +202,7 @@ type
     procedure acAdvSearchExecute(Sender: TObject);
     procedure acSortSettExecute(Sender: TObject);
     procedure acSortRevExecute(Sender: TObject);
+    procedure acSortCaseExecute(Sender: TObject);
     procedure acSortExecute(Sender: TObject);
     procedure acUpdateItemExecute(Sender: TObject);
     procedure acUpdateAllExecute(Sender: TObject);
@@ -521,9 +525,11 @@ mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
 mniLM_MoveDownBy.ShortCut := ShortCut(VK_DOWN,[ssShift,ssCtrl]);
 mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssShift,ssAlt]);
 mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+mniLM_SortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
 mniLM_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 mniLM_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 acSortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+acSortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
 acUpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 acUpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 // shortcuts of sort-by actions (menu items are set in creation)
@@ -571,6 +577,7 @@ else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
 mniLM_SortRev.Checked := fILManager.ReversedSort;
+mniLM_SortCase.Checked := fILManager.CaseSensitiveSort;
 mniLM_ListCompress.Checked := fILManager.Compressed;
 mniLM_ListEncrypt.Checked := fILManager.Encrypted;
 sbStatusBar.Invalidate; // to show settings
@@ -993,6 +1000,7 @@ else
       frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
   end;
 mniLM_SortRev.Checked := fILManager.ReversedSort;
+mniLM_SortCase.Checked := fILManager.CaseSensitiveSort;
 BuildSortBySubmenu;
 lbList.SetFocus;
 end;
@@ -1003,6 +1011,14 @@ procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
 begin
 mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
 fILManager.ReversedSort := mniLM_SortRev.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_SortCaseClick(Sender: TObject);
+begin
+mniLM_SortCase.Checked := not mniLM_SortCase.Checked;
+fIlManager.CaseSensitiveSort := mniLM_SortCase.Checked;
 end;
 
 //------------------------------------------------------------------------------
@@ -1518,6 +1534,7 @@ If Assigned(fDrawBuffer) then
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[0],TempInt,fILManager.Compressed,OPTS_SPC);
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[1],TempInt,fILManager.Encrypted,OPTS_SPC);
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[2],TempInt,fILManager.ReversedSort,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[3],TempInt,fILManager.CaseSensitiveSort,OPTS_SPC);
           end;
     end;
     // move drawbuffer to the canvas
@@ -1626,6 +1643,13 @@ end;
 procedure TfMainForm.acSortRevExecute(Sender: TObject);
 begin
 mniLM_SortRev.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortCaseExecute(Sender: TObject);
+begin
+mniLM_SortCase.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

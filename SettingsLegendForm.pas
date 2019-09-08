@@ -51,11 +51,13 @@ const
   DYN_SETTINGS_NAMES: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'list.compression',
     'list.encryption',
-    'sort.reversal');
+    'sort.reversal',
+    'sort.case_sensitive');
   DYN_SETTINGS_DESCRS: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'List will be saved compressed (reduced size). Can significantly slow down saving and loading. Applied before encryption.',
     'List will be ecnrypted using provided list password. Can slow down saving and loading of the list.',
-    'List will be sorted in reversed order (Z..A, 9..0). Does not affect ordering by values, only final global order.');
+    'List will be sorted in reversed order (Z..A, 9..0). Does not affect ordering by values, only final global order.',
+    'When comparing two strings (textual values) for ordering, the comparison is done with case sensitivity.');
   LABELS_SPACE = 8;
   LABELS_HEIGHT = 16;
 var

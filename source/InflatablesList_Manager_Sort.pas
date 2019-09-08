@@ -224,7 +224,6 @@ end;
 
 procedure TILManager_Sort.ItemSort(SortingProfile: Integer);
 var
-  i:      Integer;
   Sorter: TListSorter;
 begin
 If Length(fList) > 1 then
@@ -239,13 +238,11 @@ If Length(fList) > 1 then
       else
         raise Exception.CreateFmt('TILManager_Sort.ItemSort: Invalid sorting profile index (%d).',[SortingProfile]);
     end;
-    If fReversedSort then
-      For i := Low(fUsedSortSett.Items) to Pred(fUsedSortSett.Count) do
-        fUsedSortSett.Items[i].Reversed := not fUsedSortSett.Items[i].Reversed;
     Sorter := TListQuickSorter.Create(ItemCompare,ItemExchange);
     try
       fSorting := True;
       try
+        Sorter.Reversed := fReversedSort;
         Sorter.Sort(ItemLowIndex,ItemHighIndex);
       finally
         fSorting := False;

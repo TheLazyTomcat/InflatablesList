@@ -69,10 +69,10 @@ object fMainForm: TfMainForm
       item
         Alignment = taCenter
         Style = psOwnerDraw
-        Width = 50
+        Width = 100
       end
       item
-        Width = 500
+        Width = 450
       end
       item
         Alignment = taRightJustify
@@ -155,6 +155,7 @@ object fMainForm: TfMainForm
     OnClick = btnFindNextClick
   end
   object pmnListMenu: TPopupMenu
+    MenuAnimation = [maLeftToRight]
     OnPopup = pmnListMenuPopup
     Left = 32
     object mniLM_Add: TMenuItem
@@ -358,6 +359,21 @@ object fMainForm: TfMainForm
     object N9: TMenuItem
       Caption = '-'
     end
+    object mniLM_ListCompress: TMenuItem
+      Caption = 'Compress list file'
+      OnClick = mniLM_ListCompressClick
+    end
+    object mniLM_ListEncrypt: TMenuItem
+      Caption = 'Encrypt list file'
+      OnClick = mniLM_ListEncryptClick
+    end
+    object mniLM_ListPassword: TMenuItem
+      Caption = 'Change list password...'
+      OnClick = mniLM_ListPasswordClick
+    end
+    object N10: TMenuItem
+      Caption = '-'
+    end
     object mniLM_ResMarkLegend: TMenuItem
       Caption = 'Worst update result mark colors...'
       OnClick = mniLM_ResMarkLegendClick
@@ -370,7 +386,7 @@ object fMainForm: TfMainForm
       Caption = 'About the program...'
       OnClick = mniLM_AboutClick
     end
-    object N10: TMenuItem
+    object N11: TMenuItem
       Caption = '-'
     end
     object mniLM_Exit: TMenuItem

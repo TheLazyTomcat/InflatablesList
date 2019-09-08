@@ -25,14 +25,19 @@ const
   IL_LISTFILE_STREAMSTRUCTURE_00000009 = UInt32($00000009);
   IL_LISTFILE_STREAMSTRUCTURE_0000000A = UInt32($0000000A);
 
-  IL_LISTFILE_STREAMSTRUCTURE_SAVE       = IL_LISTFILE_STREAMSTRUCTURE_00000009;
-  IL_LISTFILE_STREAMSTRUCTURE_SAVE_CRYPT = IL_LISTFILE_STREAMSTRUCTURE_0000000A;
-
-  IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
+  IL_LISTFILE_STREAMSTRUCTURE_SAVE = IL_LISTFILE_STREAMSTRUCTURE_0000000A;
 
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
-  IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024; // 90KiB per item
+  IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024;  // 90KiB per item
+
+  IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
+
+type
+  TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfEncrypted,
+                          ilprfCompressed,ilprfSlowLoad{$message 'implement'});
+  
+  TILPreloadResultFlags = set of TILPreloadResultFlag;
 
 type
   TILManager_IO = class(TILManager_Templates)
@@ -47,10 +52,13 @@ type
     fFNLoadFilterSettings:  procedure(Stream: TStream) of object;
     fFNSaveItems:           procedure(Stream: TStream) of object;
     fFNLoadItems:           procedure(Stream: TStream) of object;
+    fFNPreloadStream:       procedure(Stream: TStream; var PreloadResult: TILPreloadResultFlags) of object;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
+    procedure InitPreloadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
+    procedure Preload(Stream: TStream; Struct: UInt32; var PreloadResult: TILPreloadResultFlags); virtual;
   public
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
@@ -60,8 +68,8 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile; virtual;
     procedure LoadFromFile; virtual;
-    procedure PreloadStream(Stream: TStream); virtual;
-    procedure PreloadFile; virtual;
+    Function PreloadStream(Stream: TStream): TILPreloadResultFlags; virtual;
+    Function PreloadFile: TILPreloadResultFlags; virtual;
   end;
 
 implementation
@@ -84,6 +92,15 @@ procedure TILManager_IO.Load(Stream: TStream; Struct: UInt32);
 begin
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO.Preload(Stream: TStream; Struct: UInt32; var PreloadResult: TILPreloadResultFlags);
+begin
+InitPreloadFunctions(Struct);
+If Assigned(fFNPreloadStream) then
+  fFNPreloadStream(Stream,PreloadResult);
 end;
 
 //==============================================================================
@@ -187,16 +204,10 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_IO.SaveToStream(Stream: TStream);
-var
-  UsedStructure:  UInt32;
 begin
 Stream_WriteUInt32(Stream,IL_LISTFILE_SIGNATURE);
-If fEncrypted then
-  UsedStructure := IL_LISTFILE_STREAMSTRUCTURE_SAVE_CRYPT
-else
-  UsedStructure := IL_LISTFILE_STREAMSTRUCTURE_SAVE;
-Stream_WriteUInt32(Stream,UsedStructure);
-Save(Stream,UsedStructure);
+Stream_WriteUInt32(Stream,IL_LISTFILE_STREAMSTRUCTURE_SAVE);
+Save(Stream,IL_LISTFILE_STREAMSTRUCTURE_SAVE);
 end;
 
 //------------------------------------------------------------------------------
@@ -250,19 +261,22 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.PreloadStream(Stream: TStream);
+Function TILManager_IO.PreloadStream(Stream: TStream): TILPreloadResultFlags;
 begin
-If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
-  case Stream_ReadUInt32(Stream) of
-    IL_LISTFILE_STREAMSTRUCTURE_0000000A: fEncrypted := True;
+Result := [];
+try
+  If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
+    Preload(Stream,Stream_ReadUInt32(Stream),Result)
   else
-    // do nothing
-  end;
+    Include(Result,ilprfInvalidFile);
+except
+  Include(Result,ilprfError);
+end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.PreloadFile;
+Function TILManager_IO.PreloadFile: TILPreloadResultFlags;
 var
   FileStream: TFileStream;
 begin
@@ -271,7 +285,7 @@ If IL_FileExists(fStaticSettings.ListFile) then
     FileStream := TFileStream.Create(StrToRTL(fStaticSettings.ListFile),fmOpenRead or fmShareDenyWrite);
     try
       FileStream.Seek(0,soBeginning);
-      PreloadStream(FileStream);
+      Result := PreloadStream(FileStream);
     finally
       FileStream.Free;
     end;

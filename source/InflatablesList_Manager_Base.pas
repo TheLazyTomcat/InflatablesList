@@ -26,6 +26,8 @@ type
     // encryption
     fEncrypted:                   Boolean;
     fListPassword:                String;
+    // other list properties
+    fCompressed:                  Boolean;
     // internal events forwarded from item shops
     fOnShopListItemUpdate:        TILIndexedObjectL2Event;
     fOnShopValuesUpdate:          TILObjectL2Event;
@@ -51,6 +53,8 @@ type
     // getters and setters
     procedure SetEncrypted(Value: Boolean); virtual;
     procedure SetListPassword(const Value: String); virtual;
+    procedure SetCompressed(Value: Boolean); virtual;
+    // data getters and setters
     procedure SetNotes(const Value: String); virtual;
     // list methods
     Function GetCapacity: Integer; override;
@@ -115,6 +119,8 @@ type
     // encryption
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
     property ListPassword: String read fListPassword write SetListPassword;
+    // other list properties
+    property Compressed: Boolean read fCompressed write SetCompressed;
     // list and data
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
@@ -166,6 +172,17 @@ If not IL_SameStr(fListPassword,Value) then
   begin
     fListPassword := Value;
     UniqueString(fListPassword);
+    UpdateSettings;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SetCompressed(Value: Boolean);
+begin
+If fCompressed <> Value then
+  begin
+    fCompressed := Value;
     UpdateSettings;
   end;
 end;

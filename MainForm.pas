@@ -59,11 +59,15 @@ type
     mniLM_Notes: TMenuItem;    
     mniLM_Save: TMenuItem;
     mniLM_Specials: TMenuItem;
-    N9: TMenuItem;
+    N9: TMenuItem;    
+    mniLM_ListCompress: TMenuItem;
+    mniLM_ListEncrypt: TMenuItem;
+    mniLM_ListPassword: TMenuItem;
+    N10: TMenuItem;
     mniLM_ResMarkLegend: TMenuItem;
     mniLM_SettingsLegend: TMenuItem;
     mniLM_About: TMenuItem;    
-    N10: TMenuItem;
+    N11: TMenuItem;
     mniLM_Exit: TMenuItem;
     mniLM_SB_Default: TMenuItem;
     mniLM_SB_Actual: TMenuItem;
@@ -158,7 +162,11 @@ type
     procedure mniLM_NotesClick(Sender: TObject);
     procedure mniLM_SpecialsClick(Sender: TObject);
     procedure mniLM_SaveClick(Sender: TObject);
-    // ---    
+    // ---
+    procedure mniLM_ListCompressClick(Sender: TObject);
+    procedure mniLM_ListEncryptClick(Sender: TObject);
+    procedure mniLM_ListPasswordClick(Sender: TObject);
+    // ---
     procedure mniLM_ResMarkLegendClick(Sender: TObject);
     procedure mniLM_SettingsLegendClick(Sender: TObject);
     procedure mniLM_AboutClick(Sender: TObject);    
@@ -223,12 +231,14 @@ type
     procedure FillListFileName;
     procedure UpdateIndexAndCount;
     Function SaveList: Boolean;
+    Function LoadList: Boolean;
     // event handlers
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
     procedure FocusList(Sender: TObject);
     procedure SettingsChange(Sender: TObject);
   public
+    ApplicationCanRun: Boolean;
     procedure InitializeOtherForms; // called before Application.Run from project file
     procedure FinalizeOtherForms;
   end;
@@ -246,7 +256,8 @@ uses
   WinFileInfo, BitOps, CountedDynArrayInteger,  
   InflatablesList_Types,
   InflatablesList_Utils,
-  InflatablesList_Backup;
+  InflatablesList_Backup,
+  InflatablesList_Manager_IO;
 
 {$R *.dfm}
 
@@ -387,6 +398,39 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TfMainForm.LoadList: Boolean;
+var
+  PreloadRes: TILPreloadResultFlags;
+  Password:   String;
+begin
+Result := False;
+PreloadRes := fILManager.PreloadFile;
+If not([ilprfInvalidFile,ilprfError] <= PreloadRes) then
+  begin
+    // when the file is encrypted, ask for password
+    If ilprfEncrypted in PreloadRes then
+      begin
+        If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
+          fILManager.ListPassword := Password
+        else
+          Exit; // exit with result set to false
+      end;
+    // load the file and catch wrong password exceptions
+    try
+      fILManager.LoadFromFile;
+      Result := True;
+    except
+      on E: EILWrongPassword do
+        MessageDlg('You have entered wrong password, program willl not terminate.',mtError,[mbOk],0);
+      else
+        raise;
+    end;
+  end
+else MessageDlg('Invalid list file, cannot continue.',mtError,[mbOk],0);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.InvalidateList(Sender: TObject);
 begin
 lbList.Invalidate;
@@ -505,7 +549,9 @@ frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
 // preload list and ask for password if necessary, catch EWrongPassword
 // load list
-fILManager.LoadFromFile;
+ApplicationCanRun := LoadList;
+If not ApplicationCanRun then
+  fSaveOnExit := False;
 FillListFileName;
 // fill list
 lbList.Items.Clear;
@@ -525,6 +571,8 @@ else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
 mniLM_SortRev.Checked := fILManager.ReversedSort;
+mniLM_ListCompress.Checked := fILManager.Compressed;
+mniLM_ListEncrypt.Checked := fILManager.Encrypted;
 sbStatusBar.Invalidate; // to show settings
 // build some things and final touches
 BuildSortBySubmenu;
@@ -578,6 +626,7 @@ mniLM_ItemExport.Enabled := lbList.ItemIndex >= 0;
 mniLM_ItemExportMulti.Enabled := lbList.Count > 0;
 mniLM_UpdateItem.Enabled := lbList.ItemIndex >= 0;
 mniLM_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
+mniLM_ListPassword.Enabled := fILManager.Encrypted;
 end;
 
 //------------------------------------------------------------------------------
@@ -1208,6 +1257,43 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniLM_ListCompressClick(Sender: TObject);
+begin
+mniLM_ListCompress.Checked := not mniLM_ListCompress.Checked;
+fIlManager.Compressed := mniLM_ListCompress.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ListEncryptClick(Sender: TObject);
+var
+  Password: String;
+begin
+If not fIlManager.Encrypted then
+  begin
+    If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
+      begin
+        fIlManager.ListPassword := Password;
+        fIlManager.Encrypted := True;
+      end;
+  end
+else fIlManager.Encrypted := False;
+mniLM_ListEncrypt.Checked := fIlManager.Encrypted;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniLM_ListPasswordClick(Sender: TObject);
+var
+  Password: String;
+begin
+If fIlManager.Encrypted then
+  If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
+    fIlManager.ListPassword := Password;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniLM_ResMarkLegendClick(Sender: TObject);
 begin
 fUpdResLegendForm.ShowLegend;
@@ -1365,7 +1451,7 @@ end;
 procedure TfMainForm.sbStatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 const
-  STAT_OPTS_SPC = 5;
+  OPTS_SPC = 5;
 var
   BoundsRect: TRect;
   i:          Integer;
@@ -1402,28 +1488,36 @@ If Assigned(fDrawBuffer) then
             TempInt := 0;
             For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
               If i < High(IL_STATIC_SETTINGS_TAGS) then
-                Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]) + STAT_OPTS_SPC)
+                Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]) + OPTS_SPC)
               else
                 Inc(TempInt,TextWidth(IL_STATIC_SETTINGS_TAGS[i]));
             TempInt := BoundsRect.Left + (BoundsRect.Right - BoundsRect.Left - TempInt) div 2;
             Brush.Style := bsClear;
             Pen.Style := psClear;
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[0],TempInt,fILManager.StaticSettings.NoPictures,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[1],TempInt,fILManager.StaticSettings.TestCode,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[2],TempInt,fILManager.StaticSettings.SavePages,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[3],TempInt,fILManager.StaticSettings.LoadPages,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[4],TempInt,fILManager.StaticSettings.NoSave,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,STAT_OPTS_SPC);
-            DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,STAT_OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[0],TempInt,fILManager.StaticSettings.NoPictures,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[1],TempInt,fILManager.StaticSettings.TestCode,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[2],TempInt,fILManager.StaticSettings.SavePages,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[3],TempInt,fILManager.StaticSettings.LoadPages,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[4],TempInt,fILManager.StaticSettings.NoSave,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,OPTS_SPC);
           end;
       IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT:
         with fDrawBuffer.Canvas do
           begin
-            TempInt := BoundsRect.Left + (BoundsRect.Right - BoundsRect.Left - TextWidth('s.rev')) div 2;
+            TempInt := 0;
+            For i := Low(IL_DYNAMIC_SETTINGS_TAGS) to High(IL_DYNAMIC_SETTINGS_TAGS) do
+              If i < High(IL_DYNAMIC_SETTINGS_TAGS) then
+                Inc(TempInt,TextWidth(IL_DYNAMIC_SETTINGS_TAGS[i]) + OPTS_SPC)
+              else
+                Inc(TempInt,TextWidth(IL_DYNAMIC_SETTINGS_TAGS[i]));
+            TempInt := BoundsRect.Left + (BoundsRect.Right - BoundsRect.Left - TempInt) div 2;
             Brush.Style := bsClear;
             Pen.Style := psClear;
-            DrawOptText('s.rev',TempInt,fILManager.ReversedSort);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[0],TempInt,fILManager.Compressed,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[1],TempInt,fILManager.Encrypted,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[2],TempInt,fILManager.ReversedSort,OPTS_SPC);
           end;
     end;
     // move drawbuffer to the canvas

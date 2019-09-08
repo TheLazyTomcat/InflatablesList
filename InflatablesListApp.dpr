@@ -95,6 +95,12 @@ begin
   Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
   Application.CreateForm(TfAboutForm, fAboutForm);
   // do not automatically create prompt form
-  fMainForm.InitializeOtherForms; // must be run after create but before show
+  If not fMainForm.ApplicationCanRun then
+    begin
+      Application.ShowMainForm := False;
+      Application.Terminate;
+      // fMainForm.OnClose event is not called, so do not init other forms
+    end
+  else fMainForm.InitializeOtherForms;  // must be run after create but before show
   Application.Run;
 end.

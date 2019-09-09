@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  SysUtils, DateUtils,
   BinaryStreaming, StrRect, WinFileInfo, BitOps, MD5, SHA2, AES, SimpleCompress,
   InflatablesList_Types,
   InflatablesList_Utils;
@@ -314,7 +314,7 @@ finally
 end;
 // save time
 Time := Now;
-Stream_WriteFloat64(Stream,Time);
+Stream_WriteInt64(Stream,DateTimeToUnix(Time));
 Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time));
 fFNSaveSortingSettings(Stream);
 fFNSaveShopTemplates(Stream);
@@ -328,7 +328,7 @@ end;
 procedure TILManager_IO_0000000A.LoadList_Plain_0000000A(Stream: TStream);
 begin
 Stream_ReadInt64(Stream);   // discard version of the program in which the file was saved
-Stream_ReadFloat64(Stream); // discard time
+Stream_ReadInt64(Stream);   // discard time
 Stream_ReadString(Stream);  // discard time string
 fFNLoadSortingSettings(Stream);
 fFNLoadShopTemplates(Stream);

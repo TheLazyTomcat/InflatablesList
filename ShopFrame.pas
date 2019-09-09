@@ -32,7 +32,6 @@ type
     pmnHistory: TPopupMenu;
     mniHI_Remove: TMenuItem;
     mniHI_Clear: TMenuItem;    
-    leLastUpdateMsg: TLabeledEdit;
     bvlSplit: TBevel;
     btnUpdate: TButton;
     btnTemplates: TButton;
@@ -58,6 +57,8 @@ type
     btnParsPrice: TButton;
     bvlParsSep: TBevel;
     cbParsDisableErrs: TCheckBox;
+    leLastUpdateMsg: TLabeledEdit;    
+    lblLastUpdateTime: TLabel;
     procedure leShopNameChange(Sender: TObject);
     procedure cbShopSelectedClick(Sender: TObject);
     procedure cbShopUntrackedClick(Sender: TObject);
@@ -95,6 +96,7 @@ type
     procedure BuildPredefNotesMenu;
     // filling methods
     procedure FillTemplatesList;
+    procedure FillLastUpdateTime;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -134,6 +136,7 @@ If Assigned(fCurrentItemShop) and (Shop = fCurrentItemShop) then
       seAvailable.Value := fCurrentItemShop.Available;
       sePrice.Value := fCurrentItemShop.Price;
       leLastUpdateMsg.Text := fCurrentItemShop.LastUpdateMsg;
+      FillLastUpdateTime;
     finally
       fInitializing := False;
     end;
@@ -264,6 +267,26 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmShopFrame.FillLastUpdateTime;
+begin
+If Assigned(fCurrentItemShop) then
+  begin
+    If fCurrentItemShop.LastUpdateTime <> 0.0 then
+      begin
+        lblLastUpdateTime.Font.Color := clWindowText;
+        lblLastUpdateTime.Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItemShop.LastUpdateTime)
+      end
+    else
+      begin
+        lblLastUpdateTime.Font.Color := clGrayText;
+        lblLastUpdateTime.Caption := 'unknown time';
+      end;
+  end
+else lblLastUpdateTime.Caption := '';
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmShopFrame.FrameClear;
 begin
 leShopName.Text := '';
@@ -293,6 +316,7 @@ else
 cbParsDisableErrs.Checked := False;
 // update result
 leLastUpdateMsg.Text := '';
+lblLastUpdateTime.Caption := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -370,6 +394,7 @@ If Assigned(fCurrentItemShop) then
         cmbParsTemplRef.ItemIndex := 0;
       cbParsDisableErrs.Checked := fCurrentItemShop.ParsingSettings.DisableParsingErrors;
       leLastUpdateMsg.Text := fCurrentItemShop.LastUpdateMsg;
+      FillLastUpdateTime;
     finally
       fInitializing := False;
     end;

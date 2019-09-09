@@ -5,7 +5,7 @@ unit InflatablesList_ItemShopParsingSettings;
 interface
 
 uses
-  InflatablesList_ItemShopParsingSettings_IO_00000000;
+  InflatablesList_ItemShopParsingSettings_IO_00000001;
 
 {
   Inheritance chain:
@@ -13,10 +13,11 @@ uses
     TILItemShopParsingSettings_Base
     TILItemShopParsingSettings_IO
     TILItemShopParsingSettings_IO_00000000
+    TILItemShopParsingSettings_IO_00000001
     TILItemShopParsingSettings
 }
 type
-  TILItemShopParsingSettings = TILItemShopParsingSettings_IO_00000000;
+  TILItemShopParsingSettings = TILItemShopParsingSettings_IO_00000001;
 
 implementation
 

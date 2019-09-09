@@ -45,6 +45,7 @@ type
     fParsingSettings:       TILItemShopParsingSettings;
     fLastUpdateRes:         TILItemShopUpdateResult;
     fLastUpdateMsg:         String;
+    fLastUpdateTime:        TDateTime;
     procedure SetRequiredCount(Value: UInt32); virtual;
     procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     // data getters and setters
@@ -63,6 +64,7 @@ type
     procedure SetNotes(const Value: String); virtual;
     procedure SetLastUpdateRes(Value: TILItemShopUpdateResult); virtual;
     procedure SetLastUpdateMsg(const Value: String); virtual;
+    procedure SetLastUpdateTime(Value: TDateTime); virtual;
     // event callers
     procedure ClearSelected; virtual;
     procedure UpdateOverview; virtual;
@@ -121,6 +123,7 @@ type
     property ParsingSettings: TILItemShopParsingSettings read fParsingSettings;
     property LastUpdateRes: TILItemShopUpdateResult read fLastUpdateRes write SetLastUpdateRes;
     property LastUpdateMsg: String read fLastUpdateMsg write SetLastUpdateMsg;
+    property LastUpdateTime: TDateTime read fLastUpdateTime write SetLastUpdateTime;
   end;
 
 implementation
@@ -303,7 +306,18 @@ If not IL_SameStr(fLastUpdateMsg,Value) then
   begin
     fLastUpdateMsg := Value;
     UniqueString(fLastUpdateMsg);
-    UpdateValues;     
+    UpdateValues;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemShop_Base.SetLastUpdateTime(Value: TDateTime);
+begin
+If fLastUpdateTime <> Value then
+  begin
+    fLastUpdateTime := Value;
+    UpdateValues;
   end;
 end;
 
@@ -381,6 +395,7 @@ fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := ilisurSuccess;
 fLastUpdateMsg := '';
+fLastUpdateTime := 0.0;
 end;
 
 //------------------------------------------------------------------------------
@@ -456,6 +471,7 @@ fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := Source.LastUpdateRes;
 fLastUpdateMsg := Source.LastUpdateMsg;
+fLastUpdateTime := Source.LastUpdateTime;
 UniqueString(fLastUpdateMsg);
 end;
 
@@ -620,6 +636,7 @@ fAvailable := Avail;
 fPrice := Price;
 fLastUpdateRes := Res;
 fLastUpdateMsg := Msg;
+fLastUpdateTime := Now;
 UniqueString(fLastUpdateMsg);
 UpdateOverview;
 UpdateShopListItem;

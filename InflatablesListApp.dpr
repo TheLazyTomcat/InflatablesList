@@ -72,7 +72,11 @@ uses
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
-  PromptForm in 'PromptForm.pas' {fPromptForm};
+  PromptForm in 'PromptForm.pas' {fPromptForm},
+  InflatablesList_ItemShopTemplate_IO_00000001 in 'source\InflatablesList_ItemShopTemplate_IO_00000001.pas',
+  InflatablesList_ItemShopParsingSettings_IO_00000001 in 'source\InflatablesList_ItemShopParsingSettings_IO_00000001.pas',
+  InflatablesList_ItemShop_IO_00000001 in 'source\InflatablesList_ItemShop_IO_00000001.pas',
+  InflatablesList_Item_IO_00000006 in 'source\InflatablesList_Item_IO_00000006.pas';
 
 {$R *.res}
 

@@ -5,7 +5,7 @@ unit InflatablesList_ItemShopTemplate;
 interface
 
 uses
-  InflatablesList_ItemShopTemplate_IO_00000000;
+  InflatablesList_ItemShopTemplate_IO_00000001;
 
 {
   Inheritance chain:
@@ -13,10 +13,11 @@ uses
     TILItemShopTemplate_Base
     TILItemShopTemplate_IO
     TILItemShopTemplate_IO_00000000
+    TILItemShopTemplate_IO_00000001
     TILItemShopTemplate
 }
 type
-  TILItemShopTemplate = TILItemShopTemplate_IO_00000000;
+  TILItemShopTemplate = TILItemShopTemplate_IO_00000001;
 
 implementation
 

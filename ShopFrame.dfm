@@ -81,6 +81,14 @@ object frmShopFrame: TfrmShopFrame
       OnMouseEnter = lblNotesEditMouseEnter
       OnMouseLeave = lblNotesEditMouseLeave
     end
+    object lblLastUpdateTime: TLabel
+      Left = 802
+      Top = 299
+      Width = 87
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'lblLastUpdateTime'
+    end
     object leShopName: TLabeledEdit
       Left = 0
       Top = 16

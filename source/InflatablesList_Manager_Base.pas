@@ -110,7 +110,8 @@ type
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     // macro methods (broadcast to item objects)
-    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
+    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
+    procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
@@ -748,6 +749,35 @@ try
 finally
   EndUpdate;
 end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILManager_Base.ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean);
+var
+  i:  Integer;
+begin
+If OnlyVisible and CheckIndex(MainList.TopIndex) and
+  CheckIndex(Pred(MainList.TopIndex + MainList.ClientHeight div MainList.ItemHeight)) then
+  begin
+    BeginUpdate;
+    try
+      For i := MainList.TopIndex to Pred(MainList.TopIndex + MainList.ClientHeight div MainList.ItemHeight) do
+        fList[i].ReinitDrawSize(MainList);
+    finally
+      EndUpdate;
+    end;
+  end
+else
+  begin
+    BeginUpdate;
+    try
+      For i := ItemLowIndex to ItemHighIndex do
+        fList[i].ReinitDrawSize(MainList);
+    finally
+      EndUpdate;
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

@@ -256,7 +256,7 @@ try
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
       CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.
-        ReinitSmallDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
+        ReinitDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
 finally
   lbItems.Items.EndUpdate;
 end;

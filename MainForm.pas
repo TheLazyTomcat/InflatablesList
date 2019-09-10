@@ -119,10 +119,12 @@ type
     gbDetails: TGroupBox;
     frmItemFrame: TfrmItemFrame;
     sbStatusBar: TStatusBar;
+    shpListFiller: TShape;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormResize(Sender: TObject);
     // ---
     procedure mniMM_FileClick(Sender: TObject);
     procedure mniMMF_ListCompressClick(Sender: TObject);
@@ -232,11 +234,17 @@ type
     procedure sbStatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);    
+      Shift: TShiftState; X, Y: Integer);
   private
-    fDrawBuffer:  TBitmap;
-    fSaveOnExit:  Boolean;
-    fILManager:   TILManager;
+    // resizing
+    fInitialFormWidth:    Integer;
+    fInitialFrameHeight:  Integer;
+    fInitialPanelWidth:   Integer;
+    fFirstResize:         Boolean;
+    // others
+    fDrawBuffer:          TBitmap;
+    fSaveOnExit:          Boolean;
+    fILManager:           TILManager;
   {
     individual bits correspond to present sorting profiles
     when the bit is set, a profile exists at an index matching the bit index
@@ -245,6 +253,7 @@ type
     fActionMask:  UInt32;
   protected
     procedure RePositionMainForm;
+    procedure ReSizeMainForm;
     procedure BuildSortBySubmenu;    
     procedure FillCopyright;
     procedure FillListFileName;
@@ -252,6 +261,7 @@ type
     Function SaveList: Boolean;
     Function LoadList: Boolean;
     // event handlers
+    procedure DeferredRedraw(Sender: TObject; var Done: Boolean);
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
     procedure FocusList(Sender: TObject);
@@ -317,6 +327,44 @@ else If BoundsRect.Bottom > WorkRect.Bottom then
     PositionOnX;    
     Top := WorkRect.Top + (WorkRectSize.Y - Height) div 2;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.ReSizeMainForm;
+begin
+If fFirstResize then
+  begin
+    RePositionMainForm;
+    fFirstResize := False;
+  end;
+{
+  do NOT call anything Client* on gbDetails - it causes problems
+}
+// redraw items for new listbox size
+If Assigned(fILManager) then
+  begin
+    // redraw only visible
+    fILManager.ReinitDrawSize(lbList,True);
+    lbList.Invalidate;
+    // deffer redraw of ivisible item
+    Application.OnIdle := DeferredRedraw;
+  end;
+// rearrange search editbox
+eSearchFor.Top := lbList.BoundsRect.Bottom + 5;
+btnFindPrev.Top := eSearchFor.Top;
+btnFindNext.Top := eSearchFor.Top;
+// listbox filler
+shpListFiller.Top := eSearchFor.BoundsRect.Bottom + 8;
+shpListFiller.Width := lbList.Width;
+shpListFiller.Height := gbDetails.BoundsRect.Bottom - shpListFiller.Top;
+shpListFiller.Visible := shpListFiller.Height >= 4;
+// item frame is resized automatically
+// resize status bar panels
+sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width :=
+  fInitialPanelWidth + (Width - fInitialFormWidth);
+FillListFileName;
+sbStatusBar.Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -450,6 +498,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.DeferredRedraw(Sender: TObject; var Done: Boolean);
+begin
+Done := True;
+Application.OnIdle := nil;  // de-assign this routine 
+fILManager.ReinitDrawSize(lbList,False);
+lbList.Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.InvalidateList(Sender: TObject);
 begin
 lbList.Invalidate;
@@ -530,8 +588,8 @@ var
   i:  Integer;
 begin
 // prepare form
-sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
+sbStatusBar.DoubleBuffered := True;
 // build shortcuts
 mniMMI_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssShift,ssAlt]);
 mniMMI_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
@@ -557,6 +615,10 @@ For i := 0 to Pred(ComponentCount) do
 FillCopyright;
 eSearchFor.OnExit(nil);
 // prepare variables/fields
+fInitialFormWidth := Width;
+fInitialFrameHeight := frmItemFrame.Height;
+fInitialPanelWidth := sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width;
+fFirstResize := True;
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
 fSaveOnExit := True;
@@ -598,7 +660,6 @@ mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
 sbStatusBar.Invalidate; // to show settings
 // build some things and final touches
 BuildSortBySubmenu;
-RePositionMainForm;
 end;
 
 //------------------------------------------------------------------------------
@@ -628,6 +689,14 @@ end;
 procedure TfMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 FinalizeOtherForms;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FormResize(Sender: TObject);
+begin
+If Visible then
+  ReSizeMainForm;
 end;
 
 //------------------------------------------------------------------------------

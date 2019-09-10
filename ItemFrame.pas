@@ -39,6 +39,16 @@ type
 //******************************************************************************
 
 type
+  TILResizingEntry = record
+    Control:  TControl;
+    InitRect: TRect;  // initial bounding box of the control
+    //AltPos:   TPoint; // alternative position relative to selected reference point
+    //AltSize:  TPoint; // alternative size of the control (valid only for group B)
+  end;
+
+  TILResizingGroup = array of TILResizingEntry;
+
+type
   TfrmItemFrame = class(TFrame)
     pnlMain: TPanel;
     shpItemTitleBcgr: TShape;
@@ -152,6 +162,9 @@ type
     lblTotalPriceSelectedTitle: TLabel;
     lblTotalPriceSelected: TLabel;
     shpTotalPriceSelectedBcgr: TShape;
+    shpFiller: TShape;
+    lblItemTitleShadow: TLabel;
+    procedure FrameResize(Sender: TObject);    
     procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
     procedure pmnPicturesMenuPopup(Sender: TObject);
@@ -200,6 +213,13 @@ type
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
   private
+    // resizing
+    fInitialHeight:   Integer;
+    fResizeGroupA:    TILResizingGroup;
+    fResizeGroupB:    TILResizingGroup;
+    fChangeThreshold: Integer;
+    fFirstResize:     Boolean;
+    // other fields
     fPicturesManager: TILItemFramePicturesManager;    
     fLastSmallPicDir: String;
     fLastPicDir:      String;
@@ -219,6 +239,9 @@ type
     procedure FillValues;
     procedure FillSelectedShop(const SelectedShop: String);
     Function BrowsePicture(const FileStr: String; var FileName: String): Boolean;
+    // resizing
+    procedure ResizingInitialize;
+    procedure ResizingProcess;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -395,8 +418,13 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) then
     If fCurrentItem.Pieces > 1 then
       ManufStr := IL_Format('%s (%dx)',[ManufStr,fCurrentItem.Pieces]);
     lblItemTitle.Caption := ManufStr;
+    lblItemTitleShadow.Caption := lblItemTitle.Caption;
   end
-else lblItemTitle.Caption := '';
+else
+  begin
+    lblItemTitle.Caption := '';
+    lblItemTitleShadow.Caption := '';
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -577,7 +605,7 @@ If Assigned(fCurrentItem) then
   end
 else
   begin
-    FillSelectedShop('');
+    FillSelectedShop('-');
     lblShopCount.Caption := '-';
     lblAvailPieces.Caption := '-';
     lblTotalWeight.Caption := '-';
@@ -624,6 +652,135 @@ If diaPicOpenDialog.Execute then
       end
     else FileName := IL_PathRelative(fILManager.StaticSettings.ListPath,diaPicOpenDialog.FileName);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.ResizingInitialize;
+
+  procedure ResizeGroupA_Fill(Controls: array of TControl);
+  var
+    ii: Integer;
+  begin
+    SetLength(fResizeGroupA,Length(Controls));
+    For ii := Low(Controls) to High(Controls) do
+      begin
+        fResizeGroupA[ii].Control := Controls[ii];
+        fResizeGroupA[ii].InitRect := Controls[ii].BoundsRect;
+      end;
+  end;
+
+  procedure ResizeGroupB_Fill(Reference: TControl; Controls: array of TControl);
+  var
+    ii: Integer;
+  begin
+    SetLength(fResizeGroupB,Length(Controls));
+    For ii := Low(Controls) to High(Controls) do
+      begin
+        fResizeGroupB[ii].Control := Controls[ii];
+        fResizeGroupB[ii].InitRect := Rect(
+          Controls[ii].BoundsRect.Left - Reference.BoundsRect.Left,
+          Controls[ii].BoundsRect.Top - Reference.BoundsRect.Top,
+          Controls[ii].BoundsRect.Right - Reference.BoundsRect.Right,
+          Controls[ii].BoundsRect.Bottom - Reference.BoundsRect.Bottom);
+      end;
+  end;
+
+begin
+fInitialHeight := Height;
+// fill group A - coordinates are absolute
+ResizeGroupA_Fill([meNotes,lblNotesEdit,leReviewURL,btnReviewOpen,leItemPictureFile,
+  btnBrowseItemPictureFile,leSecondaryPictureFile,btnBrowseSecondaryPictureFile,
+  lePackagePictureFile,btnBrowsePackagePictureFile,lblUnitDefaultPrice]);
+// fill group B - all coordinates are referenced from lblUnitDefaultPrice object
+ResizeGroupB_Fill(lblUnitDefaultPrice,[
+  seUnitPriceDefault,lblRating,seRating,btnUpdateShops,btnShops,bvlInfoSep,
+  lblSelectedShopTitle,lblSelectedShop,lblShopCountTitle,lblShopCount,
+  lblAvailPiecesTitle,lblAvailPieces,lblUnitPriceLowestTitle,lblUnitPriceLowest,
+  lblUnitPriceSelectedTitle,lblUnitPriceSelected,shpUnitPriceSelectedBcgr,
+  lblTotalWeightTitle,lblTotalWeight,lblTotalPriceLowestTitle,lblTotalPriceLowest,
+  lblTotalPriceSelectedTitle,lblTotalPriceSelected,shpTotalPriceSelectedBcgr]);
+fChangeThreshold := fInitialHeight + 40;
+shpFiller.Width := CLientWidth;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.ResizingProcess;
+var
+  i:  Integer;
+
+  Function GetAbsoluteRect(Reference: TControl; Rect: TRect): TRect;
+  begin
+    Result.Left := Rect.Left + Reference.BoundsRect.Left;
+    Result.Top := Rect.Top + Reference.BoundsRect.Top;
+    Result.Right := Rect.Right + Reference.BoundsRect.Right;
+    Result.Bottom := Rect.Bottom + Reference.BoundsRect.Bottom;
+  end;
+
+  procedure SetControlBoundsRect(Control: TControl; BndRect: TRect);
+  begin
+    If (Control.BoundsRect.Left <> BndRect.Left) or
+      (Control.BoundsRect.Top <> BndRect.Top) or
+      (Control.BoundsRect.Right <> BndRect.Right) or
+      (Control.BoundsRect.Bottom <> BndRect.Bottom) then
+      Control.BoundsRect := BndRect;
+  end;
+
+begin
+If fFirstResize then
+  begin
+    ResizingInitialize;
+    fFirstResize := False;
+  end;
+If Height >= fChangeThreshold then
+  begin
+    // manually reposition group A...
+    // widen the notes memo to full width and calculate it heigth
+    meNotes.Width := ClientWidth;
+    meNotes.Height := 101 + (Height - fChangeThreshold);
+    lblNotesEdit.Left := ClientWidth - lblNotesEdit.Width;
+    // position and adjust size of...
+    // ...review
+    leReviewURL.Left := 0;
+    leReviewURL.Top := meNotes.BoundsRect.Bottom + 20;
+    leReviewURL.Width := ((ClientWidth - 8) div 2) - btnReviewOpen.Width;
+    btnReviewOpen.Left := leReviewURL.BoundsRect.Right;
+    btnReviewOpen.Top := leReviewURL.Top;
+    // ...item picture
+    leItemPictureFile.Left := ClientWidth - ((ClientWidth - 8) div 2);
+    leItemPictureFile.Top := meNotes.BoundsRect.Bottom + 20;
+    leItemPictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowseItemPictureFile.Width;
+    btnBrowseItemPictureFile.Left := leItemPictureFile.BoundsRect.Right;
+    btnBrowseItemPictureFile.Top := leItemPictureFile.Top;
+    // ...secondary picture
+    leSecondaryPictureFile.Left := 0;
+    leSecondaryPictureFile.Top := leReviewURL.Top + 40;
+    leSecondaryPictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowseSecondaryPictureFile.Width;
+    btnBrowseSecondaryPictureFile.Left := leSecondaryPictureFile.BoundsRect.Right;
+    btnBrowseSecondaryPictureFile.Top := leSecondaryPictureFile.Top;
+    // ...package picture
+    lePackagePictureFile.Left := ClientWidth - ((ClientWidth - 8) div 2);
+    lePackagePictureFile.Top := leItemPictureFile.Top + 40;
+    lePackagePictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowsePackagePictureFile.Width;
+    btnBrowsePackagePictureFile.Left := lePackagePictureFile.BoundsRect.Right;
+    btnBrowsePackagePictureFile.Top := lePackagePictureFile.Top;
+    // reposition reference object
+    lblUnitDefaultPrice.Top := leSecondaryPictureFile.Top + 24;
+  end
+else
+  begin
+    // set group A to initial positions
+    For i := Low(fResizeGroupA) to High(fResizeGroupA) do
+      SetControlBoundsRect(fResizeGroupA[i].Control,fResizeGroupA[i].InitRect);
+  end;
+For i := Low(fResizeGroupB) to High(fResizeGroupB) do
+  SetControlBoundsRect(fResizeGroupB[i].Control,GetAbsoluteRect(lblUnitDefaultPrice,fResizeGroupB[i].InitRect));
+FillSelectedShop(lblSelectedShop.Caption);
+// show filler if necessary
+shpFiller.Top := lblUnitPriceSelectedTitle.BoundsRect.Bottom + 8;
+shpFiller.Height := ClientHeight - shpFiller.Top;
+shpFiller.Visible := shpFiller.Height >= 4;
 end;
 
 //------------------------------------------------------------------------------
@@ -682,7 +839,7 @@ try
   seRating.Value := 0;
   // read-only things
   lblTotalWeight.Caption := '-';
-  FillSelectedShop('');
+  FillSelectedShop('-');
   lblShopCount.Caption := '0';
   lblUnitPriceLowest.Caption := '-';
   lblUnitPriceSelected.Caption := '-';
@@ -817,6 +974,7 @@ procedure TfrmItemFrame.Initialize(ILManager: TILManager);
 var
   i:  Integer;
 begin
+fFirstResize := True;
 fPicturesManager := TILItemFramePicturesManager.Create;
 fPicturesManager.Add(imgPictureA);
 fPicturesManager.Add(imgPictureB);
@@ -913,6 +1071,13 @@ else fCurrentItem := Item;
 end;
 
 //==============================================================================
+
+procedure TfrmItemFrame.FrameResize(Sender: TObject);
+begin
+ResizingProcess;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfrmItemFrame.lblItemTitleClick(Sender: TObject);
 begin

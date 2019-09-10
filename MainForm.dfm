@@ -1,12 +1,13 @@
 object fMainForm: TfMainForm
-  Left = 18
-  Top = 88
-  BorderIcons = [biSystemMenu, biMinimize]
+  Left = 2
+  Top = 9
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 707
   ClientWidth = 1264
   Color = clBtnFace
+  Constraints.MinHeight = 761
+  Constraints.MinWidth = 1272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -19,21 +20,39 @@ object fMainForm: TfMainForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
   OnShow = FormShow
+  DesignSize = (
+    1264
+    707)
   PixelsPerInch = 96
   TextHeight = 13
+  object shpListFiller: TShape
+    Left = 8
+    Top = 616
+    Width = 65
+    Height = 65
+    Brush.Color = clGray
+    Brush.Style = bsFDiagonal
+    Pen.Style = psClear
+  end
   object gbDetails: TGroupBox
     Left = 640
     Top = 8
     Width = 617
     Height = 673
+    Anchors = [akTop, akRight, akBottom]
     Caption = 'Item details'
     TabOrder = 1
+    DesignSize = (
+      617
+      673)
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
       Width = 601
       Height = 652
+      Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -41,13 +60,6 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      inherited pnlMain: TPanel
-        inherited lblNotesEdit: TLabel
-          Hint = 'Open editor...'
-          ParentShowHint = False
-          ShowHint = True
-        end
-      end
     end
   end
   object sbStatusBar: TStatusBar
@@ -86,6 +98,7 @@ object fMainForm: TfMainForm
     Width = 625
     Height = 646
     Style = lbOwnerDrawFixed
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -105,6 +118,7 @@ object fMainForm: TfMainForm
     Top = 659
     Width = 593
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -122,6 +136,7 @@ object fMainForm: TfMainForm
     Width = 16
     Height = 21
     Hint = 'Find previous'
+    Anchors = [akTop, akRight]
     Caption = '3'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -140,6 +155,7 @@ object fMainForm: TfMainForm
     Width = 16
     Height = 21
     Hint = 'Find next'
+    Anchors = [akTop, akRight]
     Caption = '4'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

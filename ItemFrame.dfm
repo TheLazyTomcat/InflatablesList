@@ -10,6 +10,7 @@ object frmItemFrame: TfrmItemFrame
   Font.Style = []
   ParentFont = False
   TabOrder = 0
+  OnResize = FrameResize
   object pnlMain: TPanel
     Left = 0
     Top = 0
@@ -108,24 +109,6 @@ object frmItemFrame: TfrmItemFrame
       Width = 51
       Height = 13
       Caption = 'Item type:'
-    end
-    object lblItemTitle: TLabel
-      Left = 0
-      Top = 0
-      Width = 601
-      Height = 25
-      Alignment = taCenter
-      AutoSize = False
-      Caption = 'lblItemTitle'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Transparent = True
-      Layout = tlCenter
-      OnClick = lblItemTitleClick
     end
     object lblID: TLabel
       Left = 504
@@ -514,6 +497,51 @@ object frmItemFrame: TfrmItemFrame
       Width = 97
       Height = 13
       Caption = 'Rating (0..100)[%]:'
+    end
+    object shpFiller: TShape
+      Left = 0
+      Top = 634
+      Width = 193
+      Height = 17
+      Brush.Color = clGray
+      Brush.Style = bsFDiagonal
+      Pen.Style = psClear
+      Visible = False
+    end
+    object lblItemTitleShadow: TLabel
+      Left = 1
+      Top = 1
+      Width = 601
+      Height = 25
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'lblItemTitleShadow'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = 14211288
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Transparent = True
+      Layout = tlCenter
+    end
+    object lblItemTitle: TLabel
+      Left = 0
+      Top = 0
+      Width = 601
+      Height = 25
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'lblItemTitle'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Transparent = True
+      Layout = tlCenter
+      OnClick = lblItemTitleClick
     end
     object seWantedLevel: TSpinEdit
       Left = 0

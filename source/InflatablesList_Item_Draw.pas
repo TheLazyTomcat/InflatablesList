@@ -25,8 +25,9 @@ type
     procedure UpdateSmallList; override;
     procedure Initialize; override;
   public
-    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); virtual;
-    procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); virtual;
+    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
+    procedure ReinitDrawSize(MainList: TListBox); overload; virtual;
+    procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
     procedure ReDraw; virtual;
   end;
 
@@ -438,9 +439,25 @@ If (fSmallWidth <> SmallList.ClientWidth) or (fSmallHeight <> SmallList.ItemHeig
   end;
 end;
 
-//------------------------------------------------------------------------------
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TILItem_Draw.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
+procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox);
+begin
+If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) then
+  begin
+    fMainWidth := MainList.ClientWidth;
+    fMainHeight := MainList.ItemHeight;
+    fRender.Width := fMainWidth;
+    fRender.Height := fMainHeight;
+    fRender.Canvas.Font.Assign(MainList.Font);
+    ReDrawMain;
+    inherited UpdateMainList;
+  end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILItem_Draw.ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
 begin
 If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
   begin

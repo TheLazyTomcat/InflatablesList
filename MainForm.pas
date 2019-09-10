@@ -17,6 +17,7 @@ type
     mniMMF_ListEncrypt: TMenuItem;
     mniMMF_ListPassword: TMenuItem;
     N1: TMenuItem;
+    mniMMF_SaveOnClose: TMenuItem;
     mniMMF_Save: TMenuItem;
     N2: TMenuItem;
     mniMMF_Exit: TMenuItem;
@@ -130,6 +131,7 @@ type
     procedure mniMMF_ListCompressClick(Sender: TObject);
     procedure mniMMF_ListEncryptClick(Sender: TObject);
     procedure mniMMF_ListPasswordClick(Sender: TObject);
+    procedure mniMMF_SaveOnCloseClick(Sender: TObject);    
     procedure mniMMF_SaveClick(Sender: TObject);
     procedure mniMMF_ExitClick(Sender: TObject);
     // ---
@@ -451,7 +453,7 @@ end;
 Function TfMainForm.SaveList: Boolean;
 begin
 Result := False;
-If not fILManager.StaticSettings.NoSave then
+If not fILManager.StaticSettings.NoSave and mniMMF_SaveOnClose.Checked then
   begin
     If not fILManager.StaticSettings.NoBackup then
       If IL_FileExists(fILManager.StaticSettings.ListFile) then
@@ -653,6 +655,7 @@ If fILManager.ItemCount > 0 then
 else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
+mniMMF_SaveOnClose.Checked := True;
 mniMMO_SortRev.Checked := fILManager.ReversedSort;
 mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
 mniMMF_ListCompress.Checked := fILManager.Compressed;
@@ -741,6 +744,14 @@ begin
 If fIlManager.Encrypted then
   If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
     fIlManager.ListPassword := Password;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_SaveOnCloseClick(Sender: TObject);
+begin
+mniMMF_SaveOnClose.Checked := not mniMMF_SaveOnClose.Checked;
+sbStatusBar.Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1851,8 +1862,9 @@ If Assigned(fDrawBuffer) then
             Pen.Style := psClear;
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[0],TempInt,fILManager.Compressed,OPTS_SPC);
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[1],TempInt,fILManager.Encrypted,OPTS_SPC);
-            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[2],TempInt,fILManager.ReversedSort,OPTS_SPC);
-            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[3],TempInt,fILManager.CaseSensitiveSort,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[2],TempInt,mniMMF_SaveOnClose.Checked,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[3],TempInt,fILManager.ReversedSort,OPTS_SPC);
+             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[4],TempInt,fILManager.CaseSensitiveSort,OPTS_SPC);
           end;
     end;
     // move drawbuffer to the canvas

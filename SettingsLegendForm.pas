@@ -51,15 +51,18 @@ const
   DYN_SETTINGS_NAMES: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'list.compression',
     'list.encryption',
+    'list.save_on_close',
     'sort.reversal',
     'sort.case_sensitive');
   DYN_SETTINGS_DESCRS: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'List will be saved compressed (reduced size). Can significantly slow down saving and loading. Applied before encryption.',
     'List will be ecnrypted using provided list password. Can slow down saving and loading of the list.',
+    'List will be automatically saved when you close the program. Has no effect when you close the program using command "Close without saving" or you start it with command-line parameter no_save.',
     'List will be sorted in reversed order (Z..A, 9..0). Does not affect ordering by values, only final global order.',
     'When comparing two strings (textual values) for ordering, the comparison is done with case sensitivity.');
   LABELS_SPACE = 8;
   LABELS_HEIGHT = 16;
+  ENTRY_SPACE = 10;
 var
   TempInt:    Integer;
   i:          Integer;
@@ -73,6 +76,8 @@ var
     Result.Top := Top;
     Result.Font.Style := FontStyles;
     Result.Caption := Caption;
+    Result.Constraints.MaxWidth := 640;
+    Result.WordWrap := True;
   end;
 
 begin
@@ -91,7 +96,7 @@ For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
     TempLabel := AddLabel(grbStaticSettings,LABELS_SPACE,TempInt + LABELS_HEIGHT,[],STAT_SETT_DESCRS[i]);
     If (TempLabel.BoundsRect.Right + LABELS_SPACE) > grbStaticSettings.Tag then
       grbStaticSettings.Tag := TempLabel.BoundsRect.Right + LABELS_SPACE;
-    Inc(TempInt,(2 * LABELS_HEIGHT) + LABELS_SPACE);
+    TempInt := TempLabel.BoundsRect.Bottom + ENTRY_SPACE;
   end;
 // adjust box size
 If grbStaticSettings.Width < grbStaticSettings.Tag then
@@ -115,7 +120,7 @@ For i := Low(IL_DYNAMIC_SETTINGS_TAGS) to High(IL_DYNAMIC_SETTINGS_TAGS) do
     TempLabel := AddLabel(grbDynamicSettings,LABELS_SPACE,TempInt + LABELS_HEIGHT,[],DYN_SETTINGS_DESCRS[i]);
     If (TempLabel.BoundsRect.Right + LABELS_SPACE) > grbDynamicSettings.Tag then
       grbDynamicSettings.Tag := TempLabel.BoundsRect.Right + LABELS_SPACE;
-    Inc(TempInt,(2 * LABELS_HEIGHT) + LABELS_SPACE);
+    TempInt := TempLabel.BoundsRect.Bottom + ENTRY_SPACE;
   end;
 // adjust box size
 If grbDynamicSettings.Width < grbDynamicSettings.Tag then

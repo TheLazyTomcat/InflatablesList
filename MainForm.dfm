@@ -80,10 +80,10 @@ object fMainForm: TfMainForm
       item
         Alignment = taCenter
         Style = psOwnerDraw
-        Width = 130
+        Width = 160
       end
       item
-        Width = 420
+        Width = 390
       end
       item
         Alignment = taRightJustify
@@ -409,6 +409,10 @@ object fMainForm: TfMainForm
       end
       object N1: TMenuItem
         Caption = '-'
+      end
+      object mniMMF_SaveOnClose: TMenuItem
+        Caption = 'Save on close'
+        OnClick = mniMMF_SaveOnCloseClick
       end
       object mniMMF_Save: TMenuItem
         Caption = 'Save now'

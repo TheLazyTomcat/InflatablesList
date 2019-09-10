@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=--load_pages --no_updlog --no_save
+RunParams=--load_pages --no_updlog --no_save --no_pics
 HostApplication=
 Launcher=
 UseLauncher=0
@@ -110,8 +110,8 @@ IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=1
 MinorVer=7
-Release=2
-Build=703
+Release=3
+Build=704
 Debug=1
 PreRelease=1
 Special=0
@@ -122,13 +122,13 @@ CodePage=1250
 [Version Info Keys]
 CompanyName=František Milt
 FileDescription=Inflatables List application
-FileVersion=1.7.2.703
+FileVersion=1.7.3.704
 InternalName=Inflatables List
 LegalCopyright=© 2019 František Milt
 LegalTrademarks=Inflatables List
 OriginalFilename=InflatablesList.exe
 ProductName=Inflatables List
-ProductVersion=1.7.2
+ProductVersion=1.7.3
 Comments=Main program of Inflatables List project
 [HistoryLists\hlDebugSourcePath]
 Count=1

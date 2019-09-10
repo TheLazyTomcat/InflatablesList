@@ -8,100 +8,88 @@ uses
   ItemFrame, UpdateForm,
   AuxTypes,
   InflatablesList_Manager;
-
+            
 type
   TfMainForm = class(TForm)
-    lbList: TListBox;    
-    gbDetails: TGroupBox;
-    frmItemFrame: TfrmItemFrame;
-    sbStatusBar: TStatusBar;
-    oXPManifest: TXPManifest;
-    pmnListMenu: TPopupMenu;
-    mniLM_Add: TMenuItem;
-    mniLM_AddCopy: TMenuItem;    
-    mniLM_Remove: TMenuItem;
-    mniLM_Clear: TMenuItem;
+    mmMainMenu: TMainMenu;
+    mniMM_File: TMenuItem;
+    mniMMF_ListCompress: TMenuItem;
+    mniMMF_ListEncrypt: TMenuItem;
+    mniMMF_ListPassword: TMenuItem;
     N1: TMenuItem;
-    mniLM_MoveBeginning: TMenuItem;
-    mniLM_MoveUpBy: TMenuItem;
-    mniLM_MoveUp: TMenuItem;
-    mniLM_MoveDown: TMenuItem;
-    mniLM_MoveDownBy: TMenuItem;    
-    mniLM_MoveEnd: TMenuItem;
+    mniMMF_Save: TMenuItem;
     N2: TMenuItem;
-    mniLM_ItemShops: TMenuItem;
-    mniLM_ItemExport: TMenuItem;
-    mniLM_ItemExportMulti: TMenuItem;
-    mniLM_ItemImport: TMenuItem;
+    mniMMF_Exit: TMenuItem;
+    mniMM_List: TMenuItem;
+    mniMML_Add: TMenuItem;
+    mniMML_AddCopy: TMenuItem;
+    mniMML_Remove: TMenuItem;
+    mniMML_Clear: TMenuItem;
     N3: TMenuItem;
-    mniLM_Find: TMenuItem;
-    mniLM_FindPrev: TMenuItem;
-    mniLM_FindNext: TMenuItem;
-    mniLM_AdvSearch: TMenuItem;
+    mniMML_Sums: TMenuItem;
+    mniMML_Overview: TMenuItem;
+    mniMML_Notes: TMenuItem;
+    mniMM_Item: TMenuItem;
+    mniMMI_ItemShops: TMenuItem;
+    mniMMI_ItemExport: TMenuItem;
+    mniMMI_ItemExportMulti: TMenuItem;
+    mniMMI_ItemImport: TMenuItem;
     N4: TMenuItem;
-    mniLM_SortSett: TMenuItem;
-    mniLM_SortRev: TMenuItem;
-    mniLM_SortCase: TMenuItem;    
-    mniLM_Sort: TMenuItem;
-    mniLM_SortBy: TMenuItem;
-    N5: TMenuItem;
-    mniLM_UpdateItem: TMenuItem;
-    mniLM_UpdateAll: TMenuItem;
-    mniLM_UpdateWanted: TMenuItem;
-    mniLM_UpdateSelected: TMenuItem;
-    N6: TMenuItem;
-    mniLM_UpdateItemShopHistory: TMenuItem;
-    mniLM_UpdateShopsHistory: TMenuItem;
-    N7: TMenuItem;
-    mniLM_Sums: TMenuItem;
-    mniLM_Overview: TMenuItem;
-    mniLM_Selection: TMenuItem;
-    N8: TMenuItem;
-    mniLM_Notes: TMenuItem;    
-    mniLM_Save: TMenuItem;
-    mniLM_Specials: TMenuItem;
-    N9: TMenuItem;    
-    mniLM_ListCompress: TMenuItem;
-    mniLM_ListEncrypt: TMenuItem;
-    mniLM_ListPassword: TMenuItem;
-    N10: TMenuItem;
-    mniLM_ResMarkLegend: TMenuItem;
-    mniLM_SettingsLegend: TMenuItem;
-    mniLM_About: TMenuItem;    
-    N11: TMenuItem;
-    mniLM_Exit: TMenuItem;
-    mniLM_SB_Default: TMenuItem;
-    mniLM_SB_Actual: TMenuItem;
+    mniMMI_MoveBeginning: TMenuItem;
+    mniMMI_MoveUpBy: TMenuItem;
+    mniMMI_MoveUp: TMenuItem;
+    mniMMI_MoveDown: TMenuItem;
+    mniMMI_MoveDownBy: TMenuItem;
+    mniMMI_MoveEnd: TMenuItem;
+    mniMM_Search: TMenuItem;
+    mniMMS_Find: TMenuItem;
+    mniMMS_FindPrev: TMenuItem;
+    mniMMS_FindNext: TMenuItem;
+    mniMMS_AdvSearch: TMenuItem;
+    mniMM_Sorting: TMenuItem;
+    mniMMO_SortSett: TMenuItem;
+    mniMMO_SortRev: TMenuItem;
+    mniMMO_SortCase: TMenuItem;
+    mniMMO_Sort: TMenuItem;
+    mniMMO_SortBy: TMenuItem;
+    mniMMO_SB_Default: TMenuItem;
+    mniMMO_SB_Actual: TMenuItem;
     N1_1: TMenuItem;
-    eSearchFor: TEdit;
-    btnFindPrev: TButton;
-    btnFindNext: TButton;
+    mniMM_Update: TMenuItem;
+    mniMMU_UpdateItem: TMenuItem;
+    mniMMU_UpdateAll: TMenuItem;
+    mniMMU_UpdateWanted: TMenuItem;
+    mniMMU_UpdateSelected: TMenuItem;
+    N5: TMenuItem;
+    mniMMU_UpdateItemShopHistory: TMenuItem;
+    mniMMU_UpdateShopsHistory: TMenuItem;
+    mniMM_Tools: TMenuItem;
+    mniMMT_Selection: TMenuItem;
+    mniMMT_Specials: TMenuItem;
+    mniMM_Help: TMenuItem;
+    mniMMH_ResMarkLegend: TMenuItem;
+    mniMMH_SettingsLegend: TMenuItem;
+    N6: TMenuItem;
+    mniMMH_About: TMenuItem;
+    // ---
     alShortcuts: TActionList;
+    acSave: TAction;
+    acExit: TAction;
     acItemShops: TAction;
     acItemExport: TAction;
     acItemExportMulti: TAction;
     acItemImport: TAction;
+    acSums: TAction;
+    acOverview: TAction;
+    acNotes: TAction;
     acFind: TAction;
     acFindPrev: TAction;
     acFindNext: TAction;
-    acAdvSearch: TAction;    
+    acAdvSearch: TAction;
     acSortSett: TAction;
     acSortRev: TAction;
     acSortCase: TAction;
     acSort: TAction;
-    acUpdateItem: TAction;
-    acUpdateAll: TAction;
-    acUpdateWanted: TAction;
-    acUpdateSelected: TAction;
-    acUpdateItemShopHistory: TAction;
-    acUpdateShopsHistory: TAction;
-    acSums: TAction;
-    acOverview: TAction;
-    acSelection: TAction;
-    acNotes: TAction;
-    acSpecials: TAction;             
-    acSave: TAction;
-    acExit: TAction;
     acSortBy_0: TAction;
     acSortBy_1: TAction;
     acSortBy_2: TAction;
@@ -112,69 +100,123 @@ type
     acSortBy_7: TAction;
     acSortBy_8: TAction;
     acSortBy_9: TAction;
+    acSelection: TAction;
+    acSpecials: TAction;
+    acUpdateItem: TAction;
+    acUpdateAll: TAction;
+    acUpdateWanted: TAction;
+    acUpdateSelected: TAction;
+    acUpdateItemShopHistory: TAction;
+    acUpdateShopsHistory: TAction;
+    // ---    
     diaItemsImport: TOpenDialog;
     diaItemsExport: TSaveDialog;
+    oXPManifest: TXPManifest;    
+    lbList: TListBox;
+    eSearchFor: TEdit;
+    btnFindPrev: TButton;
+    btnFindNext: TButton;
+    gbDetails: TGroupBox;
+    frmItemFrame: TfrmItemFrame;
+    sbStatusBar: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);      
-    procedure pmnListMenuPopup(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     // ---
-    procedure mniLM_AddClick(Sender: TObject);
-    procedure mniLM_AddCopyClick(Sender: TObject);
-    procedure mniLM_RemoveClick(Sender: TObject);
-    procedure mniLM_ClearClick(Sender: TObject);
+    procedure mniMM_FileClick(Sender: TObject);
+    procedure mniMMF_ListCompressClick(Sender: TObject);
+    procedure mniMMF_ListEncryptClick(Sender: TObject);
+    procedure mniMMF_ListPasswordClick(Sender: TObject);
+    procedure mniMMF_SaveClick(Sender: TObject);
+    procedure mniMMF_ExitClick(Sender: TObject);
     // ---
-    procedure mniLM_MoveBeginningClick(Sender: TObject);
-    procedure mniLM_MoveUpByClick(Sender: TObject);
-    procedure mniLM_MoveUpClick(Sender: TObject);
-    procedure mniLM_MoveDownClick(Sender: TObject);
-    procedure mniLM_MoveDownByClick(Sender: TObject);    
-    procedure mniLM_MoveEndClick(Sender: TObject);
+    procedure mniMM_ListClick(Sender: TObject);
+    procedure mniMML_AddClick(Sender: TObject);
+    procedure mniMML_AddCopyClick(Sender: TObject);
+    procedure mniMML_RemoveClick(Sender: TObject);
+    procedure mniMML_ClearClick(Sender: TObject);
+    procedure mniMML_SumsClick(Sender: TObject);
+    procedure mniMML_OverviewClick(Sender: TObject);
+    procedure mniMML_NotesClick(Sender: TObject);    
     // ---
-    procedure mniLM_ItemShopsClick(Sender: TObject);
-    procedure mniLM_ItemExportClick(Sender: TObject);
-    procedure mniLM_ItemExportMultiClick(Sender: TObject);
-    procedure mniLM_ItemImportClick(Sender: TObject);
+    procedure mniMM_ItemClick(Sender: TObject);
+    procedure mniMMI_ItemShopsClick(Sender: TObject);
+    procedure mniMMI_ItemExportClick(Sender: TObject);
+    procedure mniMMI_ItemExportMultiClick(Sender: TObject);
+    procedure mniMMI_ItemImportClick(Sender: TObject);
+    procedure mniMMI_MoveBeginningClick(Sender: TObject);
+    procedure mniMMI_MoveUpByClick(Sender: TObject);
+    procedure mniMMI_MoveUpClick(Sender: TObject);
+    procedure mniMMI_MoveDownClick(Sender: TObject);
+    procedure mniMMI_MoveDownByClick(Sender: TObject);
+    procedure mniMMI_MoveEndClick(Sender: TObject);
     // ---
-    procedure mniLM_FindClick(Sender: TObject);
-    procedure mniLM_FindPrevClick(Sender: TObject);
-    procedure mniLM_FindNextClick(Sender: TObject);
-    procedure mniLM_AdvSearchClick(Sender: TObject);    
+    procedure mniMM_SearchClick(Sender: TObject);
+    procedure mniMMS_FindClick(Sender: TObject);
+    procedure mniMMS_FindPrevClick(Sender: TObject);
+    procedure mniMMS_FindNextClick(Sender: TObject);
+    procedure mniMMS_AdvSearchClick(Sender: TObject);
     // ---
-    procedure mniLM_SortCommon(Profile: Integer);
-    procedure mniLM_SortSettClick(Sender: TObject);
-    procedure mniLM_SortRevClick(Sender: TObject);
-    procedure mniLM_SortCaseClick(Sender: TObject);
-    procedure mniLM_SortClick(Sender: TObject);
-    procedure mniLM_SortByClick(Sender: TObject);
+    procedure mniMM_SortingClick(Sender: TObject);
+    procedure mniMMO_SortCommon(Profile: Integer);
+    procedure mniMMO_SortSettClick(Sender: TObject);
+    procedure mniMMO_SortRevClick(Sender: TObject);
+    procedure mniMMO_SortCaseClick(Sender: TObject);
+    procedure mniMMO_SortClick(Sender: TObject);
+    procedure mniMMO_SortByClick(Sender: TObject);
     // ---
-    procedure mniLN_UpdateCommon(UpdateList: TILItemShopUpdateList);
-    procedure mniLM_UpdateItemClick(Sender: TObject);
-    procedure mniLM_UpdateAllClick(Sender: TObject);
-    procedure mniLM_UpdateWantedClick(Sender: TObject);
-    procedure mniLM_UpdateSelectedClick(Sender: TObject);
+    procedure mniMM_UpdateClick(Sender: TObject);
+    procedure mniMMU_UpdateCommon(UpdateList: TILItemShopUpdateList);
+    procedure mniMMU_UpdateItemClick(Sender: TObject);
+    procedure mniMMU_UpdateAllClick(Sender: TObject);
+    procedure mniMMU_UpdateWantedClick(Sender: TObject);
+    procedure mniMMU_UpdateSelectedClick(Sender: TObject);
+    procedure mniMMU_UpdateItemShopHistoryClick(Sender: TObject);
+    procedure mniMMU_UpdateShopsHistoryClick(Sender: TObject);
     // ---
-    procedure mniLM_UpdateItemShopHistoryClick(Sender: TObject);
-    procedure mniLM_UpdateShopsHistoryClick(Sender: TObject);
+    procedure mniMM_ToolsClick(Sender: TObject);
+    procedure mniMMT_SelectionClick(Sender: TObject);
+    procedure mniMMT_SpecialsClick(Sender: TObject);
     // ---
-    procedure mniLM_SumsClick(Sender: TObject);
-    procedure mniLM_OverviewClick(Sender: TObject);
-    procedure mniLM_SelectionClick(Sender: TObject);
+    procedure mniMM_HelpClick(Sender: TObject);
+    procedure mniMMH_ResMarkLegendClick(Sender: TObject);
+    procedure mniMMH_SettingsLegendClick(Sender: TObject);
+    procedure mniMMH_AboutClick(Sender: TObject);
     // ---
-    procedure mniLM_NotesClick(Sender: TObject);
-    procedure mniLM_SpecialsClick(Sender: TObject);
-    procedure mniLM_SaveClick(Sender: TObject);
+    procedure acSaveExecute(Sender: TObject);
+    procedure acExitExecute(Sender: TObject);
     // ---
-    procedure mniLM_ListCompressClick(Sender: TObject);
-    procedure mniLM_ListEncryptClick(Sender: TObject);
-    procedure mniLM_ListPasswordClick(Sender: TObject);
+    procedure acItemShopsExecute(Sender: TObject);
+    procedure acItemExportExecute(Sender: TObject);
+    procedure acItemExportMultiExecute(Sender: TObject);
+    procedure acItemImportExecute(Sender: TObject);
     // ---
-    procedure mniLM_ResMarkLegendClick(Sender: TObject);
-    procedure mniLM_SettingsLegendClick(Sender: TObject);
-    procedure mniLM_AboutClick(Sender: TObject);    
+    procedure acSumsExecute(Sender: TObject);
+    procedure acOverviewExecute(Sender: TObject);
+    procedure acNotesExecute(Sender: TObject);
     // ---
-    procedure mniLM_ExitClick(Sender: TObject);
+    procedure acFindExecute(Sender: TObject);
+    procedure acFindPrevExecute(Sender: TObject);
+    procedure acFindNextExecute(Sender: TObject);
+    procedure acAdvSearchExecute(Sender: TObject);
+    // ---
+    procedure acSortSettExecute(Sender: TObject);
+    procedure acSortRevExecute(Sender: TObject);
+    procedure acSortCaseExecute(Sender: TObject);
+    procedure acSortExecute(Sender: TObject);
+    // ---
+    procedure acSortByCommonExecute(Sender: TObject);
+    // ---
+    procedure acSelectionExecute(Sender: TObject);
+    procedure acSpecialsExecute(Sender: TObject);
+    // ---
+    procedure acUpdateItemExecute(Sender: TObject);
+    procedure acUpdateAllExecute(Sender: TObject);
+    procedure acUpdateWantedExecute(Sender: TObject);
+    procedure acUpdateSelectedExecute(Sender: TObject);
+    procedure acUpdateItemShopHistoryExecute(Sender: TObject);
+    procedure acUpdateShopsHistoryExecute(Sender: TObject);
     // ---
     procedure lbListClick(Sender: TObject);
     procedure lbListDblClick(Sender: TObject);    
@@ -190,34 +232,7 @@ type
     procedure sbStatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    // ---
-    procedure acItemShopsExecute(Sender: TObject);
-    procedure acItemExportExecute(Sender: TObject);
-    procedure acItemExportMultiExecute(Sender: TObject);
-    procedure acItemImportExecute(Sender: TObject);    
-    procedure acFindExecute(Sender: TObject);
-    procedure acFindPrevExecute(Sender: TObject);
-    procedure acFindNextExecute(Sender: TObject);
-    procedure acAdvSearchExecute(Sender: TObject);
-    procedure acSortSettExecute(Sender: TObject);
-    procedure acSortRevExecute(Sender: TObject);
-    procedure acSortCaseExecute(Sender: TObject);
-    procedure acSortExecute(Sender: TObject);
-    procedure acUpdateItemExecute(Sender: TObject);
-    procedure acUpdateAllExecute(Sender: TObject);
-    procedure acUpdateWantedExecute(Sender: TObject);
-    procedure acUpdateSelectedExecute(Sender: TObject);
-    procedure acUpdateItemShopHistoryExecute(Sender: TObject);
-    procedure acUpdateShopsHistoryExecute(Sender: TObject);
-    procedure acSumsExecute(Sender: TObject);
-    procedure acOverviewExecute(Sender: TObject);
-    procedure acSelectionExecute(Sender: TObject);
-    procedure acNotesExecute(Sender: TObject);
-    procedure acSpecialsExecute(Sender: TObject);
-    procedure acSaveExecute(Sender: TObject);
-    procedure acExitExecute(Sender: TObject);
-    procedure acSortByCommonExecute(Sender: TObject);
+      Shift: TShiftState; X, Y: Integer);    
   private
     fDrawBuffer:  TBitmap;
     fSaveOnExit:  Boolean;
@@ -312,24 +327,24 @@ var
   MITemp: TMenuItem;
 begin
 // remove menu items
-For i := Pred(mniLM_SortBy.Count) downto 0 do
-  If mniLM_SortBy[i].Tag >= 0 then
+For i := Pred(mniMMO_SortBy.Count) downto 0 do
+  If mniMMO_SortBy[i].Tag >= 0 then
     begin
-      MITemp := mniLM_SortBy[i];
-      mniLM_SortBy.Delete(i);
+      MITemp := mniMMO_SortBy[i];
+      mniMMO_SortBy.Delete(i);
       FreeAndNil(MITemp);
     end;
 fActionMask := 0;
 For i := 0 to Pred(fILManager.SortingProfileCount) do
   begin
     MITemp := TMenuItem.Create(Self);
-    MITemp.Name := IL_Format('mniLM_SB_Profile%d',[i]);
+    MITemp.Name := IL_Format('mniMM_SB_Profile%d',[i]);
     MITemp.Caption := fILManager.SortingProfiles[i].Name;
-    MITemp.OnClick := mniLM_SortByClick;
+    MITemp.OnClick := mniMMO_SortByClick;
     MITemp.Tag := i;
     If i <= 9 then
       MITemp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
-    mniLM_SortBy.Add(MITemp);
+    mniMMO_SortBy.Add(MITemp);
     BitSetTo(fActionMask,Byte(i),True);
   end;
 end;
@@ -518,16 +533,16 @@ begin
 sbStatusBar.DoubleBuffered := True;
 lbList.DoubleBuffered := True;
 // build shortcuts
-mniLM_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssShift,ssAlt]);
-mniLM_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
-mniLM_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
-mniLM_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
-mniLM_MoveDownBy.ShortCut := ShortCut(VK_DOWN,[ssShift,ssCtrl]);
-mniLM_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssShift,ssAlt]);
-mniLM_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
-mniLM_SortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
-mniLM_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
-mniLM_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
+mniMMI_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssShift,ssAlt]);
+mniMMI_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
+mniMMI_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
+mniMMI_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
+mniMMI_MoveDownBy.ShortCut := ShortCut(VK_DOWN,[ssShift,ssCtrl]);
+mniMMI_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssShift,ssAlt]);
+mniMMO_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
+mniMMO_SortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
+mniMMU_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
+mniMMU_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 acSortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 acSortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
 acUpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
@@ -576,10 +591,10 @@ If fILManager.ItemCount > 0 then
 else frmItemFrame.SetItem(nil,True);
 UpdateIndexAndCount;
 // load other things from manager
-mniLM_SortRev.Checked := fILManager.ReversedSort;
-mniLM_SortCase.Checked := fILManager.CaseSensitiveSort;
-mniLM_ListCompress.Checked := fILManager.Compressed;
-mniLM_ListEncrypt.Checked := fILManager.Encrypted;
+mniMMO_SortRev.Checked := fILManager.ReversedSort;
+mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
+mniMMF_ListCompress.Checked := fILManager.Compressed;
+mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
 sbStatusBar.Invalidate; // to show settings
 // build some things and final touches
 BuildSortBySubmenu;
@@ -617,28 +632,82 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.pmnListMenuPopup(Sender: TObject);
+procedure TfMainForm.mniMM_FileClick(Sender: TObject);
 begin
-mniLM_AddCopy.Enabled := lbList.ItemIndex >= 0;
-mniLM_Remove.Enabled := lbList.ItemIndex >= 0;
-mniLM_Clear.Enabled := lbList.Count > 0;
-mniLM_MoveBeginning.Enabled := lbList.ItemIndex > 0;
-mniLM_MoveUpBy.Enabled := lbList.ItemIndex > 0;
-mniLM_MoveUp.Enabled := lbList.ItemIndex > 0;
-mniLM_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniLM_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniLM_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniLM_ItemShops.Enabled := lbList.ItemIndex >= 0;
-mniLM_ItemExport.Enabled := lbList.ItemIndex >= 0;
-mniLM_ItemExportMulti.Enabled := lbList.Count > 0;
-mniLM_UpdateItem.Enabled := lbList.ItemIndex >= 0;
-mniLM_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
-mniLM_ListPassword.Enabled := fILManager.Encrypted;
+mniMMF_ListPassword.Enabled := fILManager.Encrypted;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_AddClick(Sender: TObject);
+procedure TfMainForm.mniMMF_ListCompressClick(Sender: TObject);
+begin
+mniMMF_ListCompress.Checked := not mniMMF_ListCompress.Checked;
+fIlManager.Compressed := mniMMF_ListCompress.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_ListEncryptClick(Sender: TObject);
+var
+  Password: String;
+begin
+If not fIlManager.Encrypted then
+  begin
+    If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
+      begin
+        fIlManager.ListPassword := Password;
+        fIlManager.Encrypted := True;
+      end;
+  end
+else fIlManager.Encrypted := False;
+mniMMF_ListEncrypt.Checked := fIlManager.Encrypted;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_ListPasswordClick(Sender: TObject);
+var
+  Password: String;
+begin
+If fIlManager.Encrypted then
+  If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
+    fIlManager.ListPassword := Password;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_SaveClick(Sender: TObject);
+begin
+Screen.Cursor := crHourGlass;
+try
+  frmItemFrame.Save;
+  If not SaveList then
+    Beep;
+finally
+  Screen.Cursor := crDefault;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_ExitClick(Sender: TObject);
+begin
+fSaveOnExit := False;
+Close;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_ListClick(Sender: TObject);
+begin
+mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
+mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
+mniMML_Clear.Enabled := lbList.Count > 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_AddClick(Sender: TObject);
 begin
 lbList.Items.Add(IntToStr(lbList.Count));
 lbList.ItemIndex := fILManager.ItemAddEmpty;
@@ -649,7 +718,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_AddCopyClick(Sender: TObject);
+procedure TfMainForm.mniMML_AddCopyClick(Sender: TObject);
 var
   Index:  Integer;
 begin
@@ -666,7 +735,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_RemoveClick(Sender: TObject);
+procedure TfMainForm.mniMML_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
@@ -693,7 +762,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ClearClick(Sender: TObject);
+procedure TfMainForm.mniMML_ClearClick(Sender: TObject);
 begin
 If lbList.Count > 0 then
   If MessageDlg('Are you sure you want to clear the entire list?',
@@ -709,125 +778,50 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_MoveBeginningClick(Sender: TObject);
-var
-  Index:  Integer;
+procedure TfMainForm.mniMML_SumsClick(Sender: TObject);
 begin
-If lbList.ItemIndex > 0 then
-  begin
-    Index := lbList.ItemIndex;
-    lbList.Items.Move(Index,0);
-    fILManager.ItemMove(Index,0);
-    lbList.ItemIndex := 0;
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
+frmItemFrame.Save;
+fSumsForm.ShowSums;
+lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_MoveUpByClick(Sender: TObject);
-var
-  Index:  Integer;
-  NewPos: Integer;
+procedure TfMainForm.mniMML_OverviewClick(Sender: TObject);
 begin
-If lbList.ItemIndex > 0 then
-  begin
-    Index := lbList.ItemIndex;
-    If (Index - 10) >= 0 then
-      NewPos := Index - 10
-    else
-      NewPos := 0;
-    lbList.Items.Move(Index,NewPos);
-    fILManager.ItemMove(Index,NewPos);
-    lbList.ItemIndex := NewPos;
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
+fOverviewForm.ShowOverview;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_MoveUpClick(Sender: TObject);
+procedure TfMainForm.mniMML_NotesClick(Sender: TObject);
 var
-  Index:  Integer;
+  Temp: String;
 begin
-If lbList.ItemIndex > 0 then
-  begin
-    Index := lbList.ItemIndex;
-    lbList.Items.Exchange(Index,Index - 1);
-    fILManager.ItemExchange(Index,Index - 1);
-    lbList.ItemIndex := Index - 1;
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
+Temp := fILManager.Notes;
+fTextEditForm.ShowTextEditor('Inflatables list notes',Temp,False);
+fILManager.Notes := Temp;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_MoveDownClick(Sender: TObject);
-var
-  Index:  Integer;
+procedure TfMainForm.mniMM_ItemClick(Sender: TObject);
 begin
-If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
-  begin
-    Index := lbList.ItemIndex;
-    lbList.Items.Exchange(Index,Index + 1);
-    fILManager.ItemExchange(Index,Index + 1);
-    lbList.ItemIndex := Index + 1;
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
+mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
+mniMMI_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniMMI_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniMMI_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
+mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_MoveDownByClick(Sender: TObject);
-var
-  Index:  Integer;
-  NewPos: Integer;
-begin
-If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
-  begin
-    Index := lbList.ItemIndex;
-    If (Index + 10) < lbList.Count then
-      NewPos := Index + 10
-    else
-      NewPos := Pred(lbList.Count);
-    lbList.Items.Move(Index,NewPos);
-    fILManager.ItemMove(Index,NewPos);
-    lbList.ItemIndex := NewPos;
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
-end;
 
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_MoveEndClick(Sender: TObject);
-var
-  Index:  Integer;
-begin
-If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
-  begin
-    Index := lbList.ItemIndex;
-    lbList.Items.Move(Index,Pred(lbList.Count));
-    fILManager.ItemMove(Index,Pred(lbList.Count));
-    lbList.ItemIndex := Pred(lbList.Count);
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
-    lbList.Invalidate;
-    UpdateIndexAndCount;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_ItemShopsClick(Sender: TObject);
+procedure TfMainForm.mniMMI_ItemShopsClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   begin
@@ -839,7 +833,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ItemExportClick(Sender: TObject);
+procedure TfMainForm.mniMMI_ItemExportClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
   If diaItemsExport.Execute then
@@ -851,7 +845,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ItemExportMultiClick(Sender: TObject);
+procedure TfMainForm.mniMMI_ItemExportMultiClick(Sender: TObject);
 var
   Indices:    TCountedDynArrayInteger;
   IndicesArr: array of Integer;
@@ -874,7 +868,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ItemImportClick(Sender: TObject);
+procedure TfMainForm.mniMMI_ItemImportClick(Sender: TObject);
 var
   Cntr,i: Integer;
 begin
@@ -898,14 +892,139 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_FindClick(Sender: TObject);
+procedure TfMainForm.mniMMI_MoveBeginningClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Move(Index,0);
+    fILManager.ItemMove(Index,0);
+    lbList.ItemIndex := 0;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_MoveUpByClick(Sender: TObject);
+var
+  Index:  Integer;
+  NewPos: Integer;
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    Index := lbList.ItemIndex;
+    If (Index - 10) >= 0 then
+      NewPos := Index - 10
+    else
+      NewPos := 0;
+    lbList.Items.Move(Index,NewPos);
+    fILManager.ItemMove(Index,NewPos);
+    lbList.ItemIndex := NewPos;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_MoveUpClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Exchange(Index,Index - 1);
+    fILManager.ItemExchange(Index,Index - 1);
+    lbList.ItemIndex := Index - 1;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_MoveDownClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Exchange(Index,Index + 1);
+    fILManager.ItemExchange(Index,Index + 1);
+    lbList.ItemIndex := Index + 1;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_MoveDownByClick(Sender: TObject);
+var
+  Index:  Integer;
+  NewPos: Integer;
+begin
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    Index := lbList.ItemIndex;
+    If (Index + 10) < lbList.Count then
+      NewPos := Index + 10
+    else
+      NewPos := Pred(lbList.Count);
+    lbList.Items.Move(Index,NewPos);
+    fILManager.ItemMove(Index,NewPos);
+    lbList.ItemIndex := NewPos;
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_MoveEndClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    Index := lbList.ItemIndex;
+    lbList.Items.Move(Index,Pred(lbList.Count));
+    fILManager.ItemMove(Index,Pred(lbList.Count));
+    lbList.ItemIndex := Pred(lbList.Count);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
+    lbList.Invalidate;
+    UpdateIndexAndCount;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMM_SearchClick(Sender: TObject);
+begin
+// nothing to do
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMS_FindClick(Sender: TObject);
 begin
 eSearchFor.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_FindPrevClick(Sender: TObject);
+procedure TfMainForm.mniMMS_FindPrevClick(Sender: TObject);
 var
   Index:  Integer;
 begin
@@ -928,7 +1047,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_FindNextClick(Sender: TObject);
+procedure TfMainForm.mniMMS_FindNextClick(Sender: TObject);
 var
   Index:  Integer;
 begin
@@ -951,14 +1070,21 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_AdvSearchClick(Sender: TObject);
+procedure TfMainForm.mniMMS_AdvSearchClick(Sender: TObject);
 begin
 {$message 'implement'}
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortCommon(Profile: Integer);
+procedure TfMainForm.mniMM_SortingClick(Sender: TObject);
+begin
+//
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMO_SortCommon(Profile: Integer);
 begin
 frmItemFrame.Save;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
@@ -979,7 +1105,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortSettClick(Sender: TObject);
+procedure TfMainForm.mniMMO_SortSettClick(Sender: TObject);
 begin
 frmItemFrame.Save;
 frmItemFrame.SetItem(nil,False);  // not really needed, but to be sure
@@ -999,50 +1125,58 @@ else
     If lbList.ItemIndex >= 0 then
       frmItemFrame.SetItem(fILManager[lbList.ItemIndex],False);
   end;
-mniLM_SortRev.Checked := fILManager.ReversedSort;
-mniLM_SortCase.Checked := fILManager.CaseSensitiveSort;
+mniMMO_SortRev.Checked := fILManager.ReversedSort;
+mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
 BuildSortBySubmenu;
 lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortRevClick(Sender: TObject);
+procedure TfMainForm.mniMMO_SortRevClick(Sender: TObject);
 begin
-mniLM_SortRev.Checked := not mniLM_SortRev.Checked;
-fILManager.ReversedSort := mniLM_SortRev.Checked;
+mniMMO_SortRev.Checked := not mniMMO_SortRev.Checked;
+fILManager.ReversedSort := mniMMO_SortRev.Checked;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortCaseClick(Sender: TObject);
+procedure TfMainForm.mniMMO_SortCaseClick(Sender: TObject);
 begin
-mniLM_SortCase.Checked := not mniLM_SortCase.Checked;
-fIlManager.CaseSensitiveSort := mniLM_SortCase.Checked;
+mniMMO_SortCase.Checked := not mniMMO_SortCase.Checked;
+fIlManager.CaseSensitiveSort := mniMMO_SortCase.Checked;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortClick(Sender: TObject);
+procedure TfMainForm.mniMMO_SortClick(Sender: TObject);
 begin
-mniLM_SortCommon(-1);
+mniMMO_SortCommon(-1);
 lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SortByClick(Sender: TObject);
+procedure TfMainForm.mniMMO_SortByClick(Sender: TObject);
 begin
 If Sender is TMenuItem then
   begin
-    mniLM_SortCommon(TMenuItem(Sender).Tag);
+    mniMMO_SortCommon(TMenuItem(Sender).Tag);
     lbList.SetFocus;
   end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLN_UpdateCommon(UpdateList: TILItemShopUpdateList);
+procedure TfMainForm.mniMM_UpdateClick(Sender: TObject);
+begin
+mniMMU_UpdateItem.Enabled := lbList.ItemIndex >= 0;
+mniMMU_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMU_UpdateCommon(UpdateList: TILItemShopUpdateList);
 begin
 If Length(UpdateList) > 0 then
   fUpdateForm.ShowUpdate(UpdateList)
@@ -1052,7 +1186,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateItemClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateItemClick(Sender: TObject);
 var
   List: TILItemShopUpdateList;
   i:    Integer;
@@ -1069,14 +1203,14 @@ If lbList.ItemIndex >= 0 then
         List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
         List[i].Done := False;
       end;
-    mniLN_UpdateCommon(List);
+    mniMMU_UpdateCommon(List);
     lbList.SetFocus;
   end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateAllClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateAllClick(Sender: TObject);
 var
   List: TILItemShopUpdateList;
   i,j:  Integer;
@@ -1102,13 +1236,13 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       List[Cntr].Done := False;
       Inc(Cntr);
     end;
-mniLN_UpdateCommon(List);
+mniMMU_UpdateCommon(List);
 lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateWantedClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateWantedClick(Sender: TObject);
 var
   List: TILItemShopUpdateList;
   i,j:  Integer;
@@ -1136,13 +1270,13 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
         List[Cntr].Done := False;
         Inc(Cntr);
       end;
-mniLN_UpdateCommon(List);
+mniMMU_UpdateCommon(List);
 lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateSelectedClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateSelectedClick(Sender: TObject);
 var
   List: TILItemShopUpdateList;
   i,j:  Integer;
@@ -1170,13 +1304,13 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
         List[Cntr].Done := False;
         Inc(Cntr);
       end;
-mniLN_UpdateCommon(List);
+mniMMU_UpdateCommon(List);
 lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateItemShopHistoryClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateItemShopHistoryClick(Sender: TObject);
 var
   i:  Integer;
 begin
@@ -1195,7 +1329,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_UpdateShopsHistoryClick(Sender: TObject);
+procedure TfMainForm.mniMMU_UpdateShopsHistoryClick(Sender: TObject);
 var
   i,j:  Integer;
 begin
@@ -1211,23 +1345,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SumsClick(Sender: TObject);
+procedure TfMainForm.mniMM_ToolsClick(Sender: TObject);
 begin
-frmItemFrame.Save;
-fSumsForm.ShowSums;
-lbList.SetFocus;
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_OverviewClick(Sender: TObject);
-begin
-fOverviewForm.ShowOverview;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_SelectionClick(Sender: TObject);
+procedure TfMainForm.mniMMT_SelectionClick(Sender: TObject);
 begin
 frmItemFrame.Save;
 fSelectionForm.ShowSelection;
@@ -1238,18 +1363,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_NotesClick(Sender: TObject);
-var
-  Temp: String;
-begin
-Temp := fILManager.Notes;
-fTextEditForm.ShowTextEditor('Inflatables list notes',Temp,False);
-fILManager.Notes := Temp;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_SpecialsClick(Sender: TObject);
+procedure TfMainForm.mniMMT_SpecialsClick(Sender: TObject);
 begin
 frmItemFrame.Save;
 fSpecialsForm.ShowModal;
@@ -1259,83 +1373,218 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SaveClick(Sender: TObject);
+procedure TfMainForm.mniMM_HelpClick(Sender: TObject);
 begin
-Screen.Cursor := crHourGlass;
-try
-  frmItemFrame.Save;
-  If not SaveList then
-    Beep;
-finally
-  Screen.Cursor := crDefault;
-end;
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ListCompressClick(Sender: TObject);
-begin
-mniLM_ListCompress.Checked := not mniLM_ListCompress.Checked;
-fIlManager.Compressed := mniLM_ListCompress.Checked;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_ListEncryptClick(Sender: TObject);
-var
-  Password: String;
-begin
-If not fIlManager.Encrypted then
-  begin
-    If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
-      begin
-        fIlManager.ListPassword := Password;
-        fIlManager.Encrypted := True;
-      end;
-  end
-else fIlManager.Encrypted := False;
-mniLM_ListEncrypt.Checked := fIlManager.Encrypted;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_ListPasswordClick(Sender: TObject);
-var
-  Password: String;
-begin
-If fIlManager.Encrypted then
-  If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
-    fIlManager.ListPassword := Password;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniLM_ResMarkLegendClick(Sender: TObject);
+procedure TfMainForm.mniMMH_ResMarkLegendClick(Sender: TObject);
 begin
 fUpdResLegendForm.ShowLegend;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_SettingsLegendClick(Sender: TObject);
+procedure TfMainForm.mniMMH_SettingsLegendClick(Sender: TObject);
 begin
 fSettingsLegendForm.ShowLegend;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_AboutClick(Sender: TObject);
+procedure TfMainForm.mniMMH_AboutClick(Sender: TObject);
 begin
 fAboutForm.ShowInfo;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniLM_ExitClick(Sender: TObject);
+procedure TfMainForm.acSaveExecute(Sender: TObject);
 begin
-fSaveOnExit := False;
-Close;
-end;    
+mniMMF_Save.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acExitExecute(Sender: TObject);
+begin
+mniMMF_Exit.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemShopsExecute(Sender: TObject);
+begin
+mniMMI_ItemShops.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemExportExecute(Sender: TObject);
+begin
+mniMMI_ItemExport.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemExportMultiExecute(Sender: TObject);
+begin
+mniMMI_ItemExportMulti.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acItemImportExecute(Sender: TObject);
+begin
+mniMMI_ItemImport.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSumsExecute(Sender: TObject);
+begin
+mniMML_Sums.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acOverviewExecute(Sender: TObject);
+begin
+mniMML_Overview.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acNotesExecute(Sender: TObject);
+begin
+mniMML_Notes.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acFindExecute(Sender: TObject);
+begin
+mniMMS_Find.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acFindPrevExecute(Sender: TObject);
+begin
+mniMMS_FindPrev.OnClick(nil);
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acFindNextExecute(Sender: TObject);
+begin
+mniMMS_FindNext.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acAdvSearchExecute(Sender: TObject);
+begin
+mniMMS_AdvSearch.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortSettExecute(Sender: TObject);
+begin
+mniMMO_SortSett.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortRevExecute(Sender: TObject);
+begin
+mniMMO_SortRev.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortCaseExecute(Sender: TObject);
+begin
+mniMMO_SortCase.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortExecute(Sender: TObject);
+begin
+mniMMO_Sort.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSortByCommonExecute(Sender: TObject);
+begin
+If Sender is TAction then
+  If BT(fActionMask,Byte(TAction(Sender).Tag)) then
+    begin
+      mniMMO_SortCommon(TAction(Sender).Tag);
+      lbList.SetFocus;
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSelectionExecute(Sender: TObject);
+begin
+mniMMT_Selection.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acSpecialsExecute(Sender: TObject);
+begin
+mniMMT_Specials.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateItemExecute(Sender: TObject);
+begin
+mniMMU_UpdateItem.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateAllExecute(Sender: TObject);
+begin
+mniMMU_UpdateAll.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateWantedExecute(Sender: TObject);
+begin
+mniMMU_UpdateWanted.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateSelectedExecute(Sender: TObject);
+begin
+mniMMU_UpdateSelected.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateItemShopHistoryExecute(Sender: TObject);
+begin
+mniMMU_UpdateItemShopHistory.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acUpdateShopsHistoryExecute(Sender: TObject);
+begin
+mniMMU_UpdateShopsHistory.OnClick(nil);
+end;
 
 //------------------------------------------------------------------------------
 
@@ -1352,7 +1601,7 @@ end;
 
 procedure TfMainForm.lbListDblClick(Sender: TObject);
 begin
-mniLM_ItemShops.OnClick(nil);
+mniMMI_ItemShops.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -1444,7 +1693,7 @@ begin
 If Key = #13 then
   begin
     Key := #0;  
-    mniLM_FindNext.OnClick(nil);
+    mniMMS_FindNext.OnClick(nil);
   end;
 end;
 
@@ -1452,14 +1701,14 @@ end;
 
 procedure TfMainForm.btnFindPrevClick(Sender: TObject);
 begin
-mniLM_FindPrev.OnClick(nil);
+mniMMS_FindPrev.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.btnFindNextClick(Sender: TObject);
 begin
-mniLM_FindNext.OnClick(nil);
+mniMMS_FindNext.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -1569,197 +1818,10 @@ If Button = mbLeft then
           end;
     case Index of
       IL_STATUSBAR_PANEL_IDX_STATIC_SETT,
-      IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT: mniLM_SettingsLegend.OnClick(nil);
-      IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniLM_About.OnClick(nil);
+      IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT: mniMMH_SettingsLegend.OnClick(nil);
+      IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniMMH_About.OnClick(nil);
     end;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemShopsExecute(Sender: TObject);
-begin
-mniLM_ItemShops.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemExportExecute(Sender: TObject);
-begin
-mniLM_ItemExport.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemExportMultiExecute(Sender: TObject);
-begin
-mniLM_ItemExportMulti.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemImportExecute(Sender: TObject);
-begin
-mniLM_ItemImport.OnClick(nil);
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindExecute(Sender: TObject);
-begin
-mniLM_Find.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindPrevExecute(Sender: TObject);
-begin
-mniLM_FindPrev.OnClick(nil);
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindNextExecute(Sender: TObject);
-begin
-mniLM_FindNext.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acAdvSearchExecute(Sender: TObject);
-begin
-mniLM_AdvSearch.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortSettExecute(Sender: TObject);
-begin
-mniLM_SortSett.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortRevExecute(Sender: TObject);
-begin
-mniLM_SortRev.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortCaseExecute(Sender: TObject);
-begin
-mniLM_SortCase.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortExecute(Sender: TObject);
-begin
-mniLM_Sort.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateItemExecute(Sender: TObject);
-begin
-mniLM_UpdateItem.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateAllExecute(Sender: TObject);
-begin
-mniLM_UpdateAll.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateWantedExecute(Sender: TObject);
-begin
-mniLM_UpdateWanted.OnClick(nil);
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateSelectedExecute(Sender: TObject);
-begin
-mniLM_UpdateSelected.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateItemShopHistoryExecute(Sender: TObject);
-begin
-mniLM_UpdateItemShopHistory.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateShopsHistoryExecute(Sender: TObject);
-begin
-mniLM_UpdateShopsHistory.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSumsExecute(Sender: TObject);
-begin
-mniLM_Sums.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acOverviewExecute(Sender: TObject);
-begin
-mniLM_Overview.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSelectionExecute(Sender: TObject);
-begin
-mniLM_Selection.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acNotesExecute(Sender: TObject);
-begin
-mniLM_Notes.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSpecialsExecute(Sender: TObject);
-begin
-mniLM_Specials.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSaveExecute(Sender: TObject);
-begin
-mniLM_Save.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acExitExecute(Sender: TObject);
-begin
-mniLM_Exit.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortByCommonExecute(Sender: TObject);
-begin
-If Sender is TAction then
-  If BT(fActionMask,Byte(TAction(Sender).Tag)) then
-    begin
-      mniLM_SortCommon(TAction(Sender).Tag);
-      lbList.SetFocus;
-    end;
 end;
 
 end.

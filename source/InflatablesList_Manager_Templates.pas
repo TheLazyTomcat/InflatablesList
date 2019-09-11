@@ -7,6 +7,7 @@ interface
 uses
   InflatablesList_ItemShop,
   InflatablesList_ItemShopTemplate,
+  InflatablesList_Manager_Base,
   InflatablesList_Manager_Filter;
 
 type
@@ -18,6 +19,7 @@ type
     procedure Initialize; override;
     procedure Finalize; override;
   public
+    constructor CreateAsCopy(Source: TILManager_Base); override;
     Function ShopTemplateIndexOf(const Name: String): Integer; virtual;
     Function ShopTemplateAdd(const Name: String; Shop: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
@@ -68,6 +70,21 @@ inherited Finalize;
 end;
 
 //==============================================================================
+
+constructor TILManager_Templates.CreateAsCopy(Source: TILManager_Base);
+var
+  i:  Integer;
+begin
+inherited CreateAsCopy(Source);
+If Source is TILManager_Templates then
+  begin
+    SetLength(fShopTemplates,TILManager_Templates(Source).ShopTemplateCount);
+    For i := Low(fShopTemplates) to High(fShopTemplates) do
+      fShopTemplates[i] := TILItemShopTemplate.CreateAsCopy(TILManager_Templates(Source).ShopTemplates[i]);
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILManager_Templates.ShopTemplateIndexOf(const Name: String): Integer;
 var

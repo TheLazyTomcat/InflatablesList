@@ -32,7 +32,7 @@ object fMainForm: TfMainForm
     Top = 616
     Width = 65
     Height = 65
-    Brush.Color = clGray
+    Brush.Color = clSilver
     Brush.Style = bsFDiagonal
     Pen.Style = psClear
   end

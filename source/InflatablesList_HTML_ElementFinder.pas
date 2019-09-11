@@ -21,7 +21,7 @@ type
     fStringSuffix:  String;   // appended to all returned strings, not saved
     fIndex:         Integer;  // index in comparator croup
     fEmptyStrAllow: Boolean;  // marks whether AsString can return an empty string or must return at least a placeholder
-    fIsLeading:     Boolean;
+    fIsLeading:     Boolean;  // transient (not copied in copy constructor)
     procedure SetStringPrefix(const Value: String);
     procedure SetStringSuffix(const Value: String);
     Function GetTotalItemCount: Integer; virtual;
@@ -1412,6 +1412,7 @@ fAttributes.StringPrefix := 'Attributes: ';
 fText := TILTextComparatorGroup.CreateAsCopy(Source.Text);
 fText.StringPrefix := 'Text: ';
 fNestedText := Source.NestedText;
+fResult := Source.Result;
 end;
 
 //------------------------------------------------------------------------------

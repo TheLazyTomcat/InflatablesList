@@ -22,15 +22,15 @@ type
     fDataProvider:          TILDataProvider;
     fOwnsDataProvider:      Boolean;
     fStaticSettings:        TILStaticManagerSettings;
-    fIndex:                 Integer;  // used in sorting
+    fIndex:                 Integer;                  // used in sorting, transient (not copied in copy constructor)
     fRender:                TBitmap;
     fRenderSmall:           TBitmap;
-    fFilteredOut:           Boolean;
-    fUpdateCounter:         Integer;
-    fUpdated:               TILItemUpdatedFlags;
-    fClearingSelected:      Boolean;
+    fFilteredOut:           Boolean;                  // transient
+    fUpdateCounter:         Integer;                  // transient
+    fUpdated:               TILItemUpdatedFlags;      // transient
+    fClearingSelected:      Boolean;                  // transient
     // internal events forwarded from item shops
-    fOnShopListItemUpdate:  TILIndexedObjectL1Event;
+    fOnShopListItemUpdate:  TILIndexedObjectL1Event;  // all events are transient
     fOnShopValuesUpdate:    TILObjectL1Event;
     fOnShopAvailHistoryUpd: TILObjectL1Event;
     fOnShopPriceHistoryUpd: TILObjectL1Event;
@@ -196,7 +196,7 @@ type
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
-    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload;
+    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; virtual;
     constructor CreateAsCopy(Source: TILItem_Base; CopyPics: Boolean); overload;
     destructor Destroy; override;
     procedure BeginUpdate; virtual;

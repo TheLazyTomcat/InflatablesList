@@ -503,7 +503,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 634
       Width = 193
       Height = 17
-      Brush.Color = clGray
+      Brush.Color = clSilver
       Brush.Style = bsFDiagonal
       Pen.Style = psClear
       Visible = False

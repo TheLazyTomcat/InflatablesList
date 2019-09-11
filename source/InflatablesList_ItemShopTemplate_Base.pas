@@ -35,6 +35,7 @@ type
   public
     constructor Create; overload;
     constructor Create(BaseOn: TILItemShop); overload;
+    constructor CreateAsCopy(Source: TILItemShopTemplate_Base);
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
@@ -155,7 +156,7 @@ inherited Create;
 Initialize;
 end;
 
-//------------------------------------------------------------------------------
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
 begin
@@ -173,6 +174,25 @@ UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
 fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.TemplateReference := fName;  // reference self
+end;
+
+//------------------------------------------------------------------------------
+
+constructor TILItemShopTemplate_Base.CreateAsCopy(Source: TILItemShopTemplate_Base);
+begin
+inherited Create;
+// do not call initialize
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
+fName := Source.Name;
+UniqueString(fName);
+fShopName := Source.ShopName;
+UniqueString(fShopName);
+fUntracked := Source.Untracked;
+fAltDownMethod := Source.AltDownMethod;
+fShopURL := Source.ShopURL;
+UniqueString(fShopURL);
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
+// do not change anything else in parsing settings, leave it as direct copy
 end;
 
 //------------------------------------------------------------------------------

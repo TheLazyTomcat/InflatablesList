@@ -19,11 +19,11 @@ type
   protected
     // internals
     fStaticSettings:        TILStaticManagerSettings;
-    fRequiredCount:         UInt32;   // used internally in updates, ignored otherwise
-    fUpdateCounter:         Integer;
-    fUpdated:               TILItemShopUpdateFlags;
+    fRequiredCount:         UInt32;                   // used internally in updates, ignored otherwise
+    fUpdateCounter:         Integer;                  // transient (not copied in copy constructor)
+    fUpdated:               TILItemShopUpdateFlags;   // transient
     // internal events
-    fOnClearSelected:       TNotifyEvent;
+    fOnClearSelected:       TNotifyEvent;             // all events are transient
     fOnOverviewUpdate:      TNotifyEvent;
     fOnShopListItemUpdate:  TNotifyEvent;
     fOnValuesUpdate:        TNotifyEvent;
@@ -443,8 +443,6 @@ inherited Create;
 // do not call initialize
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 fRequiredCount := Source.RequiredCount;
-fUpdateCounter := 0;
-fUpdated := [];
 // copy data...
 fSelected := Source.Selected;
 fUntracked := Source.Untracked;

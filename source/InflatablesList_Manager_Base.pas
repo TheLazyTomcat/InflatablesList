@@ -20,16 +20,15 @@ type
   protected
     fStaticSettings:              TILStaticManagerSettings; // not changed at runtime
     fDataProvider:                TILDataProvider;
-    fSorting:                     Boolean;                  // used only during sorting to disable reindexing
-    fUpdateCounter:               Integer;
-    fUpdated:                     TILManagerUpdatedFlags;
-    // encryption
+    fSorting:                     Boolean;                  // transient, used only during sorting to disable reindexing
+    fUpdateCounter:               Integer;                  // transient (not copied in copy constructor)
+    fUpdated:                     TILManagerUpdatedFlags;   // transient
+    // list properties
     fEncrypted:                   Boolean;
     fListPassword:                String;
-    // other list properties
     fCompressed:                  Boolean;
     // internal events forwarded from item shops
-    fOnShopListItemUpdate:        TILIndexedObjectL2Event;
+    fOnShopListItemUpdate:        TILIndexedObjectL2Event;  // all events are transient
     fOnShopValuesUpdate:          TILObjectL2Event;
     fOnShopAvailHistoryUpd:       TILObjectL2Event;
     fOnShopPriceHistoryUpd:       TILObjectL2Event;
@@ -37,9 +36,9 @@ type
     fOnItemTitleUpdate:           TILObjectL1Event;
     fOnItemPicturesUpdate:        TILObjectL1Event;
     fOnItemFlagsUpdate:           TILObjectL1Event;
-    fOnItemValuesUpdate:          TILObjectL1Event; // reserved for item frame
+    fOnItemValuesUpdate:          TILObjectL1Event;         // reserved for item frame
     fOnItemShopListUpdate:        TILObjectL1Event;
-    fOnItemShopListValuesUpdate:  TILObjectL1Event; // reserved for shop form
+    fOnItemShopListValuesUpdate:  TILObjectL1Event;         // reserved for shop form
     // events
     fOnMainListUpdate:            TNotifyEvent;
     fOnSmallListUpdate:           TNotifyEvent;
@@ -92,6 +91,7 @@ type
     procedure ReIndex; virtual;
   public
     constructor Create;
+    constructor CreateAsCopy(Source: TILManager_Base); virtual; // will be overriden
     destructor Destroy; override;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
@@ -441,13 +441,14 @@ fDataProvider := TILDataProvider.Create;
 fSorting := False;
 fUpdateCounter := 0;
 fUpdated := [];
-// list
-fCount := 0;
-SetLength(fList,0);
-fNotes := '';
 // encryption
 fEncrypted := False;
 fListPassword := '';
+fCompressed := False;
+// list
+SetLength(fList,0);
+fCount := 0;
+fNotes := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -476,6 +477,29 @@ constructor TILManager_Base.Create;
 begin
 inherited Create;
 Initialize;
+end;
+
+//------------------------------------------------------------------------------
+
+constructor TILManager_Base.CreateAsCopy(Source: TILManager_Base);
+var
+  i:  Integer;
+begin
+Create;
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
+// data provider was already created in call to Create
+fEncrypted := Source.Encrypted;
+fListPassword := Source.ListPassword;
+UniqueString(fListPassword);
+fCompressed := Source.Compressed;
+// copy the list
+Capacity := Source.Count;
+For i := Source.LowIndex to Source.HighIndex do
+  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True);
+fCount := Source.Count;
+// other data
+fNotes := Source.Notes;
+UniqueString(fNotes);
 end;
 
 //------------------------------------------------------------------------------

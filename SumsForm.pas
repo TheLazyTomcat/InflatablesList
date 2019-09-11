@@ -657,7 +657,7 @@ procedure TfSumsForm.ShowSums;
 begin
 // fill filter
 LoadFilterSettings;
-fILManager.ItemFilter;
+fILManager.FilterItems;
 ReCount;
 ShowModal;
 SaveFilterSettings;
@@ -686,7 +686,7 @@ begin
 If not fFillingFilter then
   begin
     SaveFilterSettings;
-    fILManager.ItemFilter;
+    fILManager.FilterItems;
     ReCount;
   end;
 end;

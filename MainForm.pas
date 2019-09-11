@@ -1718,6 +1718,14 @@ If Assigned(fDrawBuffer) then
     BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
     with fDrawBuffer.Canvas do
       begin
+        // background if required
+        If (BoundsRect.Right - BoundsRect.Left) > fILManager.Items[Index].Render.Width then
+          begin
+            Pen.Style := psClear;
+            Brush.Style := bsSolid;
+            Brush.Color := clWhite;
+            Rectangle(BoundsRect);
+          end;
         // content
         Draw(BoundsRect.Left,BoundsRect.Top,fILManager.Items[Index].Render);
         // separator line

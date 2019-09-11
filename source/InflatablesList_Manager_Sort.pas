@@ -14,7 +14,7 @@ type
     fReversedSort:    Boolean;
     fCaseSensSort:    Boolean;
     fUsedSortSett:    TILSortingSettings;
-    fDefaultSortSett: TILSortingSettings;    
+    fDefaultSortSett: TILSortingSettings;
     fActualSortSett:  TILSortingSettings;
     fSortingProfiles: TILSortingProfiles;
     procedure SetReversedSort(Value: Boolean); virtual;
@@ -30,6 +30,7 @@ type
     Function ItemCompare_CaseSensitive(Idx1,Idx2: Integer): Integer; virtual;
     Function ItemCompare_CaseInsensitive(Idx1,Idx2: Integer): Integer; virtual;
   public
+    constructor CreateAsCopy(Source: TILManager_Base); override;
     Function SortingProfileIndexOf(const Name: String): Integer; virtual;
     Function SortingProfileAdd(const Name: String): Integer; virtual;
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
@@ -40,6 +41,7 @@ type
     procedure ItemSort; overload; virtual;
     property ReversedSort: Boolean read fReversedSort write SetReversedSort;
     property CaseSensitiveSort: Boolean read fCaseSensSort write SetCaseSensSort;
+    property UsedSortingSettings: TILSortingSettings read fUsedSortSett;
     property DefaultSortingSettings: TILSortingSettings read fDefaultSortSett write fDefaultSortSett;
     property ActualSortingSettings: TILSortingSettings read fActualSortSett write fActualSortSett;
     property SortingProfileCount: Integer read GetSortProfileCount;
@@ -173,6 +175,26 @@ Result := ItemCompare(Idx1,Idx2,False);
 end;
 
 //==============================================================================
+
+constructor TILManager_Sort.CreateAsCopy(Source: TILManager_Base);
+var
+  i:  Integer;
+begin
+inherited CreateAsCopy(Source);
+If Source is TILManager_Sort then
+  begin
+    fReversedSort := TILManager_Sort(Source).ReversedSort;
+    fCaseSensSort := TILManager_Sort(Source).CaseSensitiveSort;
+    fUsedSortSett := TILManager_Sort(Source).UsedSortingSettings;
+    fDefaultSortSett := TILManager_Sort(Source).DefaultSortingSettings;
+    fActualSortSett := TILManager_Sort(Source).ActualSortingSettings;
+    SetLength(fSortingProfiles,TILManager_Sort(Source).SortingProfileCount);
+    For i := Low(fSortingProfiles) to High(fSortingProfiles) do
+      fSortingProfiles[i] := IL_ThreadSafeCopy(TILManager_Sort(Source).SortingProfiles[i]);
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILManager_Sort.SortingProfileIndexOf(const Name: String): Integer;
 var

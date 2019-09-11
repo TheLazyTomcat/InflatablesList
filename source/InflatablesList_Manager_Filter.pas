@@ -6,6 +6,7 @@ interface
 
 uses
   InflatablesList_Types,
+  InflatablesList_Manager_Base,
   InflatablesList_Manager_Sort;
 
 type
@@ -13,13 +14,23 @@ type
   protected
     fFilterSettings:  TILFilterSettings;
   public
-    procedure ItemFilter; virtual;
+    constructor CreateAsCopy(Source: TILManager_Base); override;
+    procedure FilterItems; virtual;
     property FilterSettings: TILFilterSettings read fFilterSettings write fFilterSettings;
   end;
 
 implementation
 
-procedure TILManager_Filter.ItemFilter;
+constructor TILManager_Filter.CreateAsCopy(Source: TILManager_Base);
+begin
+inherited CreateAsCopy(Source);
+If Source is TILManager_Filter then
+  fFilterSettings := TILManager_Filter(Source).FilterSettings;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Filter.FilterItems;
 var
   i:  Integer;
 begin

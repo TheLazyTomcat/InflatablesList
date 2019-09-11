@@ -6,6 +6,8 @@ interface
 
 uses
   Graphics, StdCtrls,
+  InflatablesList_Data,
+  InflatablesList_Item_Base,
   InflatablesList_Item_Utils;
 
 type
@@ -25,10 +27,15 @@ type
     procedure UpdateSmallList; override;
     procedure Initialize; override;
   public
+    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; override;
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox); overload; virtual;
     procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
     procedure ReDraw; virtual;
+    property MainWidth: Integer read fMainWidth;
+    property MainHeight: Integer read fMainHeight;
+    property SmallWidth: Integer read fSmallWidth;
+    property SmallHeight: Integer read fSmallHeight;
   end;
 
 implementation
@@ -414,6 +421,20 @@ fRenderSmall.Height := fSmallHeight;
 end;
 
 //==============================================================================
+
+constructor TILItem_Draw.CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean);
+begin
+inherited CreateAsCopy(DataProvider,Source,CopyPics);
+If Source is TILItem_Draw then
+  begin
+    fMainWidth := TILItem_Draw(Source).MainWidth;
+    fMainHeight := TILItem_Draw(Source).MainHeight;
+    fSmallWidth := TILItem_Draw(Source).SmallWidth;
+    fSmallHeight := TILItem_Draw(Source).SmallHeight;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
 begin

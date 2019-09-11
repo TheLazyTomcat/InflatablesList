@@ -20,7 +20,6 @@ type
   private
     fImages:        array of TILItemFramePicturesManagerEntry;
     fPictureKinds:  TLIItemPictureKinds;
-  protected
   public
     constructor Create;
     destructor Destroy; override;

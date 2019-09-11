@@ -6,6 +6,7 @@ uses
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
   InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
+  InflatablesList_Backup2 in 'source\InflatablesList_Backup2.pas',  
   InflatablesList_HTML_Utils in 'source\InflatablesList_HTML_Utils.pas',
   InflatablesList_HTML_NamedCharRefs in 'source\InflatablesList_HTML_NamedCharRefs.pas',
   InflatablesList_HTML_Download in 'source\InflatablesList_HTML_Download.pas',
@@ -19,14 +20,17 @@ uses
   InflatablesList_ItemShopParsingSettings_Base in 'source\InflatablesList_ItemShopParsingSettings_Base.pas',
   InflatablesList_ItemShopParsingSettings_IO in 'source\InflatablesList_ItemShopParsingSettings_IO.pas',
   InflatablesList_ItemShopParsingSettings_IO_00000000 in 'source\InflatablesList_ItemShopParsingSettings_IO_00000000.pas',
+  InflatablesList_ItemShopParsingSettings_IO_00000001 in 'source\InflatablesList_ItemShopParsingSettings_IO_00000001.pas',
   InflatablesList_ItemShopParsingSettings in 'source\InflatablesList_ItemShopParsingSettings.pas',
   InflatablesList_ItemShopTemplate_Base in 'source\InflatablesList_ItemShopTemplate_Base.pas',
   InflatablesList_ItemShopTemplate_IO in 'source\InflatablesList_ItemShopTemplate_IO.pas',
   InflatablesList_ItemShopTemplate_IO_00000000 in 'source\InflatablesList_ItemShopTemplate_IO_00000000.pas',
+  InflatablesList_ItemShopTemplate_IO_00000001 in 'source\InflatablesList_ItemShopTemplate_IO_00000001.pas',
   InflatablesList_ItemShopTemplate in 'source\InflatablesList_ItemShopTemplate.pas',
   InflatablesList_ItemShop_Base in 'source\InflatablesList_ItemShop_Base.pas',
   InflatablesList_ItemShop_IO in 'source\InflatablesList_ItemShop_IO.pas',
   InflatablesList_ItemShop_IO_00000000 in 'source\InflatablesList_ItemShop_IO_00000000.pas',
+  InflatablesList_ItemShop_IO_00000001 in 'source\InflatablesList_ItemShop_IO_00000001.pas',
   InflatablesList_ItemShop_Update in 'source\InflatablesList_ItemShop_Update.pas',
   InflatablesList_ItemShop in 'source\InflatablesList_ItemShop.pas',
   InflatablesList_ShopUpdater in 'source\InflatablesList_ShopUpdater.pas',
@@ -41,6 +45,7 @@ uses
   InflatablesList_Item_IO_00000003 in 'source\InflatablesList_Item_IO_00000003.pas',
   InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
   InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas',
+  InflatablesList_Item_IO_00000006 in 'source\InflatablesList_Item_IO_00000006.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
@@ -72,11 +77,7 @@ uses
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
-  PromptForm in 'PromptForm.pas' {fPromptForm},
-  InflatablesList_ItemShopTemplate_IO_00000001 in 'source\InflatablesList_ItemShopTemplate_IO_00000001.pas',
-  InflatablesList_ItemShopParsingSettings_IO_00000001 in 'source\InflatablesList_ItemShopParsingSettings_IO_00000001.pas',
-  InflatablesList_ItemShop_IO_00000001 in 'source\InflatablesList_ItemShop_IO_00000001.pas',
-  InflatablesList_Item_IO_00000006 in 'source\InflatablesList_Item_IO_00000006.pas';
+  PromptForm in 'PromptForm.pas' {fPromptForm};
 
 {$R *.res}
 

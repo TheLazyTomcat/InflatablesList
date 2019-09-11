@@ -34,6 +34,7 @@ type
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
     procedure InitPreloadFunctions(Struct: UInt32); override;
+    procedure InitLoadTimeFunctions(Struct: UInt32); override;
     procedure SaveList_0000000A(Stream: TStream); virtual;
     procedure LoadList_0000000A(Stream: TStream); virtual;
     procedure SaveSortingSettings_0000000A(Stream: TStream); virtual;
@@ -42,7 +43,8 @@ type
     procedure LoadList_Plain_0000000A(Stream: TStream); virtual;
     procedure SaveList_Processed_0000000A(Stream: TStream); virtual;
     procedure LoadList_Processed_0000000A(Stream: TStream); virtual;
-    procedure PreloadStream_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags); virtual;
+    procedure Preload_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags); virtual;
+    Function LoadTime_0000000A(Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
   end;
 
 implementation
@@ -252,16 +254,42 @@ end;
 procedure TILManager_IO_0000000A.InitPreloadFunctions(Struct: UInt32);
 begin
 If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
-  fFNPreloadStream := PreloadStream_0000000A
+  fFNPreload := Preload_0000000A
 else
-  fFNPreloadStream := nil;
+  fFNPreload := nil;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO_0000000A.InitLoadTimeFunctions(Struct: UInt32);
+begin
+If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
+  fFNLoadTime := LoadTime_0000000A
+else
+  fFNLoadTime := nil;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILManager_IO_0000000A.SaveList_0000000A(Stream: TStream);
+var
+  Time: TDateTIme;
 begin
 Stream_WriteUInt32(Stream,GetFlagsWord);
+// save version of the program (for reference and debugging)
+with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
+try
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release);
+  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build);
+finally
+  Free;
+end;
+// save time
+Time := Now;
+Stream_WriteInt64(Stream,DateTimeToUnix(Time));
+Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time));
 If fEncrypted or fCompressed then
   SaveList_Processed_0000000A(Stream)
 else
@@ -273,6 +301,9 @@ end;
 procedure TILManager_IO_0000000A.LoadList_0000000A(Stream: TStream);
 begin
 SetFlagsWord(Stream_ReadUInt32(Stream));
+Stream_ReadInt64(Stream);   // discard version of the program in which the file was saved
+Stream_ReadInt64(Stream);   // discard time
+Stream_ReadString(Stream);  // discard time string
 If fEncrypted or fCompressed then
   LoadList_Processed_0000000A(Stream)
 else
@@ -299,23 +330,7 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILManager_IO_0000000A.SaveList_Plain_0000000A(Stream: TStream);
-var
-  Time: TDateTIme;
 begin
-// save version of the program (for reference and debugging)
-with TWinFileInfo.Create(WFI_LS_LoadVersionInfo or WFI_LS_LoadFixedFileInfo or WFI_LS_DecodeFixedFileInfo) do
-try
-  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Major);
-  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Minor);
-  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Release);
-  Stream_WriteInt16(Stream,VersionInfoFixedFileInfoDecoded.FileVersionMembers.Build);
-finally
-  Free;
-end;
-// save time
-Time := Now;
-Stream_WriteInt64(Stream,DateTimeToUnix(Time));
-Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time));
 fFNSaveSortingSettings(Stream);
 fFNSaveShopTemplates(Stream);
 fFNSaveFilterSettings(Stream);
@@ -327,9 +342,6 @@ end;
 
 procedure TILManager_IO_0000000A.LoadList_Plain_0000000A(Stream: TStream);
 begin
-Stream_ReadInt64(Stream);   // discard version of the program in which the file was saved
-Stream_ReadInt64(Stream);   // discard time
-Stream_ReadString(Stream);  // discard time string
 fFNLoadSortingSettings(Stream);
 fFNLoadShopTemplates(Stream);
 fFNLoadFilterSettings(Stream);
@@ -392,9 +404,19 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO_0000000A.PreloadStream_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags);
+procedure TILManager_IO_0000000A.Preload_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags);
 begin
 DecodeFlagsWord(Stream_ReadUInt32(Stream),PreloadResult);
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILManager_IO_0000000A.LoadTime_0000000A(Stream: TStream; out ProgramVersion: Int64): TDateTime;
+begin
+Stream_ReadUInt32(Stream);  // flags, not needed here
+ProgramVersion := Stream_ReadInt64(Stream);
+Result := UnixToDateTime(Stream_ReadInt64(Stream));
+end;
+
 end.
+

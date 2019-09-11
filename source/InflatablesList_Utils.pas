@@ -53,6 +53,8 @@ Function IL_SortCompareGUID(const A,B: TGUID): Integer;
 Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): String;
 Function IL_PathAbsolute(const Base,Path: String): String;
 
+Function IL_IncludeTrailingPathDelimiter(const Path: String): String;
+
 Function IL_ExtractFileDir(const FileName: String): String;
 Function IL_ExtractFilePath(const FileName: String): String;
 Function IL_ExtractFileNameNoExt(const FileName: String): String;
@@ -359,6 +361,13 @@ If Length(Path) > 0 then
   Result := RTLToStr(ExpandFileName(IncludeTrailingPathDelimiter(StrToRTL(Base)) + StrToRTL(Path)))
 else
   Result := '';
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_IncludeTrailingPathDelimiter(const Path: String): String;
+begin
+Result := RTLToStr(IncludeTrailingPathDelimiter(StrToRTL(Path)));
 end;
 
 //------------------------------------------------------------------------------

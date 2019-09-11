@@ -9,6 +9,7 @@ uses
   AuxClasses,
   InflatablesList_Types,
   InflatablesList_Data,
+  InflatablesList_Backup,
   InflatablesList_Item;
 
 type
@@ -19,6 +20,7 @@ type
   TILManager_Base = class(TCustomListObject)
   protected
     fStaticSettings:              TILStaticManagerSettings; // not changed at runtime
+    fBackupManager:               TILBackupManager;
     fDataProvider:                TILDataProvider;
     fSorting:                     Boolean;                  // transient, used only during sorting to disable reindexing
     fUpdateCounter:               Integer;                  // transient (not copied in copy constructor)
@@ -117,6 +119,7 @@ type
     // properties
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
     property DataProvider: TILDataProvider read fDataProvider;
+    property BackupManager: TILBackupManager read fBackupManager;
     // encryption
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
     property ListPassword: String read fListPassword write SetListPassword;
@@ -414,7 +417,6 @@ try
       CMDLineParser.GetCommandData('list_override',CommandData);
       If Length(CommandData.Arguments) > 0 then
         begin
-          fStaticSettings.NoBackup := True;        
           fStaticSettings.ListOverride := True;
           fStaticSettings.ListFile := IL_ExpandFileName(CommandData.Arguments[Low(CommandData.Arguments)]);
           fStaticSettings.ListPath := IL_ExtractFilePath(fStaticSettings.ListFile);
@@ -438,6 +440,8 @@ procedure TILManager_Base.Initialize;
 begin
 InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;
+fBackupManager := TILBackupManager.Create(fStaticSettings.ListFile);
+fBackupManager.LoadBackups;
 fSorting := False;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -457,7 +461,8 @@ procedure TILManager_Base.Finalize;
 begin
 ItemClear;
 SetLength(fList,0);
-FreeAndNil(fDataProvider);
+FreeAndNil(fBackupManager);
+FreeAndNil(fDataProvider);  // no need to save backups, they are saved in backup itself
 FinalizeStaticSettings;
 end;
 
@@ -487,7 +492,12 @@ var
 begin
 Create;
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
-// data provider was already created in call to Create
+{
+  data provider was already created in a call to Create, no need to recreate it
+  but recreate backup manager
+}
+FreeAndNil(fBackupManager);
+fBackupManager := TILBackupManager.CreateAsCopy(Source.BackupManager);
 fEncrypted := Source.Encrypted;
 fListPassword := Source.ListPassword;
 UniqueString(fListPassword);

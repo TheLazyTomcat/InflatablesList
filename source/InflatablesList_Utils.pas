@@ -72,6 +72,8 @@ procedure IL_CreateDirectoryPathForFile(const FileName: String);
 Function IL_FileExists(const FileName: String): Boolean;
 Function IL_DeleteFile(const FileName: String): Boolean;
 
+procedure IL_CopyFile(const Source,Destination: String);
+
 //==============================================================================
 //- event handler assignment checking ------------------------------------------
 
@@ -350,7 +352,7 @@ Result := RTLToStr(ExtractRelativePath(IncludeTrailingPathDelimiter(StrToRTL(Bas
   for example when it is on a different disk
 }
 If PrependDot and not IL_SameText(Result,Path) then
-  Result := '.\' + Result;
+  Result := '.' + PathDelim + Result;
 end;
 
 //------------------------------------------------------------------------------
@@ -388,7 +390,7 @@ end;
 
 Function IL_ExtractFileNameNoExt(const FileName: String): String;
 begin
-Result := IL_ChangeFileExt(ExtractFileName(FileName),'');
+Result := IL_ChangeFileExt(RTLToStr(ExtractFileName(StrToRTL(FileName))),'');
 end;
 
 //------------------------------------------------------------------------------
@@ -409,7 +411,7 @@ end;
 
 Function IL_ChangeFileExt(const FileName,NewExt: String): String;
 begin
-Result := ChangeFileExt(FileName,NewExt);
+Result := RTLToStr(ChangeFileExt(StrToRTL(FileName),StrToRTL(NewExt)));
 end;
 
 //------------------------------------------------------------------------------
@@ -445,6 +447,13 @@ end;
 Function IL_DeleteFile(const FileName: String): Boolean;
 begin
 Result := DeleteFile(StrToRTL(FileName));
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_CopyFile(const Source,Destination: String);
+begin
+CopyFile(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),False);
 end;
 
 

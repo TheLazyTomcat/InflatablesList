@@ -287,7 +287,6 @@ uses
   WinFileInfo, BitOps, CountedDynArrayInteger,  
   InflatablesList_Types,
   InflatablesList_Utils,
-  InflatablesList_Backup,
   InflatablesList_Manager_IO;
 
 {$R *.dfm}
@@ -455,11 +454,7 @@ begin
 Result := False;
 If not fILManager.StaticSettings.NoSave and mniMMF_SaveOnClose.Checked then
   begin
-    If not fILManager.StaticSettings.NoBackup then
-      If IL_FileExists(fILManager.StaticSettings.ListFile) then
-        DoBackup(fILManager.StaticSettings.ListFile,
-                 IncludeTrailingPathDelimiter(fILManager.StaticSettings.ListPath + IL_BACKUP_BACKUP_DIR_DEFAULT));
-    fILManager.SaveToFile;
+    fILManager.SaveToFile;  // backup is done automatically here
     FillListFileName;
     Result := True;
   end;

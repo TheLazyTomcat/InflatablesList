@@ -34,7 +34,6 @@ type
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
     procedure InitPreloadFunctions(Struct: UInt32); override;
-    procedure InitLoadTimeFunctions(Struct: UInt32); override;
     procedure SaveList_0000000A(Stream: TStream); virtual;
     procedure LoadList_0000000A(Stream: TStream); virtual;
     procedure SaveSortingSettings_0000000A(Stream: TStream); virtual;
@@ -44,7 +43,7 @@ type
     procedure SaveList_Processed_0000000A(Stream: TStream); virtual;
     procedure LoadList_Processed_0000000A(Stream: TStream); virtual;
     procedure Preload_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags); virtual;
-    Function LoadTime_0000000A(Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
+    class Function LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime; override;
   end;
 
 implementation
@@ -261,16 +260,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO_0000000A.InitLoadTimeFunctions(Struct: UInt32);
-begin
-If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
-  fFNLoadTime := LoadTime_0000000A
-else
-  fFNLoadTime := nil;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TILManager_IO_0000000A.SaveList_0000000A(Stream: TStream);
 var
   Time: TDateTIme;
@@ -411,11 +400,15 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO_0000000A.LoadTime_0000000A(Stream: TStream; out ProgramVersion: Int64): TDateTime;
+class Function TILManager_IO_0000000A.LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime;
 begin
-Stream_ReadUInt32(Stream);  // flags, not needed here
-ProgramVersion := Stream_ReadInt64(Stream);
-Result := UnixToDateTime(Stream_ReadInt64(Stream));
+If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
+  begin
+    Stream_ReadUInt32(Stream);  // flags, not needed here
+    ProgramVersion := Stream_ReadInt64(Stream);
+    Result := UnixToDateTime(Stream_ReadInt64(Stream));
+  end
+else Result := inherited LoadTime(Struct,Stream,ProgramVersion);
 end;
 
 end.

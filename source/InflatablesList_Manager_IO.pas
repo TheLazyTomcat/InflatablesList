@@ -53,15 +53,13 @@ type
     fFNSaveItems:           procedure(Stream: TStream) of object;
     fFNLoadItems:           procedure(Stream: TStream) of object;
     fFNPreload:             procedure(Stream: TStream; var PreloadResult: TILPreloadResultFlags) of object;
-    fFNLoadTime:            Function(Stream: TStream; out ProgramVersion: Int64): TDateTime of object;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure InitPreloadFunctions(Struct: UInt32); virtual; abstract;
-    procedure InitLoadTimeFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
     procedure Preload(Stream: TStream; Struct: UInt32; var PreloadResult: TILPreloadResultFlags); virtual;
-    Function LoadTime(Stream: TStream; Struct: UInt32; out ProgramVersion: Int64): TDateTime; virtual;
+    class Function LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
   public
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
@@ -73,8 +71,8 @@ type
     procedure LoadFromFile; virtual;
     Function PreloadStream(Stream: TStream): TILPreloadResultFlags; virtual;
     Function PreloadFile: TILPreloadResultFlags; virtual;
-    Function LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
-    Function LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime; virtual;
+    class Function LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
+    class Function LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime; virtual;
   end;
 
 implementation
@@ -110,13 +108,10 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO.LoadTime(Stream: TStream; Struct: UInt32; out ProgramVersion: Int64): TDateTime;
+class Function TILManager_IO.LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime;
 begin
-InitLoadTimeFunctions(Struct);
-If Assigned(fFNLoadTime) then
-  Result := fFNLoadTime(Stream,ProgramVersion)
-else
-  Result := 0.0;
+ProgramVersion := 0;
+Result := 0.0;
 end;
 
 //==============================================================================
@@ -242,6 +237,10 @@ procedure TILManager_IO.SaveToFile;
 var
   FileStream: TMemoryStream;
 begin
+// do backup
+If not fStaticSettings.NoBackup then
+  fBackupManager.Backup;
+// do saving
 FileStream := TMemoryStream.Create;
 try
   //prealloc
@@ -310,17 +309,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO.LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime;
+class Function TILManager_IO.LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime;
 begin
 If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
-  Result := LoadTime(Stream,Stream_ReadUInt32(Stream),ProgramVersion)
+  Result := LoadTime(Stream_ReadUInt32(Stream),Stream,ProgramVersion)
 else
   raise Exception.Create('TILItem_IO.LoadTimeStream: Invalid stream.');
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO.LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime;
+class Function TILManager_IO.LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime;
 var
   FileStream: TFileStream;
 begin

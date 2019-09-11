@@ -47,7 +47,7 @@ const
     'Saving of the list, both implicit and explicit, is disabled.',
     'Automatic backup during saving of the list is not performed (has no meaning when saving is disabled).',
     'Update log is not automatically saved.',
-    'Overrides file name of loaded and saved list file, also disables automatic backups (equivalent to no_backup).');
+    'Overrides default file name of loaded and saved list file.');
   DYN_SETTINGS_NAMES: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'list.compression',
     'list.encryption',

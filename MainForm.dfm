@@ -171,220 +171,6 @@ object fMainForm: TfMainForm
   object oXPManifest: TXPManifest
     Left = 128
   end
-  object alShortcuts: TActionList
-    Left = 32
-    object acItemShops: TAction
-      Category = 'item'
-      Caption = 'acItemShops'
-      ShortCut = 16464
-      OnExecute = acItemShopsExecute
-    end
-    object acItemExport: TAction
-      Category = 'item'
-      Caption = 'acItemExport'
-      ShortCut = 16453
-      OnExecute = acItemExportExecute
-    end
-    object acItemExportMulti: TAction
-      Category = 'item'
-      Caption = 'acItemExportMulti'
-      ShortCut = 49221
-      OnExecute = acItemExportMultiExecute
-    end
-    object acItemImport: TAction
-      Category = 'item'
-      Caption = 'acItemImport'
-      ShortCut = 16457
-      OnExecute = acItemImportExecute
-    end
-    object acFind: TAction
-      Category = 'search'
-      Caption = 'acFind'
-      ShortCut = 16454
-      OnExecute = acFindExecute
-    end
-    object acFindPrev: TAction
-      Category = 'search'
-      Caption = 'acFindPrev'
-      ShortCut = 8306
-      OnExecute = acFindPrevExecute
-    end
-    object acFindNext: TAction
-      Category = 'search'
-      Caption = 'acFindNext'
-      ShortCut = 114
-      OnExecute = acFindNextExecute
-    end
-    object acSortSett: TAction
-      Category = 'sorting'
-      Caption = 'acSortSett'
-      OnExecute = acSortSettExecute
-    end
-    object acSortRev: TAction
-      Category = 'sorting'
-      Caption = 'acSortRev'
-      ShortCut = 16466
-      OnExecute = acSortRevExecute
-    end
-    object acSortCase: TAction
-      Category = 'sorting'
-      Caption = 'acSortCase'
-      OnExecute = acSortCaseExecute
-    end
-    object acSort: TAction
-      Category = 'sorting'
-      Caption = 'acSort'
-      ShortCut = 16463
-      OnExecute = acSortExecute
-    end
-    object acUpdateItem: TAction
-      Category = 'update'
-      Caption = 'acUpdateItem'
-      ShortCut = 16469
-      OnExecute = acUpdateItemExecute
-    end
-    object acUpdateAll: TAction
-      Category = 'update'
-      Caption = 'acUpdateAll'
-      ShortCut = 49237
-      OnExecute = acUpdateAllExecute
-    end
-    object acUpdateWanted: TAction
-      Category = 'update'
-      Caption = 'acUpdateWanted'
-      OnExecute = acUpdateWantedExecute
-    end
-    object acUpdateSelected: TAction
-      Category = 'update'
-      Caption = 'acUpdateSelected'
-      OnExecute = acUpdateSelectedExecute
-    end
-    object acUpdateItemShopHistory: TAction
-      Category = 'update'
-      Caption = 'acUpdateItemShopHistory'
-      ShortCut = 16456
-      OnExecute = acUpdateItemShopHistoryExecute
-    end
-    object acUpdateShopsHistory: TAction
-      Category = 'update'
-      Caption = 'acUpdateShopsHistory'
-      ShortCut = 49224
-      OnExecute = acUpdateShopsHistoryExecute
-    end
-    object acSums: TAction
-      Category = 'list'
-      Caption = 'acSums'
-      ShortCut = 16461
-      OnExecute = acSumsExecute
-    end
-    object acOverview: TAction
-      Category = 'list'
-      Caption = 'acOverview'
-      ShortCut = 16471
-      OnExecute = acOverviewExecute
-    end
-    object acSelection: TAction
-      Category = 'tools'
-      Caption = 'acSelection'
-      ShortCut = 16468
-      OnExecute = acSelectionExecute
-    end
-    object acNotes: TAction
-      Category = 'list'
-      Caption = 'acNotes'
-      ShortCut = 16462
-      OnExecute = acNotesExecute
-    end
-    object acBackups: TAction
-      Category = 'file'
-      Caption = 'acBackups'
-      ShortCut = 16450
-      OnExecute = acBackupsExecute
-    end
-    object acSave: TAction
-      Category = 'file'
-      Caption = 'acSave'
-      ShortCut = 16467
-      OnExecute = acSaveExecute
-    end
-    object acSpecials: TAction
-      Category = 'tools'
-      Caption = 'acSpecials'
-      ShortCut = 16460
-      OnExecute = acSpecialsExecute
-    end
-    object acExit: TAction
-      Category = 'file'
-      Caption = 'acExit'
-      ShortCut = 16472
-      OnExecute = acExitExecute
-    end
-    object acSortBy_0: TAction
-      Category = 'sorting_by'
-      Caption = 'acSortBy_0'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_1: TAction
-      Tag = 1
-      Category = 'sorting_by'
-      Caption = 'acSortBy_1'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_2: TAction
-      Tag = 2
-      Category = 'sorting_by'
-      Caption = 'acSortBy_2'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_3: TAction
-      Tag = 3
-      Category = 'sorting_by'
-      Caption = 'acSortBy_3'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_4: TAction
-      Tag = 4
-      Category = 'sorting_by'
-      Caption = 'acSortBy_4'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_5: TAction
-      Tag = 5
-      Category = 'sorting_by'
-      Caption = 'acSortBy_5'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_6: TAction
-      Tag = 6
-      Category = 'sorting_by'
-      Caption = 'acSortBy_6'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_7: TAction
-      Tag = 7
-      Category = 'sorting_by'
-      Caption = 'acSortBy_7'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_8: TAction
-      Tag = 8
-      Category = 'sorting_by'
-      Caption = 'acSortBy_8'
-      OnExecute = acSortByCommonExecute
-    end
-    object acSortBy_9: TAction
-      Tag = 9
-      Category = 'sorting_by'
-      Caption = 'acSortBy_9'
-      OnExecute = acSortByCommonExecute
-    end
-    object acAdvSearch: TAction
-      Category = 'search'
-      Caption = 'acAdvSearch'
-      ShortCut = 49222
-      OnExecute = acAdvSearchExecute
-    end
-  end
   object diaItemsImport: TOpenDialog
     Filter = 'Exported items (*.lei)|*.lei|All files (*.*)|*.*'
     Title = 'Items import'
@@ -444,22 +230,20 @@ object fMainForm: TfMainForm
       OnClick = mniMM_ListClick
       object mniMML_Add: TMenuItem
         Caption = 'Add new item'
-        ShortCut = 45
+        ShortCut = 16429
         OnClick = mniMML_AddClick
       end
       object mniMML_AddCopy: TMenuItem
         Caption = 'Add copy of selected item'
-        ShortCut = 16429
         OnClick = mniMML_AddCopyClick
       end
       object mniMML_Remove: TMenuItem
         Caption = 'Remove selected item'
-        ShortCut = 46
+        ShortCut = 16430
         OnClick = mniMML_RemoveClick
       end
       object mniMML_Clear: TMenuItem
         Caption = 'Clear the entire list'
-        ShortCut = 16430
         OnClick = mniMML_ClearClick
       end
       object N3: TMenuItem

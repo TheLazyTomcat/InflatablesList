@@ -73,44 +73,6 @@ type
     mniMMH_SettingsLegend: TMenuItem;
     N6: TMenuItem;
     mniMMH_About: TMenuItem;
-    // ---
-    alShortcuts: TActionList;
-    acBackups: TAction;
-    acSave: TAction;
-    acExit: TAction;
-    acItemShops: TAction;
-    acItemExport: TAction;
-    acItemExportMulti: TAction;
-    acItemImport: TAction;
-    acSums: TAction;
-    acOverview: TAction;
-    acNotes: TAction;
-    acFind: TAction;
-    acFindPrev: TAction;
-    acFindNext: TAction;
-    acAdvSearch: TAction;
-    acSortSett: TAction;
-    acSortRev: TAction;
-    acSortCase: TAction;
-    acSort: TAction;
-    acSortBy_0: TAction;
-    acSortBy_1: TAction;
-    acSortBy_2: TAction;
-    acSortBy_3: TAction;
-    acSortBy_4: TAction;
-    acSortBy_5: TAction;
-    acSortBy_6: TAction;
-    acSortBy_7: TAction;
-    acSortBy_8: TAction;
-    acSortBy_9: TAction;
-    acSelection: TAction;
-    acSpecials: TAction;
-    acUpdateItem: TAction;
-    acUpdateAll: TAction;
-    acUpdateWanted: TAction;
-    acUpdateSelected: TAction;
-    acUpdateItemShopHistory: TAction;
-    acUpdateShopsHistory: TAction;
     // ---    
     diaItemsImport: TOpenDialog;
     diaItemsExport: TSaveDialog;
@@ -190,41 +152,6 @@ type
     procedure mniMMH_ResMarkLegendClick(Sender: TObject);
     procedure mniMMH_SettingsLegendClick(Sender: TObject);
     procedure mniMMH_AboutClick(Sender: TObject);
-    // ---
-    procedure acBackupsExecute(Sender: TObject);
-    procedure acSaveExecute(Sender: TObject);
-    procedure acExitExecute(Sender: TObject);
-    // ---
-    procedure acItemShopsExecute(Sender: TObject);
-    procedure acItemExportExecute(Sender: TObject);
-    procedure acItemExportMultiExecute(Sender: TObject);
-    procedure acItemImportExecute(Sender: TObject);
-    // ---
-    procedure acSumsExecute(Sender: TObject);
-    procedure acOverviewExecute(Sender: TObject);
-    procedure acNotesExecute(Sender: TObject);
-    // ---
-    procedure acFindExecute(Sender: TObject);
-    procedure acFindPrevExecute(Sender: TObject);
-    procedure acFindNextExecute(Sender: TObject);
-    procedure acAdvSearchExecute(Sender: TObject);
-    // ---
-    procedure acSortSettExecute(Sender: TObject);
-    procedure acSortRevExecute(Sender: TObject);
-    procedure acSortCaseExecute(Sender: TObject);
-    procedure acSortExecute(Sender: TObject);
-    // ---
-    procedure acSortByCommonExecute(Sender: TObject);
-    // ---
-    procedure acSelectionExecute(Sender: TObject);
-    procedure acSpecialsExecute(Sender: TObject);
-    // ---
-    procedure acUpdateItemExecute(Sender: TObject);
-    procedure acUpdateAllExecute(Sender: TObject);
-    procedure acUpdateWantedExecute(Sender: TObject);
-    procedure acUpdateSelectedExecute(Sender: TObject);
-    procedure acUpdateItemShopHistoryExecute(Sender: TObject);
-    procedure acUpdateShopsHistoryExecute(Sender: TObject);
     // ---
     procedure lbListClick(Sender: TObject);
     procedure lbListDblClick(Sender: TObject);    
@@ -611,20 +538,18 @@ begin
 lbList.DoubleBuffered := True;
 sbStatusBar.DoubleBuffered := True;
 // build shortcuts
-mniMMI_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssShift,ssAlt]);
+mniMML_AddCopy.ShortCut := ShortCut(VK_INSERT,[ssCtrl,ssShift]);
+mniMML_Clear.ShortCut := ShortCut(VK_DELETE,[ssCtrl,ssShift]);
+mniMMI_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssCtrl,ssAlt]);
 mniMMI_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
-mniMMI_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
-mniMMI_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
+mniMMI_MoveUp.ShortCut := ShortCut(VK_UP,[ssCtrl]);
+mniMMI_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssCtrl]);
 mniMMI_MoveDownBy.ShortCut := ShortCut(VK_DOWN,[ssShift,ssCtrl]);
-mniMMI_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssShift,ssAlt]);
+mniMMI_MoveEnd.ShortCut := ShortCut(VK_DOWN,[ssCtrl,ssAlt]);
 mniMMO_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniMMO_SortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
 mniMMU_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 mniMMU_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
-acSortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
-acSortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
-acUpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
-acUpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 // shortcuts of sort-by actions (menu items are set in creation)
 For i := 0 to Pred(ComponentCount) do
   If Components[i] is TAction then
@@ -1501,200 +1426,6 @@ end;
 procedure TfMainForm.mniMMH_AboutClick(Sender: TObject);
 begin
 fAboutForm.ShowInfo;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acBackupsExecute(Sender: TObject);
-begin
-mniMMF_Backups.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSaveExecute(Sender: TObject);
-begin
-mniMMF_Save.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acExitExecute(Sender: TObject);
-begin
-mniMMF_Exit.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemShopsExecute(Sender: TObject);
-begin
-mniMMI_ItemShops.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemExportExecute(Sender: TObject);
-begin
-mniMMI_ItemExport.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemExportMultiExecute(Sender: TObject);
-begin
-mniMMI_ItemExportMulti.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acItemImportExecute(Sender: TObject);
-begin
-mniMMI_ItemImport.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSumsExecute(Sender: TObject);
-begin
-mniMML_Sums.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acOverviewExecute(Sender: TObject);
-begin
-mniMML_Overview.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acNotesExecute(Sender: TObject);
-begin
-mniMML_Notes.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindExecute(Sender: TObject);
-begin
-mniMMS_Find.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindPrevExecute(Sender: TObject);
-begin
-mniMMS_FindPrev.OnClick(nil);
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acFindNextExecute(Sender: TObject);
-begin
-mniMMS_FindNext.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acAdvSearchExecute(Sender: TObject);
-begin
-mniMMS_AdvSearch.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortSettExecute(Sender: TObject);
-begin
-mniMMO_SortSett.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortRevExecute(Sender: TObject);
-begin
-mniMMO_SortRev.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortCaseExecute(Sender: TObject);
-begin
-mniMMO_SortCase.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortExecute(Sender: TObject);
-begin
-mniMMO_Sort.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSortByCommonExecute(Sender: TObject);
-begin
-If Sender is TAction then
-  If BT(fActionMask,Byte(TAction(Sender).Tag)) then
-    begin
-      mniMMO_SortCommon(TAction(Sender).Tag);
-      lbList.SetFocus;
-    end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSelectionExecute(Sender: TObject);
-begin
-mniMMT_Selection.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acSpecialsExecute(Sender: TObject);
-begin
-mniMMT_Specials.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateItemExecute(Sender: TObject);
-begin
-mniMMU_UpdateItem.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateAllExecute(Sender: TObject);
-begin
-mniMMU_UpdateAll.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateWantedExecute(Sender: TObject);
-begin
-mniMMU_UpdateWanted.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateSelectedExecute(Sender: TObject);
-begin
-mniMMU_UpdateSelected.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateItemShopHistoryExecute(Sender: TObject);
-begin
-mniMMU_UpdateItemShopHistory.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.acUpdateShopsHistoryExecute(Sender: TObject);
-begin
-mniMMU_UpdateShopsHistory.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

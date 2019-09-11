@@ -1,6 +1,6 @@
 object fShopsForm: TfShopsForm
-  Left = 349
-  Top = 65
+  Left = 350
+  Top = 111
   BorderStyle = bsDialog
   Caption = 'Shops'
   ClientHeight = 660

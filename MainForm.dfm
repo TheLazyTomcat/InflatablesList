@@ -295,6 +295,12 @@ object fMainForm: TfMainForm
       ShortCut = 16462
       OnExecute = acNotesExecute
     end
+    object acBackups: TAction
+      Category = 'file'
+      Caption = 'acBackups'
+      ShortCut = 16450
+      OnExecute = acBackupsExecute
+    end
     object acSave: TAction
       Category = 'file'
       Caption = 'acSave'
@@ -406,6 +412,11 @@ object fMainForm: TfMainForm
       object mniMMF_ListPassword: TMenuItem
         Caption = 'Change list password...'
         OnClick = mniMMF_ListPasswordClick
+      end
+      object mniMMF_Backups: TMenuItem
+        Caption = 'Backups...'
+        ShortCut = 16450
+        OnClick = mniMMF_BackupsClick
       end
       object N1: TMenuItem
         Caption = '-'

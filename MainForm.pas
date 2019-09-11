@@ -16,6 +16,7 @@ type
     mniMMF_ListCompress: TMenuItem;
     mniMMF_ListEncrypt: TMenuItem;
     mniMMF_ListPassword: TMenuItem;
+    mniMMF_Backups: TMenuItem;
     N1: TMenuItem;
     mniMMF_SaveOnClose: TMenuItem;
     mniMMF_Save: TMenuItem;
@@ -74,6 +75,7 @@ type
     mniMMH_About: TMenuItem;
     // ---
     alShortcuts: TActionList;
+    acBackups: TAction;
     acSave: TAction;
     acExit: TAction;
     acItemShops: TAction;
@@ -131,6 +133,7 @@ type
     procedure mniMMF_ListCompressClick(Sender: TObject);
     procedure mniMMF_ListEncryptClick(Sender: TObject);
     procedure mniMMF_ListPasswordClick(Sender: TObject);
+    procedure mniMMF_BackupsClick(Sender: TObject);    
     procedure mniMMF_SaveOnCloseClick(Sender: TObject);    
     procedure mniMMF_SaveClick(Sender: TObject);
     procedure mniMMF_ExitClick(Sender: TObject);
@@ -188,6 +191,7 @@ type
     procedure mniMMH_SettingsLegendClick(Sender: TObject);
     procedure mniMMH_AboutClick(Sender: TObject);
     // ---
+    procedure acBackupsExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
     procedure acExitExecute(Sender: TObject);
     // ---
@@ -263,6 +267,7 @@ type
     Function SaveList: Boolean;
     Function LoadList: Boolean;
     // event handlers
+    procedure RestartProgram(Sender: TObject);
     procedure DeferredRedraw(Sender: TObject; var Done: Boolean);
     procedure InvalidateList(Sender: TObject);
     procedure ShowSelectedItem(Sender: TObject);
@@ -283,8 +288,8 @@ uses
   CommCtrl,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm,
-  WinFileInfo, BitOps, CountedDynArrayInteger,  
+  UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm, BackupsForm,
+  WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_Manager_IO;
@@ -495,6 +500,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.RestartProgram(Sender: TObject);
+var
+  Params: String;
+  i:      Integer;
+begin
+Params := '';
+For i := 1 to ParamCount do
+  Params := Params + ' ' + ParamStr(i);
+IL_ShellOpen(0,RTLToStr(ParamStr(0)),Params,fILManager.StaticSettings.DefaultPath);
+fSaveOnExit := False;
+Close;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.DeferredRedraw(Sender: TObject; var Done: Boolean);
 begin
 Done := True;
@@ -553,6 +573,8 @@ fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
 fItemSelectForm.Initialize(fIlManager);
+fBackupsForm.Initialize(fILManager);
+fBackupsForm.OnRestartRequired := RestartProgram;
 fUpdResLegendForm.Initialize(fIlManager);
 fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
@@ -573,6 +595,7 @@ fOverviewForm.Finalize;
 fSelectionForm.Finalize;
 fUpdateForm.Finalize;
 fItemSelectForm.Finalize;
+fBackupsForm.Finalize;
 fUpdResLegendForm.Finalize;
 fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
@@ -627,7 +650,6 @@ fActionMask := 0;
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
 frmItemFrame.OnFocusList := FocusList;
-// preload list and ask for password if necessary, catch EWrongPassword
 // load list
 ApplicationCanRun := LoadList;
 If not ApplicationCanRun then
@@ -739,6 +761,13 @@ begin
 If fIlManager.Encrypted then
   If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
     fIlManager.ListPassword := Password;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_BackupsClick(Sender: TObject);
+begin
+fBackupsForm.ShowBackups;
 end;
 
 //------------------------------------------------------------------------------
@@ -1472,6 +1501,13 @@ end;
 procedure TfMainForm.mniMMH_AboutClick(Sender: TObject);
 begin
 fAboutForm.ShowInfo;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.acBackupsExecute(Sender: TObject);
+begin
+mniMMF_Backups.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

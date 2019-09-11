@@ -73,6 +73,7 @@ Function IL_FileExists(const FileName: String): Boolean;
 Function IL_DeleteFile(const FileName: String): Boolean;
 
 procedure IL_CopyFile(const Source,Destination: String);
+procedure IL_MoveFile(const Source,Destination: String);
 
 //==============================================================================
 //- event handler assignment checking ------------------------------------------
@@ -101,7 +102,7 @@ Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer;
 
 Function IL_BoolToStr(Value: Boolean; FalseStr, TrueStr: String): String;
 
-procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
+procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
 
 implementation
 
@@ -456,6 +457,14 @@ begin
 CopyFile(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),False);
 end;
 
+//------------------------------------------------------------------------------
+
+procedure IL_MoveFile(const Source,Destination: String);
+begin
+MoveFileEx(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),
+  MOVEFILE_COPY_ALLOWED or MOVEFILE_REPLACE_EXISTING or MOVEFILE_WRITE_THROUGH);
+end;
+
 
 //==============================================================================
 //- event handler assignment checking ------------------------------------------
@@ -599,10 +608,10 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure IL_ShellOpen(WindowHandle: HWND; const Path: String);
+procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
 begin
 If Length(Path) > 0 then
-  ShellExecute(WindowHandle,'open',PChar(StrToWin(Path)),nil,nil,SW_SHOWNORMAL);
+  ShellExecute(WindowHandle,'open',PChar(StrToWin(Path)),PChar(StrToWin(Params)),PChar(StrToWin(Directory)),SW_SHOWNORMAL);
 end;
 
 //==============================================================================

@@ -7,6 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
+  InflatablesList_Types,
   InflatablesList_Manager_IO,  
   InflatablesList_Manager_IO_00000009;
 
@@ -50,7 +51,6 @@ implementation
 uses
   SysUtils, DateUtils,
   BinaryStreaming, StrRect, WinFileInfo, BitOps, MD5, SHA2, AES, SimpleCompress,
-  InflatablesList_Types,
   InflatablesList_Utils;
 
 Function TILManager_IO_0000000A.GetFlagsWord: UInt32;

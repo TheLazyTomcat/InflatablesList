@@ -295,6 +295,40 @@ type
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings; overload;
 
+//==============================================================================
+//- preload information --------------------------------------------------------
+
+type
+  TILPreloadInfoVersion = packed record
+    case Boolean of
+      True:   (Full:    Int64);
+      False:  (Major:   UInt16;
+               Minor:   UInt16;
+               Release: UInt16;
+               Build:   UInt16);
+  end;
+
+  TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfExtInfo,ilprfEncrypted,
+                          ilprfCompressed,ilprfPictures,ilprfSlowLoad);{$message 'implement slow load'}
+
+  TILPreloadResultFlags = set of TILPreloadResultFlag;
+
+  TILPreloadInfo = record
+    // basic info
+    ResultFlags:  TILPreloadResultFlags;
+    FileSize:     UInt64;
+    Signature:    UInt32;
+    Structure:    UInt32;
+    // extended info, valid only when ResultFlags contains ilprfExtInfo
+    Flags:        UInt32;
+    Version:      TILPreloadInfoVersion;
+    TimeRaw:      Int64;
+    Time:         TDateTime;
+    TimeStr:      String;
+  end;
+
+Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
+
 implementation
 
 uses
@@ -1019,6 +1053,15 @@ begin
 Result := Value;
 UniqueString(Result.DefaultPath);
 UniqueString(Result.ListPath);
+end;
+
+//==============================================================================
+//- preload information --------------------------------------------------------
+
+Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo;
+begin
+Result := Value;
+UniqueString(Result.TimeStr);
 end;
 
 end.

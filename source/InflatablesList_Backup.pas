@@ -64,8 +64,8 @@ implementation
 uses
   SysUtils, IniFiles,
   StrRect, FloatHex, WinFileInfo,
+  InflatablesList_Types,
   InflatablesList_Utils,
-  InflatablesList_Manager_IO,
   InflatablesList_Manager;
 
 Function IL_ThreadSafeCopy(Value: TILBackupEntry): TILBackupEntry;
@@ -277,8 +277,16 @@ If IL_FileExists(fListFile) then
     with TILManager.CreateTransient do
     try
       Preload := PreloadFile(fListFile);
-      Temp.SaveTime := Preload.Time;
-      Temp.SaveVersion := Preload.Version.Full;
+      If ilprfExtInfo in Preload.ResultFlags then
+        begin
+          Temp.SaveTime := Preload.Time;
+          Temp.SaveVersion := Preload.Version.Full;
+        end
+      else
+        begin
+          Temp.SaveTime := 0.0;
+          Temp.SaveVersion := 0;
+        end;
     finally
       Free;
     end;

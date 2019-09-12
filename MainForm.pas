@@ -218,8 +218,7 @@ uses
   UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm, BackupsForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
-  InflatablesList_Utils,
-  InflatablesList_Manager_IO;
+  InflatablesList_Utils;
 
 {$R *.dfm}
 

@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.80287587"
-     inkscape:cx="413.70283"
-     inkscape:cy="520.882"
+     inkscape:zoom="2.2881962"
+     inkscape:cx="627.71059"
+     inkscape:cy="946.97917"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -284,29 +284,6 @@
        inkscape:export-filename=".\rider.png"
        inkscape:export-xdpi="58.806606"
        inkscape:export-ydpi="58.806606" />
-    <g
-       id="g4323"
-       transform="translate(-2.2146627,-2.0413777)"
-       inkscape:export-filename=".\rider.png"
-       inkscape:export-xdpi="58.806606"
-       inkscape:export-ydpi="58.806606">
-      <rect
-         ry="5.2697697"
-         y="90.490074"
-         x="635.99268"
-         height="10.539539"
-         width="31.618618"
-         id="rect4319"
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <rect
-         ry="2.6297486"
-         y="93.130096"
-         x="640.65686"
-         height="5.2594972"
-         width="22.290251"
-         id="rect4321"
-         style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
     <rect
        style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4338"
@@ -1149,5 +1126,11 @@
        y="-91.879402"
        ry="1.1075767"
        transform="matrix(0.70710678,0.70710678,-0.70710678,0.70710678,0,0)" />
+    <path
+       style="fill:#e6e6e6;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 631.50179,90.687692 c -3.7908,1.19985 -8.4161,2.28802 -10.48861,5.68133 -3.41773,5.595828 -3.54667,13.893408 -0.43703,19.666138 2.07976,3.86087 6.91065,5.8482 11.14415,6.99241 13.01504,3.51766 28.08398,4.11738 40.42485,-1.31108 4.29041,-1.88725 7.30299,-6.10596 9.83307,-10.05159 7.03161,-10.96571 13.98482,-36.491618 13.98482,-36.491618 0,0 -23.97158,9.43567 -36.49162,12.23672 -9.16056,2.04944 -19.02021,0.44505 -27.96963,3.27769 z"
+       id="path4281"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="aaaaaacaa" />
   </g>
 </svg>

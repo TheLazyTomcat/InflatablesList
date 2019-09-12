@@ -43,6 +43,7 @@ implementation
 
 uses
   WinFileInfo,
+  InflatablesList_Types,  
   InflatablesList_Utils;
 
 {$R *.dfm}
@@ -80,10 +81,10 @@ try
         SubItems[0] := WinFileInfo.SizeToStr(fILManager.BackupManager[i].Size);
         If fILManager.BackupManager[i].SaveVersion <> 0 then
           SubItems[1] := IL_Format('%d.%d.%d (build #%d)',[
-            Int64Rec(fILManager.BackupManager[i].SaveVersion).Words[0],
-            Int64Rec(fILManager.BackupManager[i].SaveVersion).Words[1],
-            Int64Rec(fILManager.BackupManager[i].SaveVersion).Words[2],
-            Int64Rec(fILManager.BackupManager[i].SaveVersion).Words[3]])
+            TILPreloadInfoVersion(fILManager.BackupManager[i].SaveVersion).Major,
+            TILPreloadInfoVersion(fILManager.BackupManager[i].SaveVersion).Minor,
+            TILPreloadInfoVersion(fILManager.BackupManager[i].SaveVersion).Release,
+            TILPreloadInfoVersion(fILManager.BackupManager[i].SaveVersion).Build])
         else
           SubItems[1] := 'unknown';
         If fILManager.BackupManager[i].SaveTime <> 0.0 then

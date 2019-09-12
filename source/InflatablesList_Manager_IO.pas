@@ -7,6 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
+  InflatablesList_Types,
   InflatablesList_Manager_Templates;
 
 const
@@ -32,39 +33,6 @@ const
   IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024;  // 90KiB per item
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
-
-//- preload info ---------------------------------------------------------------
-
-type
-  TILPreloadInfoVersion = packed record
-    case Boolean of
-      True:   (Full:    Int64);
-      False:  (Major:   UInt16;
-               Minor:   UInt16;
-               Release: UInt16;
-               Build:   UInt16);
-  end;
-
-  TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfExtInfo,ilprfEncrypted,
-                          ilprfCompressed,ilprfPictures,ilprfSlowLoad{$message 'implement'});
-
-  TILPreloadResultFlags = set of TILPreloadResultFlag;
-
-  TILPreloadInfo = record
-    // basic info
-    ResultFlags:  TILPreloadResultFlags;
-    FileSize:     UInt64;
-    Signature:    UInt32;
-    Structure:    UInt32;
-    // extended info, valid only when ResultFlags contains ilprfExtInfo
-    Flags:        UInt32;
-    Version:      TILPreloadInfoVersion;
-    TimeRaw:      Int64;
-    Time:         TDateTime;
-    TimeStr:      String;
-  end;
-
-Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
 
 type
   TILManager_IO = class(TILManager_Templates)
@@ -95,6 +63,9 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile; virtual;
     procedure LoadFromFile; virtual;
+    {$message 'implement'}
+    //procedure LoadFromStreamThreaded(Stream: TStream; EndNotificationHandler: TNotifyEvent); virtual;
+    //procedure LoadFromFileThreaded(EndNotificationHandler: TNotifyEvent); virtual;
     Function PreloadStream(Stream: TStream): TILPreloadInfo; virtual;
     Function PreloadFile(const FileName: String): TILPreloadInfo; overload; virtual;
     Function PreloadFile: TILPreloadInfo; overload; virtual;
@@ -108,13 +79,6 @@ uses
   InflatablesList_Utils,
   InflatablesList_Item;
 
-Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo;
-begin
-Result := Value;
-UniqueString(Result.TimeStr);
-end;
-
-//==============================================================================
 
 procedure TILManager_IO.Save(Stream: TStream; Struct: UInt32);
 begin

@@ -80,7 +80,8 @@ uses
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
-  PromptForm in 'PromptForm.pas' {fPromptForm};
+  PromptForm in 'PromptForm.pas' {fPromptForm},
+  SplashForm in 'SplashForm.pas' {fSplashForm};
 
 {$R *.res}
 
@@ -110,6 +111,7 @@ try
       Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
       Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
       Application.CreateForm(TfAboutForm, fAboutForm);
+      Application.CreateForm(TfSplashForm, fSplashForm);
       // do not automatically create prompt form
       If not fMainForm.ApplicationCanRun then
         begin

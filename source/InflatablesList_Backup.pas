@@ -65,6 +65,7 @@ uses
   SysUtils, IniFiles,
   StrRect, FloatHex, WinFileInfo,
   InflatablesList_Utils,
+  InflatablesList_Manager_IO,
   InflatablesList_Manager;
 
 Function IL_ThreadSafeCopy(Value: TILBackupEntry): TILBackupEntry;
@@ -264,15 +265,23 @@ end;
 
 procedure TILBackupManager.Backup;
 var
-  Time: TDateTime;
-  Temp: TILBackupEntry;
+  Time:     TDateTime;
+  Temp:     TILBackupEntry;
+  Preload:  TILPreloadInfo;
 begin
 If IL_FileExists(fListFile) then
   begin
     // fill entry
     Time := Now;
     Temp.FileName := IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time) + '.inl';
-    Temp.SaveTime := TILManager.LoadTimeFile(fListFile,Temp.SaveVersion);
+    with TILManager.CreateTransient do
+    try
+      Preload := PreloadFile(fListFile);
+      Temp.SaveTime := Preload.Time;
+      Temp.SaveVersion := Preload.Version.Full;
+    finally
+      Free;
+    end;
     Temp.BackupTime := Time;
     with TWinFileInfo.Create(fListFile,WFI_LS_LoadSize) do
     try

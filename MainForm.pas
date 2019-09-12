@@ -396,15 +396,15 @@ end;
 
 Function TfMainForm.LoadList: Boolean;
 var
-  PreloadRes: TILPreloadResultFlags;
-  Password:   String;
+  PreloadInfo:  TILPreloadInfo;
+  Password:     String;
 begin
 Result := False;
-PreloadRes := fILManager.PreloadFile;
-If not([ilprfInvalidFile,ilprfError] <= PreloadRes) then
+PreloadInfo := fILManager.PreloadFile;
+If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
   begin
     // when the file is encrypted, ask for password
-    If ilprfEncrypted in PreloadRes then
+    If ilprfEncrypted in PreloadInfo.ResultFlags then
       begin
         If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
           fILManager.ListPassword := Password

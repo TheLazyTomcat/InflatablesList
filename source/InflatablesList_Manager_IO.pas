@@ -33,11 +33,38 @@ const
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
+//- preload info ---------------------------------------------------------------
+
 type
-  TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfEncrypted,
-                          ilprfCompressed,ilprfSlowLoad{$message 'implement'});
-  
+  TILPreloadInfoVersion = packed record
+    case Boolean of
+      True:   (Full:    Int64);
+      False:  (Major:   UInt16;
+               Minor:   UInt16;
+               Release: UInt16;
+               Build:   UInt16);
+  end;
+
+  TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfExtInfo,ilprfEncrypted,
+                          ilprfCompressed,ilprfPictures,ilprfSlowLoad{$message 'implement'});
+
   TILPreloadResultFlags = set of TILPreloadResultFlag;
+
+  TILPreloadInfo = record
+    // basic info
+    ResultFlags:  TILPreloadResultFlags;
+    FileSize:     UInt64;
+    Signature:    UInt32;
+    Structure:    UInt32;
+    // extended info, valid only when ResultFlags contains ilprfExtInfo
+    Flags:        UInt32;
+    Version:      TILPreloadInfoVersion;
+    TimeRaw:      Int64;
+    Time:         TDateTime;
+    TimeStr:      String;
+  end;
+
+Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
 
 type
   TILManager_IO = class(TILManager_Templates)
@@ -52,14 +79,13 @@ type
     fFNLoadFilterSettings:  procedure(Stream: TStream) of object;
     fFNSaveItems:           procedure(Stream: TStream) of object;
     fFNLoadItems:           procedure(Stream: TStream) of object;
-    fFNPreload:             procedure(Stream: TStream; var PreloadResult: TILPreloadResultFlags) of object;
+    fFNPreload:             procedure(Stream: TStream; out Info: TILPreloadInfo) of object;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure InitPreloadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
-    procedure Preload(Stream: TStream; Struct: UInt32; var PreloadResult: TILPreloadResultFlags); virtual;
-    class Function LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
+    procedure Preload(Stream: TStream; Struct: UInt32; out Info: TILPreloadInfo); virtual;
   public
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
@@ -69,10 +95,9 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile; virtual;
     procedure LoadFromFile; virtual;
-    Function PreloadStream(Stream: TStream): TILPreloadResultFlags; virtual;
-    Function PreloadFile: TILPreloadResultFlags; virtual;
-    class Function LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime; virtual;
-    class Function LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime; virtual;
+    Function PreloadStream(Stream: TStream): TILPreloadInfo; virtual;
+    Function PreloadFile(const FileName: String): TILPreloadInfo; overload; virtual;
+    Function PreloadFile: TILPreloadInfo; overload; virtual;
   end;
 
 implementation
@@ -82,6 +107,14 @@ uses
   BinaryStreaming, StrRect,
   InflatablesList_Utils,
   InflatablesList_Item;
+
+Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo;
+begin
+Result := Value;
+UniqueString(Result.TimeStr);
+end;
+
+//==============================================================================
 
 procedure TILManager_IO.Save(Stream: TStream; Struct: UInt32);
 begin
@@ -99,19 +132,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO.Preload(Stream: TStream; Struct: UInt32; var PreloadResult: TILPreloadResultFlags);
+procedure TILManager_IO.Preload(Stream: TStream; Struct: UInt32; out Info: TILPreloadInfo);
 begin
 InitPreloadFunctions(Struct);
 If Assigned(fFNPreload) then
-  fFNPreload(Stream,PreloadResult);
-end;
-
-//------------------------------------------------------------------------------
-
-class Function TILManager_IO.LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime;
-begin
-ProgramVersion := 0;
-Result := 0.0;
+  fFNPreload(Stream,Info);
 end;
 
 //==============================================================================
@@ -276,28 +301,32 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO.PreloadStream(Stream: TStream): TILPreloadResultFlags;
+Function TILManager_IO.PreloadStream(Stream: TStream): TILPreloadInfo;
 begin
-Result := [];
+FillChar(Result,SizeOf(TILPreloadInfo),0);
 try
-  If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
-    Preload(Stream,Stream_ReadUInt32(Stream),Result)
-  else
-    Include(Result,ilprfInvalidFile);
+  Result.FileSize := UInt64(Stream.Size);
+  Result.Signature := Stream_ReadUInt32(Stream);
+  If Result.Signature = IL_LISTFILE_SIGNATURE then
+    begin
+      Result.Structure := Stream_ReadUInt32(Stream);
+      Preload(Stream,Result.Structure,Result);
+    end
+  else Include(Result.ResultFlags,ilprfInvalidFile);
 except
-  Include(Result,ilprfError);
+  Include(Result.ResultFlags,ilprfError);
 end;
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_IO.PreloadFile: TILPreloadResultFlags;
+Function TILManager_IO.PreloadFile(const FileName: String): TILPreloadInfo;
 var
   FileStream: TFileStream;
 begin
-If IL_FileExists(fStaticSettings.ListFile) then
+If IL_FileExists(FileName) then
   begin
-    FileStream := TFileStream.Create(StrToRTL(fStaticSettings.ListFile),fmOpenRead or fmShareDenyWrite);
+    FileStream := TFileStream.Create(StrToRTL(FileName),fmOpenRead or fmShareDenyWrite);
     try
       FileStream.Seek(0,soBeginning);
       Result := PreloadStream(FileStream);
@@ -307,29 +336,11 @@ If IL_FileExists(fStaticSettings.ListFile) then
   end;
 end;
 
-//------------------------------------------------------------------------------
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-class Function TILManager_IO.LoadTimeStream(Stream: TStream; out ProgramVersion: Int64): TDateTime;
+Function TILManager_IO.PreloadFile: TILPreloadInfo;
 begin
-If Stream_ReadUInt32(Stream) = IL_LISTFILE_SIGNATURE then
-  Result := LoadTime(Stream_ReadUInt32(Stream),Stream,ProgramVersion)
-else
-  raise Exception.Create('TILItem_IO.LoadTimeStream: Invalid stream.');
-end;
-
-//------------------------------------------------------------------------------
-
-class Function TILManager_IO.LoadTimeFile(const FileName: String; out ProgramVersion: Int64): TDateTime;
-var
-  FileStream: TFileStream;
-begin
-FileStream := TFileStream.Create(StrToRTL(FileName),fmOpenRead or fmShareDenyWrite);
-try
-  FileStream.Seek(0,soBeginning);
-  Result := LoadTimeStream(FileStream,ProgramVersion);
-finally
-  FileStream.Free;
-end;
+Result := PreloadFile(fStaticSettings.ListFile)
 end;
 
 end.

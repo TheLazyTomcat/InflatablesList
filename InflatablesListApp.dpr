@@ -110,7 +110,7 @@ try
       Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
       Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
       Application.CreateForm(TfAboutForm, fAboutForm);
-  // do not automatically create prompt form
+      // do not automatically create prompt form
       If not fMainForm.ApplicationCanRun then
         begin
           Application.ShowMainForm := False;

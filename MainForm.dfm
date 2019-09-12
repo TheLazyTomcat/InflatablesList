@@ -169,19 +169,19 @@ object fMainForm: TfMainForm
     OnClick = btnFindNextClick
   end
   object oXPManifest: TXPManifest
-    Left = 128
+    Left = 96
   end
   object diaItemsImport: TOpenDialog
     Filter = 'Exported items (*.lei)|*.lei|All files (*.*)|*.*'
     Title = 'Items import'
-    Left = 64
+    Left = 32
   end
   object diaItemsExport: TSaveDialog
     DefaultExt = 'LEI'
     Filter = 'Exported items (*.lei)|*.lei|All files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Title = 'Items export'
-    Left = 96
+    Left = 64
   end
   object mmMainMenu: TMainMenu
     object mniMM_File: TMenuItem

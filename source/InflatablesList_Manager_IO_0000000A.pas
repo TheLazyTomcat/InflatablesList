@@ -42,8 +42,7 @@ type
     procedure LoadList_Plain_0000000A(Stream: TStream); virtual;
     procedure SaveList_Processed_0000000A(Stream: TStream); virtual;
     procedure LoadList_Processed_0000000A(Stream: TStream); virtual;
-    procedure Preload_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags); virtual;
-    class Function LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime; override;
+    procedure Preload_0000000A(Stream: TStream; out Info: TILPreloadInfo); virtual;
   end;
 
 implementation
@@ -393,22 +392,15 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO_0000000A.Preload_0000000A(Stream: TStream; var PreloadResult: TILPreloadResultFlags);
+procedure TILManager_IO_0000000A.Preload_0000000A(Stream: TStream; out Info: TILPreloadInfo);
 begin
-DecodeFlagsWord(Stream_ReadUInt32(Stream),PreloadResult);
-end;
-
-//------------------------------------------------------------------------------
-
-class Function TILManager_IO_0000000A.LoadTime(Struct: UInt32; Stream: TStream; out ProgramVersion: Int64): TDateTime;
-begin
-If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
-  begin
-    Stream_ReadUInt32(Stream);  // flags, not needed here
-    ProgramVersion := Stream_ReadInt64(Stream);
-    Result := UnixToDateTime(Stream_ReadInt64(Stream));
-  end
-else Result := inherited LoadTime(Struct,Stream,ProgramVersion);
+Info.Flags := Stream_ReadUInt32(Stream);
+DecodeFlagsWord(Info.Flags,Info.ResultFlags);
+Info.Version.Full := Stream_ReadInt64(Stream);
+Info.TimeRaw := Stream_ReadInt64(Stream);
+Info.Time := UnixToDateTime(Info.TimeRaw);
+Info.TimeStr := Stream_ReadString(Stream);
+Include(Info.ResultFlags,ilprfExtInfo);
 end;
 
 end.

@@ -19,6 +19,7 @@ type
 
   TILManager_Base = class(TCustomListObject)
   protected
+    fTransient:                   Boolean;
     fStaticSettings:              TILStaticManagerSettings; // not changed at runtime
     fBackupManager:               TILBackupManager;
     fDataProvider:                TILDataProvider;
@@ -94,6 +95,7 @@ type
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILManager_Base); virtual; // will be overriden
+    constructor CreateTransient;  // nothing is initialized, use with great caution
     destructor Destroy; override;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
@@ -117,6 +119,7 @@ type
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     // properties
+    property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
     property DataProvider: TILDataProvider read fDataProvider;
     property BackupManager: TILBackupManager read fBackupManager;
@@ -438,6 +441,7 @@ end;
 
 procedure TILManager_Base.Initialize;
 begin
+fTransient := False;
 InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;
 fBackupManager := TILBackupManager.Create(fStaticSettings.ListFile);
@@ -514,9 +518,33 @@ end;
 
 //------------------------------------------------------------------------------
 
+constructor TILManager_Base.CreateTransient;
+begin
+inherited Create;
+fTransient := True;
+{
+  No field is initialized, no internal object created.
+
+  This means instance created by calling this constructor can be used only for
+  specific purposes.
+
+  At this moment, only following methods and properties/fields can be safely
+  accessed:
+
+     - property Transient
+     - method PreloadStream
+     - method PreloadFile(String) - only this one overload!
+
+  No other method should be called, and no property/field accesses.
+}
+end;
+
+//------------------------------------------------------------------------------
+
 destructor TILManager_Base.Destroy;
 begin
-Finalize;
+If not fTransient then
+  Finalize;
 inherited;
 end;
 

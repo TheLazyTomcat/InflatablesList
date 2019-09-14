@@ -30,7 +30,10 @@ const
 
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
-  IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024;  // 90KiB per item
+  IL_LISTFILE_PREALLOC_ITEM_BYTES        = 2 * KiB;   // 2KiB per item data
+  IL_LISTFILE_PREALLOC_PIC_BYTES         = 27 * KiB;  // 27KiB per picture
+  IL_LISTFILE_PREALLOC_SORT_PROF_BYTES   = 512;       // 512bytes per sorting profile
+  IL_LISTFILE_PREALLOC_ISHOP_TEMPL_BYTES = 3 * KiB;   // 3KiB per item shop template
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
@@ -54,6 +57,7 @@ type
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
     procedure Preload(Stream: TStream; Struct: UInt32; out Info: TILPreloadInfo); virtual;
+    Function PreallocSize: TMemSize; virtual;
   public
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
@@ -69,6 +73,8 @@ type
     Function PreloadStream(Stream: TStream): TILPreloadInfo; virtual;
     Function PreloadFile(const FileName: String): TILPreloadInfo; overload; virtual;
     Function PreloadFile: TILPreloadInfo; overload; virtual;
+    // utility methods
+    Function SlowSaving: Boolean; virtual;
   end;
 
 implementation
@@ -101,6 +107,23 @@ begin
 InitPreloadFunctions(Struct);
 If Assigned(fFNPreload) then
   fFNPreload(Stream,Info);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_IO.PreallocSize: TMemSize;
+begin
+Result :=
+  // some globals (notes, filter settings, ....)
+  TMemSize(1024) +
+  // sorting profiles
+  TMemSize(SortingProfileCount * IL_LISTFILE_PREALLOC_SORT_PROF_BYTES) +
+  // item shop templates
+  TMemSize(ShopTemplateCount * IL_LISTFILE_PREALLOC_ISHOP_TEMPL_BYTES) +
+  // item data
+  TMemSize(fCount * IL_LISTFILE_PREALLOC_ITEM_BYTES) +
+  // item pictures
+  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_PIC_BYTES)
 end;
 
 //==============================================================================
@@ -233,7 +256,7 @@ If not fStaticSettings.NoBackup then
 FileStream := TMemoryStream.Create;
 try
   //prealloc
-  FileStream.Size := fCount * IL_LISTFILE_PREALLOC_ITEM_BYTES;
+  FileStream.Size := Int64(PreallocSize);
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
@@ -305,6 +328,16 @@ end;
 Function TILManager_IO.PreloadFile: TILPreloadInfo;
 begin
 Result := PreloadFile(fStaticSettings.ListFile)
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_IO.SlowSaving: Boolean;
+begin
+Result := (PreallocSize > (20 * MiB)) or
+  ((PreallocSize > (15 * MiB)) and fEncrypted) or
+  ((PreallocSize > (12 * MiB)) and fCompressed) or
+  ((PreallocSize > (10 * MiB)) and fCompressed and fEncrypted);
 end;
 
 end.

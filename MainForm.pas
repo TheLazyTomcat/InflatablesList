@@ -241,7 +241,7 @@ var
   end;
 
 begin
-WorkRect := Screen.MonitorFromWindow(Self.Handle).WorkAreaRect;
+WorkRect := Screen.MonitorFromWindow(Application.Handle).WorkAreaRect;
 WorkRectSize := Point(WorkRect.Right - WorkRect.Left,WorkRect.Bottom - WorkRect.Top);
 If Height > WorkRectSize.Y then
   begin
@@ -261,11 +261,6 @@ end;
 
 procedure TfMainForm.ReSizeMainForm;
 begin
-If fFirstResize then
-  begin
-    RePositionMainForm;
-    fFirstResize := False;
-  end;
 {
   do NOT call anything Client* on gbDetails - it causes problems
 }
@@ -555,6 +550,8 @@ mniMMO_SortRev.Checked := fILManager.ReversedSort;
 mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
 mniMMF_ListCompress.Checked := fILManager.Compressed;
 mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
+// position the window
+RePositionMainForm;
 // build some things and final touches
 sbStatusBar.Invalidate; // to show settings
 UpdateIndexAndCount;

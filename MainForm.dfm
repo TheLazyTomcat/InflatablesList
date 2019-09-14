@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 2
-  Top = 9
+  Left = 6
+  Top = 13
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 707

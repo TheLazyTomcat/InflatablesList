@@ -118,6 +118,7 @@ type
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
+    Function TotalPictureCount: Integer; virtual;
     // properties
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
@@ -848,6 +849,21 @@ Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): Stri
 begin
 Result := IL_Format('%s %s',[IL_BoolToStr(SortingItem.Reversed,'+','-'),
   fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.TotalPictureCount: Integer;
+var
+  i:  Integer;
+begin
+Result := 0;
+For i := ItemLowIndex to ItemhighIndex do
+  begin
+    If Assigned(fList[i].ItemPicture) then Inc(Result);
+    If Assigned(fList[i].SecondaryPicture) then Inc(Result);
+    If Assigned(fList[i].PackagePicture) then Inc(Result);
+  end;
 end;
 
 end.

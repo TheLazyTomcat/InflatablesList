@@ -311,6 +311,10 @@ end;
 
 procedure TfShopsForm.Finalize;
 begin
+frmShopFrame.OnTemplatesChange := nil;
+fILManager.OnShopListItemUpdate := nil;
+fILManager.OnItemShopListUpdate := nil;
+fILManager.OnItemShopListValuesUpdate := nil;
 frmShopFrame.Finalize;
 end;
 
@@ -351,9 +355,9 @@ end;
 
 procedure TfShopsForm.FormCreate(Sender: TObject);
 begin
+lvShops.DoubleBuffered := True;
 mniSH_MoveUp.ShortCut := Shortcut(VK_UP,[ssShift]);
 mniSH_MoveDown.ShortCut := Shortcut(VK_Down,[ssShift]);
-lvShops.DoubleBuffered := True;
 end;
 
 //------------------------------------------------------------------------------

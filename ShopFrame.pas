@@ -417,7 +417,9 @@ end;
 
 procedure TfrmShopFrame.Finalize;
 begin
-// nothing to do here
+fILManager.OnShopValuesUpdate := nil;
+fILManager.OnShopAvailHistoryUpdate := nil;
+fILManager.OnShopPriceHistoryUpdate := nil;
 end;
 
 //------------------------------------------------------------------------------

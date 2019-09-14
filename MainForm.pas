@@ -176,14 +176,9 @@ type
     fFirstResize:         Boolean;
     // others
     fDrawBuffer:          TBitmap;
-    fSaveOnExit:          Boolean;
+    fInitialized:         Boolean;
     fILManager:           TILManager;
-  {
-    individual bits correspond to present sorting profiles
-    when the bit is set, a profile exists at an index matching the bit index
-    when the bit is not set, no profile exists at that position
-  }
-    fActionMask:  UInt32;
+    fSaveOnExit:          Boolean;    
   protected
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
@@ -192,18 +187,19 @@ type
     procedure FillListFileName;
     procedure UpdateIndexAndCount;
     Function SaveList: Boolean;
-    Function LoadList: Boolean;
     // event handlers
-    procedure RestartProgram(Sender: TObject);
-    procedure DeferredRedraw(Sender: TObject; var Done: Boolean);
-    procedure InvalidateList(Sender: TObject);
-    procedure ShowSelectedItem(Sender: TObject);
-    procedure FocusList(Sender: TObject);
-    procedure SettingsChange(Sender: TObject);
-  public
-    ApplicationCanRun: Boolean;
-    procedure InitializeOtherForms; // called before Application.Run from project file
+    procedure RestartProgram(Sender: TObject);                    // backups form event
+    procedure DeferredRedraw(Sender: TObject; var Done: Boolean); // Application.OnIdle, transient
+    procedure ShowSelectedItem(Sender: TObject);                  // item frame event
+    procedure FocusList(Sender: TObject);                         // item frame event
+    procedure InvalidateList(Sender: TObject);                    // manager event
+    procedure SettingsChange(Sender: TObject);                    // manager event
+    // init/finals
+    procedure InitializeOtherForms;
     procedure FinalizeOtherForms;
+    procedure Finalize;
+  public
+    procedure Initialize(ILManager: TILManager);
   end;
 
 var
@@ -314,7 +310,6 @@ For i := Pred(mniMMO_SortBy.Count) downto 0 do
       mniMMO_SortBy.Delete(i);
       FreeAndNil(MITemp);
     end;
-fActionMask := 0;
 For i := 0 to Pred(fILManager.SortingProfileCount) do
   begin
     MITemp := TMenuItem.Create(Self);
@@ -325,7 +320,6 @@ For i := 0 to Pred(fILManager.SortingProfileCount) do
     If i <= 9 then
       MITemp.ShortCut := ShortCut(Ord('0') + ((i + 1) mod 10),[ssCtrl]);
     mniMMO_SortBy.Add(MITemp);
-    BitSetTo(fActionMask,Byte(i),True);
   end;
 end;
 
@@ -393,39 +387,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TfMainForm.LoadList: Boolean;
-var
-  PreloadInfo:  TILPreloadInfo;
-  Password:     String;
-begin
-Result := False;
-PreloadInfo := fILManager.PreloadFile;
-If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
-  begin
-    // when the file is encrypted, ask for password
-    If ilprfEncrypted in PreloadInfo.ResultFlags then
-      begin
-        If IL_InputQuery('List password','Enter list password (can be empty):',Password,'*') then
-          fILManager.ListPassword := Password
-        else
-          Exit; // exit with result set to false
-      end;
-    // load the file and catch wrong password exceptions
-    try
-      fILManager.LoadFromFile;
-      Result := True;
-    except
-      on E: EILWrongPassword do
-        MessageDlg('You have entered wrong password, program willl not terminate.',mtError,[mbOk],0);
-      else
-        raise;
-    end;
-  end
-else MessageDlg('Invalid list file, cannot continue.',mtError,[mbOk],0);
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfMainForm.RestartProgram(Sender: TObject);
 var
   Params: String;
@@ -446,13 +407,6 @@ begin
 Done := True;
 Application.OnIdle := nil;  // de-assign this routine 
 fILManager.ReinitDrawSize(lbList,False);
-lbList.Invalidate;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.InvalidateList(Sender: TObject);
-begin
 lbList.Invalidate;
 end;
 
@@ -479,12 +433,19 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.InvalidateList(Sender: TObject);
+begin
+lbList.Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.SettingsChange(Sender: TObject);
 begin
 sbStatusBar.Invalidate;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
 procedure TfMainForm.InitializeOtherForms;
 begin
@@ -527,12 +488,86 @@ fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.Finalize;
+begin
+If fSaveOnExit then
+  SaveList;
+If fInitialized then
+  begin
+    FinalizeOtherForms;
+    // finalize item frame
+    frmItemFrame.OnShowSelectedItem := nil;
+    frmItemFrame.OnFocusList := nil;
+    frmItemFrame.SetItem(nil,True);
+    frmItemFrame.Finalize;
+    // deassign event handlers
+    fILManager.OnMainListUpdate := nil;
+    fILManager.OnSettingsChange := nil;
+    // others
+    lbList.Items.Clear; // to be sure
+  end;
+end;
+
 //==============================================================================
 
-procedure TfMainForm.FormCreate(Sender: TObject);
+procedure TfMainForm.Initialize(ILManager: TILManager);
 var
   i:  Integer;
 begin
+// the list is already loaded at this point
+// fill some texts
+FillCopyright;
+eSearchFor.OnExit(nil);
+// prepare variables/fields/objects
+fInitialFormWidth := Width;
+fInitialFrameHeight := frmItemFrame.Height;
+fInitialPanelWidth := sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width;
+fFirstResize := True;
+fInitialized := True;
+fILManager := ILManager;
+fILManager.OnMainListUpdate := InvalidateList;
+fILManager.OnSettingsChange := SettingsChange;
+fSaveOnExit := True;
+// prepare item frame
+frmItemFrame.Initialize(fILManager);
+frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
+frmItemFrame.OnFocusList := FocusList;
+// fill list
+lbList.Items.Clear;
+If fILManager.ItemCount > 0 then
+  begin
+    lbList.Items.BeginUpdate;
+    try
+      For i := 0 to Pred(fILManager.ItemCount) do
+        lbList.Items.Add(IntToStr(i));
+    finally
+      lbList.Items.EndUpdate;
+    end;
+    lbList.ItemIndex := 0;
+    lbList.OnClick(nil);
+  end
+else frmItemFrame.SetItem(nil,True);
+// load other things from manager
+mniMMF_SaveOnClose.Checked := True;
+mniMMO_SortRev.Checked := fILManager.ReversedSort;
+mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
+mniMMF_ListCompress.Checked := fILManager.Compressed;
+mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
+// build some things and final touches
+sbStatusBar.Invalidate; // to show settings
+UpdateIndexAndCount;
+BuildSortBySubmenu;
+FillListFileName;
+InitializeOtherForms;
+end;
+
+//==============================================================================
+
+procedure TfMainForm.FormCreate(Sender: TObject);
+begin
+fInitialized := False;
 // prepare form
 lbList.DoubleBuffered := True;
 sbStatusBar.DoubleBuffered := True;
@@ -549,73 +584,15 @@ mniMMO_SortSett.ShortCut := ShortCut(Ord('O'),[ssCtrl,ssShift]);
 mniMMO_SortCase.ShortCut := ShortCut(Ord('R'),[ssCtrl,ssShift]);
 mniMMU_UpdateWanted.ShortCut := ShortCut(Ord('U'),[ssCtrl,ssShift]);
 mniMMU_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
-// shortcuts of sort-by actions (menu items are set in creation)
-For i := 0 to Pred(ComponentCount) do
-  If Components[i] is TAction then
-    If IL_SameText(TAction(Components[i]).Category,'sorting_by') then
-      TAction(Components[i]).ShortCut := ShortCut(Ord('0') +
-        ((TAction(Components[i]).Tag + 1) mod 10),[ssCtrl]);
-// fill some texts
-FillCopyright;
-eSearchFor.OnExit(nil);
-// prepare variables/fields
-fInitialFormWidth := Width;
-fInitialFrameHeight := frmItemFrame.Height;
-fInitialPanelWidth := sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Width;
-fFirstResize := True;
+// prepare draw buffer
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
-fSaveOnExit := True;
-fILManager := TILManager.Create;
-fILManager.OnMainListUpdate := InvalidateList;
-fILManager.OnSettingsChange := SettingsChange;
-fActionMask := 0;
-// prepare item frame
-frmItemFrame.Initialize(fILManager);
-frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
-frmItemFrame.OnFocusList := FocusList;
-// load list
-ApplicationCanRun := LoadList;
-If not ApplicationCanRun then
-  fSaveOnExit := False;
-FillListFileName;
-// fill list
-lbList.Items.Clear;
-If fILManager.ItemCount > 0 then
-  begin
-    lbList.Items.BeginUpdate;
-    try
-      For i := 0 to Pred(fILManager.ItemCount) do
-        lbList.Items.Add(IntToStr(i));
-    finally
-      lbList.Items.EndUpdate;
-    end;
-    lbList.ItemIndex := 0;
-    lbList.OnClick(nil);
-  end
-else frmItemFrame.SetItem(nil,True);
-UpdateIndexAndCount;
-// load other things from manager
-mniMMF_SaveOnClose.Checked := True;
-mniMMO_SortRev.Checked := fILManager.ReversedSort;
-mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
-mniMMF_ListCompress.Checked := fILManager.Compressed;
-mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
-sbStatusBar.Invalidate; // to show settings
-// build some things and final touches
-BuildSortBySubmenu;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormDestroy(Sender: TObject);
 begin
-frmItemFrame.SetItem(nil,True);
-frmItemFrame.Finalize;
-If fSaveOnExit then
-  SaveList;
-lbList.Items.Clear; // to be sure
-FreeAndNil(fILManager);
 FreeAndNil(fDrawBuffer);
 end;
 
@@ -625,14 +602,13 @@ procedure TfMainForm.FormShow(Sender: TObject);
 begin
 // first drawing
 fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
-lbList.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-FinalizeOtherForms;
+Finalize; // must not be called from OnDestroy event
 end;
 
 //------------------------------------------------------------------------------

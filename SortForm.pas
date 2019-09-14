@@ -264,14 +264,23 @@ end;
 
 procedure TfSortForm.btnProfileSaveClick(Sender: TObject);
 var
-  Temp: TILSortingProfile;
+  Temp:         TILSortingProfile;
+  CanContinue:  Boolean;
 begin
 If lbProfiles.ItemIndex >= 0 then
   begin
     Temp := fILManager.SortingProfiles[lbProfiles.ItemIndex];
-    Temp.Settings := fLocalSortSett;
-    fILManager.SortingProfiles[lbProfiles.ItemIndex] := Temp;
-    lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',[Temp.Name,Temp.Settings.Count]);
+    If not IL_SameSortingSettings(Temp.Settings,fLocalSortSett) then
+      CanContinue := MessageDlg(IL_Format('Overwrite sorting settings in profile "%s"?',
+        [Temp.Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes
+    else
+      CanContinue := False; // do not save the same data...
+    If CanContinue then
+      begin
+        Temp.Settings := fLocalSortSett;
+        fILManager.SortingProfiles[lbProfiles.ItemIndex] := Temp;
+        lbProfiles.Items[lbProfiles.ItemIndex] := IL_Format('%s (%d)',[Temp.Name,Temp.Settings.Count]);
+      end;
   end;
 end;
 

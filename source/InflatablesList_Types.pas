@@ -208,6 +208,8 @@ type
 
   TILSortingProfiles = array of TILSortingProfile;
 
+Function IL_SameSortingSettings(A,B: TILSortingSettings): Boolean;
+
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
 
@@ -780,6 +782,26 @@ end;
 
 //==============================================================================
 //- sorting --------------------------------------------------------------------
+
+Function IL_SameSortingSettings(A,B: TILSortingSettings): Boolean;
+var
+  i:  Integer;
+begin
+If A.Count = B.Count then
+  begin
+    Result := True;
+    For i := 0 to Pred(A.Count) do
+      If (A.Items[i].ItemValueTag <> B.Items[i].ItemValueTag) or
+        (A.Items[i].Reversed <> B.Items[i].Reversed) then
+        begin
+          Result := False;
+          Break{For i};
+        end;
+  end
+else Result := False;
+end;
+
+//------------------------------------------------------------------------------
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 begin

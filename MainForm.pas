@@ -209,9 +209,9 @@ implementation
 
 uses
   CommCtrl,
-  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
-  SumsForm, SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, PromptForm, BackupsForm,
+  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
+  SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
+  SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils;
@@ -460,6 +460,7 @@ fBackupsForm.OnRestartRequired := RestartProgram;
 fUpdResLegendForm.Initialize(fIlManager);
 fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
+fSplashForm.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -481,6 +482,7 @@ fBackupsForm.Finalize;
 fUpdResLegendForm.Finalize;
 fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
+fSplashForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------

@@ -30,10 +30,18 @@ const
 
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
-  IL_LISTFILE_PREALLOC_ITEM_BYTES        = 2 * KiB;   // 2KiB per item data
-  IL_LISTFILE_PREALLOC_PIC_BYTES         = 27 * KiB;  // 27KiB per picture
-  IL_LISTFILE_PREALLOC_SORT_PROF_BYTES   = 512;       // 512bytes per sorting profile
-  IL_LISTFILE_PREALLOC_ISHOP_TEMPL_BYTES = 3 * KiB;   // 3KiB per item shop template
+  IL_LISTFILE_PREALLOC_BYTES_ITEM        = 2 * KiB;   // 2KiB per item data
+  IL_LISTFILE_PREALLOC_BYTES_PIC         = 27 * KiB;  // 27KiB per picture
+  IL_LISTFILE_PREALLOC_BYTES_SORT_PROF   = 512;       // 512bytes per sorting profile
+  IL_LISTFILE_PREALLOC_BYTES_ISHOP_TEMPL = 3 * KiB;   // 3KiB per item shop template
+
+  IL_LISTFILE_SLOW_SIZE         = 20 * MiB;   // size of the list file where saving and loading is expected to be slow
+  IL_LISTFILE_SLOW_SIZE_ENC     = 15 * MiB;   // size of the encrypted or to be encrypted list file...
+  IL_LISTFILE_SLOW_SIZE_CMP     = 5 * MiB;    // size of the compressed list file...
+  IL_LISTFILE_SLOW_SIZE_CMPENC  = 4 * MiB;    // size of the compressed and encrypted list file...
+
+  IL_LISTFILE_SLOW_SIZE_UCMP    = 12 * MiB;   // size of the list file to be compressed..  
+  IL_LISTFILE_SLOW_SIZE_UCMPENC = 10 * MiB;   // size of the list file to be compressed and encrypted...
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
@@ -117,13 +125,13 @@ Result :=
   // some globals (notes, filter settings, ....)
   TMemSize(1024) +
   // sorting profiles
-  TMemSize(SortingProfileCount * IL_LISTFILE_PREALLOC_SORT_PROF_BYTES) +
+  TMemSize(SortingProfileCount * IL_LISTFILE_PREALLOC_BYTES_SORT_PROF) +
   // item shop templates
-  TMemSize(ShopTemplateCount * IL_LISTFILE_PREALLOC_ISHOP_TEMPL_BYTES) +
+  TMemSize(ShopTemplateCount * IL_LISTFILE_PREALLOC_BYTES_ISHOP_TEMPL) +
   // item data
-  TMemSize(fCount * IL_LISTFILE_PREALLOC_ITEM_BYTES) +
+  TMemSize(fCount * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
   // item pictures
-  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_PIC_BYTES)
+  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_BYTES_PIC)
 end;
 
 //==============================================================================
@@ -142,7 +150,8 @@ For i := Low(Indices) to High(Indices) do
 FileStream := TMemoryStream.Create;
 try
   // pre-allocate
-  FileStream.Size := Length(Indices) * IL_LISTFILE_PREALLOC_ITEM_BYTES;
+  FileStream.Size := (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
+                     (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_PIC * 2);  // jst assumes an avrg. of 2 pics per item
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
@@ -167,6 +176,8 @@ try
         TempItem.Free;
       end;
     end;
+  // adjust final size;  
+  FileStream.Size := FileStream.Position;
   // save to file
   FileStream.SaveToFile(StrToRTL(FileName));
 finally
@@ -300,6 +311,12 @@ try
       Preload(Stream,Result.Structure,Result);
     end
   else Include(Result.ResultFlags,ilprfInvalidFile);
+  // check for slow loading
+  If (Result.FileSize > IL_LISTFILE_SLOW_SIZE) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_ENC) and (ilprfEncrypted in Result.ResultFlags)) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_CMP) and (ilprfCompressed in Result.ResultFlags)) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_CMPENC) and ([ilprfEncrypted,ilprfCompressed] <= Result.ResultFlags)) then
+    Include(Result.ResultFlags,ilprfSlowLoad);
 except
   Include(Result.ResultFlags,ilprfError);
 end;
@@ -334,10 +351,10 @@ end;
 
 Function TILManager_IO.SlowSaving: Boolean;
 begin
-Result := (PreallocSize > (20 * MiB)) or
-  ((PreallocSize > (15 * MiB)) and fEncrypted) or
-  ((PreallocSize > (12 * MiB)) and fCompressed) or
-  ((PreallocSize > (10 * MiB)) and fCompressed and fEncrypted);
+Result := (PreallocSize > IL_LISTFILE_SLOW_SIZE) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_ENC) and fEncrypted) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMP) and fCompressed) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMPENC) and fCompressed and fEncrypted);
 end;
 
 end.

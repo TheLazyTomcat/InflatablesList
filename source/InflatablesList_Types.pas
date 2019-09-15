@@ -313,7 +313,7 @@ type
   end;
 
   TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfExtInfo,ilprfEncrypted,
-                          ilprfCompressed,ilprfPictures,ilprfSlowLoad);{$message 'implement slow load'}
+                          ilprfCompressed,ilprfPictures,ilprfSlowLoad);
 
   TILPreloadResultFlags = set of TILPreloadResultFlag;
 

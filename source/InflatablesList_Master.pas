@@ -155,7 +155,7 @@ end;
 If LoadingResult = illrSuccess then
   fMainForm.Initialize(fILManager)  // deferred initialization
 else
-  Application.Terminate;
+  Application.Terminate;  // Application.ShowMainForm is false already
 fSplashForm.LoadingDone(LoadingResult = illrSuccess);
 end;
 

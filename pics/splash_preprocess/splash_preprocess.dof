@@ -90,63 +90,49 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=release\win_x86\
+OutputDir=
 UnitOutputDir=.\DCU
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=source;source\libs;source\libs\synapse
+SearchPath=
 Packages=vcl;rtl;vclx;VclSmp;vclshlctrls;_AltFixUnit;_GlobalInstanceControl;_XPAdminMan;AdvCircularProgressPkgD7;TMSMenusD7;AdvShaperPkgD7;_alignedit;_ALProgressBar;_SuperLabel;_ButtonComps;_PJVersionInfo;EZJTexturePanelD6;FormShapePkgD7;GradientLabelPkgD7;_adpInstanceControl;_Label3D;_lfreg;_FadeWorks;_MMJLabel;PNGDelphi;_AlphaShowHide;_QProgBar;_ShadowLabel;_VistaAltFixUnit;shape;_XiButton;GR32_D7
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=--load_pages --no_updlog --no_save
+RunParams=
 HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
 [Version Info]
-IncludeVerInfo=1
-AutoIncBuild=1
+IncludeVerInfo=0
+AutoIncBuild=0
 MajorVer=1
-MinorVer=7
-Release=6
-Build=738
-Debug=1
-PreRelease=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
 Special=0
 Private=0
 DLL=0
 Locale=1029
 CodePage=1250
 [Version Info Keys]
-CompanyName=František Milt
-FileDescription=Inflatables List application
-FileVersion=1.7.6.738
-InternalName=Inflatables List
-LegalCopyright=© 2019 František Milt
-LegalTrademarks=Inflatables List
-OriginalFilename=InflatablesList.exe
-ProductName=Inflatables List
-ProductVersion=1.7.6
-Comments=Main program of Inflatables List project
-[HistoryLists\hlDebugSourcePath]
-Count=1
-Item0=F:\Programy\Private\InflatablesList\Dev\source\libs\
-[HistoryLists\hlConditionals]
-Count=1
-Item0=DevelMsgs
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=3
-Item0=source;source\libs;source\libs\synapse
-Item1=source\libs\;source\libs\synapse
-Item2=source\libs\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=.\DCU
-[HistoryLists\hlOutputDirectorry]
-Count=1
-Item0=Release\win_x86\

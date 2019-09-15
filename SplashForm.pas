@@ -119,7 +119,7 @@ UpdateLayeredWindow(Handle,0,nil,@fSplashSize,fSplashBitmap.Canvas.Handle,@fSpla
 // some other stuff
 fCloseTimer := TSimpleTimer.Create;
 fCloseTimer.Enabled := False;
-fCloseTimer.Interval := 1000; // 1s
+fCloseTimer.Interval := 500; // 0.5s
 fCloseTimer.OnTimer := OnCloseTimerHandler;
 end;
 

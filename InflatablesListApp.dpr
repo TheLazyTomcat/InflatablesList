@@ -79,7 +79,8 @@ uses
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
   SplashForm in 'SplashForm.pas' {fSplashForm},
-  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas';
+  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas',
+  SaveForm in 'SaveForm.pas' {fSaveForm};
 
 {$R *.res}
 

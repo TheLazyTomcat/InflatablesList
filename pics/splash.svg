@@ -35,15 +35,15 @@
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
-       id="filter4162"
-       x="-0.035654999"
-       width="1.07131"
-       y="-0.18915122"
-       height="1.3783024">
+       id="filter4182"
+       x="-0.014262"
+       width="1.028524"
+       y="-0.075660486"
+       height="1.151321">
       <feGaussianBlur
          inkscape:collect="always"
-         stdDeviation="6.4095987"
-         id="feGaussianBlur4164" />
+         stdDeviation="2.5638394"
+         id="feGaussianBlur4184" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -54,8 +54,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.88014706"
-     inkscape:cx="360.64572"
-     inkscape:cy="716.72245"
+     inkscape:cx="380.81914"
+     inkscape:cy="715.58628"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -86,35 +86,35 @@
        cx="378.89322"
        cy="235.21933"
        r="164.68907"
-       inkscape:export-xdpi="61.100079"
-       inkscape:export-ydpi="61.100079" />
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484" />
     <image
        sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\program_icon\program_icon.png"
        xlink:href="program_icon\program_icon.png"
-       y="70.530251"
-       x="214.20416"
-       id="image4144"
-       preserveAspectRatio="none"
-       height="329.37814"
+       inkscape:export-ydpi="62.403484"
+       inkscape:export-xdpi="62.403484"
        width="329.37814"
-       inkscape:export-xdpi="61.100079"
-       inkscape:export-ydpi="61.100079" />
+       height="329.37814"
+       preserveAspectRatio="none"
+       id="image4144"
+       x="214.20416"
+       y="70.530251" />
     <g
-       id="g4225"
-       style="fill:#666666;fill-opacity:1;filter:url(#filter4162)"
-       inkscape:export-xdpi="61.100079"
-       inkscape:export-ydpi="61.100079">
+       id="g4168"
+       style="fill:#666666;filter:url(#filter4182)"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484">
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.37607956px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          x="160.53914"
          y="451.686"
-         id="text4227"
+         id="text4170"
          sodipodi:linespacing="125%"
          inkscape:export-xdpi="41.303425"
          inkscape:export-ydpi="41.303425"><tspan
            sodipodi:role="line"
-           id="tspan4229"
+           id="tspan4172"
            x="160.53914"
            y="451.686">Inflatables List</tspan></text>
       <text
@@ -122,33 +122,19 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2541275px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          x="161.04803"
          y="483.30444"
-         id="text4231"
+         id="text4174"
          sodipodi:linespacing="125%"
          inkscape:export-xdpi="41.303425"
          inkscape:export-ydpi="41.303425"><tspan
            sodipodi:role="line"
-           id="tspan4233"
+           id="tspan4176"
            x="161.04803"
            y="483.30444">Loading...</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.46500015px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="535.90552"
-         y="473.16388"
-         id="text4235"
-         sodipodi:linespacing="125%"
-         inkscape:export-xdpi="41.303425"
-         inkscape:export-ydpi="41.303425"><tspan
-           sodipodi:role="line"
-           id="tspan4237"
-           x="535.90552"
-           y="473.16388">1.7.6</tspan></text>
     </g>
     <g
-       id="g4217"
-       inkscape:export-xdpi="61.100079"
-       inkscape:export-ydpi="61.100079"
-       style="fill:#000000">
+       id="g4162"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484">
       <text
          inkscape:export-ydpi="41.303425"
          inkscape:export-xdpi="41.303425"
@@ -175,19 +161,6 @@
            x="161.04803"
            id="tspan4189"
            sodipodi:role="line">Loading...</tspan></text>
-      <text
-         inkscape:export-ydpi="41.303425"
-         inkscape:export-xdpi="41.303425"
-         sodipodi:linespacing="125%"
-         id="text4211"
-         y="473.16388"
-         x="535.90552"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.46500015px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         xml:space="preserve"><tspan
-           y="473.16388"
-           x="535.90552"
-           id="tspan4215"
-           sodipodi:role="line">1.7.6</tspan></text>
     </g>
   </g>
 </svg>

@@ -41,7 +41,7 @@ uses
   Forms, Dialogs,
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm, BackupsForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm;
+  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm, SaveForm;
 
 procedure TILMaster.Initialize;
 begin
@@ -93,7 +93,9 @@ Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
 Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
 Application.CreateForm(TfAboutForm, fAboutForm);
 Application.CreateForm(TfSplashForm, fSplashForm);
+Application.CreateForm(TfSaveForm, fSaveForm);
 // do not automatically create prompt form
+//Application.CreateForm(TfPromptForm, fPromptForm);
 end;
 
 //------------------------------------------------------------------------------

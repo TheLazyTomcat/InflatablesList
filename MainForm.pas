@@ -178,7 +178,7 @@ type
     fDrawBuffer:          TBitmap;
     fInitialized:         Boolean;
     fILManager:           TILManager;
-    fSaveOnExit:          Boolean;    
+    fSaveOnExit:          Boolean;
   protected
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
@@ -211,7 +211,7 @@ uses
   CommCtrl,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
-  SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm,
+  SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils;
@@ -374,7 +374,10 @@ begin
 Result := False;
 If not fILManager.StaticSettings.NoSave and mniMMF_SaveOnClose.Checked then
   begin
-    fILManager.SaveToFile;  // backup is done automatically here
+    If fILManager.SlowSaving then
+      fSaveForm.ShowAndPerformSave
+    else
+      fILManager.SaveToFile; // backup is done automatically here
     FillListFileName;
     Result := True;
   end;
@@ -461,6 +464,7 @@ fUpdResLegendForm.Initialize(fIlManager);
 fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
 fSplashForm.Initialize(fIlManager);
+fSaveForm.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -483,6 +487,7 @@ fUpdResLegendForm.Finalize;
 fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
 fSplashForm.Finalize;
+fSaveForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------

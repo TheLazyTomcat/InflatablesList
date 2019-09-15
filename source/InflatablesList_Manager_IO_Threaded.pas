@@ -5,6 +5,7 @@ unit InflatablesList_Manager_IO_Threaded;
 interface
 
 uses
+  Classes,
   InflatablesList_Types,
   InflatablesList_Manager_IO;
 
@@ -13,17 +14,31 @@ type
   protected
     procedure LoadedDataCopyHandler(Sender: TObject); virtual;
   public
+    procedure SaveToFileThreaded(EndNotificationHandler: TNotifyEvent); virtual;
     procedure LoadFromFileThreaded(EndNotificationHandler: TILLoadingDoneEvent); virtual;
   end;
 
 implementation
 
 uses
-  Classes,
   InflatablesList_Manager_Base,
   InflatablesList_Manager;
 
 type
+  TILSavingThread = class(TThread)
+  private
+    fLocalManager:  TILManager;
+    fOnEndNotify:   TNotifyEvent;
+  protected
+    procedure sync_NotifyEnd; virtual;
+    procedure Execute; override;
+  public
+    constructor Create(ILManager: TILManager_Base; EndNotificationHandler: TNotifyEvent);
+    destructor Destroy; override;
+  end;
+
+//------------------------------------------------------------------------------
+
   TILLoadingThread = class(TThread)
   private
     fLocalManager:  TILManager;
@@ -39,6 +54,47 @@ type
     destructor Destroy; override;
   end;
 
+//==============================================================================
+
+procedure TILSavingThread.sync_NotifyEnd;
+begin
+If Assigned(fOnEndNotify) then
+  fOnEndNotify(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILSavingThread.Execute;
+begin
+try
+  fLocalManager.SaveToFile;
+except
+  // just suppress exceptions
+end;
+Synchronize(sync_NotifyEnd);
+end;
+
+//==============================================================================
+
+constructor TILSavingThread.Create(ILManager: TILManager_Base; EndNotificationHandler: TNotifyEvent);
+begin
+inherited Create(False);
+FreeOnTerminate := True;
+fLocalManager := TILManager.CreateAsCopy(ILManager);
+fOnEndNotify := EndNotificationHandler;
+end;
+
+//------------------------------------------------------------------------------
+
+destructor TILSavingThread.Destroy;
+begin
+fLocalManager.Free;
+inherited;
+end;
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
 
 procedure TILLoadingThread.sync_NotifyEnd;
 begin
@@ -88,6 +144,7 @@ end;
 destructor TILLoadingThread.Destroy;
 begin
 fLocalManager.Free;
+inherited;
 end;
 
 //==============================================================================
@@ -103,9 +160,16 @@ end;
 
 //==============================================================================
 
-procedure TILManager_IO_Threaded.LoadFromFileThreaded(EndNotificationHandler: TILLoadingDoneEvent);
+procedure TILManager_IO_Threaded.SaveToFileThreaded(EndNotificationHandler: TNotifyEvent);
 begin
 // no need to assign the created object anywhere
+TILSavingThread.Create(Self,EndNotificationHandler);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO_Threaded.LoadFromFileThreaded(EndNotificationHandler: TILLoadingDoneEvent);
+begin
 TILLoadingThread.Create(Self,EndNotificationHandler,LoadedDataCopyHandler);
 end;
 

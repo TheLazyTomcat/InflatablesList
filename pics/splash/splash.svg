@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="splash.svg">
+  <defs
+     id="defs4">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4153"
+       x="-0.024"
+       width="1.048"
+       y="-0.024"
+       height="1.048">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.2937814"
+         id="feGaussianBlur4155" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4182"
+       x="-0.014262"
+       width="1.028524"
+       y="-0.075660486"
+       height="1.151321">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.5638394"
+         id="feGaussianBlur4184" />
+    </filter>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4186">
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle4188"
+         cx="317.77429"
+         cy="734.58789"
+         r="116.56744" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4199">
+      <path
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 575.98047,617.53516 A 119.27832,121.6178 0 0 0 456.70117,739.15234 119.27832,121.6178 0 0 0 575.98047,860.77148 119.27832,121.6178 0 0 0 695.25781,739.15234 119.27832,121.6178 0 0 0 575.98047,617.53516 Z m -0.125,72.86914 a 49.091427,49.695248 0 0 1 49.08984,49.69531 49.091427,49.695248 0 0 1 -49.08984,49.69531 49.091427,49.695248 0 0 1 -49.0918,-49.69531 49.091427,49.695248 0 0 1 49.0918,-49.69531 z"
+         id="path4201"
+         inkscape:connector-curvature="0" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4213">
+      <path
+         style="fill:#ffffff"
+         d="m 120.95722,840.15646 c -21.985717,0.17272 -46.016056,-1.01043 -64.137074,-1.67556 -6.563782,-0.24092 -8.401269,1.2604 -12.179618,-1.62447 -3.096789,-2.13456 -3.897457,-4.0516 -4.388322,-9.67323 4.129461,-34.09579 2.672522,-68.64936 2.905281,-102.93559 0.197663,-38.9631 -3.714302,-77.81077 -5.060839,-116.70711 2.449493,-14.78917 21.645155,-7.58894 32.039081,-8.59444 22.338769,0.36641 44.692291,-0.26264 66.980061,-1.70609 13.54618,2.02877 6.81998,18.75593 7.51532,24.94446 -1.26276,43.60668 -2.71241,87.24867 -2.05807,130.88311 -0.0236,22.07459 0.66857,44.18069 1.95255,66.20917 1.90174,11.54295 1.81737,12.46985 -2.44713,18.58879 -4.68289,3.17192 -12.8649,2.71521 -21.12124,2.29096 z M 41.546031,810.29829 c -0.0083,-0.73037 0.286587,0.38201 0,0 z M 145.70488,607.15995 c 0.18466,-0.9121 0.32548,0.56228 0,0 z"
+         id="path4215"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="csccccccccccccccc" />
+    </mask>
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask4241">
+      <ellipse
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="ellipse4243"
+         cx="292.47293"
+         cy="756.87927"
+         rx="143.67023"
+         ry="144.36485" />
+    </mask>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4305"
+       x="-0.024001729"
+       width="1.0480035"
+       y="-0.023998272"
+       height="1.0479965">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.0255847"
+         id="feGaussianBlur4307" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4313"
+       x="-0.033849924"
+       width="1.0676998"
+       y="-0.018590412"
+       height="1.0371808">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.0736476"
+         id="feGaussianBlur4315" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4321"
+       x="-0.0242354"
+       width="1.0484708"
+       y="-0.023769129"
+       height="1.0475383">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.4089648"
+         id="feGaussianBlur4323" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.1075821"
+     inkscape:cx="375.36508"
+     inkscape:cy="257.52355"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="744"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="opacity:1;fill:#808080;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4153)"
+       id="path4147"
+       cx="378.89322"
+       cy="235.21933"
+       r="164.68907"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484"
+       transform="matrix(0.53217985,0,0,0.53217985,-60.143326,-9.7550333)" />
+    <image
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\program_icon\program_icon.png"
+       xlink:href="program_icon\program_icon.png"
+       y="27.779745"
+       x="53.851818"
+       id="image4144"
+       preserveAspectRatio="none"
+       height="175.28841"
+       width="175.28841"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484" />
+    <g
+       id="g4168"
+       style="fill:#666666;filter:url(#filter4182)"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484"
+       transform="matrix(0.53217985,0,0,0.53217985,-60.143326,-9.7550333)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.37607956px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="160.53914"
+         y="451.686"
+         id="text4170"
+         sodipodi:linespacing="125%"
+         inkscape:export-xdpi="41.303425"
+         inkscape:export-ydpi="41.303425"><tspan
+           sodipodi:role="line"
+           id="tspan4172"
+           x="160.53914"
+           y="451.686">Inflatables List</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2541275px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="161.04803"
+         y="483.30444"
+         id="text4174"
+         sodipodi:linespacing="125%"
+         inkscape:export-xdpi="41.303425"
+         inkscape:export-ydpi="41.303425"><tspan
+           sodipodi:role="line"
+           id="tspan4176"
+           x="161.04803"
+           y="483.30444">Loading...</tspan></text>
+    </g>
+    <g
+       id="g4162"
+       inkscape:export-xdpi="62.403484"
+       inkscape:export-ydpi="62.403484"
+       transform="matrix(0.53217985,0,0,0.53217985,-60.143326,-9.7550333)">
+      <text
+         inkscape:export-ydpi="41.303425"
+         inkscape:export-xdpi="41.303425"
+         sodipodi:linespacing="125%"
+         id="text4157"
+         y="451.686"
+         x="160.53914"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.37607956px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           y="451.686"
+           x="160.53914"
+           id="tspan4159"
+           sodipodi:role="line">Inflatables List</tspan></text>
+      <text
+         inkscape:export-ydpi="41.303425"
+         inkscape:export-xdpi="41.303425"
+         sodipodi:linespacing="125%"
+         id="text4187"
+         y="483.30444"
+         x="161.04803"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2541275px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           y="483.30444"
+           x="161.04803"
+           id="tspan4189"
+           sodipodi:role="line">Loading...</tspan></text>
+    </g>
+    <image
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i59251_purple.jpg"
+       xlink:href="i59251_purple.jpg"
+       transform="translate(52.918275,-340.49736)"
+       mask="url(#mask4199)"
+       width="253.0463"
+       height="253.0463"
+       preserveAspectRatio="none"
+       id="image4168"
+       x="450.41605"
+       y="612.70068" />
+    <image
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58772_bblue.jpg"
+       xlink:href="i58772_bblue.jpg"
+       transform="matrix(1.3675658,0,0,1.3675658,246.04064,-760.18068)"
+       mask="url(#mask4213)"
+       y="592.08569"
+       x="33.199654"
+       id="image4203"
+       preserveAspectRatio="none"
+       height="255.78113"
+       width="117.63367" />
+    <image
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58071.jpg"
+       xlink:href="i58071.jpg"
+       transform="matrix(0.72258538,0,0,0.72258538,388.91789,-408.19032)"
+       mask="url(#mask4241)"
+       width="336.74277"
+       height="323.84625"
+       preserveAspectRatio="none"
+       id="image4236"
+       x="120.55474"
+       y="596.60272" />
+    <g
+       id="g4345"
+       transform="translate(6.0446758,-3.6114706)"
+       inkscape:export-xdpi="70.268829"
+       inkscape:export-ydpi="70.268829">
+      <path
+         style="opacity:1;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4321)"
+         d="M 366.3861,637.04384 A 119.27832,121.6178 0 0 0 247.1068,758.66102 119.27832,121.6178 0 0 0 366.3861,880.28016 119.27832,121.6178 0 0 0 485.66344,758.66102 119.27832,121.6178 0 0 0 366.3861,637.04384 Z m -0.125,72.86914 a 49.091427,49.695248 0 0 1 49.08984,49.69531 49.091427,49.695248 0 0 1 -49.08984,49.69531 49.091427,49.695248 0 0 1 -49.0918,-49.69531 49.091427,49.695248 0 0 1 49.0918,-49.69531 z"
+         id="path4295"
+         inkscape:connector-curvature="0" />
+      <image
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i59251_purple.jpg"
+         xlink:href="i59251_purple.jpg"
+         transform="translate(-209.59437,19.508678)"
+         mask="url(#mask4199)"
+         width="253.0463"
+         height="253.0463"
+         preserveAspectRatio="none"
+         id="image4245"
+         x="450.41605"
+         y="612.70068" />
+      <path
+         style="fill:#4d4d4d;filter:url(#filter4313)"
+         d="m 321.81987,862.18896 c -34.29928,5.19778 -72.09583,8.73622 -100.54689,11.75916 -10.30553,1.09497 -12.83886,3.85165 -19.38664,0.19287 -5.31512,-2.63969 -6.99532,-5.45431 -9.02204,-14.12433 -1.19293,-54.17749 -11.21349,-107.81779 -18.5351,-161.41929 -8.42473,-60.89811 -23.24214,-120.69478 -34.06368,-181.1425 0.51075,-23.64724 32.10505,-16.70434 48.11324,-20.60452 34.97153,-4.43489 69.74297,-10.42783 104.22917,-17.67798 21.6116,0.13227 14.85574,27.76493 17.32888,37.27452 7.80207,68.38934 15.32017,136.87572 26.12265,204.87871 4.91108,34.48209 10.94714,68.85295 17.89011,102.96993 5.55751,17.60188 5.6335,19.06845 0.34461,29.58108 -6.60291,6.00366 -19.4842,7.12432 -32.47431,8.31235 z M 191.10034,833.35527 c -0.17667,-1.13886 0.53323,0.53239 0,0 z M 308.24618,492.74049 c 0.084,-1.46593 0.63437,0.80524 0,0 z"
+         id="path4299"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="csccccccccccccccc" />
+      <image
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58772_bblue.jpg"
+         xlink:href="i58772_bblue.jpg"
+         transform="matrix(1.5618318,-0.2241466,0.2241466,1.5618318,-55.413178,-422.88197)"
+         mask="url(#mask4213)"
+         y="592.08569"
+         x="33.199654"
+         id="image4247"
+         preserveAspectRatio="none"
+         height="255.78113"
+         width="117.63367" />
+      <ellipse
+         style="opacity:1;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4305)"
+         id="ellipse4291"
+         cx="275.7106"
+         cy="786.00635"
+         rx="101.27194"
+         ry="101.28653" />
+      <image
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58071.jpg"
+         xlink:href="i58071.jpg"
+         transform="matrix(0.70489162,0,0,0.70160101,69.548876,254.9791)"
+         mask="url(#mask4241)"
+         width="336.74277"
+         height="323.84625"
+         preserveAspectRatio="none"
+         id="image4249"
+         x="120.55474"
+         y="596.60272" />
+    </g>
+    <g
+       id="g4353"
+       inkscape:export-xdpi="70.268829"
+       inkscape:export-ydpi="70.268829">
+      <g
+         id="g4325"
+         style="fill:#666666;filter:url(#filter4182)"
+         inkscape:export-xdpi="62.403484"
+         inkscape:export-ydpi="62.403484"
+         transform="matrix(0.86586114,0,0,0.86586114,-10.513717,541.495)">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.37607956px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           x="160.53914"
+           y="451.686"
+           id="text4327"
+           sodipodi:linespacing="125%"
+           inkscape:export-xdpi="41.303425"
+           inkscape:export-ydpi="41.303425"><tspan
+             sodipodi:role="line"
+             id="tspan4329"
+             x="160.53914"
+             y="451.686">Inflatables List</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2541275px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           x="161.04803"
+           y="483.30444"
+           id="text4331"
+           sodipodi:linespacing="125%"
+           inkscape:export-xdpi="41.303425"
+           inkscape:export-ydpi="41.303425"><tspan
+             sodipodi:role="line"
+             id="tspan4333"
+             x="161.04803"
+             y="483.30444">Loading...</tspan></text>
+      </g>
+      <g
+         id="g4335"
+         inkscape:export-xdpi="62.403484"
+         inkscape:export-ydpi="62.403484"
+         transform="matrix(0.86586114,0,0,0.86586114,-10.513717,541.495)">
+        <text
+           inkscape:export-ydpi="41.303425"
+           inkscape:export-xdpi="41.303425"
+           sodipodi:linespacing="125%"
+           id="text4337"
+           y="451.686"
+           x="160.53914"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:57.37607956px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           xml:space="preserve"><tspan
+             y="451.686"
+             x="160.53914"
+             id="tspan4339"
+             sodipodi:role="line">Inflatables List</tspan></text>
+        <text
+           inkscape:export-ydpi="41.303425"
+           inkscape:export-xdpi="41.303425"
+           sodipodi:linespacing="125%"
+           id="text4341"
+           y="483.30444"
+           x="161.04803"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:28.2541275px;line-height:125%;font-family:Tahoma;-inkscape-font-specification:'Tahoma, Bold';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           xml:space="preserve"><tspan
+             y="483.30444"
+             x="161.04803"
+             id="tspan4343"
+             sodipodi:role="line">Loading...</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

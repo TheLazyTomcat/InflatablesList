@@ -1,0 +1,1 @@
+start splash_preprocess\splash_preprocess.exe splash.bmp

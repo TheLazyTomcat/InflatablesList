@@ -15,6 +15,7 @@ uses
     TILManager_Filter
     TILManager_Templates
     TILManager_IO
+    TILManager_IO_Threaded
     TILManager_IO_00000008
     TILManager_IO_00000009
     TILManager_IO_0000000A

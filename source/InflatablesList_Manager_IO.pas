@@ -30,7 +30,18 @@ const
 
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
-  IL_LISTFILE_PREALLOC_ITEM_BYTES = 90 * 1024;  // 90KiB per item
+  IL_LISTFILE_PREALLOC_BYTES_ITEM        = 2 * KiB;   // 2KiB per item data
+  IL_LISTFILE_PREALLOC_BYTES_PIC         = 27 * KiB;  // 27KiB per picture
+  IL_LISTFILE_PREALLOC_BYTES_SORT_PROF   = 512;       // 512bytes per sorting profile
+  IL_LISTFILE_PREALLOC_BYTES_ISHOP_TEMPL = 3 * KiB;   // 3KiB per item shop template
+
+  IL_LISTFILE_SLOW_SIZE         = 20 * MiB;   // size of the list file where saving and loading is expected to be slow
+  IL_LISTFILE_SLOW_SIZE_ENC     = 15 * MiB;   // size of the encrypted or to be encrypted list file...
+  IL_LISTFILE_SLOW_SIZE_CMP     = 5 * MiB;    // size of the compressed list file...
+  IL_LISTFILE_SLOW_SIZE_CMPENC  = 4 * MiB;    // size of the compressed and encrypted list file...
+
+  IL_LISTFILE_SLOW_SIZE_UCMP    = 12 * MiB;   // size of the list file to be compressed..  
+  IL_LISTFILE_SLOW_SIZE_UCMPENC = 10 * MiB;   // size of the list file to be compressed and encrypted...
 
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
@@ -54,6 +65,7 @@ type
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
     procedure Preload(Stream: TStream; Struct: UInt32; out Info: TILPreloadInfo); virtual;
+    Function PreallocSize: TMemSize; virtual;
   public
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
@@ -63,12 +75,11 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile; virtual;
     procedure LoadFromFile; virtual;
-    {$message 'implement'}
-    //procedure LoadFromStreamThreaded(Stream: TStream; EndNotificationHandler: TNotifyEvent); virtual;
-    //procedure LoadFromFileThreaded(EndNotificationHandler: TNotifyEvent); virtual;
     Function PreloadStream(Stream: TStream): TILPreloadInfo; virtual;
     Function PreloadFile(const FileName: String): TILPreloadInfo; overload; virtual;
     Function PreloadFile: TILPreloadInfo; overload; virtual;
+    // utility methods
+    Function SlowSaving: Boolean; virtual;
   end;
 
 implementation
@@ -103,6 +114,23 @@ If Assigned(fFNPreload) then
   fFNPreload(Stream,Info);
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILManager_IO.PreallocSize: TMemSize;
+begin
+Result :=
+  // some globals (notes, filter settings, ....)
+  TMemSize(1024) +
+  // sorting profiles
+  TMemSize(SortingProfileCount * IL_LISTFILE_PREALLOC_BYTES_SORT_PROF) +
+  // item shop templates
+  TMemSize(ShopTemplateCount * IL_LISTFILE_PREALLOC_BYTES_ISHOP_TEMPL) +
+  // item data
+  TMemSize(fCount * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
+  // item pictures
+  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_BYTES_PIC)
+end;
+
 //==============================================================================
 
 procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
@@ -119,7 +147,8 @@ For i := Low(Indices) to High(Indices) do
 FileStream := TMemoryStream.Create;
 try
   // pre-allocate
-  FileStream.Size := Length(Indices) * IL_LISTFILE_PREALLOC_ITEM_BYTES;
+  FileStream.Size := (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
+                     (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_PIC * 2);  // jst assumes an avrg. of 2 pics per item
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
@@ -144,6 +173,8 @@ try
         TempItem.Free;
       end;
     end;
+  // adjust final size;  
+  FileStream.Size := FileStream.Position;
   // save to file
   FileStream.SaveToFile(StrToRTL(FileName));
 finally
@@ -233,7 +264,7 @@ If not fStaticSettings.NoBackup then
 FileStream := TMemoryStream.Create;
 try
   //prealloc
-  FileStream.Size := fCount * IL_LISTFILE_PREALLOC_ITEM_BYTES;
+  FileStream.Size := Int64(PreallocSize);
   FileStream.Seek(0,soBeginning);
   SaveToStream(FileStream);
   FileStream.Size := FileStream.Position;
@@ -277,6 +308,12 @@ try
       Preload(Stream,Result.Structure,Result);
     end
   else Include(Result.ResultFlags,ilprfInvalidFile);
+  // check for slow loading
+  If (Result.FileSize > IL_LISTFILE_SLOW_SIZE) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_ENC) and (ilprfEncrypted in Result.ResultFlags)) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_CMP) and (ilprfCompressed in Result.ResultFlags)) or
+    ((Result.FileSize > IL_LISTFILE_SLOW_SIZE_CMPENC) and ([ilprfEncrypted,ilprfCompressed] <= Result.ResultFlags)) then
+    Include(Result.ResultFlags,ilprfSlowLoad);
 except
   Include(Result.ResultFlags,ilprfError);
 end;
@@ -305,6 +342,16 @@ end;
 Function TILManager_IO.PreloadFile: TILPreloadInfo;
 begin
 Result := PreloadFile(fStaticSettings.ListFile)
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_IO.SlowSaving: Boolean;
+begin
+Result := (PreallocSize > IL_LISTFILE_SLOW_SIZE) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_ENC) and fEncrypted) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMP) and fCompressed) or
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMPENC) and fCompressed and fEncrypted);
 end;
 
 end.

@@ -92,11 +92,13 @@ type
     procedure Finalize; virtual;
     // other
     procedure ReIndex; virtual;
+    procedure ThisCopyFrom_Base(Source: TILManager_Base); virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILManager_Base); virtual; // will be overriden
     constructor CreateTransient;  // nothing is initialized, use with great caution
     destructor Destroy; override;
+    procedure CopyFrom(Source: TILManager_Base); virtual;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
     Function LowIndex: Integer; override;
@@ -118,6 +120,7 @@ type
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
+    Function TotalPictureCount: Integer; virtual;
     // properties
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
@@ -480,6 +483,33 @@ For i := ItemLowIndex to ItemHighIndex do
   fList[i].Index := i;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ThisCopyFrom_Base(Source: TILManager_Base);
+var
+  i:  Integer;
+begin
+// implements CopyFrom for this one class, no inheritance
+// properties
+fTransient := Source.Transient;
+fStaticSettings := IL_THreadSafeCopy(Source.StaticSettings);
+fEncrypted := Source.Encrypted;
+fListPassword := Source.ListPassword;
+UniqueString(fListPassword);
+fCompressed := Source.Compressed;
+// free existing items
+For i := ItemLowIndex to ItemHighIndex do
+  FreeAndNil(fList[i]);
+// copy items
+SetLength(fList,Source.ItemCount);
+fCount := Source.ItemCount;
+For i := ItemLowIndex to ItemHighIndex do
+  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True);
+// other data
+fNotes := Source.Notes;
+UniqueString(fNotes);
+end;
+
 //==============================================================================
 
 constructor TILManager_Base.Create;
@@ -546,6 +576,17 @@ begin
 If not fTransient then
   Finalize;
 inherited;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.CopyFrom(Source: TILManager_Base);
+begin
+{
+  copies all data and non-transient, non-object properties from the source,
+  replacing existing data and values
+}
+ThisCopyFrom_Base(Source);
 end;
 
 //------------------------------------------------------------------------------
@@ -848,6 +889,21 @@ Function TILManager_Base.SortingItemStr(const SortingItem: TILSortingItem): Stri
 begin
 Result := IL_Format('%s %s',[IL_BoolToStr(SortingItem.Reversed,'+','-'),
   fDataProvider.GetItemValueTagString(SortingItem.ItemValueTag)])
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.TotalPictureCount: Integer;
+var
+  i:  Integer;
+begin
+Result := 0;
+For i := ItemLowIndex to ItemhighIndex do
+  begin
+    If Assigned(fList[i].ItemPicture) then Inc(Result);
+    If Assigned(fList[i].SecondaryPicture) then Inc(Result);
+    If Assigned(fList[i].PackagePicture) then Inc(Result);
+  end;
 end;
 
 end.

@@ -28,6 +28,7 @@ type
     btnLoad: TButton;
     diaExport: TSaveDialog;    
     diaImport: TOpenDialog;
+    procedure FormCreate(Sender: TObject);    
     procedure FormShow(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure lbTemplatesClick(Sender: TObject);
@@ -69,8 +70,6 @@ uses
 procedure TfTemplatesForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
-mniTL_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
-mniTL_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
 end;
 
 //------------------------------------------------------------------------------
@@ -112,6 +111,14 @@ Result := fSelectedTemplate;
 end;
 
 //==============================================================================
+
+procedure TfTemplatesForm.FormCreate(Sender: TObject);
+begin
+mniTL_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
+mniTL_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfTemplatesForm.FormShow(Sender: TObject);
 begin

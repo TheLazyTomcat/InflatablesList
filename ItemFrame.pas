@@ -1021,6 +1021,10 @@ end;
 
 procedure TfrmItemFrame.Finalize;
 begin
+fILManager.OnItemTitleUpdate := nil;
+fILManager.OnItemPicturesUpdate := nil;
+fILManager.OnItemFlagsUpdate := nil;
+fILManager.OnItemValuesUpdate := nil;
 FreeAndNil(fPicturesManager);
 end;
 

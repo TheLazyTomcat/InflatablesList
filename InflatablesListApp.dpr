@@ -56,10 +56,7 @@ uses
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
-  SysUtils,
-  Forms,
-  Dialogs,
-  WinSyncObjs,
+  InflatablesList_Master in 'source\InflatablesList_Master.pas',
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
@@ -81,50 +78,16 @@ uses
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
-  SplashForm in 'SplashForm.pas' {fSplashForm};
+  SplashForm in 'SplashForm.pas' {fSplashForm},
+  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas';
 
 {$R *.res}
 
-var
-  ILStartMutex: TMutex;
-
 begin
-ILStartMutex := TMutex.Create('il_application_start_mutex');
+with TILMaster.Create do
 try
-  If ILStartMutex.WaitFor(10000{10s}) = wrSignaled then
-    begin
-      Application.Initialize;
-      Application.Title := 'Inflatables List';
-      Application.CreateForm(TfMainForm, fMainForm);
-      Application.CreateForm(TfTextEditForm, fTextEditForm);
-      Application.CreateForm(TfShopsForm, fShopsForm);
-      Application.CreateForm(TfParsingForm, fParsingForm);
-      Application.CreateForm(TfTemplatesForm, fTemplatesForm);
-      Application.CreateForm(TfSortForm, fSortForm);
-      Application.CreateForm(TfSumsForm, fSumsForm);
-      Application.CreateForm(TfSpecialsForm, fSpecialsForm);
-      Application.CreateForm(TfOverviewForm, fOverviewForm);
-      Application.CreateForm(TfSelectionForm, fSelectionForm);
-      Application.CreateForm(TfUpdateForm, fUpdateForm);
-      Application.CreateForm(TfItemSelectForm, fItemSelectForm);
-      Application.CreateForm(TfBackupsForm, fBackupsForm);
-      Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
-      Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
-      Application.CreateForm(TfAboutForm, fAboutForm);
-      Application.CreateForm(TfSplashForm, fSplashForm);
-      // do not automatically create prompt form
-      If not fMainForm.ApplicationCanRun then
-        begin
-          Application.ShowMainForm := False;
-          Application.Terminate;
-          // fMainForm.OnClose event is not called, so do not init other forms
-        end
-      else fMainForm.InitializeOtherForms;  // must be run after create but before show
-      Application.Run;
-      ILStartMutex.ReleaseMutex;
-    end
-  else MessageDlg('Application failed to aquire start mutex.',mtError,[mbOK],0);
+  Run;
 finally
-  FreeAndNil(ILStartMutex);
+  Free;
 end;
 end.

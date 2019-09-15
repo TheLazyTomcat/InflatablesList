@@ -29,8 +29,10 @@ type
     Function ItemCompare(Idx1,Idx2: Integer; CaseSensitive: Boolean): Integer; virtual;
     Function ItemCompare_CaseSensitive(Idx1,Idx2: Integer): Integer; virtual;
     Function ItemCompare_CaseInsensitive(Idx1,Idx2: Integer): Integer; virtual;
+    procedure ThisCopyFrom_Sort(Source: TILManager_Base); virtual;
   public
     constructor CreateAsCopy(Source: TILManager_Base); override;
+    procedure CopyFrom(Source: TILManager_Base); override;
     Function SortingProfileIndexOf(const Name: String): Integer; virtual;
     Function SortingProfileAdd(const Name: String): Integer; virtual;
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
@@ -174,13 +176,12 @@ begin
 Result := ItemCompare(Idx1,Idx2,False);
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
-constructor TILManager_Sort.CreateAsCopy(Source: TILManager_Base);
+procedure TILManager_Sort.ThisCopyFrom_Sort(Source: TILManager_Base);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
 If Source is TILManager_Sort then
   begin
     fReversedSort := TILManager_Sort(Source).ReversedSort;
@@ -188,10 +189,27 @@ If Source is TILManager_Sort then
     fUsedSortSett := TILManager_Sort(Source).UsedSortingSettings;
     fDefaultSortSett := TILManager_Sort(Source).DefaultSortingSettings;
     fActualSortSett := TILManager_Sort(Source).ActualSortingSettings;
+    // copy new ones
     SetLength(fSortingProfiles,TILManager_Sort(Source).SortingProfileCount);
     For i := Low(fSortingProfiles) to High(fSortingProfiles) do
       fSortingProfiles[i] := IL_ThreadSafeCopy(TILManager_Sort(Source).SortingProfiles[i]);
   end;
+end;
+
+//==============================================================================
+
+constructor TILManager_Sort.CreateAsCopy(Source: TILManager_Base);
+begin
+inherited CreateAsCopy(Source);
+ThisCopyFrom_Sort(Source);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Sort.CopyFrom(Source: TILManager_Base);
+begin
+inherited CopyFrom(Source);
+ThisCopyFrom_Sort(Source);
 end;
 
 //------------------------------------------------------------------------------

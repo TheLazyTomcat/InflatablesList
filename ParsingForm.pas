@@ -379,6 +379,7 @@ end;
 procedure TfParsingForm.Finalize;
 begin
 frmExtractionFrame.Finalize;
+frmComparatorFrame.OnChange := nil;
 frmComparatorFrame.Finalize;
 end;
 

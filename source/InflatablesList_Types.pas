@@ -8,6 +8,10 @@ uses
   SysUtils, Graphics,
   AuxTypes;
 
+const
+  KiB = 1024;
+  MiB = 1024 * KiB;
+
 //==============================================================================
 //- special encryption exceptions ----------------------------------------------  
 
@@ -311,7 +315,7 @@ type
   end;
 
   TILPreloadResultFlag = (ilprfError,ilprfInvalidFile,ilprfExtInfo,ilprfEncrypted,
-                          ilprfCompressed,ilprfPictures,ilprfSlowLoad);{$message 'implement slow load'}
+                          ilprfCompressed,ilprfPictures,ilprfSlowLoad);
 
   TILPreloadResultFlags = set of TILPreloadResultFlag;
 
@@ -330,6 +334,14 @@ type
   end;
 
 Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
+
+//==============================================================================
+//- threaded IO ----------------------------------------------------------------
+
+type
+  TILLoadingResult = (illrSuccess,illrFailed,illrWrongPassword);
+
+  TILLoadingDoneEvent = procedure(LoadingResult: TILLoadingResult) of object;
 
 implementation
 

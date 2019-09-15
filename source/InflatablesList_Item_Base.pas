@@ -235,6 +235,7 @@ type
       ValuesUpdate,
       ShopListUpdate:       TNotifyEvent); virtual;
     procedure ClearInternalEvents; virtual;
+    procedure AssignInternalEventHandlers; virtual;
     // properties
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;    
     property Index: Integer read fIndex write SetIndex;
@@ -1551,6 +1552,23 @@ fOnPicturesUpdate := nil;
 fOnFlagsUpdate := nil;
 fOnValuesUpdate := nil;
 fOnShopListUpdate := nil;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.AssignInternalEventHandlers;
+var
+  i:  Integer;
+begin
+// assigns handlers to internal events in all item shops
+For i := ShopLowIndex to ShopHighIndex do
+  fShops[i].AssignInternalEvents(
+    ShopClearSelectedHandler,
+    ShopUpdateOverviewHandler,
+    ShopUpdateShopListItemHandler,
+    ShopUpdateValuesHandler,
+    ShopUpdateAvailHistoryHandler,
+    ShopUpdatePriceHistoryHandler);
 end;
 
 end.

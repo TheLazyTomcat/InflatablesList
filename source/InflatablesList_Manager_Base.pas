@@ -121,6 +121,7 @@ type
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     Function TotalPictureCount: Integer; virtual;
+    procedure AssignInternalEventHandlers; virtual;
     // properties
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;    
@@ -903,6 +904,31 @@ For i := ItemLowIndex to ItemhighIndex do
     If Assigned(fList[i].ItemPicture) then Inc(Result);
     If Assigned(fList[i].SecondaryPicture) then Inc(Result);
     If Assigned(fList[i].PackagePicture) then Inc(Result);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.AssignInternalEventHandlers;
+var
+  i:  Integer;
+begin
+For i := ItemLowIndex to ItemhighIndex do
+  begin
+    fList[i].AssignInternalEventHandlers;
+    fList[i].AssignInternalEvents(
+      ShopUpdateShopListItemHandler,
+      ShopUpdateValuesHandler,
+      ShopUpdateAvailHistoryHandler,
+      ShopUpdatePriceHistoryHandler,
+      ItemUpdateMainListHandler,
+      ItemUpdateSmallListHandler,
+      ItemUpdateOverviewHandler,
+      ItemUpdateTitleHandler,
+      ItemUpdatePicturesHandler,
+      ItemUpdateFlagsHandler,
+      ItemUpdateValuesHandler,
+      ItemUpdateShopListHandler);
   end;
 end;
 

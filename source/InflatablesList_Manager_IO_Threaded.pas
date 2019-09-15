@@ -155,7 +155,10 @@ procedure TILManager_IO_Threaded.LoadedDataCopyHandler(Sender: TObject);
 begin
 // sender is expected to be of type TILManager
 If Sender is TILManager then
-  CopyFrom(TILManager(Sender));
+  begin
+    CopyFrom(TILManager(Sender));
+    AssignInternalEventHandlers;
+  end;
 end;
 
 //==============================================================================

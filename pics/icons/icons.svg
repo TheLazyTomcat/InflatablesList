@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4443086"
-     inkscape:cx="304.91402"
-     inkscape:cy="148.72331"
+     inkscape:cx="262.13205"
+     inkscape:cy="139.51298"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -587,5 +587,103 @@
        x="761.07458"
        y="483.88351"
        transform="matrix(0.70710678,0.70710678,-0.70710678,0.70710678,0,0)" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4220"
+       width="156.26843"
+       height="156.26843"
+       x="276.50378"
+       y="858.22308"
+       inkscape:export-filename=".\flag_icon_tested.png"
+       inkscape:export-xdpi="9.2149143"
+       inkscape:export-ydpi="9.2149143" />
+    <rect
+       style="opacity:1;fill:#808000;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4226"
+       width="17.013096"
+       height="155.63832"
+       x="415.75906"
+       y="858.53815"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <rect
+       y="858.53815"
+       x="276.50378"
+       height="155.63832"
+       width="17.013096"
+       id="rect4228"
+       style="opacity:1;fill:#808000;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <g
+       style="fill:#000080;fill-opacity:1"
+       id="g4230"
+       transform="matrix(0.46198883,0.46198883,-0.46198883,0.46198883,493.21967,528.78842)"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9">
+      <g
+         style="fill:#000080;fill-opacity:1"
+         id="g4232"
+         transform="translate(0.63686754,-1.8971609)">
+        <rect
+           y="523.69604"
+           x="271.57941"
+           height="12.602293"
+           width="81.914902"
+           id="rect4234"
+           style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        <rect
+           transform="matrix(0,1,-1,0,0,0)"
+           style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect4236"
+           width="81.914902"
+           height="12.602293"
+           x="523.69604"
+           y="-353.49429" />
+      </g>
+      <rect
+         style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4238"
+         width="173.28152"
+         height="13.862522"
+         x="-298.77176"
+         y="612.44482"
+         transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+    </g>
+    <g
+       transform="matrix(-0.46198883,0.46198883,0.46198883,0.46198883,216.05627,528.78842)"
+       id="g4240"
+       style="fill:#000080;fill-opacity:1"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9">
+      <g
+         transform="translate(0.63686754,-1.8971609)"
+         id="g4242"
+         style="fill:#000080;fill-opacity:1">
+        <rect
+           style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect4245"
+           width="81.914902"
+           height="12.602293"
+           x="271.57941"
+           y="523.69604" />
+        <rect
+           y="-353.49429"
+           x="523.69604"
+           height="12.602293"
+           width="81.914902"
+           id="rect4247"
+           style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           transform="matrix(0,1,-1,0,0,0)" />
+      </g>
+      <rect
+         transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)"
+         y="612.44482"
+         x="-298.77176"
+         height="13.862522"
+         width="173.28152"
+         id="rect4249"
+         style="opacity:1;fill:#000080;fill-opacity:1;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>

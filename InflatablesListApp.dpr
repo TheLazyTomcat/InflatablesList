@@ -52,6 +52,7 @@ uses
   InflatablesList_Manager_Filter in 'source\InflatablesList_Manager_Filter.pas',
   InflatablesList_Manager_Templates in 'source\InflatablesList_Manager_Templates.pas',
   InflatablesList_Manager_IO in 'source\InflatablesList_Manager_IO.pas',
+  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas',  
   InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',
@@ -79,7 +80,6 @@ uses
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
   SplashForm in 'SplashForm.pas' {fSplashForm},
-  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas',
   SaveForm in 'SaveForm.pas' {fSaveForm};
 
 {$R *.res}

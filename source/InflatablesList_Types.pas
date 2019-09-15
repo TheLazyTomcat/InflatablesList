@@ -343,6 +343,13 @@ type
 
   TILLoadingDoneEvent = procedure(LoadingResult: TILLoadingResult) of object;
 
+//==============================================================================
+//- list file flags ------------------------------------------------------------
+
+const
+  IL_MANAGER_FLAG_BITMASK_ENCRYPTED  = UInt32($00000001);
+  IL_MANAGER_FLAG_BITMASK_COMPRESSED = UInt32($00000002);
+
 implementation
 
 uses

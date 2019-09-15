@@ -21,6 +21,7 @@ type
     SaveVersion:  Int64;
     BackupTime:   TDateTime;
     Size:         UInt64;
+    Flags:        UInt32;
   end;
 
   TILBackupManager = class(TObject)
@@ -211,18 +212,17 @@ If IL_FileExists(fStoragePath + fUtilFileName) then
     Ini := TIniFile.Create(StrToRTL(fStoragePath + fUtilFileName));
     try
       For i := 0 to Pred(Ini.ReadInteger('Backups','Count',0)) do
-        begin
-          If Ini.ValueExists('Backups',IL_Format('Backup[%d].FileName',[i])) then
-            begin
-              Temp.FileName := Ini.ReadString('Backups',IL_Format('Backup[%d].FileName',[i]),'');
-              Temp.SaveTime := TDateTime(HexToDouble(Ini.ReadString('Backups',IL_Format('Backup[%d].SaveTime',[i]),'0')));
-              Temp.SaveVersion := StrToInt64('$' + Ini.ReadString('Backups',IL_Format('Backup[%d].SaveVersion',[i]),'0'));
-              Temp.BackupTime := TDateTime(HexToDouble(Ini.ReadString('Backups',IL_Format('Backup[%d].BackupTime',[i]),'0')));
-              Temp.Size := UInt64(StrToInt64(Ini.ReadString('Backups',IL_Format('Backup[%d].Size',[i]),'0')));
-              If IL_FileExists(StrToRTL(fStoragePath + Temp.FileName)) then
-                AddToEnd(Temp);
+        If Ini.ValueExists('Backups',IL_Format('Backup[%d].FileName',[i])) then
+          begin
+            Temp.FileName := Ini.ReadString('Backups',IL_Format('Backup[%d].FileName',[i]),'');
+            Temp.SaveTime := TDateTime(HexToDouble(Ini.ReadString('Backups',IL_Format('Backup[%d].SaveTime',[i]),'0')));
+            Temp.SaveVersion := StrToInt64Def('$' + Ini.ReadString('Backups',IL_Format('Backup[%d].SaveVersion',[i]),'0'),0);
+            Temp.BackupTime := TDateTime(HexToDouble(Ini.ReadString('Backups',IL_Format('Backup[%d].BackupTime',[i]),'0')));
+            Temp.Size := UInt64(StrToInt64Def(Ini.ReadString('Backups',IL_Format('Backup[%d].Size',[i]),'0'),0));
+            Temp.Flags := UInt32(StrToIntDef('$' + Ini.ReadString('Backups',IL_Format('Backup[%d].Flags',[i]),'0'),0));
+            If IL_FileExists(StrToRTL(fStoragePath + Temp.FileName)) then
+              AddToEnd(Temp);
           end;
-        end;
     finally
       Ini.Free;
     end;
@@ -255,6 +255,7 @@ try
       Ini.WriteString('Backups',IL_Format('Backup[%d].SaveVersion',[i]),IntToHex(fBackups[i].SaveVersion,16));
       Ini.WriteString('Backups',IL_Format('Backup[%d].BackupTime',[i]),DoubleToHex(Double(fBackups[i].BackupTime)));
       Ini.WriteString('Backups',IL_Format('Backup[%d].Size',[i]),IntToStr(Int64(fBackups[i].Size)));
+      Ini.WriteString('Backups',IL_Format('Backup[%d].Flags',[i]),IntToHex(fBackups[i].Flags,8));
     end;
 finally
   Ini.Free;
@@ -281,11 +282,13 @@ If IL_FileExists(fListFile) then
         begin
           Temp.SaveTime := Preload.Time;
           Temp.SaveVersion := Preload.Version.Full;
+          Temp.Flags := Preload.Flags;
         end
       else
         begin
           Temp.SaveTime := 0.0;
           Temp.SaveVersion := 0;
+          Temp.Flags := 0;
         end;
     finally
       Free;

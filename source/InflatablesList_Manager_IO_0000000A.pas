@@ -11,10 +11,6 @@ uses
   InflatablesList_Manager_IO,  
   InflatablesList_Manager_IO_00000009;
 
-const
-  IL_MANAGER_FLAG_BITMASK_ENCRYPTED  = UInt32($00000001);
-  IL_MANAGER_FLAG_BITMASK_COMPRESSED = UInt32($00000002);
-
 type
   TILManager_IO_0000000A = class(TILManager_IO_00000009)
   protected

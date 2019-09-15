@@ -42,7 +42,7 @@ var
 implementation
 
 uses
-  WinFileInfo,
+  AuxTypes, WinFileInfo, BitOps,
   InflatablesList_Types,  
   InflatablesList_Utils;
 
@@ -51,6 +51,25 @@ uses
 procedure TfBackupsForm.FillBackupList;
 var
   i:  Integer;
+
+  Function FlagsToStr(Flags: UInt32): String;
+
+    procedure AddToResult(const S: String);
+    begin
+      If Length(Result) > 0 then
+        Result := IL_Format('%s, %s',[Result,S])
+      else
+        Result := S;
+    end;
+
+  begin
+    Result := '';
+    If GetFlagState(Flags,IL_MANAGER_FLAG_BITMASK_ENCRYPTED) then
+      AddToResult('encrypted');
+    If GetFlagState(Flags,IL_MANAGER_FLAG_BITMASK_COMPRESSED) then
+      AddToResult('compressed');
+  end;
+
 begin
 leBackupFolder.Text := fILManager.BackupManager.StoragePath;
 lvBackups.Items.BeginUpdate;
@@ -71,6 +90,7 @@ try
             SubItems.Add('');
             SubItems.Add('');
             SubItems.Add('');
+            SubItems.Add('');
           end;
     end;
   // fill the list
@@ -78,7 +98,9 @@ try
     with lvBackups.Items[i] do
       begin
         Caption := fILManager.BackupManager[i].FileName;
-        SubItems[0] := WinFileInfo.SizeToStr(fILManager.BackupManager[i].Size);
+        SubItems[0] := IL_Format('%s (%d bytes)',[
+          WinFileInfo.SizeToStr(fILManager.BackupManager[i].Size),
+          fILManager.BackupManager[i].Size]);
         If fILManager.BackupManager[i].SaveVersion <> 0 then
           SubItems[1] := IL_Format('%d.%d.%d (build #%d)',[
             TILPreloadInfoVersion(fILManager.BackupManager[i].SaveVersion).Major,
@@ -92,6 +114,7 @@ try
         else
           SubItems[2] := 'unknown';
         SubItems[3] := IL_FormatDateTime('yyyy-mm-dd  hh:nn:ss',fILManager.BackupManager[i].BackupTime);
+        SubItems[4] := FlagsToStr(fILManager.BackupManager[i].Flags);
       end;
 finally
   lvBackups.Items.EndUpdate;

@@ -1,10 +1,10 @@
 object fBackupsForm: TfBackupsForm
-  Left = 361
+  Left = 236
   Top = 125
   BorderStyle = bsDialog
   Caption = 'Backups'
   ClientHeight = 446
-  ClientWidth = 888
+  ClientWidth = 984
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,32 +19,37 @@ object fBackupsForm: TfBackupsForm
   object lvBackups: TListView
     Left = 8
     Top = 8
-    Width = 873
+    Width = 969
     Height = 385
     Columns = <
       item
         Caption = 'File name'
-        Width = 300
+        Width = 200
       end
       item
         Alignment = taRightJustify
         Caption = 'File size'
-        Width = 100
+        Width = 160
       end
       item
         Alignment = taRightJustify
         Caption = 'Program version'
-        Width = 150
+        Width = 120
       end
       item
         Alignment = taRightJustify
         Caption = 'Time of saving'
-        Width = 150
+        Width = 140
       end
       item
         Alignment = taRightJustify
         Caption = 'Time of backup'
-        Width = 150
+        Width = 140
+      end
+      item
+        Alignment = taRightJustify
+        Caption = 'Flags'
+        Width = 180
       end>
     ColumnClick = False
     GridLines = True
@@ -58,7 +63,7 @@ object fBackupsForm: TfBackupsForm
   object leBackupFolder: TLabeledEdit
     Left = 8
     Top = 416
-    Width = 848
+    Width = 944
     Height = 21
     Color = clBtnFace
     EditLabel.Width = 69
@@ -68,7 +73,7 @@ object fBackupsForm: TfBackupsForm
     TabOrder = 1
   end
   object btnOpenBckFolder: TButton
-    Left = 856
+    Left = 952
     Top = 416
     Width = 25
     Height = 21

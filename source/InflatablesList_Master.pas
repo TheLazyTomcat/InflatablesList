@@ -6,6 +6,7 @@ interface
 
 uses
   WinSyncObjs,
+  InflatablesList_Types,
   InflatablesList_Manager;
 
 const
@@ -26,6 +27,7 @@ type
     procedure InitializeApplication; virtual;
     procedure CreateForms; virtual;
     Function LoadList: Boolean; virtual;
+    procedure ThreadedLoadingEndHandler(LoadingResult: TILLoadingResult); virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -39,8 +41,7 @@ uses
   Forms, Dialogs,
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm, BackupsForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm,
-  InflatablesList_Types;
+  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm;
 
 procedure TILMaster.Initialize;
 begin
@@ -116,7 +117,18 @@ If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
       end;
     // load the file and catch wrong password exceptions
     try
-      fILManager.LoadFromFile;
+      If ilprfSlowLoad in PreloadInfo.ResultFlags then
+        begin
+          Application.ShowMainForm := False;
+          fSplashForm.ShowSplash;
+          fILManager.LoadFromFileThreaded(ThreadedLoadingEndHandler);
+          // main form initialization is deferred to time when the loading is done
+        end
+      else
+        begin
+          fILManager.LoadFromFile;
+          fMainForm.Initialize(fILManager);
+        end;
       Result := True;
     except
       on E: EILWrongPassword do
@@ -126,6 +138,25 @@ If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
     end;
   end
 else MessageDlg('Invalid list file, cannot continue.',mtError,[mbOk],0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILMaster.ThreadedLoadingEndHandler(LoadingResult: TILLoadingResult);
+begin
+case LoadingResult of
+  illrSuccess:;
+    // do nothing
+  illrFailed:
+    MessageDlg('Loading of the file failed, terminating program.',mtError,[mbOk],0);
+  illrWrongPassword:
+    MessageDlg('You have entered wrong password, program will now terminate.',mtError,[mbOk],0);
+end;
+If LoadingResult = illrSuccess then
+  fMainForm.Initialize(fILManager)  // deferred initialization
+else
+  Application.Terminate;
+fSplashForm.LoadingDone(LoadingResult = illrSuccess);
 end;
 
 //==============================================================================
@@ -156,11 +187,10 @@ If CanStart then
       begin
         Application.ShowMainForm := False;
         Application.Terminate;
-        // fMainForm.OnClose event is not called, so do not call initialize
-      end
-    else fMainForm.Initialize(fILManager);  // must be run after create but before show
+        // fMainForm.OnClose event will not be called
+      end;
     Application.Run;
-    // fMainForm.Finalize is called automatically in OnClose event (semetimes, see above)
+    // fMainForm.Finalize is called automatically in OnClose event (only when loading succeeded)
     fILStartMutex.ReleaseMutex;
   end
 else MessageDlg('Application failed to aquire start mutex.',mtError,[mbOK],0);

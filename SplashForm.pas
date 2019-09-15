@@ -5,6 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs,
+  SimpleTimer,
   InflatablesList_Manager;
 
 type
@@ -18,11 +19,15 @@ type
     fSplashPosition:      TPoint;
     fSplashSize:          TSize;
     fSplashBlendFunction: TBlendFunction;
+    fCloseTimer:          TSimpleTimer;
+  protected
+    procedure OnCloseTimerHandler(Sender: TObject);
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
     procedure ShowSplash;
+    procedure LoadingDone(Success: Boolean);
   end;
 
 var
@@ -31,12 +36,20 @@ var
 implementation
 
 uses
-  StrRect;
+  StrRect,
+  MainForm;
 
 {$R *.dfm}
 
 // resource containing the splash bitmap
 {$R '..\resources\splash.res'}
+
+procedure TfSplashForm.OnCloseTimerHandler(Sender: TObject);
+begin
+Close;
+end;
+
+//==============================================================================
 
 procedure TfSplashForm.Initialize(ILManager: TILManager);
 begin
@@ -55,6 +68,19 @@ end;
 procedure TfSplashForm.ShowSplash;
 begin
 Show;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSplashForm.LoadingDone(Success: Boolean);
+begin
+If Success then
+  begin
+    fMainForm.Show;
+    fCloseTimer.Enabled := True;
+    // closing in this case is called by timer
+  end
+else Close;
 end;
 
 //==============================================================================
@@ -90,12 +116,18 @@ Position := poScreenCenter;
 // layered window calls (low-level)
 SetWindowLong(Handle,GWL_EXSTYLE,GetWindowLong(Handle,GWL_EXSTYLE) or WS_EX_LAYERED);
 UpdateLayeredWindow(Handle,0,nil,@fSplashSize,fSplashBitmap.Canvas.Handle,@fSplashPosition,0,@fSplashBlendFunction,ULW_ALPHA);
+// some other stuff
+fCloseTimer := TSimpleTimer.Create;
+fCloseTimer.Enabled := False;
+fCloseTimer.Interval := 1000; // 1s
+fCloseTimer.OnTimer := OnCloseTimerHandler;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfSplashForm.FormDestroy(Sender: TObject);
 begin
+FreeAndNil(fCloseTimer);
 FreeAndNil(fSplashBitmap);
 end;
 

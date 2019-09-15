@@ -92,11 +92,13 @@ type
     procedure Finalize; virtual;
     // other
     procedure ReIndex; virtual;
+    procedure ThisCopyFrom_Base(Source: TILManager_Base); virtual;
   public
     constructor Create;
     constructor CreateAsCopy(Source: TILManager_Base); virtual; // will be overriden
     constructor CreateTransient;  // nothing is initialized, use with great caution
     destructor Destroy; override;
+    procedure CopyFrom(Source: TILManager_Base); virtual;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
     Function LowIndex: Integer; override;
@@ -481,6 +483,33 @@ For i := ItemLowIndex to ItemHighIndex do
   fList[i].Index := i;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ThisCopyFrom_Base(Source: TILManager_Base);
+var
+  i:  Integer;
+begin
+// implements CopyFrom for this one class, no inheritance
+// properties
+fTransient := Source.Transient;
+fStaticSettings := IL_THreadSafeCopy(Source.StaticSettings);
+fEncrypted := Source.Encrypted;
+fListPassword := Source.ListPassword;
+UniqueString(fListPassword);
+fCompressed := Source.Compressed;
+// free existing items
+For i := ItemLowIndex to ItemHighIndex do
+  FreeAndNil(fList[i]);
+// copy items
+SetLength(fList,Source.ItemCount);
+fCount := Source.ItemCount;
+For i := ItemLowIndex to ItemHighIndex do
+  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True);
+// other data
+fNotes := Source.Notes;
+UniqueString(fNotes);
+end;
+
 //==============================================================================
 
 constructor TILManager_Base.Create;
@@ -547,6 +576,17 @@ begin
 If not fTransient then
   Finalize;
 inherited;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.CopyFrom(Source: TILManager_Base);
+begin
+{
+  copies all data and non-transient, non-object properties from the source,
+  replacing existing data and values
+}
+ThisCopyFrom_Base(Source);
 end;
 
 //------------------------------------------------------------------------------

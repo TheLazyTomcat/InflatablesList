@@ -56,7 +56,7 @@ uses
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
-  InflatablesList_Master in 'source\InflatablesList_Master.pas',  
+  InflatablesList_Master in 'source\InflatablesList_Master.pas',
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
   ShopFrame in 'ShopFrame.pas' {frmShopFrame: TFrame},
   ComparatorFrame in 'ComparatorFrame.pas' {frmComparatorFrame: TFrame},
@@ -78,7 +78,8 @@ uses
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
-  SplashForm in 'SplashForm.pas' {fSplashForm};
+  SplashForm in 'SplashForm.pas' {fSplashForm},
+  InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas';
 
 {$R *.res}
 

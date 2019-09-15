@@ -13,19 +13,36 @@ type
   TILManager_Filter = class(TILManager_Sort)
   protected
     fFilterSettings:  TILFilterSettings;
+    procedure ThisCopyFrom_Filter(Source: TILManager_Base); virtual;
   public
     constructor CreateAsCopy(Source: TILManager_Base); override;
+    procedure CopyFrom(Source: TILManager_Base); override;
     procedure FilterItems; virtual;
     property FilterSettings: TILFilterSettings read fFilterSettings write fFilterSettings;
   end;
 
 implementation
 
+procedure TILManager_Filter.ThisCopyFrom_Filter(Source: TILManager_Base);
+begin
+If Source is TILManager_Filter then
+  fFilterSettings := TILManager_Filter(Source).FilterSettings;
+end;
+
+//==============================================================================
+
 constructor TILManager_Filter.CreateAsCopy(Source: TILManager_Base);
 begin
 inherited CreateAsCopy(Source);
-If Source is TILManager_Filter then
-  fFilterSettings := TILManager_Filter(Source).FilterSettings;
+ThisCopyFrom_Filter(Source);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Filter.CopyFrom(Source: TILManager_Base);
+begin
+inherited CopyFrom(Source);
+ThisCopyFrom_Filter(Source);
 end;
 
 //------------------------------------------------------------------------------

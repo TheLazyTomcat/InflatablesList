@@ -493,17 +493,17 @@ If fSaveOnExit then
   SaveList;
 If fInitialized then
   begin
-    FinalizeOtherForms;
     // finalize item frame
+    frmItemFrame.SetItem(nil,True);
     frmItemFrame.OnShowSelectedItem := nil;
     frmItemFrame.OnFocusList := nil;
-    frmItemFrame.SetItem(nil,True);
     frmItemFrame.Finalize;
     // deassign event handlers
     fILManager.OnMainListUpdate := nil;
     fILManager.OnSettingsChange := nil;
     // others
     lbList.Items.Clear; // to be sure
+    FinalizeOtherForms;
   end;
 end;
 

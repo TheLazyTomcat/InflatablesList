@@ -333,6 +333,14 @@ type
 
 Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
 
+//==============================================================================
+//- threaded IO ----------------------------------------------------------------
+
+type
+  TILLoadingResult = (illrSuccess,illrFailed,illrWrongPassword);
+
+  TILLoadingDoneEvent = procedure(LoadingResult: TILLoadingResult) of object;
+
 implementation
 
 uses

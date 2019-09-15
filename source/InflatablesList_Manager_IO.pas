@@ -75,9 +75,6 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;    
     procedure SaveToFile; virtual;
     procedure LoadFromFile; virtual;
-    {$message 'implement'}
-    //procedure LoadFromStreamThreaded(Stream: TStream; EndNotificationHandler: TNotifyEvent); virtual;
-    //procedure LoadFromFileThreaded(EndNotificationHandler: TNotifyEvent); virtual;
     Function PreloadStream(Stream: TStream): TILPreloadInfo; virtual;
     Function PreloadFile(const FileName: String): TILPreloadInfo; overload; virtual;
     Function PreloadFile: TILPreloadInfo; overload; virtual;

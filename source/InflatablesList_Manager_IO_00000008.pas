@@ -7,10 +7,10 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Manager_IO;
+  InflatablesList_Manager_IO_Threaded;
 
 type
-  TILManager_IO_00000008 = class(TILManager_IO)
+  TILManager_IO_00000008 = class(TILManager_IO_Threaded)
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
@@ -42,7 +42,8 @@ uses
   InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_Item,
-  InflatablesList_ItemShopTemplate;
+  InflatablesList_ItemShopTemplate,
+  InflatablesList_Manager_IO;
 
 procedure TILManager_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin

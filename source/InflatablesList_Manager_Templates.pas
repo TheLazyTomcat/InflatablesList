@@ -18,8 +18,10 @@ type
     Function GetShopTemplate(Index: Integer): TILItemShopTemplate;
     procedure Initialize; override;
     procedure Finalize; override;
+    procedure ThisCopyFrom_Templates(Source: TILManager_Base); virtual;
   public
     constructor CreateAsCopy(Source: TILManager_Base); override;
+    procedure CopyFrom(Source: TILManager_Base); override;
     Function ShopTemplateIndexOf(const Name: String): Integer; virtual;
     Function ShopTemplateAdd(const Name: String; Shop: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
@@ -69,19 +71,38 @@ ShopTemplateClear;
 inherited Finalize;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
-constructor TILManager_Templates.CreateAsCopy(Source: TILManager_Base);
+procedure TILManager_Templates.ThisCopyFrom_Templates(Source: TILManager_Base);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
 If Source is TILManager_Templates then
   begin
+    // free existing templates
+    For i := Low(fShopTemplates) to High(fShopTemplates) do
+      FreeAndNil(fShopTemplates[i]);
+    // copy new ones
     SetLength(fShopTemplates,TILManager_Templates(Source).ShopTemplateCount);
     For i := Low(fShopTemplates) to High(fShopTemplates) do
       fShopTemplates[i] := TILItemShopTemplate.CreateAsCopy(TILManager_Templates(Source).ShopTemplates[i]);
   end;
+end;
+
+//==============================================================================
+
+constructor TILManager_Templates.CreateAsCopy(Source: TILManager_Base);
+begin
+inherited CreateAsCopy(Source);
+ThisCopyFrom_Templates(Source);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Templates.CopyFrom(Source: TILManager_Base);
+begin
+inherited CopyFrom(Source);
+ThisCopyFrom_Templates(Source);
 end;
 
 //------------------------------------------------------------------------------

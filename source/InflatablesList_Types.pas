@@ -5,18 +5,12 @@ unit InflatablesList_Types;
 interface
 
 uses
-  SysUtils, Graphics,
+  Graphics,
   AuxTypes;
 
 const
   KiB = 1024;
   MiB = 1024 * KiB;
-
-//==============================================================================
-//- special encryption exceptions ----------------------------------------------  
-
-type
-  EILWrongPassword = class(Exception);
 
 //==============================================================================
 //- event prototypes -----------------------------------------------------------
@@ -344,15 +338,24 @@ type
   TILLoadingDoneEvent = procedure(LoadingResult: TILLoadingResult) of object;
 
 //==============================================================================
-//- list file flags ------------------------------------------------------------
+//- list and item flags --------------------------------------------------------
 
 const
-  IL_MANAGER_FLAG_BITMASK_ENCRYPTED  = UInt32($00000001);
-  IL_MANAGER_FLAG_BITMASK_COMPRESSED = UInt32($00000002);
+  IL_LIST_FLAG_BITMASK_ENCRYPTED  = UInt32($00000001);
+  IL_LIST_FLAG_BITMASK_COMPRESSED = UInt32($00000002);
+
+  IL_ITEM_FLAG_BITMASK_ENCRYPTED  = UInt32($00000001);
+
+//==============================================================================
+//- encryption -----------------------------------------------------------------
+
+type
+  TILPasswordRequest = Function(Sender: TObject; out Pswd: String): Boolean of object;
 
 implementation
 
 uses
+  SysUtils,
   BitOps, StrRect;
 
 //==============================================================================

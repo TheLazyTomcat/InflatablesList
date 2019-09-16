@@ -21,6 +21,7 @@ type
 implementation
 
 uses
+  InflatablesList_Encryption,
   InflatablesList_Manager_Base,
   InflatablesList_Manager;
 

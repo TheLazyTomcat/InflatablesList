@@ -1059,6 +1059,15 @@ object frmItemFrame: TfrmItemFrame
       Value = 0
       OnChange = seRatingChange
     end
+    object Button1: TButton
+      Left = 0
+      Top = 0
+      Width = 75
+      Height = 25
+      Caption = 'Button1'
+      TabOrder = 29
+      OnClick = Button1Click
+    end
   end
   object diaPicOpenDialog: TOpenDialog
     Filter = 'BMP image files|*.bmp|All files|*.*'

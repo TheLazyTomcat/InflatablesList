@@ -41,7 +41,8 @@ uses
   Forms, Dialogs,
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm, BackupsForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm, SaveForm;
+  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm, SaveForm,
+  InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
 begin

@@ -259,7 +259,8 @@ If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
           ItemUpdatePicturesHandler,
           ItemUpdateFlagsHandler,
           ItemUpdateValuesHandler,
-          ItemUpdateShopListHandler);
+          ItemUpdateShopListHandler,
+          ItemPasswordRequestHandler);
       end;
   end
 else raise Exception.Create('TILManager_IO_00000008.LoadItems_00000008: Invalid stream.');

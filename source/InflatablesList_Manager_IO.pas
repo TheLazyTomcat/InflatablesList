@@ -220,7 +220,8 @@ try
                 ItemUpdatePicturesHandler,
                 ItemUpdateFlagsHandler,
                 ItemUpdateValuesHandler,
-                ItemUpdateShopListHandler);
+                ItemUpdateShopListHandler,
+                ItemPasswordRequestHandler);
             end;
           fCount := fCount + Result;
           UpdateList;

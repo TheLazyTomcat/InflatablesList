@@ -133,8 +133,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1075821"
-     inkscape:cx="375.36508"
-     inkscape:cy="257.52355"
+     inkscape:cx="321.34748"
+     inkscape:cy="256.62068"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -170,16 +170,16 @@
        inkscape:export-ydpi="62.403484"
        transform="matrix(0.53217985,0,0,0.53217985,-60.143326,-9.7550333)" />
     <image
-       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\program_icon\program_icon.png"
-       xlink:href="program_icon\program_icon.png"
-       y="27.779745"
-       x="53.851818"
-       id="image4144"
-       preserveAspectRatio="none"
-       height="175.28841"
-       width="175.28841"
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\..\program_icon\program_icon.png"
+       xlink:href="..\program_icon\program_icon.png"
+       inkscape:export-ydpi="62.403484"
        inkscape:export-xdpi="62.403484"
-       inkscape:export-ydpi="62.403484" />
+       width="175.28841"
+       height="175.28841"
+       preserveAspectRatio="none"
+       id="image4144"
+       x="53.851818"
+       y="27.779745" />
     <g
        id="g4168"
        style="fill:#666666;filter:url(#filter4182)"
@@ -246,38 +246,38 @@
            sodipodi:role="line">Loading...</tspan></text>
     </g>
     <image
-       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i59251_purple.jpg"
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i59251_purple.jpg"
        xlink:href="i59251_purple.jpg"
-       transform="translate(52.918275,-340.49736)"
-       mask="url(#mask4199)"
-       width="253.0463"
-       height="253.0463"
-       preserveAspectRatio="none"
-       id="image4168"
+       y="612.70068"
        x="450.41605"
-       y="612.70068" />
+       id="image4168"
+       preserveAspectRatio="none"
+       height="253.0463"
+       width="253.0463"
+       mask="url(#mask4199)"
+       transform="translate(52.918275,-340.49736)" />
     <image
-       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58772_bblue.jpg"
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i58772_bblue.jpg"
        xlink:href="i58772_bblue.jpg"
-       transform="matrix(1.3675658,0,0,1.3675658,246.04064,-760.18068)"
-       mask="url(#mask4213)"
-       y="592.08569"
-       x="33.199654"
-       id="image4203"
-       preserveAspectRatio="none"
+       width="117.63367"
        height="255.78113"
-       width="117.63367" />
-    <image
-       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58071.jpg"
-       xlink:href="i58071.jpg"
-       transform="matrix(0.72258538,0,0,0.72258538,388.91789,-408.19032)"
-       mask="url(#mask4241)"
-       width="336.74277"
-       height="323.84625"
        preserveAspectRatio="none"
-       id="image4236"
+       id="image4203"
+       x="33.199654"
+       y="592.08569"
+       mask="url(#mask4213)"
+       transform="matrix(1.3675658,0,0,1.3675658,246.04064,-760.18068)" />
+    <image
+       sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i58071.jpg"
+       xlink:href="i58071.jpg"
+       y="596.60272"
        x="120.55474"
-       y="596.60272" />
+       id="image4236"
+       preserveAspectRatio="none"
+       height="323.84625"
+       width="336.74277"
+       mask="url(#mask4241)"
+       transform="matrix(0.72258538,0,0,0.72258538,388.91789,-408.19032)" />
     <g
        id="g4345"
        transform="translate(6.0446758,-3.6114706)"
@@ -289,16 +289,16 @@
          id="path4295"
          inkscape:connector-curvature="0" />
       <image
-         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i59251_purple.jpg"
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i59251_purple.jpg"
          xlink:href="i59251_purple.jpg"
-         transform="translate(-209.59437,19.508678)"
-         mask="url(#mask4199)"
-         width="253.0463"
-         height="253.0463"
-         preserveAspectRatio="none"
-         id="image4245"
+         y="612.70068"
          x="450.41605"
-         y="612.70068" />
+         id="image4245"
+         preserveAspectRatio="none"
+         height="253.0463"
+         width="253.0463"
+         mask="url(#mask4199)"
+         transform="translate(-209.59437,19.508678)" />
       <path
          style="fill:#4d4d4d;filter:url(#filter4313)"
          d="m 321.81987,862.18896 c -34.29928,5.19778 -72.09583,8.73622 -100.54689,11.75916 -10.30553,1.09497 -12.83886,3.85165 -19.38664,0.19287 -5.31512,-2.63969 -6.99532,-5.45431 -9.02204,-14.12433 -1.19293,-54.17749 -11.21349,-107.81779 -18.5351,-161.41929 -8.42473,-60.89811 -23.24214,-120.69478 -34.06368,-181.1425 0.51075,-23.64724 32.10505,-16.70434 48.11324,-20.60452 34.97153,-4.43489 69.74297,-10.42783 104.22917,-17.67798 21.6116,0.13227 14.85574,27.76493 17.32888,37.27452 7.80207,68.38934 15.32017,136.87572 26.12265,204.87871 4.91108,34.48209 10.94714,68.85295 17.89011,102.96993 5.55751,17.60188 5.6335,19.06845 0.34461,29.58108 -6.60291,6.00366 -19.4842,7.12432 -32.47431,8.31235 z M 191.10034,833.35527 c -0.17667,-1.13886 0.53323,0.53239 0,0 z M 308.24618,492.74049 c 0.084,-1.46593 0.63437,0.80524 0,0 z"
@@ -306,16 +306,16 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="csccccccccccccccc" />
       <image
-         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58772_bblue.jpg"
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i58772_bblue.jpg"
          xlink:href="i58772_bblue.jpg"
-         transform="matrix(1.5618318,-0.2241466,0.2241466,1.5618318,-55.413178,-422.88197)"
-         mask="url(#mask4213)"
-         y="592.08569"
-         x="33.199654"
-         id="image4247"
-         preserveAspectRatio="none"
+         width="117.63367"
          height="255.78113"
-         width="117.63367" />
+         preserveAspectRatio="none"
+         id="image4247"
+         x="33.199654"
+         y="592.08569"
+         mask="url(#mask4213)"
+         transform="matrix(1.5618318,-0.2241466,0.2241466,1.5618318,-55.413178,-422.88197)" />
       <ellipse
          style="opacity:1;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4305)"
          id="ellipse4291"
@@ -324,16 +324,16 @@
          rx="101.27194"
          ry="101.28653" />
       <image
-         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\i58071.jpg"
+         sodipodi:absref="F:\Programy\Programs\Inflatables List\Dev\pics\splash\i58071.jpg"
          xlink:href="i58071.jpg"
-         transform="matrix(0.70489162,0,0,0.70160101,69.548876,254.9791)"
-         mask="url(#mask4241)"
-         width="336.74277"
-         height="323.84625"
-         preserveAspectRatio="none"
-         id="image4249"
+         y="596.60272"
          x="120.55474"
-         y="596.60272" />
+         id="image4249"
+         preserveAspectRatio="none"
+         height="323.84625"
+         width="336.74277"
+         mask="url(#mask4241)"
+         transform="matrix(0.70489162,0,0,0.70160101,69.548876,254.9791)" />
     </g>
     <g
        id="g4353"

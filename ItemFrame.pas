@@ -163,6 +163,7 @@ type
     shpTotalPriceSelectedBcgr: TShape;
     shpFiller: TShape;
     lblItemTitleShadow: TLabel;
+    Button1: TButton;
     procedure FrameResize(Sender: TObject);    
     procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
@@ -211,6 +212,7 @@ type
     procedure seRatingChange(Sender: TObject);    
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     // resizing
     fInitialHeight:   Integer;
@@ -1649,6 +1651,14 @@ If Assigned(fCurrentItem) then
     fShopsForm.ShowShops(fCurrentItem);
     If Assigned(OnFocusList) then
       OnFocusList(Self);
+  end;
+end;
+
+procedure TfrmItemFrame.Button1Click(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    fCurrentItem.Encrypted := not fCurrentItem.Encrypted;
   end;
 end;
 

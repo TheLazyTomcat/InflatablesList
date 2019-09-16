@@ -86,6 +86,8 @@ Function IL_CheckHandler(Handler: TILObjectL2Event): TILObjectL2Event; overload;
 Function IL_CheckHandler(Handler: TILIndexedObjectL1Event): TILIndexedObjectL1Event; overload;
 Function IL_CheckHandler(Handler: TILIndexedObjectL2Event): TILIndexedObjectL2Event; overload;
 
+Function IL_CheckHandler(Handler: TILPasswordRequest): TILPasswordRequest; overload;
+
 //==============================================================================
 //- pictures manipulation ------------------------------------------------------
 
@@ -509,7 +511,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Function IL_CheckHandler(Handler: TILIndexedObjectL2Event): TILIndexedObjectL2Event; overload;
+Function IL_CheckHandler(Handler: TILIndexedObjectL2Event): TILIndexedObjectL2Event;
 begin
 If Assigned(Handler) then
   Result := Handler
@@ -517,6 +519,15 @@ else
   raise Exception.Create('IL_CheckAndAssign(TILIndexedObjectL2Event): Handler not assigned');
 end;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Function IL_CheckHandler(Handler: TILPasswordRequest): TILPasswordRequest;
+begin
+If Assigned(Handler) then
+  Result := Handler
+else
+  raise Exception.Create('IL_CheckAndAssign(TILPasswordRequest): Handler not assigned');
+end;
 
 //==============================================================================
 //- pictures manipulation ------------------------------------------------------

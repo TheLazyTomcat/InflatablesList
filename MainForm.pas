@@ -194,6 +194,7 @@ type
     procedure FocusList(Sender: TObject);                         // item frame event
     procedure InvalidateList(Sender: TObject);                    // manager event
     procedure SettingsChange(Sender: TObject);                    // manager event
+    procedure ItemsPasswordRequest(Sender: TObject);              // manager event
     // init/finals
     procedure InitializeOtherForms;
     procedure FinalizeOtherForms;
@@ -445,6 +446,17 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.ItemsPasswordRequest(Sender: TObject);
+var
+  Password: String;
+begin
+Password := '';
+If IL_InputQuery('Items password','Enter items password (can be empty):',Password,'*') then
+  fILManager.ItemsPassword := Password;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.InitializeOtherForms;
 begin
 fTextEditForm.Initialize(fILManager);
@@ -531,6 +543,7 @@ fInitialized := True;
 fILManager := ILManager;
 fILManager.OnMainListUpdate := InvalidateList;
 fILManager.OnSettingsChange := SettingsChange;
+fILManager.OnItemsPasswordRequest := ItemsPasswordRequest;
 fSaveOnExit := True;
 // prepare item frame
 frmItemFrame.Initialize(fILManager);

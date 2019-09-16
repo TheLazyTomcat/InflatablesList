@@ -123,147 +123,157 @@ with fRender,fRender.Canvas do
     // side strip
     SetCanvas(bsSolid,$00F7F7F7,psClear);
     Rectangle(0,0,SIDE_STRIP_WIDTH,Height);
-    If ilifWanted in fFlags then
+
+    If fDataAccessible then // - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        // wanted level strip
-        If Assigned(fDataProvider.WantedGradientImage) then
+        If ilifWanted in fFlags then
           begin
-            TempInt := Height - Trunc((Height / 7) * fWantedLevel);
-            If fWantedLevel > 0 then
-              CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
-                fDataProvider.WantedGradientImage.Canvas,
-                Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
+            // wanted level strip
+            If Assigned(fDataProvider.WantedGradientImage) then
+              begin
+                TempInt := Height - Trunc((Height / 7) * fWantedLevel);
+                If fWantedLevel > 0 then
+                  CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
+                    fDataProvider.WantedGradientImage.Canvas,
+                    Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
+              end
+            else DrawWantedLevelStrip;
           end
-        else DrawWantedLevelStrip;
-      end
-    else If (fRating <> 0) and (ilifOwned in fFLags) then
-      begin
-        // rating strip
-        TempInt := Height - Ceil((Height * Integer(fRating)) / 100);
-        CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
-                 fDataProvider.RatingGradientImage.Canvas,
-                 Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
-      end;
-
-    // title + count
-    If fPieces > 1 then
-      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
-    else
-      TempStr := TitleStr;
-    If ilifDiscarded in fFlags then
-      begin
-        SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
-        Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
-      end
-    else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
-    TextOut(SIDE_STRIP_WIDTH + 5,5,TempStr);
-
-    // type + size
-    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
-    TempStr := SizeStr;
-    If Length(TempStr) > 0 then
-      TextOut(SIDE_STRIP_WIDTH + 5,30,IL_Format('%s - %s',[TypeStr,TempStr]))
-    else
-      TextOut(SIDE_STRIP_WIDTH + 5,30,TypeStr);
-
-    // variant/color
-    SetCanvas;
-    TextOut(SIDE_STRIP_WIDTH + 5,50,fVariant);
-
-    // flag icons
-    SetCanvas;
-    TempInt := SIDE_STRIP_WIDTH + 5;
-    For ItemFlag := Low(TILItemFlag) to High(TILItemFlag) do
-      If ItemFlag in fFlags then
-        begin
-          Draw(TempInt,Height - (fDataProvider.ItemFlagIcons[ItemFlag].Height + 10),
-               fDataProvider.ItemFlagIcons[ItemFlag]);
-          Inc(TempInt,fDataProvider.ItemFlagIcons[ItemFlag].Width + 5);
-        end;
-
-    // review icon
-    SetCanvas;
-    If Length(fReviewURL) > 0 then
-      begin
-        Draw(TempInt,Height - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
-        Inc(TempInt,fDataProvider.ItemReviewIcon.Width + 5);
-      end;
-
-    // text and num tag
-    SetCanvas;
-    If Length(fTextTag) > 0 then
-      begin
-        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
-        TextOut(TempInt,Height - 25,fTextTag);
-        Inc(TempInt,TextWidth(fTextTag) + 5);
-      end;
-    If fNumTag <> 0 then
-      begin
-        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
-        TextOut(TempInt,Height - 25,IL_Format('[%d]',[fNumTag]))
-      end;
-
-    // selected shop and available count
-    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
-    TempInt := 5;
-    If ShopsSelected(SelShop) then
-      begin
-        If ShopCount > 1 then
-          TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
-        else
-          TempStr := SelShop.Name;
-        TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
-        Inc(TempInt,17);
-
-        If fAvailableSelected <> 0 then
+        else If (fRating <> 0) and (ilifOwned in fFLags) then
           begin
-            If fAvailableSelected < 0 then
-              TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
+            // rating strip
+            TempInt := Height - Ceil((Height * Integer(fRating)) / 100);
+            CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
+                     fDataProvider.RatingGradientImage.Canvas,
+                     Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
+          end;
+    
+        // title + count
+        If fPieces > 1 then
+          TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
+        else
+          TempStr := TitleStr;
+        If ilifDiscarded in fFlags then
+          begin
+            SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
+            Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+          end
+        else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
+        TextOut(SIDE_STRIP_WIDTH + 5,5,TempStr);
+    
+        // type + size
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
+        TempStr := SizeStr;
+        If Length(TempStr) > 0 then
+          TextOut(SIDE_STRIP_WIDTH + 5,30,IL_Format('%s - %s',[TypeStr,TempStr]))
+        else
+          TextOut(SIDE_STRIP_WIDTH + 5,30,TypeStr);
+    
+        // variant/color
+        SetCanvas;
+        TextOut(SIDE_STRIP_WIDTH + 5,50,fVariant);
+    
+        // flag icons
+        SetCanvas;
+        TempInt := SIDE_STRIP_WIDTH + 5;
+        For ItemFlag := Low(TILItemFlag) to High(TILItemFlag) do
+          If ItemFlag in fFlags then
+            begin
+              Draw(TempInt,Height - (fDataProvider.ItemFlagIcons[ItemFlag].Height + 10),
+                   fDataProvider.ItemFlagIcons[ItemFlag]);
+              Inc(TempInt,fDataProvider.ItemFlagIcons[ItemFlag].Width + 5);
+            end;
+    
+        // review icon
+        SetCanvas;
+        If Length(fReviewURL) > 0 then
+          begin
+            Draw(TempInt,Height - (fDataProvider.ItemReviewIcon.Height + 10),fDataProvider.ItemReviewIcon);
+            Inc(TempInt,fDataProvider.ItemReviewIcon.Width + 5);
+          end;
+    
+        // text and num tag
+        SetCanvas;
+        If Length(fTextTag) > 0 then
+          begin
+            SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+            TextOut(TempInt,Height - 25,fTextTag);
+            Inc(TempInt,TextWidth(fTextTag) + 5);
+          end;
+        If fNumTag <> 0 then
+          begin
+            SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+            TextOut(TempInt,Height - 25,IL_Format('[%d]',[fNumTag]))
+          end;
+    
+        // selected shop and available count
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TempInt := 5;
+        If ShopsSelected(SelShop) then
+          begin
+            If ShopCount > 1 then
+              TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
             else
-              TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+              TempStr := SelShop.Name;
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
             Inc(TempInt,17);
+    
+            If fAvailableSelected <> 0 then
+              begin
+                If fAvailableSelected < 0 then
+                  TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
+                else
+                  TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+                TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
+                Inc(TempInt,17);
+              end;
           end;
-      end;
-
-    // prices
-    SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
-    If TotalPrice > 0 then
-      begin
-        If fPieces > 1 then
-          TempStr := IL_Format('%d (%d) Kè',[TotalPrice,UnitPrice])
+    
+        // prices
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
+        If TotalPrice > 0 then
+          begin
+            If fPieces > 1 then
+              TempStr := IL_Format('%d (%d) K',[TotalPrice,UnitPrice])
+            else
+              TempStr := IL_Format('%d K',[TotalPrice]);
+            TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
+          end;
+    
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
+        If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
+          begin
+            If fPieces > 1 then
+              TempStr := IL_Format('%d (%d) K',[TotalPriceLowest,fUnitPriceLowest])
+            else
+              TempStr := IL_Format('%d K',[TotalPriceLowest]);
+            TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
+          end;
+    
+        // main picture
+        If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
+          Draw(Width - 103,5,fItemPicture)
         else
-          TempStr := IL_Format('%d Kè',[TotalPrice]);
-        TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
-      end;
-
-    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
-    If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
+          Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+    
+        // worst result indication
+        If (fShopCount > 0) and (ilifWanted in fFlags) then
+          begin
+            SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
+            Polygon([Point(Width - 15,0),Point(Width,0),Point(Width,15)]);
+          end;
+    
+        // picture presence indication
+        DrawPictureIndication(Assigned(fItemPicture),Length(fItemPictureFile) > 0,0,0);
+        DrawPictureIndication(Assigned(fSecondaryPicture),Length(fSecondaryPictureFile) > 0,0,1);
+        DrawPictureIndication(Assigned(fPackagePicture),Length(fPackagePictureFile) > 0,1,0);
+      end
+    else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        If fPieces > 1 then
-          TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
-        else
-          TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
-        TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
+        // data are not accessible, draw placeholder
+        SetCanvas;
+        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');
       end;
-
-    // main picture
-    If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
-      Draw(Width - 103,5,fItemPicture)
-    else
-      Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
-
-    // worst result indication
-    If (fShopCount > 0) and (ilifWanted in fFlags) then
-      begin
-        SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
-        Polygon([Point(Width - 15,0),Point(Width,0),Point(Width,15)]);
-      end;
-
-    // picture presence indication
-    DrawPictureIndication(Assigned(fItemPicture),Length(fItemPictureFile) > 0,0,0);
-    DrawPictureIndication(Assigned(fSecondaryPicture),Length(fSecondaryPictureFile) > 0,0,1);
-    DrawPictureIndication(Assigned(fPackagePicture),Length(fPackagePictureFile) > 0,1,0);
   end;
 end;
 
@@ -295,54 +305,63 @@ with fRenderSmall,fRenderSmall.Canvas do
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
 
-    // title + count
-    If fPieces > 1 then
-      TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
-    else
-      TempStr := TitleStr;
-    If ilifDiscarded in fFlags then
+    If fDataAccessible then // - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);
-        Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+        // title + count
+        If fPieces > 1 then
+          TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
+        else
+          TempStr := TitleStr;
+        If ilifDiscarded in fFlags then
+          begin
+            SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);
+            Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+          end
+        else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,10);
+        TextOut(SIDE_STRIP_WIDTH + 5,2,TempStr); 
+    
+        // type + size
+        SetCanvas;
+        TempStr := SizeStr;
+        If Length(TempStr) > 0 then
+          TextOut(SIDE_STRIP_WIDTH + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
+        else
+          TextOut(SIDE_STRIP_WIDTH + 5,20,TypeStr);
+    
+        // variant/color
+        SetCanvas;
+        TextOut(SIDE_STRIP_WIDTH + 5,35,fVariant);
+    
+        // lowest price
+        SetCanvas;
+        If fUnitPriceLowest > 0 then
+          begin
+            TempStr := IL_Format('%d K',[fUnitPriceLowest]);
+            TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
+          end;
+    
+        // text and num tag
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clGrayText);
+        TempStr := '';
+        If Length(fTextTag) > 0 then
+          TempStr := fTextTag;
+        If fNumTag <> 0 then
+          TempStr := IL_Format('%s [%d]',[TempStr,fNumTag]);
+        If Length(TempStr) > 0 then
+          TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
+    
+        // picture
+        If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
+          Draw(Width - 54,2,fItemPictureSmall)
+        else
+          Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);      
       end
-    else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,10);
-    TextOut(SIDE_STRIP_WIDTH + 5,2,TempStr); 
-
-    // type + size
-    SetCanvas;
-    TempStr := SizeStr;
-    If Length(TempStr) > 0 then
-      TextOut(SIDE_STRIP_WIDTH + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
-    else
-      TextOut(SIDE_STRIP_WIDTH + 5,20,TypeStr);
-
-    // variant/color
-    SetCanvas;
-    TextOut(SIDE_STRIP_WIDTH + 5,35,fVariant);
-
-    // lowest price
-    SetCanvas;
-    If fUnitPriceLowest > 0 then
+    else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        TempStr := IL_Format('%d Kè',[fUnitPriceLowest]);
-        TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
-      end;
-
-    // text and num tag
-    SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clGrayText);
-    TempStr := '';
-    If Length(fTextTag) > 0 then
-      TempStr := fTextTag;
-    If fNumTag <> 0 then
-      TempStr := IL_Format('%s [%d]',[TempStr,fNumTag]);
-    If Length(TempStr) > 0 then
-      TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
-
-    // picture
-    If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
-      Draw(Width - 54,2,fItemPictureSmall)
-    else
-      Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+        // data are not accessible, draw placeholder
+        SetCanvas;
+        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');        
+      end;      
   end;
 end;
 

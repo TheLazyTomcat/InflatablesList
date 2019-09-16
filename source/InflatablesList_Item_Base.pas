@@ -29,6 +29,11 @@ type
     fUpdateCounter:         Integer;                  // transient
     fUpdated:               TILItemUpdatedFlags;      // transient
     fClearingSelected:      Boolean;                  // transient
+    // encryption
+    fItemPassword:          String;
+    fEncrypted:             Boolean;        // item will be encrypted during saving
+    fDataAccessible:        Boolean;        // unencrypted or decrypted item
+    fEncryptedData:         TMemoryBuffer;  // stores encrypted data until they are decrypted
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILIndexedObjectL1Event;  // all events are transient
     fOnShopValuesUpdate:    TILObjectL1Event;
@@ -43,39 +48,7 @@ type
     fOnFlagsUpdate:         TNotifyEvent;
     fOnValuesUpdate:        TNotifyEvent;
     fOnShopListUpdate:      TNotifyEvent;
-    // item flags and internal data
-  {$IFDEF DevelMsgs}
-    {$message 'implement encryption'}
-  {$ENDIF}
-  {
-    - decryption if individual items or all of them
-    - list-wide password
-    - fCurrentPassword, fNewPassword
-    - do not ask for password when it was already entered
-    - ask for pswd only when needed, not at the list load
-
-    encryption process:
-
-      - when no item is as of yet encrypted and user marks an item as ecrypted,
-        prompt for a password (list-wide), this pswd will be stored in the list
-        manager and used in each saving
-      - when there are encrypted items in the list none of which were decrypted
-        and another is marked as encrypted, prompt for password - use this
-        password to ad-hoc decrypt first encrypted item and when the pswd
-        matches, store it in list manager and use it to encrypt the item during
-        saving (do not decrypt or re-encrypt other items during this process)
-      - when there are decrypted items and new item is marked as encrypted,
-        a valid password must be in the list manager - do not prompt for a new
-        one and use this one instead
-
-      - when changing the password, firt ask for an old one if there are any
-        encrypted items (test it) and store the new one in different field (the
-        old one must be used to decrypt already encrypted items to re-encrypt
-        them
-  }
-    fEncrypted:             Boolean;        // item will be encrypted during saving
-    fDataAccessible:        Boolean;        // unencrypted or decrypted item
-    fEncryptedData:         TMemoryBuffer;
+    fOnPasswordRequest:     TILPasswordRequest;
     // item data...
     // general read-only info
     fUniqueID:              TGUID;
@@ -127,8 +100,11 @@ type
     // shops
     fShopCount:             Integer;
     fShops:                 array of TILItemShop;
+    // getters and setters
     procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     procedure SetIndex(Value: Integer); virtual;
+    procedure SetItemPassword(const Value: String); virtual;
+    procedure SetEncrypted(Value: Boolean); virtual;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetSecondaryPicture(Value: TBitmap); virtual;
@@ -181,6 +157,7 @@ type
     procedure UpdateFlags; virtual;
     procedure UpdateValues; virtual;
     procedure UpdateShopList; virtual;
+    Function RequestItemsPassword(out Password: String): Boolean; virtual;
     // macro callers
     procedure UpdateShops; virtual; // when list shop is added or deleted
     // small pictures rendering
@@ -193,6 +170,9 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
+    // encryption
+    procedure EncryptData; virtual;
+    procedure DecryptData; virtual;
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
@@ -233,7 +213,8 @@ type
       PicturesUpdate,
       FlagsUpdate,
       ValuesUpdate,
-      ShopListUpdate:       TNotifyEvent); virtual;
+      ShopListUpdate:       TNotifyEvent;
+      ItemsPasswordRequest: TILPasswordRequest); virtual;
     procedure ClearInternalEvents; virtual;
     procedure AssignInternalEventHandlers; virtual;
     // properties
@@ -242,6 +223,11 @@ type
     property Render: TBitmap read fRender;
     property RenderSmall: TBitmap read fRenderSmall;
     property FilteredOut: Boolean read fFilteredOut;
+    // encryption
+    property ItemPassword: String read fItemPassword write SetItemPassword;
+    property Encrypted: Boolean read fEncrypted write SetEncrypted;
+    property DataAccessible: Boolean read fDataAccessible;
+    property EncryptedData: TMemoryBuffer read fEncryptedData;
     // item data
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
@@ -305,6 +291,33 @@ begin
 If fIndex <> Value then
   begin
     fIndex := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetItemPassword(const Value: String);
+begin
+If not IL_SameStr(fItemPassword,Value) then
+  begin
+    fItemPassword := Value;
+    UniqueString(fItemPassword);
+  end;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetEncrypted(Value: Boolean);
+begin
+If fEncrypted <> Value then
+  begin
+    If fEncrypted then
+      DecryptData   // sets fEncrypted and fDataAccessible if necessary
+    else
+      EncryptData;  // sets fEncrypted and fDataAccessible if necessary
+    UpdateTitle;    // to show lock icon
+    UpdateMainList;
+    UpdateSmallList;    
   end;
 end;
 
@@ -812,6 +825,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILItem_Base.RequestItemsPassword(out Password: String): Boolean;
+begin
+If Assigned(fOnPasswordRequest) then
+  Result := fOnPasswordRequest(Self,Password)
+else
+  Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.UpdateMainList;
 begin
 If Assigned(fOnMainListUpdate) and (fUpdateCounter <= 0) then
@@ -993,6 +1016,10 @@ fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
 fClearingSelected := False;
+fItemPassword := '';
+fEncrypted := False;
+fDataAccessible := True;
+InitBuffer(fEncryptedData);
 InitializeData;
 end;
 
@@ -1001,10 +1028,47 @@ end;
 procedure TILItem_Base.Finalize;
 begin
 FinalizeData;
+FreeBuffer(fEncryptedData);
 If Assigned(fRenderSmall) then
   FreeAndNil(fRenderSmall);
 If Assigned(fRender) then
   FreeAndNil(fRender);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.EncryptData;
+begin
+If not fEncrypted then
+  If RequestItemsPassword(fItemPassword) then
+    begin
+      UniqueString(fItemPassword);
+      fEncrypted := True;
+      fDataAccessible := True;
+      // do not do the encryption itself, it is done during saving
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.DecryptData;
+var
+  Password: String;
+begin
+If fEncrypted then
+  begin
+    If not fDataAccessible then
+      begin
+        If RequestItemsPassword(Password) then  // get password from the manager
+          begin
+            UniqueString(fItemPassword);
+            {$message 'implement actual decryption'}
+            fEncrypted := False;
+            fDataAccessible := True;
+          end;
+      end
+    else fEncrypted := False;
+  end;
 end;
 
 //==============================================================================
@@ -1033,6 +1097,12 @@ var
 begin
 Create(DataProvider);
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
+fItemPassword := Source.ItemPassword;
+UniqueString(fItemPassword);
+fEncrypted := Source.Encrypted;
+fDataAccessible := Source.DataAccessible;
+If fEncrypted and not fDataAccessible then
+  CopyBuffer(Source.EncryptedData,fEncryptedData);
 // do not copy time of addition and UID
 If CopyPics then
   begin
@@ -1520,7 +1590,8 @@ end;
 procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate: TILIndexedObjectL1Event;
   ShopValuesUpdate,ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
   MainListUpdate,SmallListUpdate,OverviewUpdate,TitleUpdate,PicturesUpdate,
-  FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent);
+  FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent;
+  ItemsPasswordRequest: TILPasswordRequest);
 begin
 fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
 fOnShopValuesUpdate := IL_CheckHandler(ShopValuesUpdate);
@@ -1534,6 +1605,7 @@ fOnPicturesUpdate := IL_CheckHandler(PicturesUpdate);
 fOnFlagsUpdate := IL_CheckHandler(FlagsUpdate);
 fOnValuesUpdate := IL_CheckHandler(ValuesUpdate);
 fOnShopListUpdate := IL_CheckHandler(ShopListUpdate);
+fOnPasswordRequest := IL_CheckHandler(ItemsPasswordRequest);
 end;
 
 //------------------------------------------------------------------------------
@@ -1552,6 +1624,7 @@ fOnPicturesUpdate := nil;
 fOnFlagsUpdate := nil;
 fOnValuesUpdate := nil;
 fOnShopListUpdate := nil;
+fOnPasswordRequest := nil;
 end;
 
 //------------------------------------------------------------------------------

@@ -64,9 +64,9 @@ var
 
   begin
     Result := '';
-    If GetFlagState(Flags,IL_MANAGER_FLAG_BITMASK_ENCRYPTED) then
+    If GetFlagState(Flags,IL_LIST_FLAG_BITMASK_ENCRYPTED) then
       AddToResult('encrypted');
-    If GetFlagState(Flags,IL_MANAGER_FLAG_BITMASK_COMPRESSED) then
+    If GetFlagState(Flags,IL_LIST_FLAG_BITMASK_COMPRESSED) then
       AddToResult('compressed');
   end;
 

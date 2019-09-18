@@ -97,7 +97,7 @@ const
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
     ('neznámý','kruh','kruh s madly','míè','rider','lehátko','lehátko/køeslo',
      'køeslo','sedátko','matrace','ostrov','ostrov/rider','postel','èlun',
-     'hraèka','rukávky','balonek','ostatní');
+     'hraèka','rukávky','balónek','ostatní');
 
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
     ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',

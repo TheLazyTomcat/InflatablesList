@@ -234,9 +234,9 @@ with fRender,fRender.Canvas do
         If TotalPrice > 0 then
           begin
             If fPieces > 1 then
-              TempStr := IL_Format('%d (%d) K',[TotalPrice,UnitPrice])
+              TempStr := IL_Format('%d (%d) Kè',[TotalPrice,UnitPrice])
             else
-              TempStr := IL_Format('%d K',[TotalPrice]);
+              TempStr := IL_Format('%d Kè',[TotalPrice]);
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
           end;
     
@@ -244,9 +244,9 @@ with fRender,fRender.Canvas do
         If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
           begin
             If fPieces > 1 then
-              TempStr := IL_Format('%d (%d) K',[TotalPriceLowest,fUnitPriceLowest])
+              TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
             else
-              TempStr := IL_Format('%d K',[TotalPriceLowest]);
+              TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
           end;
     
@@ -336,7 +336,7 @@ with fRenderSmall,fRenderSmall.Canvas do
         SetCanvas;
         If fUnitPriceLowest > 0 then
           begin
-            TempStr := IL_Format('%d K',[fUnitPriceLowest]);
+            TempStr := IL_Format('%d Kè',[fUnitPriceLowest]);
             TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
           end;
     

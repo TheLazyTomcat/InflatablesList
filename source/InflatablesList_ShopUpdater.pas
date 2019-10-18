@@ -62,11 +62,14 @@ type
 implementation
 
 uses
-  SysUtils,
+  SysUtils, SyncObjs,
   CRC32, StrRect,
   InflatablesList_Utils,
   InflatablesList_HTML_Download,
   InflatablesList_HTML_Parser;
+
+var
+  PageSaveSync: TCriticalSection = nil;
 
 procedure TILShopUpdater.InitializeResults;
 begin
@@ -350,7 +353,12 @@ If Length(fShopObject.ItemURL) > 0 then
             If fShopObject.StaticSettings.SavePages then
               begin
                 IL_CreateDirectoryPathForFile(OfflineFile);
-                fDownStream.SaveToFile(StrToRTL(OfflineFile));
+                PageSaveSync.Enter;
+                try
+                  fDownStream.SaveToFile(StrToRTL(OfflineFile));
+                finally
+                  PageSaveSync.Leave;
+                end;
               end;
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
@@ -428,5 +436,13 @@ If Length(fShopObject.ItemURL) > 0 then
   end
 else Result := ilurNoLink;
 end;
+
+//==============================================================================
+
+initialization
+  PageSaveSync := TCriticalSection.Create;
+
+finalization
+  FreeAndNil(PageSaveSync);
 
 end.

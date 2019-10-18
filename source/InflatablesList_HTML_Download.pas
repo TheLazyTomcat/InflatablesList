@@ -15,7 +15,7 @@ implementation
 
 uses
   Windows, SysUtils, SyncObjs,
-  HTTPSend, ssl_openssl, ssl_openssl_lib, // synapse
+  HTTPSend, blcksock, ssl_openssl, ssl_openssl_lib, // synapse
   CRC32, StrRect,
   InflatablesList_Utils;
 
@@ -71,6 +71,10 @@ case Tag of
         ExtractResToFile('libeay32','libeay32.dll');
         ExtractResToFile('ssleay32','ssleay32.dll');
         InterlockedExchangeAdd(ILPrepFlag_OSSL,1);
+        ssl_openssl_lib.DestroySSLInterface;
+        ssl_openssl_lib.InitSSLInterface;
+        // follwing is discouraged, but it is the only way if you want to defer extraction
+        blcksock.SSLImplementation := ssl_openssl.TSSLOpenSSL;
       end;
 end;
 end;
@@ -89,11 +93,12 @@ var
   ExitCode:     DWORD;
   FileStream:   TFileStream;
 begin
+Randomize;
 Result := False;
 ResultCode := -1;
 IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET);
 // prepare name for the temp file
-OutFileName := IL_ExtractFilePath(RTLToStr(ParamStr(0))) + CRC32ToStr(StringCRC32(URL));
+OutFileName := IL_ExtractFilePath(RTLToStr(ParamStr(0))) + CRC32ToStr(StringCRC32(URL) + TCRC32(Random($10000)));
 // prepare command line
 {
   used wget options:

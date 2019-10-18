@@ -70,12 +70,12 @@ object fMainForm: TfMainForm
     Panels = <
       item
         Alignment = taCenter
-        Width = 100
+        Width = 90
       end
       item
         Alignment = taRightJustify
         Style = psOwnerDraw
-        Width = 320
+        Width = 210
       end
       item
         Alignment = taCenter
@@ -83,7 +83,7 @@ object fMainForm: TfMainForm
         Width = 160
       end
       item
-        Width = 390
+        Width = 510
       end
       item
         Alignment = taRightJustify

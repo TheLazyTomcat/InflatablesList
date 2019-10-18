@@ -6,7 +6,6 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, Spin, Menus, ActnList, XPMan,
   ItemFrame, UpdateForm,
-  AuxTypes,
   InflatablesList_Manager;
             
 type
@@ -373,7 +372,7 @@ end;
 Function TfMainForm.SaveList: Boolean;
 begin
 Result := False;
-If not fILManager.StaticSettings.NoSave and mniMMF_SaveOnClose.Checked then
+If not fILManager.StaticSettings.NoSave then
   begin
     If fILManager.SlowSaving then
       fSaveForm.ShowAndPerformSave
@@ -506,7 +505,7 @@ end;
 
 procedure TfMainForm.Finalize;
 begin
-If fSaveOnExit then
+If fSaveOnExit and mniMMF_SaveOnClose.Checked then
   SaveList;
 If fInitialized then
   begin
@@ -1100,7 +1099,7 @@ end;
 
 procedure TfMainForm.mniMM_SortingClick(Sender: TObject);
 begin
-//
+// nothing to do
 end;
 
 //------------------------------------------------------------------------------

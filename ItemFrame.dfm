@@ -1066,6 +1066,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 25
       Caption = 'Button1'
       TabOrder = 29
+      Visible = False
       OnClick = Button1Click
     end
   end

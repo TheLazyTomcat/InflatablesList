@@ -2505,9 +2505,10 @@ end;
 
 procedure TILHTMLTokenizer.State_CharacterReference_ResolveNamedReference;
 var
-  EntryPos: Integer;
-  Index:    Integer;
-  AttrProc: Boolean;
+  EntryPos:   Integer;
+  PrevIndex:  Integer;
+  Index:      Integer;
+  AttrProc:   Boolean;
 
   Function IndexOfNamedRef(const Ref: UnicodeString): Integer;
   var
@@ -2553,17 +2554,25 @@ var
 begin
 // store position in input upon entry (which is position just after ampersand)
 EntryPos := fPosition;
+PrevIndex := -1;
 Index := -1;
+// find the LONGEST charref
 while not EndOfFile and not fParserPause do
   begin
     CDA_Add(fTemporaryBuffer,ConsumeNextInputChar);
-    // search the table only when there is really chance to find anything
+    // search the table only when there is really a chance to find anything
     If CDA_Count(fTemporaryBuffer) <= IL_HTML_NAMED_CHAR_REF_MAXLEN then
+      Index := IndexOfNamedRef(TemporaryBufferAsStr)
+    else
+      Index := -1;
+    If (Index < 0) and (PrevIndex >= 0) then
       begin
-        Index := IndexOfNamedRef(TemporaryBufferAsStr);
-        If Index >= 0 then
-          Break{while...};
+        CDA_Delete(fTemporaryBuffer,CDA_High(fTemporaryBuffer));
+        ReconsumeInputChar;
+        Index := PrevIndex;
+        Break{while...};
       end;
+    PrevIndex := Index;
   end;
 If Index >= 0 then
   begin

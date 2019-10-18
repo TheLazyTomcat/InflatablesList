@@ -271,7 +271,7 @@ type
 
 const
   IL_STATIC_SETTINGS_TAGS: array[0..7] of String =
-    ('NOPIC','TSTCD','SVPGS','LDPGS','NOSAV','NOBCK','NOUAL','LOVRD');
+    ('NPC','TSC','SVP','LDP','NSV','NBC','NUL','LOR');
 
   IL_DYNAMIC_SETTINGS_TAGS: array[0..4] of String =
     ('l.cmp','l.enc','l.sav','s.rev','s.cas');

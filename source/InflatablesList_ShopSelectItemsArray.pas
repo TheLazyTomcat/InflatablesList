@@ -45,6 +45,8 @@ type
 {$INCLUDE '.\CountedDynArrays.inc'}
 {$UNDEF CDA_Interface}
 
+Function CDA_IndexOfObject(Arr: TCDAArrayType; ItemObject: TILItem): Integer;
+
 implementation
 
 uses
@@ -66,6 +68,21 @@ else If B.Available and not A.Available then
   Result := -1
 else
   Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+Function CDA_IndexOfObject(Arr: TCDAArrayType; ItemObject: TILItem): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := CDA_Low(Arr) to CDA_High(Arr) do
+  If Arr.Arr[i].ItemObject = ItemObject then
+    begin
+      Result := i;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------

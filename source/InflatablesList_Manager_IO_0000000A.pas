@@ -10,13 +10,25 @@ uses
   InflatablesList_Types,
   InflatablesList_Manager_IO_00000009;
 
+{
+  fFNSaveTo(LodFrom)Stream functions as a redirector, it saves(loads) data that
+  are considered to not to be part of the list and then calls plain save(load)
+  or processed save(load) according to certain criteria.
+
+  Processed save(load) work with plain save(load) and only process the full
+  stream, it must never create its own data stream.
+}
 type
   TILManager_IO_0000000A = class(TILManager_IO_00000009)
   protected
-    fFNCompressStream:    procedure(Stream: TMemoryStream) of object;
-    fFNDecompressStream:  procedure(Stream: TMemoryStream) of object;
-    fFNEncryptStream:     procedure(Stream: TMemoryStream) of object;
-    fFNDecryptStream:     procedure(Stream: TMemoryStream) of object;
+    fFNCompressStream:      procedure(Stream: TMemoryStream) of object;
+    fFNDecompressStream:    procedure(Stream: TMemoryStream) of object;
+    fFNEncryptStream:       procedure(Stream: TMemoryStream) of object;
+    fFNDecryptStream:       procedure(Stream: TMemoryStream) of object;
+    fFNSaveToStreamPlain:   procedure(Stream: TStream) of object;
+    fFNLoadFromStreamPlain: procedure(Stream: TStream) of object;
+    fFNSaveToStreamProc:    procedure(Stream: TStream) of object;
+    fFNLoadFromStreamProc:  procedure(Stream: TStream) of object;
     // special functions
     Function GetFlagsWord: UInt32; virtual;
     procedure SetFlagsWord(FlagsWord: UInt32); virtual;
@@ -120,6 +132,8 @@ If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
     fFNSaveItems := SaveItems_00000008;
     fFNCompressStream := CompressStream_ZLIB;
     fFNEncryptStream := EncryptStream_AES256;
+    fFNSaveToStreamPlain := SaveList_Plain_0000000A;
+    fFNSaveToStreamProc := SaveList_Processed_0000000A;
   end
 else inherited InitSaveFunctions(Struct);
 end;
@@ -136,7 +150,9 @@ If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000A then
     fFNLoadFilterSettings := LoadFilterSettings_00000008;
     fFNLoadItems := LoadItems_00000008;
     fFNDecompressStream := DecompressStream_ZLIB;
-    fFNDecryptStream := DecryptStream_AES256;
+    fFNDecryptStream := DecryptStream_AES256; 
+    fFNLoadFromStreamPlain := LoadList_Plain_0000000A;
+    fFNLoadFromStreamProc := LoadList_Processed_0000000A;
   end
 else inherited InitLoadFunctions(Struct);
 end;
@@ -173,9 +189,9 @@ Time := Now;
 Stream_WriteInt64(Stream,DateTimeToUnix(Time));
 Stream_WriteString(Stream,IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time));
 If fEncrypted or fCompressed then
-  SaveList_Processed_0000000A(Stream)
+  fFNSaveToStreamProc(Stream)
 else
-  SaveList_Plain_0000000A(Stream);
+  fFNSaveToStreamPlain(Stream);
 end;
 
 //------------------------------------------------------------------------------
@@ -187,9 +203,9 @@ Stream_ReadInt64(Stream);   // discard version of the program in which the file 
 Stream_ReadInt64(Stream);   // discard time
 Stream_ReadString(Stream);  // discard time string
 If fEncrypted or fCompressed then
-  LoadList_Processed_0000000A(Stream)
+  fFNLoadFromStreamProc(Stream)
 else
-  LoadList_Plain_0000000A(Stream);
+  fFNLoadFromStreamPlain(Stream);
 end;
 
 //------------------------------------------------------------------------------
@@ -243,7 +259,7 @@ try
   TempStream.Size := Stream.Size;
   TempStream.Seek(0,soBeginning);
   // write plain data to temp
-  SaveList_Plain_0000000A(TempStream);
+  fFNSaveToStreamPlain(TempStream);
   TempStream.Size := TempStream.Position;
   // compress temp
   If fCompressed then
@@ -278,7 +294,7 @@ try
     fFNDecompressStream(TempStream);
   // read plain data from temp
   TempStream.Seek(0,soBeginning);
-  LoadList_Plain_0000000A(TempStream);
+  fFNLoadFromStreamPlain(TempStream);
 finally
   TempStream.Free;
 end;

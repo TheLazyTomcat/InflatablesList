@@ -270,8 +270,8 @@ type
 //- static settings ------------------------------------------------------------
 
 const
-  IL_STATIC_SETTINGS_TAGS: array[0..7] of String =
-    ('NPC','TSC','SVP','LDP','NSV','NBC','NUL','LOR');
+  IL_STATIC_SETTINGS_TAGS: array[0..8] of String =
+    ('NPC','TSC','SVP','LDP','NSV','NBC','NUL','LOR','NPR');
 
   IL_DYNAMIC_SETTINGS_TAGS: array[0..4] of String =
     ('l.cmp','l.enc','l.sav','s.rev','s.cas');
@@ -287,6 +287,7 @@ type
     NoBackup:         Boolean;
     NoUpdateAutoLog:  Boolean;
     ListOverride:     Boolean;
+    NoParse:          Boolean;
     // automatically filled
     DefaultPath:      String; // initialized to program path
     ListPath:         String; // filled with list path

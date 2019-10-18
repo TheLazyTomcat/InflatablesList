@@ -38,7 +38,7 @@ procedure TfSettingsLegendForm.BuildForm;
 const
   STAT_SETT_CMDS: array[0..Pred(Length(IL_STATIC_SETTINGS_TAGS))] of String = (
     'no_pics','test_code','save_pages','load_pages','no_save','no_backup',
-    'no_updlog','list_override <filename>');
+    'no_updlog','list_override <filename>','no_parse');
   STAT_SETT_DESCRS: array[0..Pred(Length(IL_STATIC_SETTINGS_TAGS))] of String = (
     'Pictures are not shown in the list and in the item header (internally they are still maintained).',
     'Test code will be executed where available.',
@@ -47,7 +47,8 @@ const
     'Saving of the list, both implicit and explicit, is disabled.',
     'Automatic backup during saving of the list is not performed (has no meaning when saving is disabled).',
     'Update log is not automatically saved.',
-    'Overrides default file name of loaded and saved list file.');
+    'Overrides default file name of loaded and saved list file.',
+    'When updating, no parsing is performed. It means the pages are only downloaded, and, when save_pages is active, saved.');
   DYN_SETTINGS_NAMES: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'list.compression',
     'list.encryption',

@@ -55,6 +55,7 @@ type
     fCount:                       Integer;
     // other data
     fNotes:                       String;
+    fListName:                    String;
     // getters and setters
     procedure SetEncrypted(Value: Boolean); virtual;
     procedure SetListPassword(const Value: String); virtual;
@@ -62,6 +63,7 @@ type
     procedure SetCompressed(Value: Boolean); virtual;
     // data getters and setters
     procedure SetNotes(const Value: String); virtual;
+    procedure SetListName(const Value: String); virtual;
     // list methods
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
@@ -145,6 +147,7 @@ type
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
     property Notes: String read fNotes write SetNotes;
+    property ListName: String read fListName write SetListName;
     // item shop events
     property OnShopListItemUpdate: TILIndexedObjectL2Event read fOnShopListItemUpdate write fOnShopListItemUpdate;
     property OnShopValuesUpdate: TILObjectL2Event read fOnShopValuesUpdate write fOnShopValuesUpdate;
@@ -230,6 +233,17 @@ If not IL_SameStr(fNotes,Value) then
   begin
     fNotes := Value;
     UniqueString(fNotes);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SetListName(const Value: String);
+begin
+If not IL_SameStr(fListName,Value) then
+  begin
+    fListName := Value;
+    UniqueString(fListName);
   end;
 end;
 
@@ -464,6 +478,7 @@ try
   fStaticSettings.NoUpdateAutoLog := CMDLineParser.CommandPresent('no_updlog');
   // note that list_override also disables backups (equivalent to no_backup)
   fStaticSettings.ListOverride := False;
+  fStaticSettings.NoParse := CMDLineParser.CommandPresent('no_parse');  
   fStaticSettings.DefaultPath := IL_ExtractFilePath(IL_ExpandFileName(RTLToStr(ParamStr(0))));
   fStaticSettings.ListPath := fStaticSettings.DefaultPath;
   fStaticSettings.ListFile := fStaticSettings.ListPath + IL_DEFAULT_LIST_FILENAME;
@@ -511,6 +526,7 @@ fCompressed := False;
 SetLength(fList,0);
 fCount := 0;
 fNotes := '';
+fListName := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -562,6 +578,8 @@ For i := ItemLowIndex to ItemHighIndex do
 // other data
 fNotes := Source.Notes;
 UniqueString(fNotes);
+fListName := Source.ListName;
+UniqueString(fListName);
 end;
 
 //==============================================================================
@@ -601,6 +619,8 @@ fCount := Source.Count;
 // other data
 fNotes := Source.Notes;
 UniqueString(fNotes);
+fListName := Source.ListName;
+UniqueString(fListName);
 end;
 
 //------------------------------------------------------------------------------

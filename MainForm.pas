@@ -29,13 +29,15 @@ type
     N3: TMenuItem;
     mniMML_Sums: TMenuItem;
     mniMML_Overview: TMenuItem;
+    N4: TMenuItem;
+    mniMML_Rename: TMenuItem;
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
     mniMMI_ItemShops: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N4: TMenuItem;
+    N5: TMenuItem;
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -61,7 +63,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N5: TMenuItem;
+    N6: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -70,7 +72,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -106,7 +108,8 @@ type
     procedure mniMML_ClearClick(Sender: TObject);
     procedure mniMML_SumsClick(Sender: TObject);
     procedure mniMML_OverviewClick(Sender: TObject);
-    procedure mniMML_NotesClick(Sender: TObject);    
+    procedure mniMML_NotesClick(Sender: TObject);
+    procedure mniMML_RenameClick(Sender: TObject);
     // ---
     procedure mniMM_ItemClick(Sender: TObject);
     procedure mniMMI_ItemShopsClick(Sender: TObject);
@@ -184,6 +187,7 @@ type
     procedure BuildSortBySubmenu;    
     procedure FillCopyright;
     procedure FillListFileName;
+    procedure FillListName;
     procedure UpdateIndexAndCount;
     Function SaveList: Boolean;
     // event handlers
@@ -351,6 +355,16 @@ If sbStatusBar.Canvas.TextWidth(fILManager.StaticSettings.ListFile) >
         (2 * GetSystemMetrics(SM_CXFIXEDFRAME)));
   end
 else sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_FILENAME].Text := fILManager.StaticSettings.ListFile;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FillListName;
+begin
+If Length(fILManager.ListName) > 0 then
+  Caption := IL_Format('Inflatables List - %s',[fILManager.ListName])
+else
+  Caption := 'Inflatables List';
 end;
 
 //------------------------------------------------------------------------------
@@ -568,7 +582,7 @@ mniMMF_SaveOnClose.Checked := True;
 mniMMO_SortRev.Checked := fILManager.ReversedSort;
 mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
 mniMMF_ListCompress.Checked := fILManager.Compressed;
-mniMMF_ListEncrypt.Checked := fILManager.Encrypted;
+mniMMF_ListEncrypt.Checked := fILManager.Encrypted;   
 // position the window
 RePositionMainForm;
 // build some things and final touches
@@ -576,6 +590,7 @@ sbStatusBar.Invalidate; // to show settings
 UpdateIndexAndCount;
 BuildSortBySubmenu;
 FillListFileName;
+FillListName;
 InitializeOtherForms;
 end;
 
@@ -810,6 +825,20 @@ end;
 procedure TfMainForm.mniMML_OverviewClick(Sender: TObject);
 begin
 fOverviewForm.ShowOverview;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_RenameClick(Sender: TObject);
+var
+  ListName: String;
+begin
+ListName := fILManager.ListName;
+If IL_InputQuery('List name','Enter list name:',ListName) then
+  begin
+    fIlManager.ListName := ListName;
+    FillListName;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1608,6 +1637,7 @@ If Assigned(fDrawBuffer) then
             DrawOptText(IL_STATIC_SETTINGS_TAGS[5],TempInt,fILManager.StaticSettings.NoBackup,OPTS_SPC);
             DrawOptText(IL_STATIC_SETTINGS_TAGS[6],TempInt,fILManager.StaticSettings.NoUpdateAutoLog,OPTS_SPC);
             DrawOptText(IL_STATIC_SETTINGS_TAGS[7],TempInt,fILManager.StaticSettings.ListOverride,OPTS_SPC);
+            DrawOptText(IL_STATIC_SETTINGS_TAGS[8],TempInt,fILManager.StaticSettings.NoParse,OPTS_SPC);
           end;
       IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT:
         with fDrawBuffer.Canvas do
@@ -1625,7 +1655,7 @@ If Assigned(fDrawBuffer) then
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[1],TempInt,fILManager.Encrypted,OPTS_SPC);
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[2],TempInt,mniMMF_SaveOnClose.Checked,OPTS_SPC);
             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[3],TempInt,fILManager.ReversedSort,OPTS_SPC);
-             DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[4],TempInt,fILManager.CaseSensitiveSort,OPTS_SPC);
+            DrawOptText(IL_DYNAMIC_SETTINGS_TAGS[4],TempInt,fILManager.CaseSensitiveSort,OPTS_SPC);
           end;
     end;
     // move drawbuffer to the canvas

@@ -75,7 +75,7 @@ object fMainForm: TfMainForm
       item
         Alignment = taRightJustify
         Style = psOwnerDraw
-        Width = 210
+        Width = 235
       end
       item
         Alignment = taCenter
@@ -83,7 +83,7 @@ object fMainForm: TfMainForm
         Width = 160
       end
       item
-        Width = 510
+        Width = 485
       end
       item
         Alignment = taRightJustify
@@ -259,6 +259,14 @@ object fMainForm: TfMainForm
         ShortCut = 16471
         OnClick = mniMML_OverviewClick
       end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object mniMML_Rename: TMenuItem
+        Caption = 'Change list name...'
+        ShortCut = 49230
+        OnClick = mniMML_RenameClick
+      end
       object mniMML_Notes: TMenuItem
         Caption = 'Notes...'
         ShortCut = 16462
@@ -288,7 +296,7 @@ object fMainForm: TfMainForm
         ShortCut = 16457
         OnClick = mniMMI_ItemImportClick
       end
-      object N4: TMenuItem
+      object N5: TMenuItem
         Caption = '-'
       end
       object mniMMI_MoveBeginning: TMenuItem
@@ -401,7 +409,7 @@ object fMainForm: TfMainForm
         Caption = 'Update selected shops...'
         OnClick = mniMMU_UpdateSelectedClick
       end
-      object N5: TMenuItem
+      object N6: TMenuItem
         Caption = '-'
       end
       object mniMMU_UpdateItemShopHistory: TMenuItem
@@ -440,7 +448,7 @@ object fMainForm: TfMainForm
         Caption = 'Settings tag legend...'
         OnClick = mniMMH_SettingsLegendClick
       end
-      object N6: TMenuItem
+      object N7: TMenuItem
         Caption = '-'
       end
       object mniMMH_About: TMenuItem

@@ -130,7 +130,9 @@ implementation
 
 uses
   ListSorters,
+  InflatablesList_Types,
   InflatablesList_Utils,
+  InflatablesList_Item,
   MainForm, PromptForm;
 
 //-- Table implementation ------------------------------------------------------   
@@ -299,6 +301,7 @@ try
           For i := ItemObject.ShopLowIndex to ItemObject.ShopHighIndex do
             with lvItemShops.Items[i] do
               begin
+                // don't mark worst result here, it is pointless
                 Caption := IL_Format('%s%s',[
                   IL_BoolToStr(ItemObject[i].Selected,'','*'),
                   IL_BoolToStr(ItemObject[i].Untracked,'','^')]);
@@ -566,20 +569,25 @@ end;
 
 procedure TfSelectionForm.lbItemsDblClick(Sender: TObject);
 var
-  ShopIndex:  Integer;
+  LocalItemObject:  TILItem;
+  ShopIndex:        Integer;
 begin
 If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
       begin
-        ShopIndex := ItemObject.ShopIndexOf(CDA_GetItem(fShopTable,fCurrentShopIndex).ShopName);
+        LocalItemObject := ItemObject;
+        ShopIndex := LocalItemObject.ShopIndexOf(CDA_GetItem(fShopTable,fCurrentShopIndex).ShopName);
         If ShopIndex >= 0 then
           begin
-            ItemObject[ShopIndex].Selected := not ItemObject[ShopIndex].Selected;
-            Selected := ItemObject[ShopIndex].Selected;
+            LocalItemObject[ShopIndex].Selected := not LocalItemObject[ShopIndex].Selected;
+            Selected := LocalItemObject[ShopIndex].Selected;
+            CDA_Sort(CDA_GetItemPtr(fShopTable,fCurrentShopIndex)^.Items);
             RecountAndFillSelected;
-            FillItemShop;
-            lbItems.Invalidate;            
+            lbItems.Invalidate;
+            // get new index of the double-clicked item
+            lbItems.ItemIndex := CDA_IndexOfObject(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,LocalItemObject);
+            lbItems.OnClick(nil); // calls FillItemShop
           end;
       end;
 end;

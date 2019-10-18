@@ -15,6 +15,7 @@ uses
 type
   TILShopUpdaterResult = (
     ilurSuccess,          // all is well - both price and avail count are valid
+    ilurDownSuccess,      // download was successful, parsing is disabled
     ilurNoLink,           // no download link defined - avail and price both invalid
     ilurNoData,           // insufficient search data - avail and price both invalid
     ilurFailDown,         // failed to download the web page - avail and price both invalid
@@ -362,67 +363,72 @@ If Length(fShopObject.ItemURL) > 0 then
               end;
             fDownSize := fDownStream.Size;
             fDownStream.Seek(0,soBeginning);
-            Parser := TILHTMLParser.Create(fDownStream);
-            try
-              try
-                Parser.RaiseParseErrors := not fShopObject.ParsingSettings.DisableParsingErrors;
-                Parser.Run; // whole parsing
-                Document := Parser.GetDocument;
+            If not fShopObject.StaticSettings.NoParse then
+              begin
+                // parsing
+                Parser := TILHTMLParser.Create(fDownStream);
                 try
-                  If fShopObject.StaticSettings.TestCode then
-                    begin
-                      ElementList := TStringList.Create;
-                      try
-                        Document.List(ElementList);
-                        ElementList.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'elements.txt'));
-                      finally
-                        ElementList.Free;
-                      end;
-                    end;
-                  // prepare finders
-                  fShopObject.ParsingSettings.AvailFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
-                  fShopObject.ParsingSettings.PriceFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
-                  // search
-                  AvailNodes := FindElementNode(Document,fShopObject.ParsingSettings.AvailFinder);
-                  PriceNodes := FindElementNode(Document,fShopObject.ParsingSettings.PriceFinder);
-                  // process found nodes
-                  If (Length(AvailNodes) > 0) and (Length(PriceNodes) > 0) then
-                    begin
-                      // both avail and price found
-                      fAvailable := ExtractAvailable(AvailNodes);
-                      fPrice := ExtractPrice(PriceNodes);
-                      If fPrice > 0 then
+                  try
+                    Parser.RaiseParseErrors := not fShopObject.ParsingSettings.DisableParsingErrors;
+                    Parser.Run; // whole parsing
+                    Document := Parser.GetDocument;
+                    try
+                      If fShopObject.StaticSettings.TestCode then
                         begin
-                          // price obtained
-                          If fAvailable <> 0 then
-                            Result := ilurSuccess
-                          else
-                            Result := ilurFailAvailValGet
+                          ElementList := TStringList.Create;
+                          try
+                            Document.List(ElementList);
+                            ElementList.SaveToFile(StrToRTL(fShopObject.StaticSettings.ListPath + 'elements.txt'));
+                          finally
+                            ElementList.Free;
+                          end;
+                        end;
+                      // prepare finders
+                      fShopObject.ParsingSettings.AvailFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
+                      fShopObject.ParsingSettings.PriceFinder.Prepare(fShopObject.ParsingSettings.VariablesRec);
+                      // search
+                      AvailNodes := FindElementNode(Document,fShopObject.ParsingSettings.AvailFinder);
+                      PriceNodes := FindElementNode(Document,fShopObject.ParsingSettings.PriceFinder);
+                      // process found nodes
+                      If (Length(AvailNodes) > 0) and (Length(PriceNodes) > 0) then
+                        begin
+                          // both avail and price found
+                          fAvailable := ExtractAvailable(AvailNodes);
+                          fPrice := ExtractPrice(PriceNodes);
+                          If fPrice > 0 then
+                            begin
+                              // price obtained
+                              If fAvailable <> 0 then
+                                Result := ilurSuccess
+                              else
+                                Result := ilurFailAvailValGet
+                            end
+                          else Result := ilurFailValGet;
                         end
-                      else Result := ilurFailValGet;
-                    end
-                  else If Length(PriceNodes) > 0 then
-                    begin
-                      fPrice := ExtractPrice(PriceNodes);
-                      If fPrice > 0 then
-                        Result := ilurFailAvailSearch
-                      else
-                        Result := ilurFailValGet;
-                    end
-                  else Result := ilurFailSearch;
-                finally
-                  Document.Free;
-                end;
-              except
-                on E: Exception do
-                  begin
-                    fErrorString := IL_Format('%s: %s',[E.ClassName,E.Message]);
-                    Result := ilurFailParse;
+                      else If Length(PriceNodes) > 0 then
+                        begin
+                          fPrice := ExtractPrice(PriceNodes);
+                          If fPrice > 0 then
+                            Result := ilurFailAvailSearch
+                          else
+                            Result := ilurFailValGet;
+                        end
+                      else Result := ilurFailSearch;
+                    finally
+                      Document.Free;
+                    end;
+                  except
+                    on E: Exception do
+                      begin
+                        fErrorString := IL_Format('%s: %s',[E.ClassName,E.Message]);
+                        Result := ilurFailParse;
+                      end;
                   end;
-              end;
-            finally
-              Parser.Free;
-            end;
+                finally
+                  Parser.Free;
+                end;
+              end
+            else Result := ilurDownSuccess;
           end
         else Result := ilurFailDown;
       except

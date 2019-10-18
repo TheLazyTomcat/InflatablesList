@@ -4,7 +4,7 @@ uses
   FastMM4,
   InflatablesList_Types in 'source\InflatablesList_Types.pas',
   InflatablesList_Utils in 'source\InflatablesList_Utils.pas',
-  InflatablesList_Encryption in 'source\InflatablesList_Encryption.pas',  
+  InflatablesList_Encryption in 'source\InflatablesList_Encryption.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
   InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
   InflatablesList_HTML_Utils in 'source\InflatablesList_HTML_Utils.pas',
@@ -81,7 +81,8 @@ uses
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
   SplashForm in 'SplashForm.pas' {fSplashForm},
-  SaveForm in 'SaveForm.pas' {fSaveForm};
+  SaveForm in 'SaveForm.pas' {fSaveForm},
+  InflatablesList_Manager_IO_0000000B in 'source\InflatablesList_Manager_IO_0000000B.pas';
 
 {$R *.res}
 

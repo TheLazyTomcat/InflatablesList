@@ -62,6 +62,7 @@ If not fUntracked then
                                     ilisurSuccess,Updater.Available,Updater.Price);
                                   Result := True;
                                 end;
+          ilurDownSuccess:      Result := True; // do not change last result
           ilurNoLink:           SetValues(IL_RESULT_STRS[1],ilisurDataFail,0,0);
           ilurNoData:           SetValues(IL_RESULT_STRS[2],ilisurDataFail,0,0);
           // when download fails, keep old price (assumes the item vent unavailable)

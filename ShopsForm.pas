@@ -157,9 +157,11 @@ begin
 If Assigned(fCurrentItem) and (Item = fCurrentItem) and  (Index >= 0) and (Index < lvShops.Items.Count) then
   with lvShops.Items[Index] do
     begin
-      Caption := IL_Format('%s%s',[
+      Caption := IL_Format('%s%s%s',[
         IL_BoolToStr(fCurrentItem.Shops[Index].Selected,'','*'),
-        IL_BoolToStr(fCurrentItem.Shops[Index].Untracked,'','^')]);
+        IL_BoolToStr(fCurrentItem.Shops[Index].Untracked,'','^'),
+        IL_BoolToStr((fCurrentItem.Shops[Index].LastUpdateRes >= fCurrentItem.ShopsWorstUpdateResult) and
+                     (fCurrentItem.Shops[Index].LastUpdateRes <> ilisurSuccess),'','!')]);
       SubItems[0] := fCurrentItem.Shops[Index].Name;
       SubItems[1] := fCurrentItem.Shops[Index].ItemURL;
       // avail

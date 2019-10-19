@@ -21,6 +21,7 @@ type
     btnReplaceInPicPaths: TButton;
     btnReplaceTextTag: TButton;
     btnRemoveShops: TButton;
+    cbCloseWhenDone: TCheckBox;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
@@ -32,6 +33,8 @@ type
     procedure btnRemoveShopsClick(Sender: TObject);
   private
     fILManager: TILManager;
+  protected
+    procedure ProcessingDone;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -47,6 +50,14 @@ implementation
 uses
   InflatablesList_Types,
   InflatablesList_Utils;
+
+procedure TfSpecialsForm.ProcessingDone;
+begin
+If cbCloseWhenDone.Checked then
+  Close;
+end;
+
+//==============================================================================
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
 begin
@@ -68,6 +79,7 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].TextTag := '';
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -83,7 +95,8 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
       fILManager[i][j].ParsingSettings.AvailFinder.StageClear;
       fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
       fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
-    end;
+    end; 
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -95,7 +108,8 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
     If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
-      fILManager[i][j].AltDownMethod := True;
+      fILManager[i][j].AltDownMethod := True;   
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -106,7 +120,8 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   fILManager[i].GetAndFlagPriceAndAvail(
-    fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
+    fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);  
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -116,7 +131,8 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  fILManager[i].Material := ilimtPolyvinylchloride;
+  fILManager[i].Material := ilimtPolyvinylchloride;   
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -129,7 +145,8 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
     fILManager[i].SetFlagValue(ilifPriceChange,False);
     fILManager[i].SetFlagValue(ilifAvailChange,False)
-  end;
+  end;    
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -142,7 +159,8 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
     fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
     fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
-  end;
+  end;   
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -153,7 +171,8 @@ var
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
-    fILManager[i].TextTag := leParam_2.Text;
+    fILManager[i].TextTag := leParam_2.Text; 
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
@@ -165,7 +184,8 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
     If not fILManager[i][j].Selected then
-      fILManager[i].ShopDelete(j);
+      fILManager[i].ShopDelete(j);   
+ProcessingDone;
 end;
 
 end.

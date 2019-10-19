@@ -3,7 +3,7 @@ object fSpecialsForm: TfSpecialsForm
   Top = 139
   BorderStyle = bsDialog
   Caption = 'Special functions'
-  ClientHeight = 192
+  ClientHeight = 217
   ClientWidth = 616
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object fSpecialsForm: TfSpecialsForm
   Position = poMainFormCenter
   DesignSize = (
     616
-    192)
+    217)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlWarning: TPanel
@@ -136,5 +136,15 @@ object fSpecialsForm: TfSpecialsForm
     Caption = 'Rem. shops except sel.'
     TabOrder = 11
     OnClick = btnRemoveShopsClick
+  end
+  object cbCloseWhenDone: TCheckBox
+    Left = 8
+    Top = 192
+    Width = 105
+    Height = 17
+    Caption = 'Close when done'
+    Checked = True
+    State = cbChecked
+    TabOrder = 12
   end
 end

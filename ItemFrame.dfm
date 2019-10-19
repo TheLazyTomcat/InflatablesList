@@ -543,6 +543,15 @@ object frmItemFrame: TfrmItemFrame
       Layout = tlCenter
       OnClick = lblItemTitleClick
     end
+    object shpHighlight: TShape
+      Left = 576
+      Top = 0
+      Width = 25
+      Height = 25
+      Brush.Color = 7471032
+      Pen.Style = psClear
+      Visible = False
+    end
     object seWantedLevel: TSpinEdit
       Left = 0
       Top = 328
@@ -687,6 +696,8 @@ object frmItemFrame: TfrmItemFrame
       Width = 601
       Height = 73
       Caption = 'Flags and tags'
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 7
       object bvlTagSep: TBevel
         Left = 432
@@ -720,8 +731,6 @@ object frmItemFrame: TfrmItemFrame
         Width = 65
         Height = 17
         Caption = 'Owned'
-        Color = clBtnFace
-        ParentColor = False
         TabOrder = 0
         OnClick = CommonFlagClick
       end
@@ -748,7 +757,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagUntested: TCheckBox
         Tag = 6
         Left = 8
-        Top = 32
+        Top = 33
         Width = 65
         Height = 17
         Caption = 'Untested'
@@ -758,7 +767,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagTesting: TCheckBox
         Tag = 7
         Left = 96
-        Top = 32
+        Top = 33
         Width = 57
         Height = 17
         Caption = 'Testing'
@@ -768,7 +777,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagTested: TCheckBox
         Tag = 8
         Left = 184
-        Top = 32
+        Top = 33
         Width = 65
         Height = 17
         Caption = 'Tested'
@@ -788,7 +797,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagDamaged: TCheckBox
         Tag = 9
         Left = 272
-        Top = 32
+        Top = 33
         Width = 73
         Height = 17
         Caption = 'Damaged'
@@ -798,7 +807,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagRepaired: TCheckBox
         Tag = 10
         Left = 352
-        Top = 32
+        Top = 33
         Width = 65
         Height = 17
         Caption = 'Repaired'
@@ -818,7 +827,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagPriceChange: TCheckBox
         Tag = 11
         Left = 8
-        Top = 48
+        Top = 50
         Width = 89
         Height = 17
         Caption = 'Price change'
@@ -828,7 +837,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagAvailChange: TCheckBox
         Tag = 12
         Left = 96
-        Top = 48
+        Top = 50
         Width = 89
         Height = 17
         Caption = 'Avail. change'
@@ -838,7 +847,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagNotAvailable: TCheckBox
         Tag = 13
         Left = 184
-        Top = 48
+        Top = 50
         Width = 89
         Height = 17
         Caption = 'Not available'
@@ -848,7 +857,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagLost: TCheckBox
         Tag = 14
         Left = 272
-        Top = 48
+        Top = 50
         Width = 49
         Height = 17
         Caption = 'Lost'
@@ -858,7 +867,7 @@ object frmItemFrame: TfrmItemFrame
       object cbFlagDiscarded: TCheckBox
         Tag = 15
         Left = 352
-        Top = 48
+        Top = 50
         Width = 73
         Height = 17
         Caption = 'Discarded'
@@ -1139,5 +1148,10 @@ object frmItemFrame: TfrmItemFrame
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 32
     Top = 96
+  end
+  object tmrHighlightTimer: TTimer
+    Interval = 250
+    OnTimer = tmrHighlightTimerTimer
+    Left = 544
   end
 end

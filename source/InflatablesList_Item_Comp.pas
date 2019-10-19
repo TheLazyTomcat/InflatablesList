@@ -11,7 +11,10 @@ uses
 type
   TILItem_Comp = class(TILItem_Draw)
   public
-    Function Contains(const Text: String): Boolean; virtual;
+    Function Contains(const Text: String; Value: TILItemValueTag): Boolean; overload; virtual;
+    Function Contains(const Text: String): Boolean; overload; virtual;
+    Function FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
+    Function FindNext(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
     Function Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean; CaseSensitive: Boolean): Integer; virtual;
     procedure Filter(FilterSettings: TILFilterSettings); virtual;
   end;
@@ -24,55 +27,143 @@ uses
   InflatablesList_Utils,
   InflatablesList_ItemShop;
 
-Function TILItem_Comp.Contains(const Text: String): Boolean;
+Function TILItem_Comp.Contains(const Text: String; Value: TILItemValueTag): Boolean;
 var
   SelShop:  TILItemShop;
+begin
+case Value of
+  ilivtItemType:              Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
+  ilivtItemTypeSpec:          Result := IL_ContainsText(fItemTypeSpec,Text);
+  ilivtPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
+  ilivtManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
+  ilivtManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
+  ilivtTextID:                Result := IL_ContainsText(fTextID,Text);
+  ilivtID:                    Result := IL_ContainsText(IntToStr(fID),Text);
+  ilivtFlagOwned:             Result := (ilifOwned in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOwned),Text);
+  ilivtFlagWanted:            Result := (ilifWanted in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifWanted),Text);
+  ilivtFlagOrdered:           Result := (ilifOrdered in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOrdered),Text);
+  ilivtFlagBoxed:             Result := (ilifBoxed in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifBoxed),Text);
+  ilivtFlagElsewhere:         Result := (ilifElsewhere in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifElsewhere),Text);
+  ilivtFlagUntested:          Result := (ilifUntested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifUntested),Text);
+  ilivtFlagTesting:           Result := (ilifTesting in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTesting),Text);
+  ilivtFlagTested:            Result := (ilifTested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTested),Text);
+  ilivtFlagDamaged:           Result := (ilifDamaged in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDamaged),Text);
+  ilivtFlagRepaired:          Result := (ilifRepaired in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifRepaired),Text);
+  ilivtFlagPriceChange:       Result := (ilifPriceChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifPriceChange),Text);
+  ilivtFlagAvailChange:       Result := (ilifAvailChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifAvailChange),Text);
+  ilivtFlagNotAvailable:      Result := (ilifNotAvailable in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifNotAvailable),Text);
+  ilivtFlagLost:              Result := (ilifLost in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifLost),Text);
+  ilivtFlagDiscarded:         Result := (ilifDiscarded in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDiscarded),Text);
+  ilivtTextTag:               Result := IL_ContainsText(fTextTag,Text);
+  ilivtNumTag:                Result := IL_ContainsText(IntToStr(fNumTag),Text);
+  ilivtWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
+  ilivtVariant:               Result := IL_ContainsText(fVariant,Text);
+  ilivtMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
+  ilivtSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
+  ilivtSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
+  ilivtSizeZ:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text);
+  ilivtUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
+  ilivtThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
+  ilivtNotes:                 Result := IL_ContainsText(fNotes,Text);
+  ilivtReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
+  ilivtMainPictureFile:       Result := IL_ContainsText(fItemPictureFile,Text);
+  ilivtSecondaryPictureFile:  Result := IL_ContainsText(fSecondaryPictureFile,Text);
+  ilivtPackPictureFile:       Result := IL_ContainsText(fPackagePictureFile,Text);
+  ilivtUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dKè',[fUnitPriceDefault]),Text);
+  ilivtRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
+  ilivtSelectedShop:          If ShopsSelected(SelShop) then
+                                Result := IL_ContainsText(SelShop.Name,Text)
+                              else
+                                Result := False;
+else
+  Result := False;
+end;
+end;
 
-  Function GetFlagsString: String;
-  const
-    FLAG_STRS: array[TILItemFlag] of String = (
-      'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
-      'Tested','Damaged','Repaired','Price change','Available change',
-      'Not Available','Lost','Discarded');
-  var
-    Flag: TILItemFlag;
-  begin
-    Result := '';
-    For Flag := Low(TILItemFlag) to High(TILItemFlag) do
-      If Flag in fFlags then
-        Result := Result + FLAG_STRS[Flag];
-  end;
+//------------------------------------------------------------------------------
 
+Function TILItem_Comp.Contains(const Text: String): Boolean;
 begin
 // search only in editable values
 Result :=
-  IL_ContainsText(TypeStr,Text) or
-  IL_ContainsText(fItemTypeSpec,Text) or
-  IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text) or
-  IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text) or
-  IL_ContainsText(fManufacturerStr,Text) or
-  IL_ContainsText(fTextID,Text) or
-  IL_ContainsText(IntToStr(fID),Text) or
-  IL_ContainsText(GetFlagsString,Text) or
-  IL_ContainsText(fTextTag,Text) or
-  IL_ContainsText(IntToStr(fNumTag),Text) or
-  IL_ContainsText(IntToStr(fWantedLevel),Text) or
-  IL_ContainsText(fVariant,Text) or
-  IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text) or
-  IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text) or
-  IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text) or
-  IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text) or
-  IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text) or
-  IL_ContainsText(IL_Format('%dum',[fThickness]),Text) or
-  IL_ContainsText(fNotes,Text) or
-  IL_ContainsText(fReviewURL,Text) or
-  IL_ContainsText(fItemPictureFile,Text) or
-  IL_ContainsText(fSecondaryPictureFile,Text) or
-  IL_ContainsText(fPackagePictureFile,Text) or
-  IL_ContainsText(IL_Format('%dKè',[fUnitPriceDefault]),Text) or
-  IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
-If not Result and ShopsSelected(SelShop) then
-  Result := IL_ContainsText(SelShop.Name,Text);
+  Contains(Text,ilivtItemType) or
+  Contains(Text,ilivtItemTypeSpec) or
+  Contains(Text,ilivtPieces) or
+  Contains(Text,ilivtManufacturer) or
+  Contains(Text,ilivtManufacturerStr) or
+  Contains(Text,ilivtTextID) or
+  Contains(Text,ilivtID) or
+  Contains(Text,ilivtFlagOwned) or
+  Contains(Text,ilivtFlagWanted) or
+  Contains(Text,ilivtFlagOrdered) or
+  Contains(Text,ilivtFlagBoxed) or
+  Contains(Text,ilivtFlagElsewhere) or
+  Contains(Text,ilivtFlagUntested) or
+  Contains(Text,ilivtFlagTesting) or
+  Contains(Text,ilivtFlagTested) or
+  Contains(Text,ilivtFlagDamaged) or
+  Contains(Text,ilivtFlagRepaired) or
+  Contains(Text,ilivtFlagPriceChange) or
+  Contains(Text,ilivtFlagAvailChange) or
+  Contains(Text,ilivtFlagNotAvailable) or
+  Contains(Text,ilivtFlagLost) or
+  Contains(Text,ilivtFlagDiscarded) or
+  Contains(Text,ilivtTextTag) or
+  Contains(Text,ilivtNumTag) or
+  Contains(Text,ilivtWantedLevel) or
+  Contains(Text,ilivtVariant) or
+  Contains(Text,ilivtMaterial) or
+  Contains(Text,ilivtSizeX) or
+  Contains(Text,ilivtSizeY) or
+  Contains(Text,ilivtSizeZ) or
+  Contains(Text,ilivtUnitWeight) or
+  Contains(Text,ilivtThickness) or
+  Contains(Text,ilivtNotes) or
+  Contains(Text,ilivtReviewURL) or
+  Contains(Text,ilivtMainPictureFile) or
+  Contains(Text,ilivtSecondaryPictureFile) or
+  Contains(Text,ilivtPackPictureFile) or
+  Contains(Text,ilivtUnitPriceDefault) or
+  Contains(Text,ilivtRating) or
+  Contains(Text,ilivtSelectedShop);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Comp.FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; 
+var
+  i:  TILItemSearchResult;
+begin
+Result := ilisrNone;
+i := IL_WrapSearchResult(Pred(From));
+while i <> From do
+  begin
+    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+      begin
+        Result := i;
+        Break{while...};
+      end;
+    i := IL_WrapSearchResult(Pred(i));
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Comp.FindNext(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult;
+var
+  i:  TILItemSearchResult;
+begin
+Result := ilisrNone;
+i := IL_WrapSearchResult(Succ(From));
+while i <> From do
+  begin
+    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+      begin
+        Result := i;
+        Break{while...};
+      end;
+    i := IL_WrapSearchResult(Succ(i));
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -129,7 +220,7 @@ case WithValue of
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtItemTypeSpec:      Result := CompareText_Internal(fItemTypeSpec,WithItem.ItemTypeSpec);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ilivtCount:             Result := IL_SortCompareUInt32(fPieces,WithItem.Pieces);
+  ilivtPieces:            Result := IL_SortCompareUInt32(fPieces,WithItem.Pieces);
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ilivtManufacturer:      If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
                             Result := CompareText_Internal(

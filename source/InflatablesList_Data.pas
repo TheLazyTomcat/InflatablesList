@@ -52,6 +52,7 @@ type
   public
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
     class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
+    class Function GetItemFlagString(ItemFlag: TILItemFlag): String; virtual;
     class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
     class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
     class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
@@ -103,6 +104,11 @@ const
     ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
      'polypropylen (PP)','akrylonitrilbutadienstyren (ABS)','polystyren (PS)',
      'povloèkované PVC','latex','silokon','gumotextílie','ostatní');
+
+  IL_DATA_ITEMFLAG_STRS: array[TILItemFlag] of String = (
+    'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
+    'Tested','Damaged','Repaired','Price change','Available change',
+    'Not Available','Lost','Discarded');     
 
   IL_DATA_ITEMFLAGICON_RESNAMES: array[TILItemFlag] of String = (
     'flag_icon_owned','flag_icon_wanted','flag_icon_ordered','flag_icon_boxed',
@@ -420,6 +426,16 @@ If (ItemMaterial >= Low(TILItemMaterial)) and (ItemMaterial <= High(TILItemMater
   Result := IL_DATA_ITEMMATERIAL_STRS[ItemMaterial]
 else
   raise Exception.CreateFmt('TILDataProvider.GetItemMaterialString: Invalid item material (%d).',[Ord(ItemMaterial)]);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILDataProvider.GetItemFlagString(ItemFlag: TILItemFlag): String;
+begin
+If (ItemFlag >= Low(TILItemFlag)) and (ItemFlag <= High(TILItemFlag)) then
+  Result := IL_DATA_ITEMFLAG_STRS[ItemFlag]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetItemFlagString: Invalid item flag (%d).',[Ord(ItemFlag)]);
 end;
 
 //------------------------------------------------------------------------------

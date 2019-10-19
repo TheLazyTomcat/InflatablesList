@@ -49,6 +49,9 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
+    N6: TMenuItem;
+    mniMMS_FindPrevValue: TMenuItem;
+    mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
     mniMMO_SortSett: TMenuItem;
     mniMMO_SortRev: TMenuItem;
@@ -63,7 +66,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -72,7 +75,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N7: TMenuItem;
+    N8: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -128,6 +131,8 @@ type
     procedure mniMMS_FindPrevClick(Sender: TObject);
     procedure mniMMS_FindNextClick(Sender: TObject);
     procedure mniMMS_AdvSearchClick(Sender: TObject);
+    procedure mniMMS_FindPrevValueClick(Sender: TObject);
+    procedure mniMMS_FindNextValueClick(Sender: TObject);
     // ---
     procedure mniMM_SortingClick(Sender: TObject);
     procedure mniMMO_SortCommon(Profile: Integer);
@@ -1061,7 +1066,8 @@ end;
 
 procedure TfMainForm.mniMM_SearchClick(Sender: TObject);
 begin
-// nothing to do
+mniMMS_FindPrevValue.Enabled := lbList.ItemIndex >= 0;
+mniMMS_FindNextValue.Enabled := lbList.ItemIndex >= 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -1122,6 +1128,68 @@ end;
 procedure TfMainForm.mniMMS_AdvSearchClick(Sender: TObject);
 begin
 {$message 'implement'}
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMS_FindPrevValueClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If (Length(eSearchFor.Text) > 0) and (lbList.ItemIndex >= 0) then
+  begin
+    If not fILManager[lbList.ItemIndex].Contains(eSearchFor.Text) then
+      begin
+        Screen.Cursor := crHourGlass;
+        try
+          Index := fILManager.FindPrev(eSearchFor.Text,lbList.ItemIndex);
+        finally
+          Screen.Cursor := crDefault;
+        end;
+      end
+    else Index := lbList.ItemIndex;
+    If Index >= 0 then
+      begin
+        If Index <> lbList.ItemIndex then
+          begin
+            lbList.ItemIndex := Index;
+            lbList.OnClick(nil);
+          end;
+        frmItemFrame.FindPrev(eSearchFor.Text);
+      end
+    else Beep;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMS_FindNextValueClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If (Length(eSearchFor.Text) > 0) and (lbList.ItemIndex >= 0) then
+  begin
+    If not fILManager[lbList.ItemIndex].Contains(eSearchFor.Text) then
+      begin
+        Screen.Cursor := crHourGlass;
+        try
+          Index := fILManager.FindNext(eSearchFor.Text,lbList.ItemIndex);
+        finally
+          Screen.Cursor := crDefault;
+        end;
+      end
+    else Index := lbList.ItemIndex;
+    If Index >= 0 then
+      begin
+        If Index <> lbList.ItemIndex then
+          begin
+            lbList.ItemIndex := Index;
+            lbList.OnClick(nil);
+          end;
+        frmItemFrame.FindNext(eSearchFor.Text);
+      end
+    else Beep;
+  end;
 end;
 
 //------------------------------------------------------------------------------

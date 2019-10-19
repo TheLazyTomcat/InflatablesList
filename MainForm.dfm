@@ -348,6 +348,19 @@ object fMainForm: TfMainForm
         ShortCut = 49222
         OnClick = mniMMS_AdvSearchClick
       end
+      object N6: TMenuItem
+        Caption = '-'
+      end
+      object mniMMS_FindPrevValue: TMenuItem
+        Caption = 'Find previous value'
+        ShortCut = 24690
+        OnClick = mniMMS_FindPrevValueClick
+      end
+      object mniMMS_FindNextValue: TMenuItem
+        Caption = 'Find next value'
+        ShortCut = 16498
+        OnClick = mniMMS_FindNextValueClick
+      end
     end
     object mniMM_Sorting: TMenuItem
       Caption = 'Sorting'
@@ -409,7 +422,7 @@ object fMainForm: TfMainForm
         Caption = 'Update selected shops...'
         OnClick = mniMMU_UpdateSelectedClick
       end
-      object N6: TMenuItem
+      object N7: TMenuItem
         Caption = '-'
       end
       object mniMMU_UpdateItemShopHistory: TMenuItem
@@ -448,7 +461,7 @@ object fMainForm: TfMainForm
         Caption = 'Settings tag legend...'
         OnClick = mniMMH_SettingsLegendClick
       end
-      object N7: TMenuItem
+      object N8: TMenuItem
         Caption = '-'
       end
       object mniMMH_About: TMenuItem

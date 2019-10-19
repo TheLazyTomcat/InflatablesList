@@ -156,9 +156,21 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //==============================================================================
 //- searching ------------------------------------------------------------------
 
-{$IFDEF DevelMsgs}
+type
+  TILItemSearchResult = (ilisrNone,ilisrType,ilisrTypeSpec,ilisrPieces,
+    ilisrManufacturer,ilisrManufacturerStr,ilisrTextID,ilisrNumID,
+    ilisrFlagOwned,ilisrFlagWanted,ilisrFlagOrdered,ilisrFlagBoxed,
+    ilisrFlagElsewhere,ilisrFlagUntested,ilisrFlagTesting,ilisrFlagTested,
+    ilisrFlagDamaged,ilisrFlagRepaired,ilisrFlagPriceChange,
+    ilisrFlagAvailChange,ilisrFlagNotAvailable,ilisrFlagLost,ilisrFlagDiscarded,
+    ilisrTextTag,ilisrNumTag,ilisrWantedLevel,ilisrVariant,ilisrMaterial,
+    ilisrSizeX,ilisrSizeY,ilisrSizeZ,ilisrUnitWeight,ilisrThickness,
+    ilisrNotes,ilisrReviewURL,ilisrItemPicFile,ilisrSecondaryPicFile,
+    ilisrPackagePicFile,ilisrUnitPriceDefault,ilisrRating,ilisrSelectedShop);
+
+Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
+
 {$message 'wip'}
-{$endif}
 type
   TILSrcResItemValue = (srifNone);
   TILSrcResShopValue = (srsfNone);
@@ -176,7 +188,7 @@ type
 type
   TILItemValueTag = (
     ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtSecondaryPicture,
-    ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,ilivtCount,ilivtManufacturer,
+    ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,ilivtPieces,ilivtManufacturer,
     ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,
     ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,
     ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
@@ -210,6 +222,8 @@ Function IL_SameSortingSettings(A,B: TILSortingSettings): Boolean;
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
+
+Function IL_ItemSearchResultToValueTag(Val: TILItemSearchResult): TILItemValueTag;
 
 Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
 
@@ -804,6 +818,19 @@ end;
 end;
 
 //==============================================================================
+//- searching ------------------------------------------------------------------
+
+Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
+begin
+If (Val <= ilisrNone) then
+  Result := High(TILItemSearchResult)
+else If Val > High(TILItemSearchResult) then
+  Result := ilisrType
+else
+  Result := Val;
+end;
+
+//==============================================================================
 //- sorting --------------------------------------------------------------------
 
 Function IL_SameSortingSettings(A,B: TILSortingSettings): Boolean;
@@ -834,7 +861,7 @@ case ItemValueTag of
   ilivtTimeOfAdd:             Result := 3;
   ilivtItemType:              Result := 4;
   ilivtItemTypeSpec:          Result := 5;
-  ilivtCount:                 Result := 6;
+  ilivtPieces:                Result := 6;
   ilivtManufacturer:          Result := 7;
   ilivtManufacturerStr:       Result := 8;
   ilivtID:                    Result := 9;
@@ -908,7 +935,7 @@ case Num of
   3:  Result := ilivtTimeOfAdd;
   4:  Result := ilivtItemType;
   5:  Result := ilivtItemTypeSpec;
-  6:  Result := ilivtCount;
+  6:  Result := ilivtPieces;
   7:  Result := ilivtManufacturer;
   8:  Result := ilivtManufacturerStr;
   9:  Result := ilivtID;
@@ -966,6 +993,56 @@ case Num of
   60: Result := ilivtSecondaryPictureFile;
   61: Result := ilivtSecondaryPicFilePres;
   62: Result := ilivtRating;
+else
+  Result := ilivtNone;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ItemSearchResultToValueTag(Val: TILItemSearchResult): TILItemValueTag;
+begin
+case Val of
+  ilisrType:              Result := ilivtItemType;
+  ilisrTypeSpec:          Result := ilivtItemTypeSpec;
+  ilisrPieces:            Result := ilivtPieces;
+  ilisrManufacturer:      Result := ilivtManufacturer;
+  ilisrManufacturerStr:   Result := ilivtManufacturerStr;
+  ilisrTextID:            Result := ilivtTextID;
+  ilisrNumID:             Result := ilivtID;
+  ilisrFlagOwned:         Result := ilivtFlagOwned;
+  ilisrFlagWanted:        Result := ilivtFlagWanted;
+  ilisrFlagOrdered:       Result := ilivtFlagOrdered;
+  ilisrFlagBoxed:         Result := ilivtFlagBoxed;
+  ilisrFlagElsewhere:     Result := ilivtFlagElsewhere;
+  ilisrFlagUntested:      Result := ilivtFlagUntested;
+  ilisrFlagTesting:       Result := ilivtFlagTesting;
+  ilisrFlagTested:        Result := ilivtFlagTested;
+  ilisrFlagDamaged:       Result := ilivtFlagDamaged;
+  ilisrFlagRepaired:      Result := ilivtFlagRepaired;
+  ilisrFlagPriceChange:   Result := ilivtFlagPriceChange;
+  ilisrFlagAvailChange:   Result := ilivtFlagAvailChange;
+  ilisrFlagNotAvailable:  Result := ilivtFlagNotAvailable;
+  ilisrFlagLost:          Result := ilivtFlagLost;
+  ilisrFlagDiscarded:     Result := ilivtFlagDiscarded;
+  ilisrTextTag:           Result := ilivtTextTag;
+  ilisrNumTag:            Result := ilivtNumTag;
+  ilisrWantedLevel:       Result := ilivtWantedLevel;
+  ilisrVariant:           Result := ilivtVariant;
+  ilisrMaterial:          Result := ilivtMaterial;
+  ilisrSizeX:             Result := ilivtSizeX;
+  ilisrSizeY:             Result := ilivtSizeY;
+  ilisrSizeZ:             Result := ilivtSizeZ;
+  ilisrUnitWeight:        Result := ilivtUnitWeight;
+  ilisrThickness:         Result := ilivtThickness;
+  ilisrNotes:             Result := ilivtNotes;
+  ilisrReviewURL:         Result := ilivtReviewURL;
+  ilisrItemPicFile:       Result := ilivtMainPictureFile;
+  ilisrSecondaryPicFile:  Result := ilivtSecondaryPictureFile;
+  ilisrPackagePicFile:    Result := ilivtPackPictureFile;
+  ilisrUnitPriceDefault:  Result := ilivtUnitPriceDefault;
+  ilisrRating:            Result := ilivtRating;
+  ilisrSelectedShop:      Result := ilivtSelectedShop;
 else
   Result := ilivtNone;
 end;

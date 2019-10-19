@@ -348,7 +348,7 @@ end;
 
 Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): String;
 begin
-// path can be a filename, so watch for trailing delimiter (must be present when is is a directory)
+// path can be a filename, so watch for trailing delimiter (must be present when it is a directory)
 Result := RTLToStr(ExtractRelativePath(IncludeTrailingPathDelimiter(StrToRTL(Base)),StrToRTL(Path)));
 {
   if the paths are the same, it is assumed the path cannot be relativized,

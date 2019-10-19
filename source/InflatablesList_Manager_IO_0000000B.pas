@@ -14,6 +14,7 @@ type
   protected
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
+    procedure InitPreloadFunctions(Struct: UInt32); override;
     procedure SaveList_Plain_0000000B(Stream: TStream); virtual;
     procedure LoadList_Plain_0000000B(Stream: TStream); virtual;
   end;
@@ -61,6 +62,16 @@ If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000B then
   end
 else
 inherited InitLoadFunctions(Struct);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO_0000000B.InitPreloadFunctions(Struct: UInt32);
+begin
+If Struct = IL_LISTFILE_STREAMSTRUCTURE_0000000B then
+  inherited InitPreloadFunctions(IL_LISTFILE_STREAMSTRUCTURE_0000000A)
+else
+  fFNPreload := nil;
 end;
 
 //------------------------------------------------------------------------------

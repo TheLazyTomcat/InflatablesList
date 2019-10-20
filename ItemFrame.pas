@@ -38,16 +38,6 @@ type
 //******************************************************************************
 
 type
-  // standard TCheckBox does not support coloring, this interposer enables it
-  TCheckBox = class(StdCtrls.TCheckBox)
-  protected
-    fBrush: HBrush;
-    procedure WndProc(var Message: TMessage); override;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-  end;
-
   TILResizingEntry = record
     Control:  TControl;
     InitRect: TRect;  // initial bounding box of the control
@@ -258,7 +248,8 @@ type
     procedure ResizingProcess;
     // searching
     procedure DisableHighlight;
-    procedure HighLight(Value: TILItemSearchResult);
+    procedure Highlight(Control: TControl); overload;
+    procedure HighLight(Value: TILItemSearchResult); overload;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -288,40 +279,6 @@ uses
 
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
-
-//==============================================================================
-
-procedure TCheckBox.WndProc(var Message: TMessage);
-begin
-case Message.Msg of
-  CN_CTLCOLORSTATIC:
-    begin
-      DeleteObject(fBrush);
-      fBrush := CreateSolidBrush(ColorToRGB(Self.Color));
-      SetBkColor(HDC(Message.WParam),ColorToRGB(Self.Color));
-      SetBkMode(HDC(Message.WParam),TRANSPARENT);
-      Message.Result := lResult(fBrush);
-    end;
-else
-  inherited WndProc(Message);
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-constructor TCheckBox.Create(AOwner: TComponent);
-begin
-inherited Create(AOwner);
-fBrush := CreateSolidBrush(ColorToRGB(Self.Color));
-end;
-
-//------------------------------------------------------------------------------
-
-destructor TCheckBox.Destroy;
-begin
-DeleteObject(fBrush);
-inherited;
-end;
 
 //==============================================================================
 
@@ -847,46 +804,6 @@ end;
 procedure TfrmItemFrame.DisableHighlight;
 begin
 shpHighlight.Visible := False;
-cmbItemType.Color := clWindow;
-leItemTypeSpecification.Color := clWindow;
-sePieces.Color := clWindow;
-cmbManufacturer.Color := clWindow;
-leManufacturerString.Color := clWindow;
-leTextID.Color := clWindow;
-seID.Color := clWindow;
-// ...flags
-cbFlagOwned.Color := clBtnFace;
-cbFlagWanted.Color := clBtnFace;
-cbFlagOrdered.Color := clBtnFace;
-cbFlagBoxed.Color := clBtnFace;
-cbFlagElsewhere.Color := clBtnFace;
-cbFlagUntested.Color := clBtnFace;
-cbFlagTesting.Color := clBtnFace;
-cbFlagTested.Color := clBtnFace;
-cbFlagDamaged.Color := clBtnFace;
-cbFlagRepaired.Color := clBtnFace;
-cbFlagPriceChange.Color := clBtnFace;
-cbFlagAvailChange.Color := clBtnFace;
-cbFlagNotAvailable.Color := clBtnFace;
-cbFlagLost.Color := clBtnFace;
-cbFlagDiscarded.Color := clBtnFace;
-eTextTag.Color := clWindow;
-seNumTag.Color := clWindow;
-seWantedLevel.Color := clWindow;
-leVariant.Color := clWindow;
-cmbMaterial.Color := clWindow;
-seSizeX.Color := clWindow;
-seSizeY.Color := clWindow;
-seSizeZ.Color := clWindow;
-seUnitWeight.Color := clWindow;
-seThickness.Color := clWindow;
-meNotes.Color := clWindow;
-leReviewURL.Color := clWindow;
-leItemPictureFile.Color := clWindow;
-leSecondaryPictureFile.Color := clWindow;
-lePackagePictureFile.Color := clWindow;
-seUnitPriceDefault.Color := clWindow;
-seRating.Color := clWindow;
 // ...selected shop
 fLastFoundValue := ilisrNone;
 tmrHighlightTimer.Tag := 0;
@@ -895,76 +812,99 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.HighLight(Value: TILItemSearchResult);
-var
-  HlgtColor:  TColor;
-
-  procedure HighlightFlag(FlagControl: TCheckBox);
-  begin
-    FlagControl.BringToFront;
-    shpHighlight.Parent := gbFlagsTags;
-    shpHighlight.Left := FlagControl.Left;
-    shpHighlight.Top := FlagControl.Top;
-    shpHighlight.Width := 84;
-    shpHighlight.Height := FlagControl.Height + 1;
-    ShpHighlight.Visible := True;
-    FlagControl.Color := HlgtColor;
-  end;
-
-  procedure HighlightLabel(LabelObj: TLabel);
-  begin
-    LabelObj.BringToFront;
-    shpHighlight.Parent := Self;
-    shpHighlight.Left := LabelObj.Left - 5;
-    shpHighlight.Top := LabelObj.Top - 3;
-    shpHighlight.Width := LabelObj.Width + 10;
-    shpHighlight.Height := LabelObj.Height + 6;
-    shpHighlight.Visible := True;
-  end;
-
+procedure TfrmItemFrame.Highlight(Control: TControl);
 begin
-HlgtColor := shpHighlight.Brush.Color;
+If (Control is TComboBox) or (Control is TLabeledEdit) or
+  ((Control is TSpinEdit) and (Control <> seNumTag)) then
+  begin
+    shpHighlight.Left := Control.Left + Control.Width - 15;
+    shpHighlight.Top := Control.Top - 13;
+    shpHighlight.Width := 16;
+    shpHighlight.Height := 10;
+  end
+else If Control is TCheckBox then
+  begin
+    shpHighlight.Left := Control.Left - 5;
+    shpHighlight.Top := Control.Top + 2;
+    shpHighlight.Width := 5;
+    shpHighlight.Height := Control.Height - 3;
+  end
+else If Control is TMemo then
+  begin
+    shpHighlight.Left := Control.Left + Control.Width - 35;
+    shpHighlight.Top := Control.Top - 13;
+    shpHighlight.Width := 16;
+    shpHighlight.Height := 10;
+  end
+else If Control is TLabel then
+  begin
+    shpHighlight.Left := Control.Left - 6;
+    shpHighlight.Top := Control.Top;
+    shpHighlight.Width := 5;
+    shpHighlight.Height := Control.Height + 1;
+  end
+// special cases
+else If (Control = seNumTag) or (Control = eTextTag) then
+  begin
+    shpHighlight.Left := Control.Left - 5;
+    shpHighlight.Top := Control.Top;
+    shpHighlight.Width := 5;
+    shpHighlight.Height := Control.Height + 1;
+  end
+else Exit;  // control is not valid
+shpHighlight.Parent := Control.Parent;
+shpHighlight.Visible := True;
+If Control is TLabel then
+  Control.BringToFront
+else
+  shpHighlight.BringToFront;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.HighLight(Value: TILItemSearchResult);
+begin
 case Value of
-  ilisrType:              cmbItemType.Color := HlgtColor;
-  ilisrTypeSpec:          leItemTypeSpecification.Color := HlgtColor;
-  ilisrPieces:            sePieces.Color := HlgtColor;
-  ilisrManufacturer:      cmbManufacturer.Color := HlgtColor;
-  ilisrManufacturerStr:   leManufacturerString.Color := HlgtColor;
-  ilisrTextID:            leTextID.Color := HlgtColor;
-  ilisrNumID:             seID.Color := HlgtColor;
-  ilisrFlagOwned:         HighlightFlag(cbFlagOwned);
-  ilisrFlagWanted:        HighlightFlag(cbFlagWanted);
-  ilisrFlagOrdered:       HighlightFlag(cbFlagOrdered);
-  ilisrFlagBoxed:         HighlightFlag(cbFlagBoxed);
-  ilisrFlagElsewhere:     HighlightFlag(cbFlagElsewhere);
-  ilisrFlagUntested:      HighlightFlag(cbFlagUntested);
-  ilisrFlagTesting:       HighlightFlag(cbFlagTesting);
-  ilisrFlagTested:        HighlightFlag(cbFlagTested);
-  ilisrFlagDamaged:       HighlightFlag(cbFlagDamaged);
-  ilisrFlagRepaired:      HighlightFlag(cbFlagRepaired);
-  ilisrFlagPriceChange:   HighlightFlag(cbFlagPriceChange);
-  ilisrFlagAvailChange:   HighlightFlag(cbFlagAvailChange);
-  ilisrFlagNotAvailable:  HighlightFlag(cbFlagNotAvailable);
-  ilisrFlagLost:          HighlightFlag(cbFlagLost);
-  ilisrFlagDiscarded:     HighlightFlag(cbFlagDiscarded);
-  ilisrTextTag:           eTextTag.Color := HlgtColor;
-  ilisrNumTag:            seNumTag.Color := HlgtColor;
-  ilisrWantedLevel:       seWantedLevel.Color := HlgtColor;
-  ilisrVariant:           leVariant.Color := HlgtColor;
-  ilisrMaterial:          cmbMaterial.Color := HlgtColor;
-  ilisrSizeX:             seSizeX.Color := HlgtColor;
-  ilisrSizeY:             seSizeY.Color := HlgtColor;
-  ilisrSizeZ:             seSizeZ.Color := HlgtColor;
-  ilisrUnitWeight:        seUnitWeight.Color := HlgtColor;
-  ilisrThickness:         seThickness.Color := HlgtColor;
-  ilisrNotes:             meNotes.Color := HlgtColor;
-  ilisrReviewURL:         leReviewURL.Color := HlgtColor;
-  ilisrItemPicFile:       leItemPictureFile.Color := HlgtColor;
-  ilisrSecondaryPicFile:  leSecondaryPictureFile.Color := HlgtColor;
-  ilisrPackagePicFile:    lePackagePictureFile.Color := HlgtColor;
-  ilisrUnitPriceDefault:  seUnitPriceDefault.Color := HlgtColor;
-  ilisrRating:            seRating.Color := HlgtColor;
-  ilisrSelectedShop:      HighlightLabel(lblSelectedShop);
+  ilisrType:              Highlight(cmbItemType);
+  ilisrTypeSpec:          Highlight(leItemTypeSpecification);
+  ilisrPieces:            Highlight(sePieces);
+  ilisrManufacturer:      Highlight(cmbManufacturer);
+  ilisrManufacturerStr:   Highlight(leManufacturerString);
+  ilisrTextID:            Highlight(leTextID);
+  ilisrNumID:             Highlight(seID);
+  ilisrFlagOwned:         Highlight(cbFlagOwned);
+  ilisrFlagWanted:        Highlight(cbFlagWanted);
+  ilisrFlagOrdered:       Highlight(cbFlagOrdered);
+  ilisrFlagBoxed:         Highlight(cbFlagBoxed);
+  ilisrFlagElsewhere:     Highlight(cbFlagElsewhere);
+  ilisrFlagUntested:      Highlight(cbFlagUntested);
+  ilisrFlagTesting:       Highlight(cbFlagTesting);
+  ilisrFlagTested:        Highlight(cbFlagTested);
+  ilisrFlagDamaged:       Highlight(cbFlagDamaged);
+  ilisrFlagRepaired:      Highlight(cbFlagRepaired);
+  ilisrFlagPriceChange:   Highlight(cbFlagPriceChange);
+  ilisrFlagAvailChange:   Highlight(cbFlagAvailChange);
+  ilisrFlagNotAvailable:  Highlight(cbFlagNotAvailable);
+  ilisrFlagLost:          Highlight(cbFlagLost);
+  ilisrFlagDiscarded:     Highlight(cbFlagDiscarded);
+  ilisrTextTag:           Highlight(eTextTag);
+  ilisrNumTag:            Highlight(seNumTag);
+  ilisrWantedLevel:       Highlight(seWantedLevel);
+  ilisrVariant:           Highlight(leVariant);
+  ilisrMaterial:          Highlight(cmbMaterial);
+  ilisrSizeX:             Highlight(seSizeX);
+  ilisrSizeY:             Highlight(seSizeY);
+  ilisrSizeZ:             Highlight(seSizeZ);
+  ilisrUnitWeight:        Highlight(seUnitWeight);
+  ilisrThickness:         Highlight(seThickness);
+  ilisrNotes:             Highlight(meNotes);
+  ilisrReviewURL:         Highlight(leReviewURL);
+  ilisrItemPicFile:       Highlight(leItemPictureFile);
+  ilisrSecondaryPicFile:  Highlight(leSecondaryPictureFile);
+  ilisrPackagePicFile:    Highlight(lePackagePictureFile);
+  ilisrUnitPriceDefault:  Highlight(seUnitPriceDefault);
+  ilisrRating:            Highlight(seRating);
+  ilisrSelectedShop:      Highlight(lblSelectedShop);
 else
   DisableHighlight;
   Exit; // so timer is not enabled
@@ -1278,6 +1218,7 @@ var
 begin
 If Assigned(fCurrentItem) then
   begin
+    FrameSave;
     FoundValue := fCurrentItem.FindPrev(Text,fLastFoundValue);
     If FoundValue <> ilisrNone then
       begin
@@ -1285,7 +1226,12 @@ If Assigned(fCurrentItem) then
         Highlight(FoundValue);
         fLastFoundValue := FoundValue;
       end
-    else Beep;
+    else
+      begin
+        If tmrHighlightTimer.Enabled then
+          tmrHighlightTimer.Tag := IL_SEARCH_HIGHLIGHT_TIMEOUT;
+        Beep;
+      end;
   end;
 end;
 
@@ -1297,6 +1243,7 @@ var
 begin
 If Assigned(fCurrentItem) then
   begin
+    FrameSave;
     FoundValue := fCurrentItem.FindNext(Text,fLastFoundValue);
     If FoundValue <> ilisrNone then
       begin
@@ -1304,7 +1251,12 @@ If Assigned(fCurrentItem) then
         Highlight(FoundValue);
         fLastFoundValue := FoundValue;
       end
-    else Beep;
+    else
+      begin
+        If tmrHighlightTimer.Enabled then
+          tmrHighlightTimer.Tag := IL_SEARCH_HIGHLIGHT_TIMEOUT;
+        Beep;
+      end;
   end;
 end;
 
@@ -1312,6 +1264,7 @@ end;
 
 procedure TfrmItemFrame.FrameResize(Sender: TObject);
 begin
+DisableHighlight;
 ResizingProcess;
 end;
 

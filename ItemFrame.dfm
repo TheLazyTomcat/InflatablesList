@@ -492,7 +492,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = imgPictureClick
     end
     object lblRating: TLabel
-      Left = 112
+      Left = 128
       Top = 552
       Width = 97
       Height = 13
@@ -548,9 +548,8 @@ object frmItemFrame: TfrmItemFrame
       Top = 0
       Width = 25
       Height = 25
-      Brush.Color = 7471032
+      Brush.Color = clBlue
       Pen.Style = psClear
-      Visible = False
     end
     object seWantedLevel: TSpinEdit
       Left = 0
@@ -611,7 +610,7 @@ object frmItemFrame: TfrmItemFrame
     object seUnitPriceDefault: TSpinEdit
       Left = 0
       Top = 568
-      Width = 105
+      Width = 121
       Height = 22
       MaxValue = 268435455
       MinValue = 0
@@ -1057,9 +1056,9 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnBrowseSecondaryPictureFileClick
     end
     object seRating: TSpinEdit
-      Left = 112
+      Left = 128
       Top = 568
-      Width = 105
+      Width = 121
       Height = 22
       MaxLength = 3
       MaxValue = 100

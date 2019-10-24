@@ -485,7 +485,7 @@ If fFlags <> Value then
     try
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateMainList;
-      // UpdteFlags is called in FlagPriceAndAvail only when needed
+      UpdateFlags;
     finally
       EndUpdate;
     end;
@@ -1123,9 +1123,15 @@ If CopyPics then
       end;
     RenderSmallPictures;
     If Assigned(Source.Render) then
-      fRender.Assign(Source.Render);
+      begin
+        fRender.Assign(Source.Render);
+        fRender.Canvas.Font.Assign(Source.Render.Canvas.Font);
+      end;
     If Assigned(Source.RenderSmall) then
-      fRenderSmall.Assign(Source.RenderSmall);
+      begin
+        fRenderSmall.Assign(Source.RenderSmall);
+        fRenderSmall.Canvas.Font.Assign(Source.RenderSmall.Canvas.Font);
+      end;
   end;
 fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;
@@ -1461,6 +1467,7 @@ try
     FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
   If Result <> NewValue then
     UpdateMainList;
+  UpdateFlags;  
 finally
   EndUpdate;
 end;

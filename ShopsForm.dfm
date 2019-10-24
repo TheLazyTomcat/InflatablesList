@@ -173,6 +173,11 @@ object fShopsForm: TfShopsForm
       ShortCut = 46
       OnClick = mniSH_RemoveClick
     end
+    object mniSH_RemoveAll: TMenuItem
+      Caption = 'Remove all shops'
+      ShortCut = 8238
+      OnClick = mniSH_RemoveAllClick
+    end
     object N1: TMenuItem
       Caption = '-'
     end

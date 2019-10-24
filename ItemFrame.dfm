@@ -1,7 +1,7 @@
 object frmItemFrame: TfrmItemFrame
   Left = 0
   Top = 0
-  Width = 601
+  Width = 625
   Height = 652
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,14 +14,14 @@ object frmItemFrame: TfrmItemFrame
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 601
+    Width = 625
     Height = 652
     Align = alClient
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     object shpTotalPriceSelectedBcgr: TShape
-      Left = 517
+      Left = 541
       Top = 634
       Width = 80
       Height = 18
@@ -29,7 +29,7 @@ object frmItemFrame: TfrmItemFrame
       Pen.Style = psClear
     end
     object shpUnitPriceSelectedBcgr: TShape
-      Left = 309
+      Left = 325
       Top = 634
       Width = 80
       Height = 18
@@ -39,12 +39,12 @@ object frmItemFrame: TfrmItemFrame
     object shpItemTitleBcgr: TShape
       Left = 0
       Top = 0
-      Width = 601
+      Width = 625
       Height = 145
       Pen.Style = psClear
     end
     object shpPictureBBcgr: TShape
-      Left = 404
+      Left = 428
       Top = 36
       Width = 81
       Height = 81
@@ -53,7 +53,7 @@ object frmItemFrame: TfrmItemFrame
       Pen.Style = psDot
     end
     object shpPictureABcgr: TShape
-      Left = 300
+      Left = 324
       Top = 36
       Width = 81
       Height = 81
@@ -69,7 +69,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Wanted level (0..7):'
     end
     object lblSizeZ: TLabel
-      Left = 272
+      Left = 280
       Top = 352
       Width = 59
       Height = 13
@@ -111,7 +111,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Item type:'
     end
     object lblID: TLabel
-      Left = 504
+      Left = 520
       Top = 192
       Width = 64
       Height = 13
@@ -133,7 +133,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object imgPictureB: TImage
       Tag = 131072
-      Left = 396
+      Left = 420
       Top = 28
       Width = 96
       Height = 96
@@ -143,7 +143,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object imgPictureA: TImage
       Tag = 196608
-      Left = 292
+      Left = 316
       Top = 28
       Width = 96
       Height = 96
@@ -154,19 +154,19 @@ object frmItemFrame: TfrmItemFrame
     object bvlInfoSep: TBevel
       Left = 0
       Top = 598
-      Width = 601
+      Width = 625
       Height = 9
       Shape = bsTopLine
     end
     object lblPieces: TLabel
-      Left = 536
+      Left = 552
       Top = 152
       Width = 34
       Height = 13
       Caption = 'Pieces:'
     end
     object lblTimeOfAddition: TLabel
-      Left = 514
+      Left = 538
       Top = 128
       Width = 83
       Height = 13
@@ -181,14 +181,14 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitWeight: TLabel
-      Left = 408
+      Left = 424
       Top = 352
       Width = 55
       Height = 13
       Caption = 'Weight [g]:'
     end
     object lblTotalWeightTitle: TLabel
-      Left = 450
+      Left = 474
       Top = 604
       Width = 63
       Height = 13
@@ -202,7 +202,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalWeight: TLabel
-      Left = 520
+      Left = 544
       Top = 604
       Width = 73
       Height = 13
@@ -217,7 +217,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceLowestTitle: TLabel
-      Left = 425
+      Left = 449
       Top = 620
       Width = 88
       Height = 13
@@ -231,7 +231,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceLowest: TLabel
-      Left = 520
+      Left = 544
       Top = 620
       Width = 73
       Height = 13
@@ -246,7 +246,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceSelectedTitle: TLabel
-      Left = 399
+      Left = 423
       Top = 636
       Width = 114
       Height = 13
@@ -260,7 +260,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblTotalPriceSelected: TLabel
-      Left = 520
+      Left = 544
       Top = 636
       Width = 73
       Height = 13
@@ -278,7 +278,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitPriceLowestTitle: TLabel
-      Left = 222
+      Left = 239
       Top = 620
       Width = 83
       Height = 13
@@ -292,7 +292,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceLowest: TLabel
-      Left = 312
+      Left = 328
       Top = 620
       Width = 73
       Height = 13
@@ -307,7 +307,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceSelectedTitle: TLabel
-      Left = 197
+      Left = 213
       Top = 636
       Width = 108
       Height = 13
@@ -321,7 +321,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblAvailPiecesTitle: TLabel
-      Left = 225
+      Left = 241
       Top = 604
       Width = 80
       Height = 13
@@ -335,7 +335,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblAvailPieces: TLabel
-      Left = 312
+      Left = 328
       Top = 604
       Width = 73
       Height = 13
@@ -350,7 +350,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblSelectedShopTitle: TLabel
-      Left = 26
+      Left = 34
       Top = 604
       Width = 71
       Height = 13
@@ -364,7 +364,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblSelectedShop: TLabel
-      Left = 104
+      Left = 112
       Top = 604
       Width = 75
       Height = 13
@@ -377,7 +377,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblUnitPriceSelected: TLabel
-      Left = 312
+      Left = 328
       Top = 636
       Width = 73
       Height = 13
@@ -393,7 +393,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblShopCountTitle: TLabel
-      Left = 12
+      Left = 20
       Top = 620
       Width = 85
       Height = 13
@@ -407,7 +407,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblShopCount: TLabel
-      Left = 104
+      Left = 112
       Top = 620
       Width = 57
       Height = 13
@@ -422,7 +422,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblNotesEdit: TLabel
-      Left = 297
+      Left = 313
       Top = 388
       Width = 16
       Height = 19
@@ -439,14 +439,14 @@ object frmItemFrame: TfrmItemFrame
       OnMouseLeave = lblNotesEditMouseLeave
     end
     object lblMaterial: TLabel
-      Left = 408
+      Left = 424
       Top = 312
       Width = 42
       Height = 13
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 504
+      Left = 528
       Top = 352
       Width = 75
       Height = 13
@@ -473,7 +473,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object shpPictureCBcgr: TShape
-      Left = 508
+      Left = 532
       Top = 36
       Width = 81
       Height = 81
@@ -483,7 +483,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object imgPictureC: TImage
       Tag = 65536
-      Left = 500
+      Left = 524
       Top = 28
       Width = 96
       Height = 96
@@ -511,7 +511,7 @@ object frmItemFrame: TfrmItemFrame
     object lblItemTitleShadow: TLabel
       Left = 1
       Top = 1
-      Width = 601
+      Width = 625
       Height = 25
       Alignment = taCenter
       AutoSize = False
@@ -528,7 +528,7 @@ object frmItemFrame: TfrmItemFrame
     object lblItemTitle: TLabel
       Left = 0
       Top = 0
-      Width = 601
+      Width = 625
       Height = 25
       Alignment = taCenter
       AutoSize = False
@@ -544,7 +544,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = lblItemTitleClick
     end
     object shpHighlight: TShape
-      Left = 576
+      Left = 600
       Top = 0
       Width = 25
       Height = 25
@@ -564,9 +564,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seWantedLevelChange
     end
     object seSizeZ: TSpinEdit
-      Left = 272
+      Left = 280
       Top = 368
-      Width = 129
+      Width = 137
       Height = 22
       MaxValue = 100000
       MinValue = 0
@@ -577,7 +577,7 @@ object frmItemFrame: TfrmItemFrame
     object seSizeY: TSpinEdit
       Left = 136
       Top = 368
-      Width = 129
+      Width = 137
       Height = 22
       MaxValue = 100000
       MinValue = 0
@@ -597,9 +597,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeXChange
     end
     object seID: TSpinEdit
-      Left = 504
+      Left = 520
       Top = 208
-      Width = 97
+      Width = 105
       Height = 22
       MaxValue = 0
       MinValue = 0
@@ -621,7 +621,7 @@ object frmItemFrame: TfrmItemFrame
     object meNotes: TMemo
       Left = 0
       Top = 408
-      Width = 313
+      Width = 329
       Height = 141
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -646,9 +646,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leManufacturerStringChange
     end
     object leItemPictureFile: TLabeledEdit
-      Left = 320
+      Left = 336
       Top = 448
-      Width = 256
+      Width = 264
       Height = 21
       EditLabel.Width = 79
       EditLabel.Height = 13
@@ -659,7 +659,7 @@ object frmItemFrame: TfrmItemFrame
     object leVariant: TLabeledEdit
       Left = 136
       Top = 328
-      Width = 265
+      Width = 281
       Height = 21
       EditLabel.Width = 163
       EditLabel.Height = 13
@@ -670,7 +670,7 @@ object frmItemFrame: TfrmItemFrame
     object leItemTypeSpecification: TLabeledEdit
       Left = 168
       Top = 168
-      Width = 361
+      Width = 377
       Height = 21
       EditLabel.Width = 173
       EditLabel.Height = 13
@@ -679,9 +679,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leItemTypeSpecificationChange
     end
     object lePackagePictureFile: TLabeledEdit
-      Left = 320
+      Left = 336
       Top = 528
-      Width = 256
+      Width = 264
       Height = 21
       EditLabel.Width = 97
       EditLabel.Height = 13
@@ -692,21 +692,21 @@ object frmItemFrame: TfrmItemFrame
     object gbFlagsTags: TGroupBox
       Left = 0
       Top = 232
-      Width = 601
+      Width = 625
       Height = 73
       Caption = 'Flags and tags'
       Color = clBtnFace
       ParentColor = False
       TabOrder = 7
       object bvlTagSep: TBevel
-        Left = 432
-        Top = 16
+        Left = 455
+        Top = 34
         Width = 9
-        Height = 49
+        Height = 31
         Shape = bsLeftLine
       end
       object lblTextTag: TLabel
-        Left = 454
+        Left = 478
         Top = 18
         Width = 59
         Height = 13
@@ -716,7 +716,7 @@ object frmItemFrame: TfrmItemFrame
         ParentBiDiMode = False
       end
       object lblNumTag: TLabel
-        Left = 444
+        Left = 468
         Top = 46
         Width = 69
         Height = 13
@@ -727,7 +727,7 @@ object frmItemFrame: TfrmItemFrame
         Tag = 1
         Left = 8
         Top = 16
-        Width = 65
+        Width = 57
         Height = 17
         Caption = 'Owned'
         TabOrder = 0
@@ -735,9 +735,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagWanted: TCheckBox
         Tag = 2
-        Left = 96
+        Left = 100
         Top = 16
-        Width = 65
+        Width = 57
         Height = 17
         Caption = 'Wanted'
         TabOrder = 1
@@ -745,7 +745,7 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagOrdered: TCheckBox
         Tag = 3
-        Left = 184
+        Left = 192
         Top = 16
         Width = 65
         Height = 17
@@ -765,7 +765,7 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagTesting: TCheckBox
         Tag = 7
-        Left = 96
+        Left = 100
         Top = 33
         Width = 57
         Height = 17
@@ -775,9 +775,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagTested: TCheckBox
         Tag = 8
-        Left = 184
+        Left = 192
         Top = 33
-        Width = 65
+        Width = 57
         Height = 17
         Caption = 'Tested'
         TabOrder = 7
@@ -785,9 +785,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagBoxed: TCheckBox
         Tag = 4
-        Left = 272
+        Left = 284
         Top = 16
-        Width = 57
+        Width = 49
         Height = 17
         Caption = 'Boxed'
         TabOrder = 3
@@ -795,9 +795,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagDamaged: TCheckBox
         Tag = 9
-        Left = 272
+        Left = 284
         Top = 33
-        Width = 73
+        Width = 65
         Height = 17
         Caption = 'Damaged'
         TabOrder = 8
@@ -805,7 +805,7 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagRepaired: TCheckBox
         Tag = 10
-        Left = 352
+        Left = 376
         Top = 33
         Width = 65
         Height = 17
@@ -815,9 +815,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagElsewhere: TCheckBox
         Tag = 5
-        Left = 352
+        Left = 376
         Top = 16
-        Width = 73
+        Width = 69
         Height = 17
         Caption = 'Elsewhere'
         TabOrder = 4
@@ -827,7 +827,7 @@ object frmItemFrame: TfrmItemFrame
         Tag = 11
         Left = 8
         Top = 50
-        Width = 89
+        Width = 81
         Height = 17
         Caption = 'Price change'
         TabOrder = 10
@@ -835,9 +835,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagAvailChange: TCheckBox
         Tag = 12
-        Left = 96
+        Left = 100
         Top = 50
-        Width = 89
+        Width = 84
         Height = 17
         Caption = 'Avail. change'
         TabOrder = 11
@@ -845,9 +845,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagNotAvailable: TCheckBox
         Tag = 13
-        Left = 184
+        Left = 192
         Top = 50
-        Width = 89
+        Width = 81
         Height = 17
         Caption = 'Not available'
         TabOrder = 12
@@ -855,9 +855,9 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagLost: TCheckBox
         Tag = 14
-        Left = 272
+        Left = 284
         Top = 50
-        Width = 49
+        Width = 41
         Height = 17
         Caption = 'Lost'
         TabOrder = 13
@@ -865,34 +865,52 @@ object frmItemFrame: TfrmItemFrame
       end
       object cbFlagDiscarded: TCheckBox
         Tag = 15
-        Left = 352
+        Left = 376
         Top = 50
-        Width = 73
+        Width = 69
         Height = 17
         Caption = 'Discarded'
         TabOrder = 14
         OnClick = CommonFlagClick
       end
       object seNumTag: TSpinEdit
-        Left = 520
+        Left = 544
         Top = 43
         Width = 73
         Height = 22
         MaxLength = 6
         MaxValue = 99999
         MinValue = -99999
-        TabOrder = 16
+        TabOrder = 17
         Value = 0
         OnChange = seNumTagChange
       end
       object eTextTag: TEdit
-        Left = 520
+        Left = 544
         Top = 15
         Width = 73
         Height = 21
         MaxLength = 10
-        TabOrder = 15
+        TabOrder = 16
         OnChange = eTextTagChange
+      end
+      object btnFlagMacros: TButton
+        Left = 448
+        Top = 16
+        Width = 16
+        Height = 16
+        Hint = 'Flag macros'
+        Caption = '6'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Webdings'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 15
+        OnClick = btnFlagMacrosClick
       end
     end
     object cmbManufacturer: TComboBox
@@ -916,7 +934,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbItemTypeChange
     end
     object btnUpdateShops: TButton
-      Left = 384
+      Left = 408
       Top = 566
       Width = 105
       Height = 25
@@ -925,7 +943,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
-      Left = 496
+      Left = 520
       Top = 566
       Width = 105
       Height = 25
@@ -934,7 +952,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnShopsClick
     end
     object btnBrowseItemPictureFile: TButton
-      Left = 576
+      Left = 600
       Top = 448
       Width = 25
       Height = 21
@@ -946,7 +964,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnBrowseItemPictureFileClick
     end
     object btnBrowsePackagePictureFile: TButton
-      Left = 576
+      Left = 600
       Top = 528
       Width = 25
       Height = 21
@@ -958,9 +976,9 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnBrowsePackagePictureFileClick
     end
     object sePieces: TSpinEdit
-      Left = 536
+      Left = 552
       Top = 168
-      Width = 65
+      Width = 73
       Height = 22
       MaxValue = 268435455
       MinValue = 1
@@ -969,9 +987,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = sePiecesChange
     end
     object leReviewURL: TLabeledEdit
-      Left = 320
+      Left = 336
       Top = 408
-      Width = 256
+      Width = 264
       Height = 21
       EditLabel.Width = 61
       EditLabel.Height = 13
@@ -980,7 +998,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
-      Left = 576
+      Left = 600
       Top = 408
       Width = 25
       Height = 21
@@ -992,9 +1010,9 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
-      Left = 408
+      Left = 424
       Top = 368
-      Width = 89
+      Width = 97
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
@@ -1003,16 +1021,16 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seUnitWeightChange
     end
     object cmbMaterial: TComboBox
-      Left = 408
+      Left = 424
       Top = 328
-      Width = 193
+      Width = 201
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 10
     end
     object seThickness: TSpinEdit
-      Left = 504
+      Left = 528
       Top = 368
       Width = 97
       Height = 22
@@ -1024,7 +1042,7 @@ object frmItemFrame: TfrmItemFrame
     object leTextID: TLabeledEdit
       Left = 400
       Top = 208
-      Width = 97
+      Width = 113
       Height = 21
       EditLabel.Width = 54
       EditLabel.Height = 13
@@ -1033,9 +1051,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leTextIDChange
     end
     object leSecondaryPictureFile: TLabeledEdit
-      Left = 320
+      Left = 336
       Top = 488
-      Width = 256
+      Width = 264
       Height = 21
       EditLabel.Width = 108
       EditLabel.Height = 13
@@ -1044,7 +1062,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leSecondaryPictureFileChange
     end
     object btnBrowseSecondaryPictureFile: TButton
-      Left = 576
+      Left = 600
       Top = 488
       Width = 25
       Height = 21
@@ -1151,6 +1169,10 @@ object frmItemFrame: TfrmItemFrame
   object tmrHighlightTimer: TTimer
     Interval = 250
     OnTimer = tmrHighlightTimerTimer
-    Left = 544
+    Left = 568
+  end
+  object pmnFlagMacros: TPopupMenu
+    Left = 464
+    Top = 248
   end
 end

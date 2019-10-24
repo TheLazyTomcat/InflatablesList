@@ -34,7 +34,7 @@ object fSpecialsForm: TfSpecialsForm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 7
+    TabOrder = 13
   end
   object btnClearTextTags: TButton
     Left = 8
@@ -107,7 +107,7 @@ object fSpecialsForm: TfSpecialsForm
     Width = 145
     Height = 25
     Caption = 'Clr. avail + price ch. flags'
-    TabOrder = 8
+    TabOrder = 7
     OnClick = btnClearACPCFlagsClick
   end
   object btnReplaceInPicPaths: TButton
@@ -116,7 +116,7 @@ object fSpecialsForm: TfSpecialsForm
     Width = 145
     Height = 25
     Caption = 'Pictures path P1 => P2'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = btnReplaceInPicPathsClick
   end
   object btnReplaceTextTag: TButton
@@ -125,7 +125,7 @@ object fSpecialsForm: TfSpecialsForm
     Width = 145
     Height = 25
     Caption = 'TextTag = P1 => P2'
-    TabOrder = 10
+    TabOrder = 9
     OnClick = btnReplaceTextTagClick
   end
   object btnRemoveShops: TButton
@@ -134,7 +134,7 @@ object fSpecialsForm: TfSpecialsForm
     Width = 145
     Height = 25
     Caption = 'Rem. shops except sel.'
-    TabOrder = 11
+    TabOrder = 10
     OnClick = btnRemoveShopsClick
   end
   object cbCloseWhenDone: TCheckBox
@@ -146,5 +146,14 @@ object fSpecialsForm: TfSpecialsForm
     Checked = True
     State = cbChecked
     TabOrder = 12
+  end
+  object btnRemShopsFromOwned: TButton
+    Left = 160
+    Top = 160
+    Width = 145
+    Height = 25
+    Caption = 'Rem. shops from owned'
+    TabOrder = 11
+    OnClick = btnRemShopsFromOwnedClick
   end
 end

@@ -12,6 +12,7 @@ uses
 type
   TILItemFramePicturesManagerEntry = record
     Image:        TImage;
+    Background:   TControl;
     PicKind:      TLIItemPictureKind;
     PicAssigned:  Boolean;
   end;
@@ -24,7 +25,7 @@ type
     constructor Create;
     destructor Destroy; override;
     Function IndexOf(Image: TImage): Integer; virtual;
-    Function Add(Image: TImage): Integer; virtual;
+    Function Add(Image: TImage; Background: TControl): Integer; virtual;
     procedure Clear; virtual;
     Function Kind(Image: TImage): TLIItemPictureKind; virtual;
     Function OtherKinds(Image: TImage): TLIItemPictureKinds; virtual;
@@ -103,6 +104,8 @@ type
     cbFlagNotAvailable: TCheckBox;
     cbFlagLost: TCheckBox;
     cbFlagDiscarded: TCheckBox;
+    btnFlagMacros: TButton;
+    pmnFlagMacros: TPopupMenu;
     bvlTagSep: TBevel;
     lblTextTag: TLabel;
     eTextTag: TEdit;
@@ -164,7 +167,7 @@ type
     Button1: TButton;
     tmrHighlightTimer: TTimer;
     shpHighlight: TShape;
-    procedure FrameResize(Sender: TObject);    
+    procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
     procedure pmnPicturesMenuPopup(Sender: TObject);
@@ -188,6 +191,8 @@ type
     procedure leTextIDChange(Sender: TObject);
     procedure seIDChange(Sender: TObject);
     procedure CommonFlagClick(Sender: TObject);
+    procedure btnFlagMacrosClick(Sender: TObject);
+    procedure CommonFlagMacroClick(Sender: TObject);
     procedure eTextTagChange(Sender: TObject);
     procedure seNumTagChange(Sender: TObject);
     procedure seWantedLevelChange(Sender: TObject);
@@ -250,6 +255,8 @@ type
     procedure DisableHighlight;
     procedure Highlight(Control: TControl); overload;
     procedure HighLight(Value: TILItemSearchResult); overload;
+    // initialization
+    procedure BuildFlagMacrosMenu;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -279,6 +286,9 @@ uses
 
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
+
+  IL_FLAGMACRO_CAPTIONS: array[0..0] of String = (
+    'Ordered item received');
 
 //==============================================================================
 
@@ -314,7 +324,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILItemFramePicturesManager.Add(Image: TImage): Integer;
+Function TILItemFramePicturesManager.Add(Image: TImage; Background: TControl): Integer;
 begin
 Result := IndexOf(Image);
 If Result < 0 then
@@ -322,6 +332,7 @@ If Result < 0 then
     Result := Length(fImages);
     SetLength(fImages,Length(fImages) + 1);
     fImages[Result].Image := Image;
+    fImages[Result].Background := Background;
     fImages[Result].PicKind := ilipkUnknown;
     fImages[Result].PicAssigned := False;
   end;
@@ -389,6 +400,7 @@ If Assigned(Picture) then
     If not fImages[i].PicAssigned then
       begin
         fImages[i].Image.Picture.Assign(Picture);
+        fImages[i].Background.Visible := False;
         fImages[i].PicKind := PictureKind;
         fImages[i].PicAssigned := True;
         fImages[i].Image.ShowHint := PictureKind <> ilipkUnknown;
@@ -410,6 +422,7 @@ For i := Low(fImages) to High(fImages) do
     begin
       fImages[i].Image.Picture.Assign(nil);
       fImages[i].Image.ShowHint := False;
+      fImages[i].Background.Visible := True;
     end;
 end;
 
@@ -915,6 +928,25 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.BuildFlagMacrosMenu;
+var
+  i:      Integer;
+  MITemp: TMenuItem;
+begin
+pmnFlagMacros.Items.Clear;
+For i := Low(IL_FLAGMACRO_CAPTIONS) to High(IL_FLAGMACRO_CAPTIONS) do
+  begin
+    MITemp := TMenuItem.Create(Self);
+    MITemp.Name := IL_Format('mniFM_Macro_%d',[i]);
+    MITemp.Caption := IL_FLAGMACRO_CAPTIONS[i];
+    MITemp.OnClick := CommonFlagMacroClick;
+    MITemp.Tag := i;
+    pmnFlagMacros.Items.Add(MITemp);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.FrameClear;
 begin
 fInitializing := True;
@@ -1106,9 +1138,9 @@ var
 begin
 fFirstResize := True;
 fPicturesManager := TILItemFramePicturesManager.Create;
-fPicturesManager.Add(imgPictureA);
-fPicturesManager.Add(imgPictureB);
-fPicturesManager.Add(imgPictureC);
+fPicturesManager.Add(imgPictureA,shpPictureABcgr);
+fPicturesManager.Add(imgPictureB,shpPictureBBcgr);
+fPicturesManager.Add(imgPictureC,shpPictureCBcgr);
 fLastSmallPicDir := '';
 fLastPicDir := '';
 fInitializing := False;
@@ -1148,8 +1180,9 @@ try
 finally
   cmbMaterial.Items.EndUpdate;
 end;
-// init searching
+// initialization
 DisableHighlight;
+BuildFlagMacrosMenu;
 end;
 
 //------------------------------------------------------------------------------
@@ -1593,6 +1626,39 @@ If Sender is TCheckBox then
     else
       Exit;
     end;
+end;
+
+//------------------------------------------------------------------------------  
+
+procedure TfrmItemFrame.btnFlagMacrosClick(Sender: TObject);
+var
+  ScreenPoint:  TPoint;
+begin
+ScreenPoint := btnFlagMacros.ClientToScreen(
+  Point(0,btnFlagMacros.Height));
+pmnFlagMacros.Popup(ScreenPoint.X,ScreenPoint.Y);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.CommonFlagMacroClick(Sender: TObject);
+begin
+If (Sender is TMenuItem) and Assigned(fCurrentItem) then
+  case TMenuItem(Sender).Tag of
+    0:  If [ilifWanted,ilifOrdered] <= fCurrentItem.Flags then  // ordered item received
+          begin
+            fCurrentItem.BeginUpdate;
+            try
+              fCurrentItem.SetFlagValue(ilifWanted,False);
+              fCurrentItem.SetFlagValue(ilifOrdered,False);
+              fCurrentItem.SetFlagValue(ilifOwned,True);
+              fCurrentItem.SetFlagValue(ilifUntested,True);
+            finally
+              fCurrentItem.EndUpdate;
+            end;
+          end;
+  end;
+//UpdateFlags(nil,fCurrentItem);  
 end;
 
 //------------------------------------------------------------------------------

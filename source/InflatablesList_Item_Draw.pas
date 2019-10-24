@@ -205,31 +205,34 @@ with fRender,fRender.Canvas do
             SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
             TextOut(TempInt,Height - 25,IL_Format('[%d]',[fNumTag]))
           end;
-    
+
+        TempInt := 5;          
         // selected shop and available count
-        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
-        TempInt := 5;
-        If ShopsSelected(SelShop) then
+        If (ilifWanted in fFlags) or ShopsSelected(SelShop) then
           begin
-            If ShopCount > 1 then
-              TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
-            else
-              TempStr := SelShop.Name;
-            TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
-            Inc(TempInt,17);
-    
-            If fAvailableSelected <> 0 then
+            SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+            If ShopsSelected(SelShop) then
               begin
-                If fAvailableSelected < 0 then
-                  TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
+                If ShopCount > 1 then
+                  TempStr := IL_Format('%s (%s)',[SelShop.Name,ShopsCountStr])
                 else
-                  TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+                  TempStr := SelShop.Name;
                 TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
                 Inc(TempInt,17);
+
+                If fAvailableSelected <> 0 then
+                  begin
+                    If fAvailableSelected < 0 then
+                      TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
+                    else
+                      TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+                    TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
+                    Inc(TempInt,17);
+                  end;
               end;
           end;
-    
-        // prices
+
+        // price
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
         If TotalPrice > 0 then
           begin
@@ -239,15 +242,19 @@ with fRender,fRender.Canvas do
               TempStr := IL_Format('%d Kè',[TotalPrice]);
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
           end;
-    
-        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
-        If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
+
+        // lowest price
+        If ilifWanted in fFlags then
           begin
-            If fPieces > 1 then
-              TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
-            else
-              TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
-            TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
+            SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
+            If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
+              begin
+                If fPieces > 1 then
+                  TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
+                else
+                  TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
+                TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
+              end;
           end;
     
         // main picture

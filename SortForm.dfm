@@ -3,7 +3,7 @@ object fSortForm: TfSortForm
   Top = 136
   BorderStyle = bsDialog
   Caption = 'Sorting settings'
-  ClientHeight = 440
+  ClientHeight = 452
   ClientWidth = 960
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -32,7 +32,7 @@ object fSortForm: TfSortForm
   end
   object bvlSplitter: TBevel
     Left = 8
-    Top = 400
+    Top = 412
     Width = 945
     Height = 9
     Shape = bsTopLine
@@ -48,7 +48,7 @@ object fSortForm: TfSortForm
     Left = 288
     Top = 24
     Width = 289
-    Height = 368
+    Height = 382
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -64,7 +64,7 @@ object fSortForm: TfSortForm
     Left = 664
     Top = 24
     Width = 289
-    Height = 368
+    Height = 382
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -78,7 +78,7 @@ object fSortForm: TfSortForm
   end
   object btnMoveUp: TButton
     Left = 584
-    Top = 128
+    Top = 136
     Width = 73
     Height = 25
     Caption = 'Move up'
@@ -87,7 +87,7 @@ object fSortForm: TfSortForm
   end
   object btnAdd: TButton
     Left = 592
-    Top = 160
+    Top = 168
     Width = 57
     Height = 25
     Hint = 'Add value to sorting'
@@ -99,7 +99,7 @@ object fSortForm: TfSortForm
   end
   object btnToggleOrder: TButton
     Left = 600
-    Top = 192
+    Top = 200
     Width = 41
     Height = 25
     Hint = 'Toggle reverse'
@@ -111,7 +111,7 @@ object fSortForm: TfSortForm
   end
   object btnRemove: TButton
     Left = 592
-    Top = 224
+    Top = 232
     Width = 57
     Height = 25
     Hint = 'Remove value from sorting'
@@ -123,7 +123,7 @@ object fSortForm: TfSortForm
   end
   object btnMoveDown: TButton
     Left = 584
-    Top = 256
+    Top = 264
     Width = 73
     Height = 25
     Caption = 'Move down'
@@ -132,7 +132,7 @@ object fSortForm: TfSortForm
   end
   object btnClose: TButton
     Left = 864
-    Top = 408
+    Top = 420
     Width = 89
     Height = 25
     Caption = 'Close'
@@ -141,7 +141,7 @@ object fSortForm: TfSortForm
   end
   object btnSort: TButton
     Left = 768
-    Top = 408
+    Top = 420
     Width = 89
     Height = 25
     Caption = 'Sort and close'
@@ -152,7 +152,7 @@ object fSortForm: TfSortForm
     Left = 8
     Top = 24
     Width = 185
-    Height = 368
+    Height = 381
     IntegralHeight = True
     ItemHeight = 13
     PopupMenu = pmnProfiles
@@ -163,7 +163,7 @@ object fSortForm: TfSortForm
   end
   object btnProfileLoad: TButton
     Left = 200
-    Top = 144
+    Top = 152
     Width = 81
     Height = 25
     Caption = 'Load >>'
@@ -172,7 +172,7 @@ object fSortForm: TfSortForm
   end
   object btnProfileSave: TButton
     Left = 200
-    Top = 240
+    Top = 248
     Width = 81
     Height = 25
     Caption = '<< Save'
@@ -181,7 +181,7 @@ object fSortForm: TfSortForm
   end
   object btnLoadDefault: TButton
     Left = 200
-    Top = 176
+    Top = 184
     Width = 81
     Height = 25
     Caption = 'Load default'
@@ -190,7 +190,7 @@ object fSortForm: TfSortForm
   end
   object cbSortRev: TCheckBox
     Left = 672
-    Top = 412
+    Top = 424
     Width = 89
     Height = 17
     Alignment = taLeftJustify
@@ -200,7 +200,7 @@ object fSortForm: TfSortForm
   end
   object btnClear: TButton
     Left = 200
-    Top = 208
+    Top = 216
     Width = 81
     Height = 25
     Caption = 'Clear'
@@ -209,7 +209,7 @@ object fSortForm: TfSortForm
   end
   object cbSortCase: TCheckBox
     Left = 552
-    Top = 412
+    Top = 424
     Width = 113
     Height = 17
     Alignment = taLeftJustify

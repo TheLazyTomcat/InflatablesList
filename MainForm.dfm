@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 6
-  Top = 13
+  Left = 7
+  Top = 9
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 707
@@ -16,7 +16,7 @@ object fMainForm: TfMainForm
   KeyPreview = True
   Menu = mmMainMenu
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDefault
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -37,20 +37,20 @@ object fMainForm: TfMainForm
     Pen.Style = psClear
   end
   object gbDetails: TGroupBox
-    Left = 640
+    Left = 616
     Top = 8
-    Width = 617
+    Width = 641
     Height = 673
     Anchors = [akTop, akRight, akBottom]
     Caption = 'Item details'
     TabOrder = 1
     DesignSize = (
-      617
+      641
       673)
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
-      Width = 601
+      Width = 625
       Height = 652
       Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
@@ -95,7 +95,7 @@ object fMainForm: TfMainForm
   object lbList: TListBox
     Left = 8
     Top = 8
-    Width = 625
+    Width = 601
     Height = 646
     Style = lbOwnerDrawFixed
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -116,7 +116,7 @@ object fMainForm: TfMainForm
   object eSearchFor: TEdit
     Left = 8
     Top = 659
-    Width = 593
+    Width = 569
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
@@ -131,7 +131,7 @@ object fMainForm: TfMainForm
     OnKeyPress = eSearchForKeyPress
   end
   object btnFindPrev: TButton
-    Left = 601
+    Left = 577
     Top = 659
     Width = 16
     Height = 21
@@ -150,7 +150,7 @@ object fMainForm: TfMainForm
     OnClick = btnFindPrevClick
   end
   object btnFindNext: TButton
-    Left = 617
+    Left = 594
     Top = 659
     Width = 16
     Height = 21

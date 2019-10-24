@@ -28,6 +28,7 @@ type
     mniSH_AddFromSub: TMenuItem;
     mniSH_AddFromTemplate: TMenuItem;
     mniSH_Remove: TMenuItem;
+    mniSH_RemoveAll: TMenuItem;
     N1: TMenuItem;
     mniSH_MoveUp: TMenuItem;
     mniSH_MoveDown: TMenuItem;
@@ -42,11 +43,12 @@ type
     procedure mniSH_AddFromSubClick(Sender: TObject);
     procedure mniSH_AddFromTemplateClick(Sender: TObject);
     procedure mniSH_RemoveClick(Sender: TObject);
+    procedure mniSH_RemoveAllClick(Sender: TObject);
     procedure mniSH_MoveUpClick(Sender: TObject);
     procedure mniSH_MoveDownClick(Sender: TObject);
     procedure btnUpdateAllClick(Sender: TObject);
     procedure btnUpdateHistoryClick(Sender: TObject);
-    procedure btnCloseClick(Sender: TObject); 
+    procedure btnCloseClick(Sender: TObject);
   private
     fWndCaption:  String;
     fILManager:   TILManager;
@@ -394,6 +396,7 @@ end;
 procedure TfShopsForm.pmnShopsPopup(Sender: TObject);
 begin
 mniSH_Remove.Enabled := lvShops.ItemIndex >= 0;
+mniSH_RemoveAll.Enabled := lvShops.Items.Count > 0;
 mniSH_MoveUp.Enabled := lvShops.ItemIndex > 0;
 mniSH_MoveDown.Enabled := (lvShops.ItemIndex >= 0) and (lvShops.ItemIndex < Pred(lvShops.Items.Count));
 end;
@@ -480,8 +483,23 @@ If Assigned(fCurrentItem) and (lvShops.ItemIndex >= 0) then
       else
         Index := -1;
       frmShopFrame.SetItemShop(nil,False);
-      fCurrentItem.ShopDelete(lvShops.ItemIndex);        
+      fCurrentItem.ShopDelete(lvShops.ItemIndex);
       ShopListSelect(Index);
+      ListViewItemSelected;
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopsForm.mniSH_RemoveAllClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) and (lvShops.Items.Count > 0) then
+  If MessageDlg('Are you sure you want to remove all shops?',mtWarning,[mbYes,mbNo],0) = mrYes then
+    begin
+      frmShopFrame.SetItemShop(nil,False);
+      fCurrentItem.ShopClear;
+      lvShops.Items.Clear;
+      ShopListSelect(-1);
       ListViewItemSelected;
     end;
 end;

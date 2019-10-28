@@ -287,8 +287,10 @@ uses
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
 
-  IL_FLAGMACRO_CAPTIONS: array[0..0] of String = (
-    'Ordered item received');
+  IL_FLAGMACRO_CAPTIONS: array[0..2] of String = (
+    'Ordered item received',
+    'Starting item testing',
+    'Testing of item is finished');
 
 //==============================================================================
 
@@ -1657,8 +1659,27 @@ If (Sender is TMenuItem) and Assigned(fCurrentItem) then
               fCurrentItem.EndUpdate;
             end;
           end;
+    1:  If ilifUntested in fCurrentItem.Flags then  // starting item testing
+          begin
+            fCurrentItem.BeginUpdate;
+            try
+              fCurrentItem.SetFlagValue(ilifUntested,False);
+              fCurrentItem.SetFlagValue(ilifTesting,True);
+            finally
+              fCurrentItem.EndUpdate;
+            end;
+          end;
+    2:  If ilifTesting in fCurrentItem.Flags then // testing of item is finished
+          begin
+            fCurrentItem.BeginUpdate;
+            try
+              fCurrentItem.SetFlagValue(ilifTesting,False);
+              fCurrentItem.SetFlagValue(ilifTested,True);
+            finally
+              fCurrentItem.EndUpdate;
+            end;
+          end;
   end;
-//UpdateFlags(nil,fCurrentItem);  
 end;
 
 //------------------------------------------------------------------------------

@@ -344,7 +344,6 @@ object fMainForm: TfMainForm
       end
       object mniMMS_AdvSearch: TMenuItem
         Caption = 'Advanced search...'
-        Enabled = False
         ShortCut = 49222
         OnClick = mniMMS_AdvSearchClick
       end

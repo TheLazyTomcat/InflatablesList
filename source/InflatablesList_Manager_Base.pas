@@ -114,6 +114,7 @@ type
     Function ItemLowIndex: Integer; virtual;
     Function ItemHighIndex: Integer; virtual;
     // list manipulation
+    Function ItemIndexOf(ItemUniqueID: TGUID): Integer; virtual;
     Function ItemAddEmpty: Integer; virtual;
     Function ItemAddCopy(SrcIndex: Integer): Integer; virtual;
     procedure ItemExchange(Idx1,Idx2: Integer); virtual;
@@ -721,6 +722,21 @@ end;
 Function TILManager_Base.ItemHighIndex: Integer;
 begin
 Result := HighIndex;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.ItemIndexOf(ItemUniqueID: TGUID): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := ItemLowIndex to ItemHighIndex do
+  If IsEqualGUID(ItemUniqueID,fList[i].UniqueID) then
+    begin
+      Result := i;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------

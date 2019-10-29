@@ -172,14 +172,29 @@ Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
 {$message 'wip'}
 type
-  TILSrcResItemValue = (srifNone);
-  TILSrcResShopValue = (srsfNone);
+  TILAdvItemSearchResult = (ilaisrNone);
+
+  TILAdvItemSearchResults = set of TILAdvItemSearchResult;
+
+  TILAdvShopSearchResult = (ilassrNone);
+
+  TILAdvShopSearchResults = set of TILAdvShopSearchResult;
+
+  TILSearchSettings = record
+    Text:             String;
+    PartialMatch:     Boolean;
+    CaseSensitive:    Boolean;
+    TextsOnly:        Boolean;
+    SearchComposites: Boolean;
+    IncludeUnits:     Boolean;
+    SearchShops:      Boolean;
+    DeepScan:         Boolean;  // parsing settings, variables
+  end;
 
   TILSearchResult = record
-    ItemIndex:  Integer;
-    ItemValue:  TILSrcResItemValue;
+    ItemValue:  TILAdvItemSearchResults;
     ShopIndex:  Integer;
-    ShopValue:  TILSrcResShopValue;
+    ShopValue:  TILAdvShopSearchResults;
   end;
 
 //==============================================================================

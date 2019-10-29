@@ -39,9 +39,10 @@ implementation
 uses
   SysUtils,
   Forms, Dialogs,
-  MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm, BackupsForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm, SaveForm,
+  MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm,
+  ItemSelectForm, BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm,
+  SplashForm, PromptForm, SaveForm, AdvancedSearchForm,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
@@ -95,6 +96,7 @@ Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
 Application.CreateForm(TfAboutForm, fAboutForm);
 Application.CreateForm(TfSplashForm, fSplashForm);
 Application.CreateForm(TfSaveForm, fSaveForm);
+Application.CreateForm(TfAdvancedSearchForm, fAdvancedSearchForm);
 // do not automatically create prompt form
 //Application.CreateForm(TfPromptForm, fPromptForm);
 end;

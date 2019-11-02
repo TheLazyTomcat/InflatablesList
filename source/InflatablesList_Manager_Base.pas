@@ -124,6 +124,7 @@ type
     // searching
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
+    procedure FindAll(const SearchSettings: TILAdvSearchSettings; out SearchResults: TILAdvSearchResults); virtual;
     // macro methods (broadcast to item objects)
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
@@ -932,6 +933,25 @@ If fCount > 0 then
         i := IL_IndexWrap(Succ(i),ItemLowIndex,ItemHighIndex);
       end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.FindAll(const SearchSettings: TILAdvSearchSettings; out SearchResults: TILAdvSearchResults);
+var
+  ResCntr:  Integer;
+  i:        Integer;
+  TempRes:  TILAdvSearchResult;
+begin
+ResCntr := 0;
+SetLength(SearchResults,fCount);
+For i := ItemLowIndex to ItemHighIndex do
+  If fList[i].FindAll(SearchSettings,TempRes) then
+    begin
+      SearchResults[ResCntr] := TempRes;
+      Inc(ResCntr);
+    end;
+SetLength(SearchResults,ResCntr);
 end;
 
 //------------------------------------------------------------------------------

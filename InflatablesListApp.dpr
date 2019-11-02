@@ -38,6 +38,7 @@ uses
   InflatablesList_Item_Utils in 'source\InflatablesList_Item_Utils.pas',
   InflatablesList_Item_Draw in 'source\InflatablesList_Item_Draw.pas',
   InflatablesList_Item_Comp in 'source\InflatablesList_Item_Comp.pas',
+  InflatablesList_Item_Search in 'source\InflatablesList_Item_Search.pas',  
   InflatablesList_Item_IO in 'source\InflatablesList_Item_IO.pas',
   InflatablesList_Item_IO_00000000 in 'source\InflatablesList_Item_IO_00000000.pas',
   InflatablesList_Item_IO_00000001 in 'source\InflatablesList_Item_IO_00000001.pas',

@@ -1175,6 +1175,7 @@ object frmItemFrame: TfrmItemFrame
     Left = 568
   end
   object pmnFlagMacros: TPopupMenu
+    Alignment = paRight
     Left = 464
     Top = 248
   end

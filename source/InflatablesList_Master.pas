@@ -198,7 +198,7 @@ If CanStart then
     // fMainForm.Finalize is called automatically in OnClose event (only when loading succeeded)
     fILStartMutex.ReleaseMutex;
   end
-else MessageDlg('Application failed to aquire start mutex.',mtError,[mbOK],0);
+else MessageDlg('Application is already running (only one instance is allowed at a time).',mtError,[mbOK],0);
 end;
 
 end.

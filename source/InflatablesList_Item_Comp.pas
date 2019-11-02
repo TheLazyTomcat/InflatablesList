@@ -10,12 +10,9 @@ uses
 
 type
   TILItem_Comp = class(TILItem_Draw)
-  public
+  public  
     Function Contains(const Text: String; Value: TILItemValueTag): Boolean; overload; virtual;
     Function Contains(const Text: String): Boolean; overload; virtual;
-    Function FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
-    Function FindNext(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
-    Function FindAll(const SearchSettings: TILSearchSettings; out SearchResult: TILSearchResult): Boolean; virtual; abstract;
     Function Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean; CaseSensitive: Boolean): Integer; virtual;
     procedure Filter(FilterSettings: TILFilterSettings); virtual;
   end;
@@ -127,44 +124,6 @@ Result :=
   Contains(Text,ilivtUnitPriceDefault) or
   Contains(Text,ilivtRating) or
   Contains(Text,ilivtSelectedShop);
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItem_Comp.FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; 
-var
-  i:  TILItemSearchResult;
-begin
-Result := ilisrNone;
-i := IL_WrapSearchResult(Pred(From));
-while i <> From do
-  begin
-    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
-      begin
-        Result := i;
-        Break{while...};
-      end;
-    i := IL_WrapSearchResult(Pred(i));
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItem_Comp.FindNext(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult;
-var
-  i:  TILItemSearchResult;
-begin
-Result := ilisrNone;
-i := IL_WrapSearchResult(Succ(From));
-while i <> From do
-  begin
-    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
-      begin
-        Result := i;
-        Break{while...};
-      end;
-    i := IL_WrapSearchResult(Succ(i));
-  end;
 end;
 
 //------------------------------------------------------------------------------

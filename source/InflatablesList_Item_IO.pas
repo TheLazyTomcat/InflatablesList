@@ -7,7 +7,7 @@ interface
 uses
   Classes, Graphics,
   AuxTypes,
-  InflatablesList_Item_Comp;
+  InflatablesList_Item_Search;
 
 const
   IL_ITEM_SIGNATURE = UInt32($4D455449);  // ITEM
@@ -25,7 +25,7 @@ const
   IL_ITEM_DECRYPT_CHECK = UInt64($53444E454D455449);  // ITEMENDS
 
 type
-  TILItem_IO = class(TILItem_Comp)
+  TILItem_IO = class(TILItem_Search)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;

@@ -1,6 +1,6 @@
 object fAdvancedSearchForm: TfAdvancedSearchForm
-  Left = 736
-  Top = 148
+  Left = 756
+  Top = 135
   BorderStyle = bsDialog
   Caption = 'Advanced search'
   ClientHeight = 528
@@ -13,6 +13,7 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object bvlHorSplit: TBevel
@@ -46,15 +47,15 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
       State = cbChecked
       TabOrder = 0
     end
-    object cbSearchComposites: TCheckBox
-      Left = 8
+    object cbSearchCalculated: TCheckBox
+      Left = 168
       Top = 36
       Width = 145
       Height = 17
-      Caption = 'Search composite values'
+      Caption = 'Search calculated values'
       Checked = True
       State = cbChecked
-      TabOrder = 3
+      TabOrder = 4
     end
     object cbCaseSensitive: TCheckBox
       Left = 168
@@ -65,14 +66,12 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
       TabOrder = 1
     end
     object cbSearchShops: TCheckBox
-      Left = 328
-      Top = 36
+      Left = 8
+      Top = 56
       Width = 113
       Height = 17
       Caption = 'Search item shops'
-      Checked = True
-      State = cbChecked
-      TabOrder = 5
+      TabOrder = 6
     end
     object cbTextsOnly: TCheckBox
       Left = 328
@@ -83,22 +82,30 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
       TabOrder = 2
     end
     object cbIncludeUnits: TCheckBox
-      Left = 168
+      Left = 328
       Top = 36
       Width = 121
       Height = 17
       Caption = 'Include unit symbols'
       Checked = True
       State = cbChecked
-      TabOrder = 4
+      TabOrder = 5
     end
     object cbDeepScan: TCheckBox
-      Left = 8
+      Left = 168
       Top = 56
       Width = 73
       Height = 17
       Caption = 'Deep scan'
-      TabOrder = 6
+      TabOrder = 7
+    end
+    object cbEditablesOnly: TCheckBox
+      Left = 8
+      Top = 36
+      Width = 153
+      Height = 17
+      Caption = 'Search only editable values'
+      TabOrder = 3
     end
   end
   object leTextToFind: TLabeledEdit
@@ -110,6 +117,7 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
     EditLabel.Height = 13
     EditLabel.Caption = 'Text to find:'
     TabOrder = 0
+    OnKeyPress = leTextToFindKeyPress
   end
   object btnSearch: TButton
     Left = 416
@@ -118,14 +126,22 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
     Height = 21
     Caption = 'Search'
     TabOrder = 1
+    OnClick = btnSearchClick
   end
   object meSearchResults: TMemo
     Left = 8
     Top = 160
     Width = 489
     Height = 361
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 3
+    WordWrap = False
   end
 end

@@ -496,6 +496,7 @@ fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
 fSplashForm.Initialize(fIlManager);
 fSaveForm.Initialize(fIlManager);
+fAdvancedSearchForm.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -519,6 +520,7 @@ fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
 fSplashForm.Finalize;
 fSaveForm.Finalize;
+fAdvancedSearchForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------

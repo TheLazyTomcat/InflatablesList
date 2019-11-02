@@ -70,7 +70,7 @@ object fMainForm: TfMainForm
     Panels = <
       item
         Alignment = taCenter
-        Width = 90
+        Width = 80
       end
       item
         Alignment = taRightJustify
@@ -83,7 +83,7 @@ object fMainForm: TfMainForm
         Width = 160
       end
       item
-        Width = 485
+        Width = 500
       end
       item
         Alignment = taRightJustify
@@ -98,6 +98,7 @@ object fMainForm: TfMainForm
     Width = 601
     Height = 646
     Style = lbOwnerDrawFixed
+    AutoComplete = False
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

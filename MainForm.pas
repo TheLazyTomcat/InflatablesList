@@ -27,9 +27,11 @@ type
     mniMML_Remove: TMenuItem;
     mniMML_Clear: TMenuItem;
     N3: TMenuItem;
+    mniMML_GoToItemNum: TMenuItem;
+    N4: TMenuItem;    
     mniMML_Sums: TMenuItem;
     mniMML_Overview: TMenuItem;
-    N4: TMenuItem;
+    N5: TMenuItem;
     mniMML_Rename: TMenuItem;
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
@@ -37,7 +39,7 @@ type
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N5: TMenuItem;
+    N6: TMenuItem;
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -49,7 +51,7 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMS_FindPrevValue: TMenuItem;
     mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
@@ -66,7 +68,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N7: TMenuItem;
+    N8: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -75,7 +77,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N8: TMenuItem;
+    N9: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -109,6 +111,7 @@ type
     procedure mniMML_AddCopyClick(Sender: TObject);
     procedure mniMML_RemoveClick(Sender: TObject);
     procedure mniMML_ClearClick(Sender: TObject);
+    procedure mniMML_GoToItemNumClick(Sender: TObject);    
     procedure mniMML_SumsClick(Sender: TObject);
     procedure mniMML_OverviewClick(Sender: TObject);
     procedure mniMML_NotesClick(Sender: TObject);
@@ -743,6 +746,7 @@ begin
 mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
 mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
 mniMML_Clear.Enabled := lbList.Count > 0;
+mniMML_GoToItemNum.Enabled := lbList.Count > 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -814,6 +818,30 @@ If lbList.Count > 0 then
       fILManager.ItemClear;
       UpdateIndexAndCount;
     end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_GoToItemNumClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If lbList.Count > 0 then
+  begin
+    Index := Succ(lbList.ItemIndex);
+    If (Index < 1) or (Index > lbList.Count) then
+      Index := 1;
+    If IL_InputQuery('Go to item #','Item number to go to:',Index,1,lbList.Count) then
+      begin
+        If (Index >= 1) and (Index <= lbList.Count) then
+          begin
+            lbList.ItemIndex := Pred(Index);
+            lbList.OnClick(nil);
+            lbList.SetFocus;
+          end
+        else MessageDlg(IL_Format('Invalid item number (%d).',[Index]),mtError,[mbOK],0);
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

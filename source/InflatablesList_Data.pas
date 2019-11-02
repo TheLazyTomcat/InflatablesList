@@ -58,6 +58,7 @@ type
     class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
     class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
     class Function GetAdvancedItemSearchResultString(SearchResult: TILAdvItemSearchResult): String; virtual;
+    class Function GetAdvancedShopSearchResultString(SearchResult: TILAdvShopSearchResult): String; virtual;
     constructor Create;
     destructor Destroy; override;
     property ItemManufacturerCount: Integer read GetItemManufacturerCount;
@@ -173,6 +174,12 @@ const
     'Total price','Available lowest','Available highest','Available selected',
     'Shop count','Shop count string','Useful shop count','Useful shop ratio',
     'Selected shop','Worst update result');
+
+  IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
+    'List index','Selected','Untracked','Alternative download method','Name',
+    'Shop URL','Item URL','Available','Price','Notes','Last update result',
+    'Last update message','Last update time','Available history',
+    'Price history','Parsing variables','Parsing settings');
 
 //==============================================================================
 
@@ -511,6 +518,16 @@ If (SearchResult >= Low(TILAdvItemSearchResult)) and (SearchResult <= High(TILAd
   Result := IL_DATA_ADVSEARCHRESULT_ITEM_STRS[SearchResult]
 else
   raise Exception.CreateFmt('TILDataProvider.GetAdvancedItemSearchResultString: Invalid search result (%d).',[Ord(SearchResult)]);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILDataProvider.GetAdvancedShopSearchResultString(SearchResult: TILAdvShopSearchResult): String;
+begin
+If (SearchResult >= Low(TILAdvShopSearchResult)) and (SearchResult <= High(TILAdvShopSearchResult)) then
+  Result := IL_DATA_ADVSEARCHRESULT_Shop_STRS[SearchResult]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetAdvancedShopSearchResultString: Invalid search result (%d).',[Ord(SearchResult)]);
 end;
 
 //------------------------------------------------------------------------------

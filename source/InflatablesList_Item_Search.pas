@@ -150,7 +150,7 @@ case Field of
   ilaisrUsefulShopCount:      Result := SearchCompare(IntToStr(ShopsUsefulCount),False,False,True);
   ilaisrUsefulShopRatio:      Result := SearchCompare(IL_Format('%f',[ShopsUsefulRatio]),False,False,True);
   ilaisrSelectedShop:         If ShopsSelected(SelShop) then
-                                Result := SearchCompare(SelShop.Name,True,False,False)
+                                Result := SearchCompare(SelShop.Name,True,True,False)
                               else
                                 Result := False;
   ilaisrWorstUpdateResult:    Result := SearchCompare(fDataProvider.GetShopUpdateResultString(ShopsWorstUpdateResult),False,False,True);
@@ -162,6 +162,8 @@ end;
 //------------------------------------------------------------------------------
 
 Function TILItem_Search.SearchShopField(Index: Integer; Shop: TILItemShop; Field: TILAdvShopSearchResult): Boolean;
+var
+  i:  Integer;
 begin
 // normal search
 case Field of
@@ -173,24 +175,58 @@ case Field of
   ilassrShopURL:            Result := SearchCompare(Shop.ShopURL,True,True,False);
   ilassrItemURL:            Result := SearchCompare(Shop.ItemURL,True,True,False);
   ilassrAvailable:          Result := SearchCompare(IntToStr(Shop.Available),False,True,False,'pcs');
-  ilassrPrice:              Result := SearchCompare(IntToStr(Shop.Price),False,True,False,'Kè');  
+  ilassrPrice:              Result := SearchCompare(IntToStr(Shop.Price),False,True,False,'Kè');
   ilassrNotes:              Result := SearchCompare(Shop.Notes,True,True,False);
   ilassrLastUpdResult:      Result := SearchCompare(fDataProvider.GetShopUpdateResultString(Shop.LastUpdateRes),False,False,False);
   ilassrLastUpdMessage:     Result := SearchCompare(Shop.LastUpdateMsg,True,False,False);
   ilassrLastUpdTime:        Result := SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.LastUpdateTime),False,False,False);
 else
-  Result := False;
+  // deep search...
+  If fCurrentSearchSettings.DeepScan then
+    case Field of
+      ilassrAvailHistory:
+        begin
+          Result := False;
+          For i := 0 to Pred(Shop.AvailHistoryEntryCount) do
+            If SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.AvailHistoryEntries[i].Time),False,False,False) or
+               SearchCompare(IntToStr(Shop.AvailHistoryEntries[i].Value),False,False,False,'pcs') then
+              begin
+                Result := True;
+                Break{For i};
+              end;
+        end;
+      ilassrPriceHistory:
+        begin
+          Result := False;
+          For i := 0 to Pred(Shop.PriceHistoryEntryCount) do
+            If SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.PriceHistoryEntries[i].Time),False,False,False) or
+               SearchCompare(IntToStr(Shop.PriceHistoryEntries[i].Value),False,False,False,'Kè') then
+              begin
+                Result := True;
+                Break{For i};
+              end;
+        end;
+      ilassrParsingVariables:
+        begin
+          Result := False;
+          For i := 0 to Pred(Shop.ParsingSettings.VariableCount) do
+            If SearchCompare(Shop.ParsingSettings.Variables[i],True,True,False) then
+              begin
+                Result := True;
+                Break{For i};
+              end;
+        end;
+      ilassrParsingSettings:
+        begin
+          Result := False;
+          // resolve parsing settings reference
+          //Shop.ParsingSettings.
+        end;
+    else
+      Result := False;
+    end
+  else Result := False;
 end;
-// deep search...
-If fCurrentSearchSettings.DeepScan then
-  case Field of
-    ilassrAvailhistory,
-    ilassrPriceHistory:;
-  //ilassrParsingVariables  
-  //ilassrParsingSettings,    
-  else
-    Result := False;
-  end;
 end;
 
 //==============================================================================

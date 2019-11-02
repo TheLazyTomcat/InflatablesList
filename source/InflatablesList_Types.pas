@@ -170,7 +170,6 @@ type
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
-{$message 'wip'}
 type
   TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
     ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,ilaisrPieces,
@@ -196,10 +195,8 @@ type
   TILAdvShopSearchResult = (ilassrListIndex,ilassrSelected,ilassrUntracked,
     ilassrAltDownMethod,ilassrName,ilassrShopURL,ilassrItemURL,ilassrAvailable,
     ilassrPrice,ilassrNotes,ilassrLastUpdResult,ilassrLastUpdMessage,
-    ilassrLastUpdTime,
-    {deep scan...}
-    ilassrAvailhistory,ilassrPriceHistory,ilassrParsingVariables,
-    ilassrParsingSettings);
+    ilassrLastUpdTime,{deep scan...}ilassrAvailHistory,ilassrPriceHistory,
+    ilassrParsingVariables,ilassrParsingSettings);
 
   TILAdvShopSearchResults = set of TILAdvShopSearchResult;
 

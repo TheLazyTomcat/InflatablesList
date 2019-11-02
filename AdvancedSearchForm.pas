@@ -50,50 +50,79 @@ uses
 
 procedure TfAdvancedSearchForm.CreateReport(SearchResults: TILAdvSearchResults);
 var
-  i:  Integer;
-  j:  TILAdvItemSearchResult;
+  i,j:  Integer;
+  ISR:  TILAdvItemSearchResult;
+  SSR:  TILAdvShopSearchResult;
 begin
-meSearchResults.Lines.BeginUpdate;
+Screen.Cursor := crHourGlass;
 try
-  meSearchResults.Lines.Add(IL_Format('Search report %s',[IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Now)]));
-  meSearchResults.Lines.Add('');
-  meSearchResults.Lines.Add(IL_Format('  Searched string: "%s"',[leTextToFind.Text]));
-  meSearchResults.Lines.Add(IL_Format('  Search settings: %s',['<<<todo>>>']));
-  meSearchResults.Lines.Add('');
-  meSearchResults.Lines.Add(IL_Format('Found in %d item(s)...',[Length(SearchResults)]));
-  meSearchResults.Lines.Add('');
-  If Length(SearchResults) > 0 then
-    meSearchResults.Lines.Add(IL_StringOfChar('-',60));
-  For i := Low(SearchResults) to High(SearchResults) do
-    begin
-      If i > 0 then
-        begin
-          meSearchResults.Lines.Add('');
-          meSearchResults.Lines.Add(IL_StringOfChar('-',60));
-        end;
-      meSearchResults.Lines.Add(IL_Format('[%d] Item #%d - %s',
-        [i,SearchResults[i].ItemIndex + 1,fILManager[SearchResults[i].ItemIndex].TitleStr]));
-      // item values
-      If SearchResults[i].ItemValue <> [] then
-        begin
-          meSearchResults.Lines.Add('');        
-          meSearchResults.Lines.Add('Found in values:');
-          meSearchResults.Lines.Add('');
-          For j := Low(TILAdvItemSearchResult) to High(TILAdvItemSearchResult) do
-            If j in SearchResults[i].ItemValue then
-              meSearchResults.Lines.Add('  ' + fILManager.DataProvider.GetAdvancedItemSearchResultString(j));
-        end;
-      // item shop values
-      If Length(SearchResults[i].Shops) > 0 then
-        begin
-          meSearchResults.Lines.Add('');
-          meSearchResults.Lines.Add(IL_Format('Found in shops(%d):',[Length(SearchResults[i].Shops)]));
-          meSearchResults.Lines.Add('');
-          {$message 'implement'}
-        end;
-    end;
+  meSearchResults.Lines.BeginUpdate;
+  try
+    meSearchResults.Lines.Add(IL_Format('Search report %s',[IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Now)]));
+    meSearchResults.Lines.Add('');
+    meSearchResults.Lines.Add(IL_Format('  Searched string: "%s"',[leTextToFind.Text]));
+    meSearchResults.Lines.Add('');
+    meSearchResults.Lines.Add('  Search settings:');
+    meSearchResults.Lines.Add('');
+    meSearchResults.Lines.Add(IL_Format('    %s Allow partial match',[IL_BoolToStr(cbPartialMatch.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Case sensitive comparisons',[IL_BoolToStr(cbCaseSensitive.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Search only textual values',[IL_BoolToStr(cbTextsOnly.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Search only editable values',[IL_BoolToStr(cbEditablesOnly.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Search calculated values',[IL_BoolToStr(cbSearchCalculated.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Include unit symbols',[IL_BoolToStr(cbIncludeUnits.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Search item shops',[IL_BoolToStr(cbSearchShops.Checked,'-','+')]));
+    meSearchResults.Lines.Add(IL_Format('    %s Deep scan',[IL_BoolToStr(cbDeepScan.Checked,'-','+')]));
+    meSearchResults.Lines.Add('');
+    meSearchResults.Lines.Add(IL_Format('Found in %d item(s)...',[Length(SearchResults)]));
+    meSearchResults.Lines.Add('');
+    If Length(SearchResults) > 0 then
+      meSearchResults.Lines.Add(IL_StringOfChar('-',60));
+    For i := Low(SearchResults) to High(SearchResults) do
+      begin
+        If i > 0 then
+          begin
+            meSearchResults.Lines.Add('');
+            meSearchResults.Lines.Add(IL_StringOfChar('-',60));
+          end;
+        meSearchResults.Lines.Add('');  
+        meSearchResults.Lines.Add(IL_Format('[%d] Item #%d - %s',
+         [i,SearchResults[i].ItemIndex + 1,fILManager[SearchResults[i].ItemIndex].TitleStr]));
+        // item values
+        If SearchResults[i].ItemValue <> [] then
+          begin
+            meSearchResults.Lines.Add('');
+            For ISR := Low(TILAdvItemSearchResult) to High(TILAdvItemSearchResult) do
+              If ISR in SearchResults[i].ItemValue then
+                meSearchResults.Lines.Add('  ' + fILManager.DataProvider.GetAdvancedItemSearchResultString(ISR));
+          end;
+        // item shop values
+        If Length(SearchResults[i].Shops) > 0 then
+          begin
+            meSearchResults.Lines.Add('');
+            meSearchResults.Lines.Add(IL_Format('Found in shops(%d):',[Length(SearchResults[i].Shops)]));
+            meSearchResults.Lines.Add('');
+            For j := Low(SearchResults[i].Shops) to High(SearchResults[i].Shops) do
+              begin
+                If j > 0 then
+                  meSearchResults.Lines.Add('');
+                meSearchResults.Lines.Add(IL_Format('  [%d] Shop #%d - %s',[j,SearchResults[i].Shops[j].ShopIndex,
+                  fILManager[SearchResults[i].ItemIndex][SearchResults[i].Shops[j].ShopIndex].Name]));
+                If SearchResults[i].Shops[j].ShopValue <> [] then
+                  begin
+                    meSearchResults.Lines.Add('');
+                    // values
+                    For SSR := Low(TILAdvShopSearchResult) to High(TILAdvShopSearchResult) do
+                      If SSR in SearchResults[i].Shops[j].ShopValue then
+                        meSearchResults.Lines.Add('    ' + fILManager.DataProvider.GetAdvancedShopSearchResultString(SSR));
+                  end;
+              end;
+          end;
+      end;
+  finally
+    meSearchResults.Lines.EndUpdate;
+  end;
 finally
-  meSearchResults.Lines.EndUpdate;
+  Screen.Cursor := crDefault;
 end;
 end;
 

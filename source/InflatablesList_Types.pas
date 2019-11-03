@@ -171,6 +171,8 @@ type
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
 type
+  TILAdvSearchCompareFunc = Function(const Value: String; IsText,IsEditable,IsCalculated: Boolean; const UnitStr: String = ''): Boolean of object;
+
   TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
     ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,ilaisrPieces,
     ilaisrManufacturer,ilaisrManufacturerStr,ilaisrTextID,ilaisrNumID,
@@ -196,7 +198,7 @@ type
     ilassrAltDownMethod,ilassrName,ilassrShopURL,ilassrItemURL,ilassrAvailable,
     ilassrPrice,ilassrNotes,ilassrLastUpdResult,ilassrLastUpdMessage,
     ilassrLastUpdTime,{deep scan...}ilassrAvailHistory,ilassrPriceHistory,
-    ilassrParsingVariables,ilassrParsingSettings);
+    ilassrParsingVariables,ilassrIgnoreParsErrors,ilassrParsingTemplateRef);
 
   TILAdvShopSearchResults = set of TILAdvShopSearchResult;
 

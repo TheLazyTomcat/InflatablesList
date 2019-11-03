@@ -15,7 +15,6 @@ type
     fCurrentSearchSettings: TILAdvSearchSettings;
     Function SearchCompare(const Value: String; IsText,IsEditable,IsCalculated: Boolean; const UnitStr: String = ''): Boolean; virtual;
     Function SearchField(Field: TILAdvItemSearchResult): Boolean; virtual;
-    Function SearchShopField(Index: Integer; Shop: TILItemShop; Field: TILAdvShopSearchResult): Boolean; virtual;
   public
     Function FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
     Function FindNext(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult; virtual;
@@ -159,76 +158,6 @@ else
 end;
 end;
 
-//------------------------------------------------------------------------------
-
-Function TILItem_Search.SearchShopField(Index: Integer; Shop: TILItemShop; Field: TILAdvShopSearchResult): Boolean;
-var
-  i:  Integer;
-begin
-// normal search
-case Field of
-  ilassrListIndex:          Result := SearchCompare(IntToStr(Index),False,False,False);
-  ilassrSelected:           Result := Shop.Selected and SearchCompare('Selected',False,True,False);
-  ilassrUntracked:          Result := Shop.Untracked and SearchCompare('Untracked',False,True,False);
-  ilassrAltDownMethod:      Result := Shop.AltDownMethod and SearchCompare('Alternative download method',False,True,False);
-  ilassrName:               Result := SearchCompare(Shop.Name,True,True,False);
-  ilassrShopURL:            Result := SearchCompare(Shop.ShopURL,True,True,False);
-  ilassrItemURL:            Result := SearchCompare(Shop.ItemURL,True,True,False);
-  ilassrAvailable:          Result := SearchCompare(IntToStr(Shop.Available),False,True,False,'pcs');
-  ilassrPrice:              Result := SearchCompare(IntToStr(Shop.Price),False,True,False,'Kè');
-  ilassrNotes:              Result := SearchCompare(Shop.Notes,True,True,False);
-  ilassrLastUpdResult:      Result := SearchCompare(fDataProvider.GetShopUpdateResultString(Shop.LastUpdateRes),False,False,False);
-  ilassrLastUpdMessage:     Result := SearchCompare(Shop.LastUpdateMsg,True,False,False);
-  ilassrLastUpdTime:        Result := SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.LastUpdateTime),False,False,False);
-else
-  // deep search...
-  If fCurrentSearchSettings.DeepScan then
-    case Field of
-      ilassrAvailHistory:
-        begin
-          Result := False;
-          For i := 0 to Pred(Shop.AvailHistoryEntryCount) do
-            If SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.AvailHistoryEntries[i].Time),False,False,False) or
-               SearchCompare(IntToStr(Shop.AvailHistoryEntries[i].Value),False,False,False,'pcs') then
-              begin
-                Result := True;
-                Break{For i};
-              end;
-        end;
-      ilassrPriceHistory:
-        begin
-          Result := False;
-          For i := 0 to Pred(Shop.PriceHistoryEntryCount) do
-            If SearchCompare(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',Shop.PriceHistoryEntries[i].Time),False,False,False) or
-               SearchCompare(IntToStr(Shop.PriceHistoryEntries[i].Value),False,False,False,'Kè') then
-              begin
-                Result := True;
-                Break{For i};
-              end;
-        end;
-      ilassrParsingVariables:
-        begin
-          Result := False;
-          For i := 0 to Pred(Shop.ParsingSettings.VariableCount) do
-            If SearchCompare(Shop.ParsingSettings.Variables[i],True,True,False) then
-              begin
-                Result := True;
-                Break{For i};
-              end;
-        end;
-      ilassrParsingSettings:
-        begin
-          Result := False;
-          // resolve parsing settings reference
-          //Shop.ParsingSettings.
-        end;
-    else
-      Result := False;
-    end
-  else Result := False;
-end;
-end;
-
 //==============================================================================
 
 Function TILItem_Search.FindPrev(const Text: String; From: TILItemSearchResult = ilisrNone): TILItemSearchResult;
@@ -293,7 +222,7 @@ If fCurrentSearchSettings.SearchShops then
     For i := ShopLowIndex to ShopHighIndex do
       begin
         For ShopField := Low(TILAdvShopSearchResult) to High(TILAdvShopSearchResult) do
-          If SearchShopField(i,fShops[i],ShopField) then
+          If fShops[i].SearchField(i,ShopField,fCurrentSearchSettings.DeepScan,SearchCompare) then
             Include(SearchResult.Shops[ShopCntr].ShopValue,ShopField);
         If SearchResult.Shops[ShopCntr].ShopValue <> [] then
           begin

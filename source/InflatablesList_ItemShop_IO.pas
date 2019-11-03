@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_ItemShop_Update;
+  InflatablesList_ItemShop_Search;
 
 const
   IL_ITEMSHOP_SIGNATURE = UInt32($504F4853);  // SHOP
@@ -18,7 +18,7 @@ const
   IL_ITEMSHOP_STREAMSTRUCTURE_SAVE = IL_ITEMSHOP_STREAMSTRUCTURE_00000001;
 
 type
-  TILItemShop_IO = class(TILItemShop_Update)
+  TILItemShop_IO = class(TILItemShop_Search)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;

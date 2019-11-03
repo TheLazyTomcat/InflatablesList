@@ -7,7 +7,7 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_ItemShopParsingSettings_Base;
+  InflatablesList_ItemShopParsingSettings_Search;
 
 const
   IL_SHOPPARSSETT_SIGNATURE = UInt32($53524150);  // PARS
@@ -18,7 +18,7 @@ const
   IL_SHOPPARSSETT_STREAMSTRUCTURE_SAVE = IL_SHOPPARSSETT_STREAMSTRUCTURE_00000001;
 
 type
-  TILItemShopParsingSettings_IO = class(TILItemShopParsingSettings_Base)
+  TILItemShopParsingSettings_IO = class(TILItemShopParsingSettings_Search)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;

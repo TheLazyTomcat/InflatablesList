@@ -14,6 +14,7 @@ uses
     TILItem_Utils
     TILItem_Draw
     TILItem_Comp
+    TILItem_Search
     TILItem_IO
     TILItem_IO_00000000
     TILItem_IO_00000001

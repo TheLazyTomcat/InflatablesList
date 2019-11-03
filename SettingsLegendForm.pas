@@ -58,7 +58,7 @@ const
   DYN_SETTINGS_DESCRS: array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of String = (
     'List will be saved compressed (reduced size). Can significantly slow down saving and loading. Applied before encryption.',
     'List will be ecnrypted using provided list password. Can slow down saving and loading of the list.',
-    'List will be automatically saved when you close the program. Has no effect when you close the program using command "Close without saving" or you start it with command-line parameter no_save.',
+    'List will be automatically saved when you close the program. Has no effect when you close the program using command "Close without saving" or when you start it with command-line parameter no_save.',
     'List will be sorted in reversed order (Z..A, 9..0). Does not affect ordering by values, only final global order.',
     'When comparing two strings (textual values) for ordering, the comparison is done with case sensitivity.');
   LABELS_SPACE = 8;

@@ -287,10 +287,12 @@ uses
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
 
-  IL_FLAGMACRO_CAPTIONS: array[0..2] of String = (
+  IL_FLAGMACRO_CAPTIONS: array[0..4] of String = (
     'Ordered item received',
     'Starting item testing',
-    'Testing of item is finished');
+    'Testing of item is finished',
+    'Damage has been repaired',
+    'Price and availability change checked');
 
 //==============================================================================
 
@@ -1636,8 +1638,7 @@ procedure TfrmItemFrame.btnFlagMacrosClick(Sender: TObject);
 var
   ScreenPoint:  TPoint;
 begin
-ScreenPoint := btnFlagMacros.ClientToScreen(
-  Point(0,btnFlagMacros.Height));
+ScreenPoint := btnFlagMacros.ClientToScreen(Point(btnFlagMacros.Width,btnFlagMacros.Height));
 pmnFlagMacros.Popup(ScreenPoint.X,ScreenPoint.Y);
 end;
 
@@ -1647,7 +1648,8 @@ procedure TfrmItemFrame.CommonFlagMacroClick(Sender: TObject);
 begin
 If (Sender is TMenuItem) and Assigned(fCurrentItem) then
   case TMenuItem(Sender).Tag of
-    0:  If [ilifWanted,ilifOrdered] <= fCurrentItem.Flags then  // ordered item received
+        // ordered item received
+    0:  If [ilifWanted,ilifOrdered] <= fCurrentItem.Flags then
           begin
             fCurrentItem.BeginUpdate;
             try
@@ -1659,7 +1661,8 @@ If (Sender is TMenuItem) and Assigned(fCurrentItem) then
               fCurrentItem.EndUpdate;
             end;
           end;
-    1:  If ilifUntested in fCurrentItem.Flags then  // starting item testing
+        // starting item testing
+    1:  If ilifUntested in fCurrentItem.Flags then
           begin
             fCurrentItem.BeginUpdate;
             try
@@ -1669,12 +1672,35 @@ If (Sender is TMenuItem) and Assigned(fCurrentItem) then
               fCurrentItem.EndUpdate;
             end;
           end;
-    2:  If ilifTesting in fCurrentItem.Flags then // testing of item is finished
+        // testing of item is finished
+    2:  If ilifTesting in fCurrentItem.Flags then
           begin
             fCurrentItem.BeginUpdate;
             try
               fCurrentItem.SetFlagValue(ilifTesting,False);
               fCurrentItem.SetFlagValue(ilifTested,True);
+            finally
+              fCurrentItem.EndUpdate;
+            end;
+          end;
+        // damage has been repaired
+    3:  If ilifDamaged in fCurrentItem.Flags then
+          begin
+            fCurrentItem.BeginUpdate;
+            try
+              fCurrentItem.SetFlagValue(ilifDamaged,False);
+              fCurrentItem.SetFlagValue(ilifRepaired,True);
+            finally
+              fCurrentItem.EndUpdate;
+            end;
+          end;
+        // price and availability change checked
+    4:  If [ilifPriceChange,ilifAvailChange] <= fCurrentItem.Flags then
+          begin
+            fCurrentItem.BeginUpdate;
+            try
+              fCurrentItem.SetFlagValue(ilifPriceChange,False);
+              fCurrentItem.SetFlagValue(ilifAvailChange,False);
             finally
               fCurrentItem.EndUpdate;
             end;

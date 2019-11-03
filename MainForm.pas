@@ -224,6 +224,7 @@ uses
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
+  AdvancedSearchForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils;
@@ -498,6 +499,7 @@ fSettingsLegendForm.Initialize(fIlManager);
 fAboutForm.Initialize(fIlManager);
 fSplashForm.Initialize(fIlManager);
 fSaveForm.Initialize(fIlManager);
+fAdvancedSearchForm.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -521,6 +523,7 @@ fSettingsLegendForm.Finalize;
 fAboutForm.Finalize;
 fSplashForm.Finalize;
 fSaveForm.Finalize;
+fAdvancedSearchForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -1155,7 +1158,7 @@ end;
 
 procedure TfMainForm.mniMMS_AdvSearchClick(Sender: TObject);
 begin
-{$message 'implement'}
+fAdvancedSearchForm.ShowAdvancedSearch;
 end;
 
 //------------------------------------------------------------------------------

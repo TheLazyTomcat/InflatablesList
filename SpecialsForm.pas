@@ -23,6 +23,7 @@ type
     btnRemoveShops: TButton;
     cbCloseWhenDone: TCheckBox;
     btnRemShopsFromOwned: TButton;
+    btnRemoveWLFromOwned: TButton;
     procedure btnClearTextTagsClick(Sender: TObject);
     procedure btnClearParsingClick(Sender: TObject);
     procedure btnSetAltDownMethodClick(Sender: TObject);
@@ -33,6 +34,7 @@ type
     procedure btnReplaceTextTagClick(Sender: TObject);
     procedure btnRemoveShopsClick(Sender: TObject);
     procedure btnRemShopsFromOwnedClick(Sender: TObject);
+    procedure btnRemoveWLFromOwnedClick(Sender: TObject);
   private
     fILManager: TILManager;
   protected
@@ -199,6 +201,18 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If ilifOwned in fILManager[i].Flags then
     fILManager[i].ShopClear;
+ProcessingDone;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnRemoveWLFromOwnedClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If ilifOwned in fILManager[i].Flags then
+    fILManager[i].WantedLevel := 0;
 ProcessingDone;
 end;
 

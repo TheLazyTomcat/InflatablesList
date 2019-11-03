@@ -114,15 +114,13 @@ type
     Function ItemLowIndex: Integer; virtual;
     Function ItemHighIndex: Integer; virtual;
     // list manipulation
+    Function ItemIndexOf(ItemUniqueID: TGUID): Integer; virtual;
     Function ItemAddEmpty: Integer; virtual;
     Function ItemAddCopy(SrcIndex: Integer): Integer; virtual;
     procedure ItemExchange(Idx1,Idx2: Integer); virtual;
     procedure ItemMove(Src,Dst: Integer); virtual;
     procedure ItemDelete(Index: Integer); virtual;
     procedure ItemClear; virtual;
-    // searching
-    Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
-    Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     // macro methods (broadcast to item objects)
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
@@ -725,6 +723,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILManager_Base.ItemIndexOf(ItemUniqueID: TGUID): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+For i := ItemLowIndex to ItemHighIndex do
+  If IsEqualGUID(ItemUniqueID,fList[i].UniqueID) then
+    begin
+      Result := i;
+      Break{For i};
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
 Function TILManager_Base.ItemAddEmpty: Integer;
 begin
 Grow;
@@ -872,50 +885,6 @@ For i := ItemLowIndex to ItemHighIndex do
 fCount := 0;
 Shrink;
 UpdateList;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Base.FindPrev(const Text: String; FromIndex: Integer = -1): Integer;
-var
-  i:  Integer;
-begin
-Result := -1;
-If fCount > 0 then
-  begin
-    i := IL_IndexWrap(Pred(FromIndex),ItemLowIndex,ItemHighIndex);
-    while i <> FromIndex do
-      begin
-        If fList[i].Contains(Text) then
-          begin
-            Result := i;
-            Break{while...};
-          end;
-        i := IL_IndexWrap(Pred(i),ItemLowIndex,ItemHighIndex);
-      end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Base.FindNext(const Text: String; FromIndex: Integer = -1): Integer;
-var
-  i:  Integer;
-begin
-Result := -1;
-If fCount > 0 then
-  begin
-    i := IL_IndexWrap(Succ(FromIndex),ItemLowIndex,ItemHighIndex);
-    while i <> FromIndex do
-      begin
-        If fList[i].Contains(Text) then
-          begin
-            Result := i;
-            Break{while...};
-          end;
-        i := IL_IndexWrap(Succ(i),ItemLowIndex,ItemHighIndex);
-      end;
-  end;
 end;
 
 //------------------------------------------------------------------------------

@@ -8,7 +8,7 @@ uses
   Classes,
   AuxTypes,
   InflatablesList_Types,
-  InflatablesList_Manager_Templates;
+  InflatablesList_Manager_Search;
 
 const
   IL_LISTFILE_SIGNATURE = UInt32($4C464E49);  // signature of the list file
@@ -47,7 +47,7 @@ const
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
 type
-  TILManager_IO = class(TILManager_Templates)
+  TILManager_IO = class(TILManager_Search)
   protected
     fFNSaveToStream:        procedure(Stream: TStream) of object;
     fFNLoadFromStream:      procedure(Stream: TStream) of object;

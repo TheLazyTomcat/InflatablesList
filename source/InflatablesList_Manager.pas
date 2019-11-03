@@ -14,6 +14,7 @@ uses
     TILManager_Sort
     TILManager_Filter
     TILManager_Templates
+    TILManager_Search
     TILManager_IO
     TILManager_IO_Threaded
     TILManager_IO_00000008

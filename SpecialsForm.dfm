@@ -34,7 +34,7 @@ object fSpecialsForm: TfSpecialsForm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 13
+    TabOrder = 14
   end
   object btnClearTextTags: TButton
     Left = 8
@@ -145,7 +145,7 @@ object fSpecialsForm: TfSpecialsForm
     Caption = 'Close when done'
     Checked = True
     State = cbChecked
-    TabOrder = 12
+    TabOrder = 13
   end
   object btnRemShopsFromOwned: TButton
     Left = 160
@@ -155,5 +155,14 @@ object fSpecialsForm: TfSpecialsForm
     Caption = 'Rem. shops from owned'
     TabOrder = 11
     OnClick = btnRemShopsFromOwnedClick
+  end
+  object btnRemoveWLFromOwned: TButton
+    Left = 312
+    Top = 160
+    Width = 145
+    Height = 25
+    Caption = 'Rem. W.L. from owned'
+    TabOrder = 12
+    OnClick = btnRemoveWLFromOwnedClick
   end
 end

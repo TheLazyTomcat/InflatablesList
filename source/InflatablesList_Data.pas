@@ -54,8 +54,11 @@ type
     class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
     class Function GetItemFlagString(ItemFlag: TILItemFlag): String; virtual;
     class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
+    class Function GetShopUpdateResultString(UpdateResult: TILItemShopUpdateResult): String; virtual;
     class Function GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String; virtual;
     class Function GetShopParsingExtractMethodString(ExtractMethod: TILItemShopParsingExtrMethod): String; virtual;
+    class Function GetAdvancedItemSearchResultString(SearchResult: TILAdvItemSearchResult): String; virtual;
+    class Function GetAdvancedShopSearchResultString(SearchResult: TILAdvShopSearchResult): String; virtual;
     constructor Create;
     destructor Destroy; override;
     property ItemManufacturerCount: Integer read GetItemManufacturerCount;
@@ -108,7 +111,7 @@ const
   IL_DATA_ITEMFLAG_STRS: array[TILItemFlag] of String = (
     'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
     'Tested','Damaged','Repaired','Price change','Available change',
-    'Not Available','Lost','Discarded');     
+    'Not Available','Lost','Discarded');
 
   IL_DATA_ITEMFLAGICON_RESNAMES: array[TILItemFlag] of String = (
     'flag_icon_owned','flag_icon_wanted','flag_icon_ordered','flag_icon_boxed',
@@ -135,6 +138,10 @@ const
     'Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
+  IL_DATA_SHOPUPDATERESULT_STRS: array[TILItemShopUpdateResult] of String = (
+    'Success','Mild success','Data fail','Soft fail','Hard fail',
+    'Download fail','Parsing fail','Fatal error');
+
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
     'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles','def_pic_ball',
     'def_pic_rider','def_pic_lounger','def_pic_lounger_chair','def_pic_chair',
@@ -148,6 +155,33 @@ const
   IL_DATA_SHOPPARSING_EXTRACTMETHOD: array[TILItemShopParsingExtrMethod] of String = (
     'First integer','First integer, tagged','Negative tag is count',
     'First number','First number tagged');
+
+  IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
+    'List index','Unique ID','Time of addition','Title','Type',
+    'Type specification','Type string','Pieces','Manufacturer',
+    'Manufacturer string','Text ID','Numerical ID','ID string','Flags',
+    'Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
+    'Flag - Elsewhere','Flag - Untested','Flag - Iesting','Flag - Tested',
+    'Flag - Damaged','Flag - Rrepaired','Flag  - Price change',
+    'Flag - Availability change','Flag - Not available','Flag - Lost',
+    'Flag - Discarded','Textual tag','Numerical tag','Wanted level','Variant',
+    'Material','Size X','Size Y','Size Z','Total size','Size string',
+    'Unit weight','Total weight','Total weight string','Thickness','Notes',
+    'Review URL','Main picture file','Secondary picture file',
+    'Package picture file','Unit price default','Rating','Unit price',
+    'Unit price lowest','Total price lowest','Unit price highest',
+    'Total price highest','Unit price selected','Total price selected',
+    'Total price','Available lowest','Available highest','Available selected',
+    'Shop count','Shop count string','Useful shop count','Useful shop ratio',
+    'Selected shop','Worst update result');
+
+  IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
+    'List index','Selected','Untracked','Alternative download method','Name',
+    'Shop URL','Item URL','Available','Price','Notes','Last update result',
+    'Last update message','Last update time','Parsing variables',
+    'Parsing template reference','Ignore parsing errors','Available history',
+    'Price history','Available extraction settings','Price extraction settings',
+    'Available parsing finder','Price parsing finder');
 
 //==============================================================================
 
@@ -450,6 +484,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+class Function TILDataProvider.GetShopUpdateResultString(UpdateResult: TILItemShopUpdateResult): String;
+begin
+If (UpdateResult >= Low(TILItemShopUpdateResult)) and (UpdateResult <= High(TILItemShopUpdateResult)) then
+  Result := IL_DATA_SHOPUPDATERESULT_STRS[UpdateResult]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetShopUpdateResultString: Invalid shop update result (%d).',[Ord(UpdateResult)]);
+end;
+
+//------------------------------------------------------------------------------
+
 class Function TILDataProvider.GetShopParsingExtractFromString(ExtractFrom: TILItemShopParsingExtrFrom): String;
 begin
 If (ExtractFrom >= Low(TILItemShopParsingExtrFrom)) and (ExtractFrom <= High(TILItemShopParsingExtrFrom)) then
@@ -466,6 +510,26 @@ If (ExtractMethod >= Low(TILItemShopParsingExtrMethod)) and (ExtractMethod <= Hi
   Result := IL_DATA_SHOPPARSING_EXTRACTMETHOD[ExtractMethod]
 else
   raise Exception.CreateFmt('TILDataProvider.GetShopParsingExtractMethodString: Invalid extraction method (%d).',[Ord(ExtractMethod)]);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILDataProvider.GetAdvancedItemSearchResultString(SearchResult: TILAdvItemSearchResult): String;
+begin
+If (SearchResult >= Low(TILAdvItemSearchResult)) and (SearchResult <= High(TILAdvItemSearchResult)) then
+  Result := IL_DATA_ADVSEARCHRESULT_ITEM_STRS[SearchResult]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetAdvancedItemSearchResultString: Invalid search result (%d).',[Ord(SearchResult)]);
+end;
+
+//------------------------------------------------------------------------------
+
+class Function TILDataProvider.GetAdvancedShopSearchResultString(SearchResult: TILAdvShopSearchResult): String;
+begin
+If (SearchResult >= Low(TILAdvShopSearchResult)) and (SearchResult <= High(TILAdvShopSearchResult)) then
+  Result := IL_DATA_ADVSEARCHRESULT_Shop_STRS[SearchResult]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetAdvancedShopSearchResultString: Invalid search result (%d).',[Ord(SearchResult)]);
 end;
 
 //------------------------------------------------------------------------------

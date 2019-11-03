@@ -39,9 +39,10 @@ implementation
 uses
   SysUtils,
   Forms, Dialogs,
-  MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm, BackupsForm,
-  UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm, PromptForm, SaveForm,
+  MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm,
+  ItemSelectForm, BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm,
+  SplashForm, PromptForm, SaveForm, AdvancedSearchForm,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
@@ -95,6 +96,7 @@ Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
 Application.CreateForm(TfAboutForm, fAboutForm);
 Application.CreateForm(TfSplashForm, fSplashForm);
 Application.CreateForm(TfSaveForm, fSaveForm);
+Application.CreateForm(TfAdvancedSearchForm, fAdvancedSearchForm);
 // do not automatically create prompt form
 //Application.CreateForm(TfPromptForm, fPromptForm);
 end;
@@ -196,7 +198,7 @@ If CanStart then
     // fMainForm.Finalize is called automatically in OnClose event (only when loading succeeded)
     fILStartMutex.ReleaseMutex;
   end
-else MessageDlg('Application failed to aquire start mutex.',mtError,[mbOK],0);
+else MessageDlg('Application is already running (only one instance is allowed at a time).',mtError,[mbOK],0);
 end;
 
 end.

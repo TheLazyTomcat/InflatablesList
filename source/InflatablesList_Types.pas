@@ -170,17 +170,70 @@ type
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
-{$message 'wip'}
 type
-  TILSrcResItemValue = (srifNone);
-  TILSrcResShopValue = (srsfNone);
+  TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
+    ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,ilaisrPieces,
+    ilaisrManufacturer,ilaisrManufacturerStr,ilaisrTextID,ilaisrNumID,
+    ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,ilaisrFlagOrdered,
+    ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,ilaisrFlagTesting,
+    ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,ilaisrFlagPriceChange,
+    ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
+    ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
+    ilaisrVariant,ilaisrMaterial,ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,
+    ilaisrTotalSize,ilaisrSizeStr,ilaisrUnitWeight,ilaisrTotalWeight,
+    ilaisrTotalWeightStr,ilaisrThickness,ilaisrNotes,ilaisrReviewURL,
+    ilaisrMainPictureFile,ilaisrSecondaryPictureFile,ilaisrPackagePictureFile,
+    ilaisrUnitPriceDefault,ilaisrRating,ilaisrUnitPrice,ilaisrUnitPriceLowest,
+    ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,
+    ilaisrUnitPriceSel,ilaisrTotalPriceSel,ilaisrTotalPrice,
+    ilaisrAvailableLowest,ilaisrAvailableHighest,ilaisrAvailableSel,
+    ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
+    ilaisrUsefulShopRatio,ilaisrSelectedShop,ilaisrWorstUpdateResult);
 
-  TILSearchResult = record
-    ItemIndex:  Integer;
-    ItemValue:  TILSrcResItemValue;
-    ShopIndex:  Integer;
-    ShopValue:  TILSrcResShopValue;
+  TILAdvItemSearchResults = set of TILAdvItemSearchResult;
+
+  TILAdvShopSearchResult = (ilassrListIndex,ilassrSelected,ilassrUntracked,
+    ilassrAltDownMethod,ilassrName,ilassrShopURL,ilassrItemURL,ilassrAvailable,
+    ilassrPrice,ilassrNotes,ilassrLastUpdResult,ilassrLastUpdMessage,
+    ilassrLastUpdTime,ilassrParsingVariables,ilassrParsingTemplateRef,
+    ilassrIgnoreParsErrors,{deep scan...}ilassrAvailHistory,ilassrPriceHistory,
+    ilassrAvailExtrSettings,ilassrPriceExtrSettings,ilassrAvailFinder,
+    ilassrPriceFinder);
+
+  TILAdvShopSearchResults = set of TILAdvShopSearchResult;
+
+  TILAdvSearchParsTemplResolve = Function(const Template: String): Pointer of object;
+  TILAdvSearchCompareFunc = Function(const Value: String; IsText,IsEditable,IsCalculated: Boolean; const UnitStr: String = ''): Boolean of object;
+
+  TILAdvSearchSettings = record
+    Text:             String;
+    PartialMatch:     Boolean;
+    CaseSensitive:    Boolean;
+    TextsOnly:        Boolean;
+    EditablesOnly:    Boolean;
+    SearchCalculated: Boolean;
+    IncludeUnits:     Boolean;
+    SearchShops:      Boolean;
+    DeepScan:         Boolean;  // parsing settings, variables, incl. references
+    // internals
+    ParsTemplResolve: TILAdvSearchParsTemplResolve;
+    CompareFunc:      TILAdvSearchCompareFunc;
   end;
+
+  TILAdvSearchResultShop = record
+    ShopIndex:  Integer;
+    ShopValue:  TILAdvShopSearchResults;
+  end;
+
+  TILAdvSearchResult = record
+    ItemIndex:  Integer;
+    ItemValue:  TILAdvItemSearchResults;
+    Shops:      array of TILAdvSearchResultShop;
+  end;
+
+  TILAdvSearchResults = array of TILAdvSearchResult;
+
+Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSettings; overload;  
 
 //==============================================================================
 //- sorting --------------------------------------------------------------------  
@@ -342,7 +395,7 @@ type
     TimeStr:      String;
   end;
 
-Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo; overload;
+Function IL_ThreadSafeCopy(const Value: TILPreloadInfo): TILPreloadInfo; overload;
 
 //==============================================================================
 //- threaded IO ----------------------------------------------------------------
@@ -830,6 +883,14 @@ else
   Result := Val;
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSettings;
+begin
+Result := Value;
+UniqueString(Result.Text);
+end;
+
 //==============================================================================
 //- sorting --------------------------------------------------------------------
 
@@ -1180,7 +1241,7 @@ end;
 //==============================================================================
 //- preload information --------------------------------------------------------
 
-Function IL_ThreadSafeCopy(Value: TILPreloadInfo): TILPreloadInfo;
+Function IL_ThreadSafeCopy(const Value: TILPreloadInfo): TILPreloadInfo;
 begin
 Result := Value;
 UniqueString(Result.TimeStr);

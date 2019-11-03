@@ -12,6 +12,7 @@ uses
   
     TILItemShop_Base
     TILItemShop_Update
+    TILItemShop_Search
     TILItemShop_IO
     TILItemShop_IO_00000000
     TILItemShop_IO_00000001

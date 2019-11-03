@@ -426,6 +426,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 388
       Width = 16
       Height = 19
+      Hint = 'Open editor...'
       Alignment = taRightJustify
       Caption = '2'
       Font.Charset = DEFAULT_CHARSET
@@ -434,6 +435,8 @@ object frmItemFrame: TfrmItemFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       OnClick = lblNotesEditClick
       OnMouseEnter = lblNotesEditMouseEnter
       OnMouseLeave = lblNotesEditMouseLeave
@@ -1172,6 +1175,7 @@ object frmItemFrame: TfrmItemFrame
     Left = 568
   end
   object pmnFlagMacros: TPopupMenu
+    Alignment = paRight
     Left = 464
     Top = 248
   end

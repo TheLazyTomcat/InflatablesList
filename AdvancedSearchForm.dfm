@@ -1,9 +1,9 @@
 object fAdvancedSearchForm: TfAdvancedSearchForm
-  Left = 756
-  Top = 135
+  Left = 757
+  Top = 116
   BorderStyle = bsDialog
   Caption = 'Advanced search'
-  ClientHeight = 528
+  ClientHeight = 560
   ClientWidth = 504
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -72,6 +72,7 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
       Height = 17
       Caption = 'Search item shops'
       TabOrder = 6
+      OnClick = cbSearchShopsClick
     end
     object cbTextsOnly: TCheckBox
       Left = 328
@@ -97,6 +98,7 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
       Width = 73
       Height = 17
       Caption = 'Deep scan'
+      Enabled = False
       TabOrder = 7
     end
     object cbEditablesOnly: TCheckBox
@@ -144,5 +146,22 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
     TabOrder = 3
     WordWrap = False
     OnKeyPress = meSearchResultsKeyPress
+  end
+  object btnSaveReport: TButton
+    Left = 336
+    Top = 528
+    Width = 161
+    Height = 25
+    Caption = 'Save search results report...'
+    TabOrder = 4
+    OnClick = btnSaveReportClick
+  end
+  object diaReportSave: TSaveDialog
+    DefaultExt = '.txt'
+    FileName = 'report.txt'
+    Filter = 'Text files (*.txt)|*.txt|All files (*.*)|*.*'
+    Title = 'Save search results report'
+    Left = 296
+    Top = 528
   end
 end

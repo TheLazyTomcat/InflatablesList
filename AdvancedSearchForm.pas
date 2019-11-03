@@ -10,24 +10,28 @@ uses
 
 type
   TfAdvancedSearchForm = class(TForm)
-    grbSearchSettings: TGroupBox;
     leTextToFind: TLabeledEdit;
     btnSearch: TButton;
-    meSearchResults: TMemo;
+    grbSearchSettings: TGroupBox;
+    cbPartialMatch: TCheckBox;
+    cbCaseSensitive: TCheckBox;
+    cbTextsOnly: TCheckBox;
+    cbEditablesOnly: TCheckBox;
+    cbSearchCalculated: TCheckBox;
+    cbIncludeUnits: TCheckBox;
+    cbSearchShops: TCheckBox;
+    cbDeepScan: TCheckBox;
     bvlHorSplit: TBevel;
     lblSearchResults: TLabel;
-    cbPartialMatch: TCheckBox;
-    cbSearchCalculated: TCheckBox;
-    cbCaseSensitive: TCheckBox;
-    cbSearchShops: TCheckBox;
-    cbTextsOnly: TCheckBox;
-    cbIncludeUnits: TCheckBox;
-    cbDeepScan: TCheckBox;
-    cbEditablesOnly: TCheckBox;
+    meSearchResults: TMemo;
+    btnSaveReport: TButton;
+    diaReportSave: TSaveDialog;
     procedure FormShow(Sender: TObject);    
     procedure leTextToFindKeyPress(Sender: TObject; var Key: Char);
     procedure btnSearchClick(Sender: TObject);
+    procedure cbSearchShopsClick(Sender: TObject);
     procedure meSearchResultsKeyPress(Sender: TObject; var Key: Char);
+    procedure btnSaveReportClick(Sender: TObject);
   private
     { Private declarations }
     fILManager: TILManager;
@@ -221,6 +225,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfAdvancedSearchForm.cbSearchShopsClick(Sender: TObject);
+begin
+cbDeepScan.Enabled := cbSearchShops.Checked;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfAdvancedSearchForm.meSearchResultsKeyPress(Sender: TObject;
   var Key: Char);
 begin
@@ -229,6 +240,14 @@ If Key = ^A then
     meSearchResults.SelectAll;
     Key := #0;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfAdvancedSearchForm.btnSaveReportClick(Sender: TObject);
+begin
+If diaReportSave.Execute then
+  meSearchResults.Lines.SaveToFile(diaReportSave.FileName);
 end;
 
 end.

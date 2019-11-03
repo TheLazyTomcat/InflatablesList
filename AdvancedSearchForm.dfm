@@ -143,5 +143,6 @@ object fAdvancedSearchForm: TfAdvancedSearchForm
     ScrollBars = ssBoth
     TabOrder = 3
     WordWrap = False
+    OnKeyPress = meSearchResultsKeyPress
   end
 end

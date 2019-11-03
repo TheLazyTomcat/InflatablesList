@@ -121,10 +121,6 @@ type
     procedure ItemMove(Src,Dst: Integer); virtual;
     procedure ItemDelete(Index: Integer); virtual;
     procedure ItemClear; virtual;
-    // searching
-    Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
-    Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
-    procedure FindAll(const SearchSettings: TILAdvSearchSettings; out SearchResults: TILAdvSearchResults); virtual;
     // macro methods (broadcast to item objects)
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
@@ -889,69 +885,6 @@ For i := ItemLowIndex to ItemHighIndex do
 fCount := 0;
 Shrink;
 UpdateList;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Base.FindPrev(const Text: String; FromIndex: Integer = -1): Integer;
-var
-  i:  Integer;
-begin
-Result := -1;
-If fCount > 0 then
-  begin
-    i := IL_IndexWrap(Pred(FromIndex),ItemLowIndex,ItemHighIndex);
-    while i <> FromIndex do
-      begin
-        If fList[i].Contains(Text) then
-          begin
-            Result := i;
-            Break{while...};
-          end;
-        i := IL_IndexWrap(Pred(i),ItemLowIndex,ItemHighIndex);
-      end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILManager_Base.FindNext(const Text: String; FromIndex: Integer = -1): Integer;
-var
-  i:  Integer;
-begin
-Result := -1;
-If fCount > 0 then
-  begin
-    i := IL_IndexWrap(Succ(FromIndex),ItemLowIndex,ItemHighIndex);
-    while i <> FromIndex do
-      begin
-        If fList[i].Contains(Text) then
-          begin
-            Result := i;
-            Break{while...};
-          end;
-        i := IL_IndexWrap(Succ(i),ItemLowIndex,ItemHighIndex);
-      end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILManager_Base.FindAll(const SearchSettings: TILAdvSearchSettings; out SearchResults: TILAdvSearchResults);
-var
-  ResCntr:  Integer;
-  i:        Integer;
-  TempRes:  TILAdvSearchResult;
-begin
-ResCntr := 0;
-SetLength(SearchResults,fCount);
-For i := ItemLowIndex to ItemHighIndex do
-  If fList[i].FindAll(SearchSettings,TempRes) then
-    begin
-      SearchResults[ResCntr] := TempRes;
-      Inc(ResCntr);
-    end;
-SetLength(SearchResults,ResCntr);
 end;
 
 //------------------------------------------------------------------------------

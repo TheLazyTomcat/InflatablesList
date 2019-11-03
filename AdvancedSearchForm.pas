@@ -27,6 +27,7 @@ type
     procedure FormShow(Sender: TObject);    
     procedure leTextToFindKeyPress(Sender: TObject; var Key: Char);
     procedure btnSearchClick(Sender: TObject);
+    procedure meSearchResultsKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     fILManager: TILManager;
@@ -53,6 +54,7 @@ var
   i,j:  Integer;
   ISR:  TILAdvItemSearchResult;
   SSR:  TILAdvShopSearchResult;
+  Temp: String;
 begin
 Screen.Cursor := crHourGlass;
 try
@@ -91,9 +93,16 @@ try
         If SearchResults[i].ItemValue <> [] then
           begin
             meSearchResults.Lines.Add('');
+            Temp := '';
             For ISR := Low(TILAdvItemSearchResult) to High(TILAdvItemSearchResult) do
               If ISR in SearchResults[i].ItemValue then
-                meSearchResults.Lines.Add('  ' + fILManager.DataProvider.GetAdvancedItemSearchResultString(ISR));
+                begin
+                  If Length(Temp) > 0 then
+                    Temp := IL_Format('%s, %s',[Temp,fILManager.DataProvider.GetAdvancedItemSearchResultString(ISR)])
+                  else
+                    Temp := fILManager.DataProvider.GetAdvancedItemSearchResultString(ISR);
+                end;
+            meSearchResults.Lines.Add('  ' + Temp);    
           end;
         // item shop values
         If Length(SearchResults[i].Shops) > 0 then
@@ -110,10 +119,17 @@ try
                 If SearchResults[i].Shops[j].ShopValue <> [] then
                   begin
                     meSearchResults.Lines.Add('');
+                    Temp := '';
                     // values
                     For SSR := Low(TILAdvShopSearchResult) to High(TILAdvShopSearchResult) do
                       If SSR in SearchResults[i].Shops[j].ShopValue then
-                        meSearchResults.Lines.Add('    ' + fILManager.DataProvider.GetAdvancedShopSearchResultString(SSR));
+                        begin
+                          If Length(Temp) > 0 then
+                            Temp := IL_Format('%s, %s',[Temp,fILManager.DataProvider.GetAdvancedShopSearchResultString(SSR)])
+                          else
+                            Temp := fILManager.DataProvider.GetAdvancedShopSearchResultString(SSR);
+                        end;
+                    meSearchResults.Lines.Add('    ' + Temp);
                   end;
               end;
           end;
@@ -201,6 +217,18 @@ If Length(leTextToFind.Text) > 0 then
       MessageDlg('No match was found.',mtInformation,[mbOk],0);
   end
 else MessageDlg('Cannot search for an empty string.',mtInformation,[mbOk],0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfAdvancedSearchForm.meSearchResultsKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+If Key = ^A then
+  begin
+    meSearchResults.SelectAll;
+    Key := #0;
+  end;
 end;
 
 end.

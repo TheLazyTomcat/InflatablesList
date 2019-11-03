@@ -54,6 +54,7 @@ uses
   InflatablesList_Manager_Sort in 'source\InflatablesList_Manager_Sort.pas',
   InflatablesList_Manager_Filter in 'source\InflatablesList_Manager_Filter.pas',
   InflatablesList_Manager_Templates in 'source\InflatablesList_Manager_Templates.pas',
+  InflatablesList_Manager_Search in 'source\InflatablesList_Manager_Search.pas',  
   InflatablesList_Manager_IO in 'source\InflatablesList_Manager_IO.pas',
   InflatablesList_Manager_IO_Threaded in 'source\InflatablesList_Manager_IO_Threaded.pas',
   InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',

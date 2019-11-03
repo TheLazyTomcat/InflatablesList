@@ -11,6 +11,7 @@ uses
   Inheritance chain:
   
     TILItemShopParsingSettings_Base
+    TILItemShopParsingSettings_Search
     TILItemShopParsingSettings_IO
     TILItemShopParsingSettings_IO_00000000
     TILItemShopParsingSettings_IO_00000001

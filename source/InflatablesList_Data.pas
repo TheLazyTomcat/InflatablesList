@@ -178,8 +178,10 @@ const
   IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
     'List index','Selected','Untracked','Alternative download method','Name',
     'Shop URL','Item URL','Available','Price','Notes','Last update result',
-    'Last update message','Last update time','Available history','Price history',
-    'Parsing variables','Ignore parsing errors','Parsing template reference');
+    'Last update message','Last update time','Parsing variables',
+    'Parsing template reference','Ignore parsing errors','Available history',
+    'Price history','Available extraction settings','Price extraction settings',
+    'Available parsing finder','Price parsing finder');
 
 //==============================================================================
 

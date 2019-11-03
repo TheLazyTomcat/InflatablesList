@@ -31,6 +31,7 @@ type
     constructor CreateAsCopy(Source: TILFinderBaseClass);
     procedure Prepare(Variables: TILItemShopParsingVariables); virtual;
     Function AsString(Decorate: Boolean = True): String; virtual; // returns string describing the comparator
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; virtual;
     property Variables: TILItemShopParsingVariables read fVariables;
     property StringPrefix: String read fStringPrefix write SetStringPrefix;
     property StringSuffix: String read fStringSuffix write SetStringSuffix;
@@ -91,6 +92,7 @@ type
     constructor Create;
     constructor CreateAsCopy(Source: TILTextComparator);
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Compare(const Text: String); override;
     procedure Compare(const Text: TILReconvString); override;
     procedure SaveToStream(Stream: TStream); override;
@@ -116,6 +118,7 @@ type
     constructor CreateAsCopy(Source: TILTextComparatorGroup);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
@@ -152,6 +155,7 @@ type
     constructor CreateAsCopy(Source: TILAttributeComparator);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     procedure Compare(TagAttribute: TILHTMLTagAttribute); override;
@@ -177,6 +181,7 @@ type
     constructor CreateAsCopy(Source: TILAttributeComparatorGroup);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; override;
     Function IndexOf(Item: TObject): Integer; virtual;
@@ -208,6 +213,7 @@ type
     constructor CreateAsCopy(Source: TILElementComparator);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     procedure Compare(Element: TILHTMLElementNode); virtual;
@@ -234,6 +240,7 @@ type
     constructor CreateAsCopy(Source: TILElementFinderStage);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     Function IndexOf(Item: TObject): Integer; virtual;
@@ -262,6 +269,7 @@ type
     constructor Create;
     constructor CreateAsCopy(Source: TILElementFinder);
     destructor Destroy; override;
+    Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
     procedure ReInit; virtual;
     Function StageIndexOf(Stage: TObject): Integer; virtual;
@@ -440,6 +448,13 @@ else
   Result := IL_Format('%s(%p)',[Self.ClassName,Pointer(Self)])
 end;
 
+//------------------------------------------------------------------------------
+
+Function TILFinderBaseClass.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+begin
+Result := False;
+end;
+
 //******************************************************************************
 //******************************************************************************
 
@@ -553,6 +568,13 @@ If fVariableIdx < 0 then
       Result := IL_Format(Result,[fStr]);
   end
 else Result := IL_Format(Result,[IL_Format('#VAR%d#',[fVariableIdx + 1])]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILTextComparator.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+begin
+Result := SearchSettings.CompareFunc(fStr,True,True,False);
 end;
 
 //------------------------------------------------------------------------------
@@ -746,6 +768,21 @@ else
     If fIndex > 0 then
       Result := IL_Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result]);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILTextComparatorGroup.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+var
+  i:  Integer;
+begin
+Result := False;
+For i := Low(fItems) to High(fItems) do
+  If fItems[i].Search(SearchSettings) then
+    begin
+      Result := True;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1010,6 +1047,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILAttributeComparator.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+begin
+Result := fName.Search(SearchSettings) or fValue.Search(SearchSettings);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILAttributeComparator.Prepare(Variables: TILItemShopParsingVariables);
 begin
 inherited Prepare(Variables);
@@ -1201,6 +1245,21 @@ else
     If fIndex > 0 then
       Result := IL_Format('%s %s',[IL_SearchOperatorAsStr(fOperator),Result])
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILAttributeComparatorGroup.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+var
+  i:  Integer;
+begin
+Result := False;
+For i := Low(fItems) to High(fItems) do
+  If fItems[i].Search(SearchSettings) then
+    begin
+      Result := True;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1453,6 +1512,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILElementComparator.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+begin
+Result := fTagName.Search(SearchSettings) or fAttributes.Search(SearchSettings) or fText.Search(SearchSettings);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILElementComparator.Prepare(Variables: TILItemShopParsingVariables);
 begin
 inherited Prepare(Variables);
@@ -1606,6 +1672,21 @@ else If Length(fItems) > 1 then
 else
   Result := IL_Format('Stage #%d',[Index]);
 // both index and operator are ignored
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILElementFinderStage.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+var
+  i:  Integer;
+begin
+Result := False;
+For i := Low(fItems) to High(fItems) do
+  If fItems[i].Search(SearchSettings) then
+    begin
+      Result := True;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1805,6 +1886,21 @@ destructor TILElementFinder.Destroy;
 begin
 StageClear;
 inherited;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILElementFinder.Search(const SearchSettings: TILAdvSearchSettings): Boolean;
+var
+  i:  Integer;
+begin
+Result := False;
+For i := Low(fStages) to High(fStages) do
+  If fStages[i].Search(SearchSettings) then
+    begin
+      Result := True;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------

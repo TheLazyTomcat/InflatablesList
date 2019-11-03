@@ -195,8 +195,10 @@ type
   TILAdvShopSearchResult = (ilassrListIndex,ilassrSelected,ilassrUntracked,
     ilassrAltDownMethod,ilassrName,ilassrShopURL,ilassrItemURL,ilassrAvailable,
     ilassrPrice,ilassrNotes,ilassrLastUpdResult,ilassrLastUpdMessage,
-    ilassrLastUpdTime,{deep scan...}ilassrAvailHistory,ilassrPriceHistory,
-    ilassrParsingVariables,ilassrIgnoreParsErrors,ilassrParsingTemplateRef);
+    ilassrLastUpdTime,ilassrParsingVariables,ilassrParsingTemplateRef,
+    ilassrIgnoreParsErrors,{deep scan...}ilassrAvailHistory,ilassrPriceHistory,
+    ilassrAvailExtrSettings,ilassrPriceExtrSettings,ilassrAvailFinder,
+    ilassrPriceFinder);
 
   TILAdvShopSearchResults = set of TILAdvShopSearchResult;
 

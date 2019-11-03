@@ -13,7 +13,7 @@ type
   protected
     fCurrentSearchSettings: TILAdvSearchSettings; // transient
     Function Search_Compare(const Value: String; IsText,IsEditable,IsCalculated: Boolean; const UnitStr: String = ''): Boolean; virtual;
-    Function Search_ParsingTemplateResolve(const Template: String): Pointer; virtual; abstract;    
+    Function Search_ParsingTemplateResolve(const Template: String): Pointer; virtual;     
   public
     Function FindPrev(const Text: String; FromIndex: Integer = -1): Integer; virtual;
     Function FindNext(const Text: String; FromIndex: Integer = -1): Integer; virtual;
@@ -56,6 +56,19 @@ If (not fCurrentSearchSettings.TextsOnly or IsText) and
       end;
   end
 else Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Search.Search_ParsingTemplateResolve(const Template: String): Pointer;
+var
+  Index:  Integer;
+begin
+Index := ShopTemplateIndexOf(Template);
+If Index >= 0 then
+  Result := Pointer(fShopTemplates[Index].ParsingSettings)
+else
+  Result := nil;
 end;
 
 //==============================================================================

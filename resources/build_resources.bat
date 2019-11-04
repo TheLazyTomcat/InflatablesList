@@ -5,3 +5,4 @@ brcc32 -fo default_pics.res default_pics.rc
 brcc32 -fo down_bins.res    down_bins.rc
 brcc32 -fo gradient.res     gradient.rc
 brcc32 -fo splash.res       splash.rc
+brcc32 -fo item_lock.res    item_lock.rc

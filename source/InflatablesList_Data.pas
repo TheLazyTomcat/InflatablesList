@@ -25,6 +25,7 @@ type
     fItemDefaultPicsSmall:  array[TILITemType] of TBitmap;
     fWantedGradientImage:   TBitmap;
     fRatingGradientImage:   TBitmap;
+    fItemLockImage:         TBitmap;
     Function GetItemManufacturerCount: Integer;
     Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
     Function GetItemFlagIconCount: Integer;
@@ -46,7 +47,9 @@ type
     procedure InitializeDefaultPicturesSmall; virtual;
     procedure FinalizeDefaultPicturesSmall; virtual;
     procedure InitializeGradientImages; virtual;
-    procedure FinalieGradientImages; virtual;
+    procedure FinalizeGradientImages; virtual;
+    procedure InitializeItemLockImage; virtual;
+    procedure FinalizeItemLockImage; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -69,6 +72,7 @@ type
     property ItemDefaultPicturesSmall[ItemType: TILITemType]: TBitmap read GetItemDefaultPictureSmall;
     property WantedGradientImage: TBitmap read fWantedGradientImage;
     property RatingGradientImage: TBitmap read fRatingGradientImage;
+    property ItemLockImage: TBitmap read fItemLockImage;
   end;
 
 implementation
@@ -84,6 +88,7 @@ uses
 {$R '..\resources\flag_icons.res'}
 {$R '..\resources\default_pics.res'}
 {$R '..\resources\gradient.res'}
+{$R '..\resources\item_lock.res'}
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
@@ -376,12 +381,29 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILDataProvider.FinalieGradientImages;
+procedure TILDataProvider.FinalizeGradientImages;
 begin
 If Assigned(fWantedGradientImage) then
   FreeAndNil(fWantedGradientImage);
 If Assigned(fRatingGradientImage) then
   FreeAndNil(fRatingGradientImage);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILDataProvider.InitializeItemLockImage;
+begin
+fItemLockImage := TBitmap.Create;
+If not LoadBitmapFromResource('item_lock',fItemLockImage) then
+  FreeAndNil(fItemLockImage);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILDataProvider.FinalizeItemLockImage;
+begin
+If Assigned(fItemLockImage) then
+  FreeAndNil(fItemLockImage);
 end;
 
 //------------------------------------------------------------------------------
@@ -394,13 +416,15 @@ InitializeItemFlagIcons;
 InitializeDefaultPictures;
 InitializeDefaultPicturesSmall;
 InitializeGradientImages;
+InitializeItemLockImage;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILDataProvider.Finalize;
 begin
-FinalieGradientImages;
+FinalizeItemLockImage;
+FinalizeGradientImages;
 FinalizeDefaultPicturesSmall;
 FinalizeDefaultPictures;
 FinalizeItemFlagIcons;

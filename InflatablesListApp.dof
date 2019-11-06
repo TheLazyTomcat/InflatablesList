@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=--no_updlog --no_pics
+RunParams=--no_updlog
 HostApplication=
 Launcher=
 UseLauncher=0

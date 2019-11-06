@@ -924,11 +924,16 @@ end;
 procedure TfMainForm.mniMMI_ItemExportClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
-  If diaItemsExport.Execute then
+  If fILManager[lbList.ItemIndex].DataAccessible then
     begin
-      frmItemFrame.Save;
-      fILManager.ItemsExport(diaItemsExport.FileName,[lbList.ItemIndex]);
-    end;
+      If diaItemsExport.Execute then
+        begin
+          frmItemFrame.Save;
+          fILManager.ItemsExport(diaItemsExport.FileName,[lbList.ItemIndex]);
+        end;
+    end
+  else MessageDlg('This item is encrypted and data are not accessible.' + sLineBreak +
+         'You have to decrypt the item before exporting it.',mtInformation,[mbOK],0);
 end;
 
 //------------------------------------------------------------------------------
@@ -939,19 +944,24 @@ var
   IndicesArr: array of Integer;
   i:          Integer;
 begin
-frmItemFrame.Save;
-CDA_Init(Indices);
-fItemSelectForm.ShowItemSelect('Select items for export',Indices);
-If CDA_Count(Indices) > 0 then
-  If diaItemsExport.Execute then
-    begin
-      SetLength(IndicesArr,CDA_Count(Indices));
-      For i := Low(IndicesArr) to High(IndicesArr) do
-        IndicesArr[i] := CDA_GetItem(Indices,i);
-      fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
-      MessageDlg(IL_Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
-      lbList.SetFocus;
-    end;
+If fILManager.EncryptedItemCount(False) <= 0 then
+  begin
+    frmItemFrame.Save;
+    CDA_Init(Indices);
+    fItemSelectForm.ShowItemSelect('Select items for export',Indices);
+    If CDA_Count(Indices) > 0 then
+      If diaItemsExport.Execute then
+        begin
+          SetLength(IndicesArr,CDA_Count(Indices));
+          For i := Low(IndicesArr) to High(IndicesArr) do
+            IndicesArr[i] := CDA_GetItem(Indices,i);
+          fILManager.ItemsExport(diaItemsExport.FileName,IndicesArr);
+          MessageDlg(IL_Format('%d items exported.',[Length(IndicesArr)]),mtInformation,[mbOK],0);
+          lbList.SetFocus;
+        end;
+  end
+else MessageDlg('Some of the items are encrypted and their data are not accessible.' + sLineBreak +
+       'You have to decrypt all items before you will be able to export any of them.',mtInformation,[mbOK],0);
 end;
  
 //------------------------------------------------------------------------------
@@ -1405,8 +1415,16 @@ end;
 
 procedure TfMainForm.mniMM_UpdateClick(Sender: TObject);
 begin
-mniMMU_UpdateItem.Enabled := lbList.ItemIndex >= 0;
-mniMMU_UpdateItemShopHistory.Enabled := lbList.ItemIndex >= 0;
+If lbList.ItemIndex >= 0 then
+  begin
+    mniMMU_UpdateItem.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+    mniMMU_UpdateItemShopHistory.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+  end
+else
+  begin
+    mniMMU_UpdateItem.Enabled := False;
+    mniMMU_UpdateItemShopHistory.Enabled := False;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1454,23 +1472,25 @@ begin
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    fILManager[i].BroadcastReqCount;
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      Inc(Cntr);
-  end;
+  If fILManager[i].DataAccessible then
+    begin
+      fILManager[i].BroadcastReqCount;
+      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+        Inc(Cntr);
+    end;
 // create update list
 SetLength(List,Cntr);
 Cntr := Low(List);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    begin
-      List[Cntr].Item := fILManager[i];
-      List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
-      List[Cntr].ItemShop := fILManager[i].Shops[j];
-      List[Cntr].Done := False;
-      Inc(Cntr);
-    end;
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      begin
+        List[Cntr].Item := fILManager[i];
+        List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
+        List[Cntr].ItemShop := fILManager[i].Shops[j];
+        List[Cntr].Done := False;
+        Inc(Cntr);
+      end;
 mniMMU_UpdateCommon(List);
 lbList.SetFocus;
 end;
@@ -1486,7 +1506,7 @@ begin
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If ilifWanted in fILManager[i].Flags then
+  If fILManager[i].DataAccessible and (ilifWanted in fILManager[i].Flags) then
     begin
       fILManager[i].BroadcastReqCount;
       For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
@@ -1496,7 +1516,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
 SetLength(List,Cntr);
 Cntr := Low(List);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If ilifWanted in fILManager[i].Flags then
+  If fILManager[i].DataAccessible and (ilifWanted in fILManager[i].Flags) then
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       begin
         List[Cntr].Item := fILManager[i];
@@ -1520,25 +1540,27 @@ begin
 // prealocate update list
 Cntr := 0;
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    fILManager[i].BroadcastReqCount;
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      If fILManager[i].Shops[j].Selected then
-        Inc(Cntr);
-  end;
+  If fILManager[i].DataAccessible then
+    begin
+      fILManager[i].BroadcastReqCount;
+      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+        If fILManager[i].Shops[j].Selected then
+          Inc(Cntr);
+    end;
 // create update list
 SetLength(List,Cntr);
 Cntr := Low(List);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    If fILManager[i].Shops[j].Selected then
-      begin
-        List[Cntr].Item := fILManager[i];
-        List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
-        List[Cntr].ItemShop := fILManager[i].Shops[j];
-        List[Cntr].Done := False;
-        Inc(Cntr);
-      end;
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      If fILManager[i].Shops[j].Selected then
+        begin
+          List[Cntr].Item := fILManager[i];
+          List[Cntr].ItemTitle := IL_Format('[#%d] %s',[i + 1,fILManager[i].TitleStr]);
+          List[Cntr].ItemShop := fILManager[i].Shops[j];
+          List[Cntr].Done := False;
+          Inc(Cntr);
+        end;
 mniMMU_UpdateCommon(List);
 lbList.SetFocus;
 end;
@@ -1571,8 +1593,9 @@ begin
 Screen.Cursor := crHourGlass;
 try
   For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      fILManager[i][j].UpdateAvailAndPriceHistory;
+    If fILManager[i].DataAccessible then
+      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+        fILManager[i][j].UpdateAvailAndPriceHistory;
 finally
   Screen.Cursor := crDefault;
 end;

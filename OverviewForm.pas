@@ -62,9 +62,10 @@ begin
 // get list of selected shops
 CDA_Clear(fSelShopList);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If fILManager[i].ShopsSelected(SelShop) then
-    If not CDA_CheckIndex(fSelShopList,CDA_IndexOf(fSelShopList,SelShop.Name)) then
-      CDA_Add(fSelShopList,SelShop.Name);
+  If fILManager[i].DataAccessible then
+    If fILManager[i].ShopsSelected(SelShop) then
+      If not CDA_CheckIndex(fSelShopList,CDA_IndexOf(fSelShopList,SelShop.Name)) then
+        CDA_Add(fSelShopList,SelShop.Name);
 // sort the list
 CDA_Sort(fSelShopList);
 // fill table
@@ -117,23 +118,24 @@ InitializeTable;
 // do sums
 SetLength(Sums,CDA_Count(fSelShopList) + 1);  // last entry is total sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If fILManager[i].ShopsSelected(SelShop) then
-    begin
-      Index := CDA_IndexOf(fSelShopList,SelShop.Name);
-      If CDA_CheckIndex(fSelShopList,Index) then
-        begin
-          // add to proper sum
-          Inc(Sums[Index].Items);
-          Inc(Sums[Index].Pieces,fILManager[i].Pieces);
-          Inc(Sums[Index].TotalWeight,fILManager[i].TotalWeight);
-          Inc(Sums[Index].TotalPrice,fILManager[i].TotalPrice);
-          // add to total sum
-          Inc(Sums[High(Sums)].Items);
-          Inc(Sums[High(Sums)].Pieces,fILManager[i].Pieces);
-          Inc(Sums[High(Sums)].TotalWeight,fILManager[i].TotalWeight);
-          Inc(Sums[High(Sums)].TotalPrice,fILManager[i].TotalPrice);
-        end;
-    end;
+  If fILManager[i].DataAccessible then
+    If fILManager[i].ShopsSelected(SelShop) then
+      begin
+        Index := CDA_IndexOf(fSelShopList,SelShop.Name);
+        If CDA_CheckIndex(fSelShopList,Index) then
+          begin
+            // add to proper sum
+            Inc(Sums[Index].Items);
+            Inc(Sums[Index].Pieces,fILManager[i].Pieces);
+            Inc(Sums[Index].TotalWeight,fILManager[i].TotalWeight);
+            Inc(Sums[Index].TotalPrice,fILManager[i].TotalPrice);
+            // add to total sum
+            Inc(Sums[High(Sums)].Items);
+            Inc(Sums[High(Sums)].Pieces,fILManager[i].Pieces);
+            Inc(Sums[High(Sums)].TotalWeight,fILManager[i].TotalWeight);
+            Inc(Sums[High(Sums)].TotalPrice,fILManager[i].TotalPrice);
+          end;
+      end;
 // fill the table
 For i := Low(Sums) to Pred(High(Sums)) do
   begin

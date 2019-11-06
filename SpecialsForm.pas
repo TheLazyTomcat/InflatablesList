@@ -80,7 +80,8 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  fILManager[i].TextTag := '';
+  If fILManager[i].DataAccessible then
+    fILManager[i].TextTag := '';
 ProcessingDone;
 end;
 
@@ -91,13 +92,14 @@ var
   i,j:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    begin
-      fILManager[i][j].ParsingSettings.AvailExtractionSettingsClear;
-      fILManager[i][j].ParsingSettings.AvailFinder.StageClear;
-      fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
-      fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
-    end; 
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      begin
+        fILManager[i][j].ParsingSettings.AvailExtractionSettingsClear;
+        fILManager[i][j].ParsingSettings.AvailFinder.StageClear;
+        fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
+        fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
+      end;
 ProcessingDone;
 end;
 
@@ -108,9 +110,10 @@ var
   i,j:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-    If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
-      fILManager[i][j].AltDownMethod := True;   
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
+        fILManager[i][j].AltDownMethod := True;
 ProcessingDone;
 end;
 
@@ -121,8 +124,9 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  fILManager[i].GetAndFlagPriceAndAvail(
-    fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);  
+  If fILManager[i].DataAccessible then
+    fILManager[i].GetAndFlagPriceAndAvail(
+      fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
 ProcessingDone;
 end;
 
@@ -133,7 +137,8 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  fILManager[i].Material := ilimtPolyvinylchloride;   
+  If fILManager[i].DataAccessible then
+    fILManager[i].Material := ilimtPolyvinylchloride;   
 ProcessingDone;
 end;
 
@@ -144,10 +149,11 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    fILManager[i].SetFlagValue(ilifPriceChange,False);
-    fILManager[i].SetFlagValue(ilifAvailChange,False)
-  end;    
+  If fILManager[i].DataAccessible then
+    begin
+      fILManager[i].SetFlagValue(ilifPriceChange,False);
+      fILManager[i].SetFlagValue(ilifAvailChange,False)
+    end;    
 ProcessingDone;
 end;
 
@@ -158,10 +164,11 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
-    fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
-  end;   
+  If fILManager[i].DataAccessible then
+    begin
+      fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+      fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
+    end;   
 ProcessingDone;
 end;
 
@@ -172,8 +179,9 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
-    fILManager[i].TextTag := leParam_2.Text; 
+  If fILManager[i].DataAccessible then
+    If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
+      fILManager[i].TextTag := leParam_2.Text; 
 ProcessingDone;
 end;
 
@@ -184,9 +192,10 @@ var
   i,j:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
-    If not fILManager[i][j].Selected then
-      fILManager[i].ShopDelete(j);
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
+      If not fILManager[i][j].Selected then
+        fILManager[i].ShopDelete(j);
 ProcessingDone;
 end;
 
@@ -197,8 +206,8 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If ilifOwned in fILManager[i].Flags then
-    fILManager[i].ShopClear;
+  If fILManager[i].DataAccessible and (ilifOwned in fILManager[i].Flags) then
+      fILManager[i].ShopClear;
 ProcessingDone;
 end;
 

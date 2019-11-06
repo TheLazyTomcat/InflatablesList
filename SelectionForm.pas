@@ -169,31 +169,32 @@ var
 begin
 CDA_Init(fShopTable);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  begin
-    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-      begin
-        Temp.ShopName := fILManager[i][j].Name;
-        Index := CDA_IndexOf(fShopTable,Temp);
-        If not CDA_CheckIndex(fShopTable,Index) then
-          begin
-            // shop is not in the table, add it
-            CDA_Init(Temp.Items);
-            Temp.Available := 0;
-            Temp.Selected := 0;
-            Index := CDA_Add(fShopTable,Temp);
-          end;
-        Entry.ItemObject := fILManager[i];
-        Entry.Available := fILManager[i][j].Available <> 0;
-        Entry.Selected :=  fILManager[i][j].Selected;
-        Entry.Index := i;
-        Entry.Price := fILManager[i][j].Price;
-        CDA_Add(CDA_GetItemPtr(fShopTable,Index)^.Items,Entry);
-        If fILManager[i][j].Available <> 0 then
-          Inc(CDA_GetItemPtr(fShopTable,Index)^.Available);
-        If fILManager[i][j].Selected then
-          Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
-      end;
-  end;
+  If fILManager[i].DataAccessible then
+    begin
+      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+        begin
+          Temp.ShopName := fILManager[i][j].Name;
+          Index := CDA_IndexOf(fShopTable,Temp);
+          If not CDA_CheckIndex(fShopTable,Index) then
+            begin
+              // shop is not in the table, add it
+              CDA_Init(Temp.Items);
+              Temp.Available := 0;
+              Temp.Selected := 0;
+              Index := CDA_Add(fShopTable,Temp);
+            end;
+          Entry.ItemObject := fILManager[i];
+          Entry.Available := fILManager[i][j].Available <> 0;
+          Entry.Selected :=  fILManager[i][j].Selected;
+          Entry.Index := i;
+          Entry.Price := fILManager[i][j].Price;
+          CDA_Add(CDA_GetItemPtr(fShopTable,Index)^.Items,Entry);
+          If fILManager[i][j].Available <> 0 then
+            Inc(CDA_GetItemPtr(fShopTable,Index)^.Available);
+          If fILManager[i][j].Selected then
+            Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
+        end;
+    end;
 CDA_Sort(fShopTable);
 For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
   CDA_Sort(CDA_GetItemPtr(fShopTable,i)^.Items);

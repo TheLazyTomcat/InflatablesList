@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.9458149"
-     inkscape:cx="362.40556"
-     inkscape:cy="626.35436"
+     inkscape:cx="388.75785"
+     inkscape:cy="371.54763"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -60,40 +60,40 @@
        id="rect4176"
        width="467.32187"
        height="467.32187"
-       x="168.63765"
-       y="164.76782"
+       x="117.88776"
+       y="20.976473"
        inkscape:export-xdpi="3.0813882"
        inkscape:export-ydpi="3.0813882"
-       inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\icons\icon_lock_w.png" />
+       inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\icons\icon_lock_b.png" />
     <circle
        style="opacity:1;fill:#b1b1b1;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4152"
-       cx="402.29858"
-       cy="268.5033"
+       cx="351.54871"
+       cy="124.71194"
        r="102.10526" />
     <circle
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4154"
-       cx="402.29858"
-       cy="268.5033"
+       cx="351.54871"
+       cy="124.71194"
        r="70.829781" />
     <rect
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4162"
        width="227.36842"
        height="141.05263"
-       x="288.69852"
-       y="268.08267" />
+       x="237.94862"
+       y="124.29132" />
     <rect
        style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4164"
        width="31.212988"
        height="126.05832"
-       x="300.19333"
-       y="266.96124" />
+       x="249.44344"
+       y="123.16989" />
     <rect
-       y="264.71838"
-       x="473.19086"
+       y="120.92703"
+       x="422.44098"
        height="126.05832"
        width="31.212988"
        id="rect4174"
@@ -101,24 +101,24 @@
     <circle
        style="opacity:1;fill:#dbdbdb;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4138"
-       cx="402.29858"
-       cy="471.51215"
+       cx="351.54871"
+       cy="327.72079"
        r="158.94736" />
     <circle
        style="opacity:1;fill:#b1b1b1;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4136"
-       cx="402.29858"
-       cy="471.51215"
+       cx="351.54871"
+       cy="327.72079"
        r="137.89473" />
     <circle
        style="opacity:1;fill:#ededed;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4150"
-       cx="402.29858"
-       cy="471.51215"
+       cx="351.54871"
+       cy="327.72079"
        r="95.789474" />
     <g
        id="g4146"
-       transform="translate(-2.9645691,-1.9026909)">
+       transform="translate(-53.714457,-145.69404)">
       <circle
          r="24.210527"
          cy="453.41483"
@@ -132,6 +132,84 @@
          width="16.842106"
          id="rect4144"
          style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\icons\icon_lock_w.png"
+       inkscape:export-ydpi="4.6220818"
+       inkscape:export-xdpi="4.6220818"
+       y="522.13159"
+       x="126.34607"
+       height="467.32187"
+       width="467.32187"
+       id="rect4145"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="102.10526"
+       cy="625.86707"
+       cx="360.00702"
+       id="circle4147"
+       style="opacity:1;fill:#b1b1b1;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="70.829781"
+       cy="625.86707"
+       cx="360.00702"
+       id="circle4149"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="625.44647"
+       x="246.40694"
+       height="141.05263"
+       width="227.36842"
+       id="rect4151"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="624.32501"
+       x="257.90176"
+       height="126.05832"
+       width="31.212988"
+       id="rect4153"
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4155"
+       width="31.212988"
+       height="126.05832"
+       x="430.89929"
+       y="622.08215" />
+    <circle
+       r="158.94736"
+       cy="828.87592"
+       cx="360.00702"
+       id="circle4157"
+       style="opacity:1;fill:#dbdbdb;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="137.89473"
+       cy="828.87592"
+       cx="360.00702"
+       id="circle4159"
+       style="opacity:1;fill:#b1b1b1;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="95.789474"
+       cy="828.87592"
+       cx="360.00702"
+       id="circle4161"
+       style="opacity:1;fill:#ededed;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <g
+       transform="translate(-45.256142,355.4611)"
+       id="g4163">
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle4165"
+         cx="405.26315"
+         cy="453.41483"
+         r="24.210527" />
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4167"
+         width="16.842106"
+         height="54.736843"
+         x="396.8421"
+         y="462.88852" />
     </g>
   </g>
 </svg>

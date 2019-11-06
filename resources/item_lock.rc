@@ -1,4 +1,3 @@
 item_lock       RCDATA "..\pics\item_lock.bmp"
-item_lock_small RCDATA "..\pics\item_lock_small.bmp"
 icon_lock_w     RCDATA "..\pics\icons\icon_lock_w.bmp"
 icon_lock_b     RCDATA "..\pics\icons\icon_lock_b.bmp"

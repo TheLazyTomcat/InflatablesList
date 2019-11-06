@@ -292,9 +292,16 @@ with fRender,fRender.Canvas do
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        // data are not accessible, draw placeholder
-        SetCanvas;
-        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');
+        // data are not accessible, draw placeholder 
+        // lock picture
+        Draw(SIDE_STRIP_WIDTH + 5,9,fDataProvider.ItemLockImage);
+
+        // text
+        TempInt := SIDE_STRIP_WIDTH + fDataProvider.ItemLockImage.Width + 10;
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,5,'Item is encrypted');
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;
   end;
 end;
@@ -306,6 +313,7 @@ const
   SIDE_STRIP_WIDTH  = 20;
 var
   TempStr:  String;
+  TempInt:  Integer;
 
   procedure SetCanvas(BStyle: TBrushStyle = bsClear; BColor: TColor = clWhite;
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
@@ -381,8 +389,15 @@ with fRenderSmall,fRenderSmall.Canvas do
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
         // data are not accessible, draw placeholder
-        SetCanvas;
-        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');        
+        // lock picture
+        Draw(SIDE_STRIP_WIDTH + 5,9,fDataProvider.ItemLockImage);
+
+        // text
+        TempInt := SIDE_STRIP_WIDTH + fDataProvider.ItemLockImage.Width + 10;        
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,5,'Item is encrypted');
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;      
   end;
 end;

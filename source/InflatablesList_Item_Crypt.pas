@@ -106,6 +106,7 @@ If RequestItemsPassword(Password) then
           fFNDeferredLoadProc(Stream);
           fDataAccessible := True;
           RenderSmallPictures;
+          UpdateOverview;          
           UpdateMainList;
           UpdateSmallList;
         end;

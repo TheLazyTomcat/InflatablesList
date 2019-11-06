@@ -1031,7 +1031,6 @@ procedure TfMainForm.mniMMI_ChangeItemsPswdClick(Sender: TObject);
 var
   Password: String;
 begin
-{$message 'implement'}
 If fILManager.HasItemsPassword then
   begin
     Password := fILManager.ItemsPassword;

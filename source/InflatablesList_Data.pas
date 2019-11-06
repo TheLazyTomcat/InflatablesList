@@ -26,9 +26,8 @@ type
     fWantedGradientImage:   TBitmap;
     fRatingGradientImage:   TBitmap;
     fItemLockImage:         TBitmap;
-    fItemLockImageSmall:    TBitmap;
     fItemLockIconWhite:     TBitmap;
-    fItemLockIconBlack:      TBitmap;
+    fItemLockIconBlack:     TBitmap;
     Function GetItemManufacturerCount: Integer;
     Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
     Function GetItemFlagIconCount: Integer;
@@ -76,7 +75,6 @@ type
     property WantedGradientImage: TBitmap read fWantedGradientImage;
     property RatingGradientImage: TBitmap read fRatingGradientImage;
     property ItemLockImage: TBitmap read fItemLockImage;
-    property ItemLockImageSmall: TBitmap read fItemLockImageSmall;
     property ItemLockIconWhite: TBitmap read fItemLockIconWhite;
     property ItemLockIconBlack: TBitmap read fItemLockIconBlack;
   end;
@@ -402,9 +400,6 @@ begin
 fItemLockImage := TBitmap.Create;
 If not LoadBitmapFromResource('item_lock',fItemLockImage) then
   FreeAndNil(fItemLockImage);
-fItemLockImageSmall := TBitmap.Create;
-If not LoadBitmapFromResource('item_lock_small',fItemLockImageSmall) then
-  FreeAndNil(fItemLockImageSmall);
 fItemLockIconWhite := TBitmap.Create;
 If not LoadBitmapFromResource('icon_lock_w',fItemLockIconWhite) then
   FreeAndNil(fItemLockIconWhite);  
@@ -419,8 +414,6 @@ procedure TILDataProvider.FinalizeItemLockImage;
 begin
 If Assigned(fItemLockImage) then
   FreeAndNil(fItemLockImage);
-If Assigned(fItemLockImageSmall) then
-  FreeAndNil(fItemLockImageSmall);
 If Assigned(fItemLockIconWhite) then
   FreeAndNil(fItemLockIconWhite);
 If Assigned(fItemLockIconBlack) then

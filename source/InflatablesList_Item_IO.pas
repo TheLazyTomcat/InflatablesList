@@ -20,7 +20,7 @@ const
   IL_ITEM_STREAMSTRUCTURE_00000005 = UInt32($00000005);
   IL_ITEM_STREAMSTRUCTURE_00000006 = UInt32($00000006);
 
-  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000005;
+  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000006;
 
   IL_ITEM_DECRYPT_CHECK = UInt64($53444E454D455449);  // ITEMENDS
 
@@ -37,7 +37,7 @@ type
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
   public
     procedure SaveToStream(Stream: TStream); virtual;
-    procedure LoadFromStream(Stream: TStream); virtual;    
+    procedure LoadFromStream(Stream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
     procedure LoadFromFile(const FileName: String); virtual;  
   end;

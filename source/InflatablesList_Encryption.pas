@@ -11,8 +11,8 @@ uses
 type
   EILWrongPassword = class(Exception);
 
-procedure EncryptStream_AES256(WorkStream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
-procedure DecryptStream_AES256(WorkStream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
+procedure EncryptStream_AES256(Stream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
+procedure DecryptStream_AES256(Stream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
 
 implementation
 
@@ -20,7 +20,7 @@ uses
   MD5, SHA2, AES, StrRect, BinaryStreaming,
   InflatablesList_Types;
 
-procedure EncryptStream_AES256(WorkStream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
+procedure EncryptStream_AES256(Stream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
 var
   TempStream: TMemoryStream;
   DataSize:   UInt64;
@@ -43,8 +43,8 @@ begin
 
   Output pseudo-structure:
 
-    UInt64    size of encrypted data - AES is block cipher, so this can
-              differ from unencrypted size
+    UInt64    size of unencrypted data - AES is block cipher, so this can
+              differ from encrypted size
     []        encrypted data
 
     Encrypted data has following pseudo-structure after decryption:
@@ -56,9 +56,9 @@ begin
 TempStream := TMemoryStream.Create;
 try
   // preallocate and copy data to temp stream
-  TempStream.Size := WorkStream.Size;
-  WorkStream.Seek(0,soBeginning);
-  Stream_ReadBuffer(WorkStream,TempStream.Memory^,TMemSize(TempStream.Size));
+  TempStream.Size := Stream.Size;
+  Stream.Seek(0,soBeginning);
+  Stream_ReadBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));
   // write validity check at the end
   TempStream.Seek(0,soEnd);
   Stream_WriteUInt64(TempStream,DecryptCheck);
@@ -77,10 +77,10 @@ try
     Cipher.Free;
   end;
   // save data size and encrypted stream
-  WorkStream.Seek(0,soBeginning);
-  Stream_WriteUInt64(WorkStream,DataSize);
-  Stream_WriteBuffer(WorkStream,TempStream.Memory^,TMemSize(TempStream.Size));
-  WorkStream.Size := WorkStream.Position;
+  Stream.Seek(0,soBeginning);
+  Stream_WriteUInt64(Stream,DataSize);
+  Stream_WriteBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));
+  Stream.Size := Stream.Position;
 finally
   TempStream.Free;
 end;
@@ -88,7 +88,7 @@ end;
 
 //------------------------------------------------------------------------------  
 
-procedure DecryptStream_AES256(WorkStream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
+procedure DecryptStream_AES256(Stream: TMemoryStream; const Password: String; DecryptCheck: UInt64);
 var
   TempStream: TMemoryStream;
   DataSize:   UInt64;
@@ -99,12 +99,12 @@ begin
 TempStream := TMemoryStream.Create;
 try
   // load encrypted and unencrypted data sizes
-  WorkStream.Seek(0,soBeginning);
-  DataSize := Stream_ReadUInt64(WorkStream);
+  Stream.Seek(0,soBeginning);
+  DataSize := Stream_ReadUInt64(Stream);
   // preallocate stream
-  TempStream.Size := WorkStream.Size;
+  TempStream.Size := Stream.Size;
   // load encrypted data into temp
-  Stream_ReadBuffer(WorkStream,TempStream.Memory^,TMemSize(TempStream.Size));
+  Stream_ReadBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));
   // get key and init vector
   Key := BinaryCorrectSHA2(WideStringSHA2(sha256,StrToUnicode(Password)).Hash256);
   InitVector := BinaryCorrectMD5(WideStringMD5(StrToUnicode(Password)));
@@ -124,9 +124,9 @@ try
   If Stream_ReadUInt64(TempStream) <> DecryptCheck then
     raise EILWrongPassword.Create('DecryptStream_AES256: Decryption failed, wrong password?');
   //write decrypted data without validity check
-  WorkStream.Seek(0,soBeginning);
-  Stream_WriteBuffer(WorkStream,TempStream.Memory^,TMemSize(TempStream.Size - SizeOf(UInt64)));
-  WorkStream.Size := WorkStream.Position;
+  Stream.Seek(0,soBeginning);
+  Stream_WriteBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size - SizeOf(UInt64)));
+  Stream.Size := Stream.Position;
 finally
   TempStream.Free;
 end;

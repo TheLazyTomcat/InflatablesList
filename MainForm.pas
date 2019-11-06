@@ -49,7 +49,7 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMS_FindPrevValue: TMenuItem;
     mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
@@ -66,7 +66,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N7: TMenuItem;
+    N8: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -75,7 +75,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N8: TMenuItem;
+    N9: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -89,6 +89,11 @@ type
     frmItemFrame: TfrmItemFrame;
     sbStatusBar: TStatusBar;
     shpListFiller: TShape;
+    mniMMI_Encrypted: TMenuItem;
+    mniMMI_Decrypt: TMenuItem;
+    mniMMI_DecryptAll: TMenuItem;
+    mniMMI_ChangeItemsPswd: TMenuItem;
+    N6: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -175,6 +180,10 @@ type
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure mniMMI_EncryptedClick(Sender: TObject);
+    procedure mniMMI_DecryptClick(Sender: TObject);
+    procedure mniMMI_DecryptAllClick(Sender: TObject);
+    procedure mniMMI_ChangeItemsPswdClick(Sender: TObject);
   private
     // resizing
     fInitialFormWidth:    Integer;
@@ -223,7 +232,8 @@ uses
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_Encryption;
 
 {$R *.dfm}
 
@@ -468,9 +478,15 @@ procedure TfMainForm.ItemsPasswordRequest(Sender: TObject);
 var
   Password: String;
 begin
-Password := '';
 If IL_InputQuery('Items password','Enter items password (can be empty):',Password,'*') then
-  fILManager.ItemsPassword := Password;
+  try
+    fILManager.ItemsPassword := Password;
+  except
+    on E: EILWrongPassword do
+      MessageDlg('Wrong password.',mtError,[mbOk],0)
+    else
+      raise;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -861,15 +877,28 @@ end;
 
 procedure TfMainForm.mniMM_ItemClick(Sender: TObject);
 begin
+mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
+mniMMI_Encrypted.Enabled := lbList.ItemIndex >= 0;
+If lbList.ItemIndex >= 0 then
+  begin
+    mniMMI_Encrypted.Checked := fILManager[lbList.ItemIndex].Encrypted;
+    mniMMI_Decrypt.Enabled := fILManager[lbList.ItemIndex].Encrypted and not fILManager[lbList.ItemIndex].DataAccessible;
+  end
+else
+  begin
+    mniMMI_Encrypted.Checked := False;
+    mniMMI_Decrypt.Enabled := False;
+  end;
+mniMMI_DecryptAll.Enabled := fILManager.EncryptedItemCount(False) > 0;
+mniMMI_ChangeItemsPswd.Enabled := fILManager.HasItemsPassword; 
 mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveDown.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 mniMMI_MoveDownBy.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
 mniMMI_MoveEnd.Enabled := (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count));
-mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -1762,6 +1791,43 @@ If Button = mbLeft then
       IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniMMH_About.OnClick(nil);
     end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_EncryptedClick(Sender: TObject);
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    fILManager[lbList.ItemIndex].Encrypted := not fILManager[lbList.ItemIndex].Encrypted;
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+procedure TfMainForm.mniMMI_DecryptClick(Sender: TObject);
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    fILManager[lbList.ItemIndex].Decrypt;
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+procedure TfMainForm.mniMMI_DecryptAllClick(Sender: TObject);
+begin
+fILManager.DecryptAllItems;
+If lbList.ItemIndex >= 0 then
+  begin
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+procedure TfMainForm.mniMMI_ChangeItemsPswdClick(Sender: TObject);
+begin
+//
 end;
 
 end.

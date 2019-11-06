@@ -50,7 +50,9 @@ type
   TfrmItemFrame = class(TFrame)
     pnlMain: TPanel;
     shpItemTitleBcgr: TShape;
+    imgItemLock: TImage;    
     lblItemTitle: TLabel;
+    lblItemTitleShadow: TLabel;    
     imgManufacturerLogo: TImage;
     shpPictureABcgr: TShape;
     imgPictureA: TImage;
@@ -163,8 +165,6 @@ type
     lblTotalPriceSelected: TLabel;
     shpTotalPriceSelectedBcgr: TShape;
     shpFiller: TShape;
-    lblItemTitleShadow: TLabel;
-    Button1: TButton;
     tmrHighlightTimer: TTimer;
     shpHighlight: TShape;
     procedure FrameResize(Sender: TObject);
@@ -217,7 +217,6 @@ type
     procedure seRatingChange(Sender: TObject);    
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure tmrHighlightTimerTimer(Sender: TObject);
   private
     // resizing
@@ -439,6 +438,8 @@ var
 begin
 If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   begin
+    // item lock icon
+    imgItemLock.Visible := fCurrentItem.Encrypted;
     // construct manufacturer + ID string
     ManufStr := fCurrentItem.TitleStr;
     // constructy item type string
@@ -453,6 +454,7 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   end
 else
   begin
+    imgItemLock.Visible := False;
     lblItemTitle.Caption := '';
     lblItemTitleShadow.Caption := '';
   end;
@@ -953,6 +955,7 @@ procedure TfrmItemFrame.FrameClear;
 begin
 fInitializing := True;
 try
+  imgItemLock.Visible := False;
   UpdateTitle(nil,nil);
   ReplaceManufacturerLogo;
   UpdatePictures(nil,nil);
@@ -1089,6 +1092,7 @@ If Assigned(fCurrentItem) then
   begin
     fInitializing := True;
     try
+      imgItemLock.Visible := fCurrentItem.Encrypted;
       // internals
       lblUniqueID.Caption := GUIDToString(fCurrentItem.UniqueID);
       lblTimeOfAddition.Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',fCurrentItem.TimeOfAddition);
@@ -1238,8 +1242,8 @@ If ProcessChange then
         fCurrentItem := nil;
         FrameClear;
       end;
-    Visible := Assigned(fCurrentItem);
-    Enabled := Assigned(fCurrentItem);
+    Visible := Assigned(fCurrentItem) and fCurrentItem.DataAccessible;
+    Enabled := Assigned(fCurrentItem) and fCurrentItem.DataAccessible;
   end
 else fCurrentItem := Item;
 DisableHighlight;
@@ -1924,14 +1928,6 @@ If Assigned(fCurrentItem) then
     fShopsForm.ShowShops(fCurrentItem);
     If Assigned(OnFocusList) then
       OnFocusList(Self);
-  end;
-end;
-
-procedure TfrmItemFrame.Button1Click(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  begin
-    fCurrentItem.Encrypted := not fCurrentItem.Encrypted;
   end;
 end;
 

@@ -57,7 +57,7 @@ uses
   InflatablesList_Manager_IO_00000008 in 'source\InflatablesList_Manager_IO_00000008.pas',
   InflatablesList_Manager_IO_00000009 in 'source\InflatablesList_Manager_IO_00000009.pas',
   InflatablesList_Manager_IO_0000000A in 'source\InflatablesList_Manager_IO_0000000A.pas',
-  InflatablesList_Manager_IO_0000000B in 'source\InflatablesList_Manager_IO_0000000B.pas',  
+  InflatablesList_Manager_IO_0000000B in 'source\InflatablesList_Manager_IO_0000000B.pas',
   InflatablesList_Manager in 'source\InflatablesList_Manager.pas',
   InflatablesList_Master in 'source\InflatablesList_Master.pas',
   ItemFrame in 'ItemFrame.pas' {frmItemFrame: TFrame},
@@ -82,7 +82,8 @@ uses
   AboutForm in 'AboutForm.pas' {fAboutForm},
   PromptForm in 'PromptForm.pas' {fPromptForm},
   SplashForm in 'SplashForm.pas' {fSplashForm},
-  SaveForm in 'SaveForm.pas' {fSaveForm};
+  SaveForm in 'SaveForm.pas' {fSaveForm},
+  InflatablesList_Item_Crypt in 'source\InflatablesList_Item_Crypt.pas';
 
 {$R *.res}
 

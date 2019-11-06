@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="item_lock.svg"
-   inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\item_lock.png"
-   inkscape:export-xdpi="18.488327"
-   inkscape:export-ydpi="18.488327">
+   inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\icons\icon_lock_b.png"
+   inkscape:export-xdpi="3.0813882"
+   inkscape:export-ydpi="3.0813882">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.9458149"
-     inkscape:cx="268.78016"
-     inkscape:cy="627.41165"
+     inkscape:cx="362.40556"
+     inkscape:cy="626.35436"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -56,14 +56,15 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4176"
        width="467.32187"
        height="467.32187"
        x="168.63765"
        y="164.76782"
-       inkscape:export-xdpi="18.488327"
-       inkscape:export-ydpi="18.488327" />
+       inkscape:export-xdpi="3.0813882"
+       inkscape:export-ydpi="3.0813882"
+       inkscape:export-filename="F:\Programy\Programs\Inflatables List\Dev\pics\icons\icon_lock_w.png" />
     <circle
        style="opacity:1;fill:#b1b1b1;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4152"
@@ -71,13 +72,13 @@
        cy="268.5033"
        r="102.10526" />
     <circle
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4154"
        cx="402.29858"
        cy="268.5033"
        r="70.829781" />
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4162"
        width="227.36842"
        height="141.05263"

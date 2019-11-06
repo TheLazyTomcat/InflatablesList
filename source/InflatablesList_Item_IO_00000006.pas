@@ -12,6 +12,11 @@ uses
 type
   TILItem_IO_00000006 = class(TILItem_IO_00000005)
   protected
+    fFNSaveToStreamPlain:   procedure(Stream: TStream) of object;
+    fFNLoadFromStreamPlain: procedure(Stream: TStream) of object;
+    fFNSaveToStreamProc:    procedure(Stream: TStream) of object;
+    fFNLoadFromStreamProc:  procedure(Stream: TStream) of object;
+    fFNDeferredLoadProc:    procedure(Stream: TStream) of object;
     // special functions
     Function GetFlagsWord: UInt32; virtual;
     procedure SetFlagsWord(FlagsWord: UInt32); virtual;
@@ -29,6 +34,7 @@ type
 implementation
 
 uses
+  SysUtils,
   BinaryStreaming, BitOps, MemoryBuffer,
   InflatablesList_Types,
   InflatablesList_Encryption,
@@ -56,6 +62,8 @@ If Struct = IL_ITEM_STREAMSTRUCTURE_00000006 then
   begin
     fFNSaveToStream := SaveItem_00000006;
     fFNSavePicture := SavePicture_00000000;
+    fFNSaveToStreamPlain := SaveItem_Plain_00000006;
+    fFNSaveToStreamProc := SaveItem_Processed_00000006;
   end
 else inherited InitSaveFunctions(Struct);
 end;
@@ -68,6 +76,9 @@ If Struct = IL_ITEM_STREAMSTRUCTURE_00000006 then
   begin
     fFNLoadFromStream := LoadItem_00000006;
     fFNLoadPicture := LoadPicture_00000000;
+    fFNLoadFromStreamPlain := LoadItem_Plain_00000006;
+    fFNLoadFromStreamProc := LoadItem_Processed_00000006;
+    fFNDeferredLoadProc := LoadItem_Plain_00000006;
   end
 else inherited InitLoadFunctions(Struct);
 end;
@@ -78,9 +89,9 @@ procedure TILItem_IO_00000006.SaveItem_00000006(Stream: TStream);
 begin
 Stream_WriteUInt32(Stream,GetFlagsWord);
 If fEncrypted then
-  SaveItem_Processed_00000006(Stream)
+  fFNSaveToStreamProc(Stream)
 else
-  SaveItem_Plain_00000006(Stream);
+  fFNSaveToStreamPlain(Stream);
 end;
 
 //------------------------------------------------------------------------------
@@ -89,9 +100,9 @@ procedure TILItem_IO_00000006.LoadItem_00000006(Stream: TStream);
 begin
 SetFlagsWord(Stream_ReadUInt32(Stream));
 If fEncrypted then
-  LoadItem_Processed_00000006(Stream)
+  fFNLoadFromStreamProc(Stream)
 else
-  LoadItem_00000005(Stream);
+  fFNLoadFromStreamPlain(Stream);
 end;
 
 //------------------------------------------------------------------------------
@@ -114,6 +125,7 @@ end;
 procedure TILItem_IO_00000006.SaveItem_Processed_00000006(Stream: TStream);
 var
   TempStream: TMemoryStream;
+  Password:   String;
 begin
 // in current implementation, if we are here, we are writing encrypted item...
 If fDataAccessible then
@@ -133,10 +145,13 @@ If fDataAccessible then
       TempStream.Size := Int64(IL_LISTFILE_PREALLOC_BYTES_ITEM + (3 * IL_LISTFILE_PREALLOC_BYTES_PIC));
       TempStream.Seek(0,soBeginning);
       // write plain data
-      SaveItem_Plain_00000006(TempStream);
+      fFNSaveToStreamPlain(TempStream);
       TempStream.Size := TempStream.Position;
       // encrypt the stream
-      InflatablesList_Encryption.EncryptStream_AES256(TempStream,fItemPassword,IL_ITEM_DECRYPT_CHECK);
+      If RequestItemsPassword(Password) then
+        InflatablesList_Encryption.EncryptStream_AES256(TempStream,Password,IL_ITEM_DECRYPT_CHECK)
+      else
+        raise Exception.Create('TILItem_IO_00000006.SaveItem_Processed_00000006: Unable to obtain password for saving, cannot continue.');
       // save the encrypted stream
       Stream_WriteUInt64(Stream,UInt64(TempStream.Size));                       // write size of encrypted data      
       Stream_WriteBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));  // TempStream contains unencrypted size
@@ -161,11 +176,11 @@ end;
 procedure TILItem_IO_00000006.LoadItem_Processed_00000006(Stream: TStream);
 begin
 {
-  the item is marked as encrypted - do not decrypt it here , just load it into
+  the item is marked as encrypted - do not decrypt it here, just load it into
   fEncryptedData buffer and set fDataAccessible to false
 }
 fDataAccessible := False;
-GetBuffer(fEncryptedData,TMemSize(Stream_ReadUInt64(Stream)));
+ReallocBuffer(fEncryptedData,TMemSize(Stream_ReadUInt64(Stream)));
 Stream_ReadBuffer(Stream,fEncryptedData.Memory^,fEncryptedData.Size);
 end;
 

@@ -147,8 +147,16 @@ with fRender,fRender.Canvas do
                      fDataProvider.RatingGradientImage.Canvas,
                      Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
           end;
-    
-        // title + count
+
+        // lock icon, title + count
+        TempInt := SIDE_STRIP_WIDTH + 5;
+        If fEncrypted then
+          begin
+            If ilifDiscarded in fFlags then
+              Inc(TempInt,fDataProvider.ItemLockIconBlack.Width + 5)
+            else
+              Inc(TempInt,fDataProvider.ItemLockIconWhite.Width + 5);
+          end;
         If fPieces > 1 then
           TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
         else
@@ -156,10 +164,17 @@ with fRender,fRender.Canvas do
         If ilifDiscarded in fFlags then
           begin
             SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
-            Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+            Rectangle(SIDE_STRIP_WIDTH - 1,0,TempInt + TextWidth(TempStr) + 6,TextHeight(TempStr) + 10);
           end
         else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,12);
-        TextOut(SIDE_STRIP_WIDTH + 5,5,TempStr);
+        If fEncrypted then
+          begin
+            If ilifDiscarded in fFlags then
+              Draw(SIDE_STRIP_WIDTH + 5,7,fDataProvider.ItemLockIconBlack)
+            else
+              Draw(SIDE_STRIP_WIDTH + 5,7,fDataProvider.ItemLockIconWhite);
+          end;
+        TextOut(TempInt,5,TempStr);
     
         // type + size
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,10);
@@ -172,7 +187,7 @@ with fRender,fRender.Canvas do
         // variant/color
         SetCanvas;
         TextOut(SIDE_STRIP_WIDTH + 5,50,fVariant);
-    
+
         // flag icons
         SetCanvas;
         TempInt := SIDE_STRIP_WIDTH + 5;
@@ -277,9 +292,16 @@ with fRender,fRender.Canvas do
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
-        // data are not accessible, draw placeholder
-        SetCanvas;
-        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');
+        // data are not accessible, draw placeholder 
+        // lock picture
+        Draw(SIDE_STRIP_WIDTH + 5,9,fDataProvider.ItemLockImage);
+
+        // text
+        TempInt := SIDE_STRIP_WIDTH + fDataProvider.ItemLockImage.Width + 10;
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,5,'Item is encrypted');
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;
   end;
 end;
@@ -291,6 +313,7 @@ const
   SIDE_STRIP_WIDTH  = 20;
 var
   TempStr:  String;
+  TempInt:  Integer;
 
   procedure SetCanvas(BStyle: TBrushStyle = bsClear; BColor: TColor = clWhite;
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
@@ -366,8 +389,15 @@ with fRenderSmall,fRenderSmall.Canvas do
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
         // data are not accessible, draw placeholder
-        SetCanvas;
-        TextOut(SIDE_STRIP_WIDTH + 5,5,'LOCKED');        
+        // lock picture
+        Draw(SIDE_STRIP_WIDTH + 5,9,fDataProvider.ItemLockImage);
+
+        // text
+        TempInt := SIDE_STRIP_WIDTH + fDataProvider.ItemLockImage.Width + 10;        
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,5,'Item is encrypted');
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;      
   end;
 end;

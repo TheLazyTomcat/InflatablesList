@@ -308,6 +308,28 @@ object fMainForm: TfMainForm
       object N6: TMenuItem
         Caption = '-'
       end
+      object mniMMI_Encrypted: TMenuItem
+        Caption = 'Encrypted item'
+        ShortCut = 16459
+        OnClick = mniMMI_EncryptedClick
+      end
+      object mniMMI_Decrypt: TMenuItem
+        Caption = 'Decrypt item'
+        ShortCut = 16473
+        OnClick = mniMMI_DecryptClick
+      end
+      object mniMMI_DecryptAll: TMenuItem
+        Caption = 'Decrypt all items'
+        ShortCut = 49241
+        OnClick = mniMMI_DecryptAllClick
+      end
+      object mniMMI_ChangeItemsPswd: TMenuItem
+        Caption = 'Change items encryption password...'
+        OnClick = mniMMI_ChangeItemsPswdClick
+      end
+      object N7: TMenuItem
+        Caption = '-'
+      end
       object mniMMI_MoveBeginning: TMenuItem
         Caption = 'Move item to the beginning'
         OnClick = mniMMI_MoveBeginningClick
@@ -356,7 +378,7 @@ object fMainForm: TfMainForm
         ShortCut = 49222
         OnClick = mniMMS_AdvSearchClick
       end
-      object N7: TMenuItem
+      object N8: TMenuItem
         Caption = '-'
       end
       object mniMMS_FindPrevValue: TMenuItem
@@ -430,7 +452,7 @@ object fMainForm: TfMainForm
         Caption = 'Update selected shops...'
         OnClick = mniMMU_UpdateSelectedClick
       end
-      object N8: TMenuItem
+      object N9: TMenuItem
         Caption = '-'
       end
       object mniMMU_UpdateItemShopHistory: TMenuItem
@@ -469,7 +491,7 @@ object fMainForm: TfMainForm
         Caption = 'Settings tag legend...'
         OnClick = mniMMH_SettingsLegendClick
       end
-      object N9: TMenuItem
+      object N10: TMenuItem
         Caption = '-'
       end
       object mniMMH_About: TMenuItem

@@ -29,9 +29,9 @@ type
     // list properties
     fEncrypted:                   Boolean;
     fListPassword:                String;
+    fCompressed:                  Boolean;
     fHasItemsPassword:            Boolean;
     fItemsPassword:               String;
-    fCompressed:                  Boolean;    
     // internal events forwarded from item shops
     fOnShopListItemUpdate:        TILIndexedObjectL2Event;  // all events are transient
     fOnShopValuesUpdate:          TILObjectL2Event;
@@ -59,8 +59,8 @@ type
     // getters and setters
     procedure SetEncrypted(Value: Boolean); virtual;
     procedure SetListPassword(const Value: String); virtual;
-    procedure SetItemsPassword(const Value: String); virtual;
     procedure SetCompressed(Value: Boolean); virtual;
+    procedure SetItemsPassword(const Value: String); virtual;    
     // data getters and setters
     procedure SetNotes(const Value: String); virtual;
     procedure SetListName(const Value: String); virtual;
@@ -129,18 +129,19 @@ type
     Function TotalPictureCount: Integer; virtual;
     procedure AssignInternalEventHandlers; virtual;
     Function EncryptedItemCount(CountDecrypted: Boolean): Integer; virtual;
+    Function CheckItemPassword(const Password: String): Boolean; virtual;
+    Function DecryptAllItems: Integer; virtual;
     // properties
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;
     property DataProvider: TILDataProvider read fDataProvider;
     property BackupManager: TILBackupManager read fBackupManager;
-    // encryption
+    // list properties
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
     property ListPassword: String read fListPassword write SetListPassword;
-    property HasItemsPassword: Boolean read fHasItemsPassword;
-    property ItemsPassword: String read fItemsPassword write SetItemsPassword;
-    // other list properties
     property Compressed: Boolean read fCompressed write SetCompressed;
+    property HasItemsPassword: Boolean read fHasItemsPassword;
+    property ItemsPassword: String read fItemsPassword write SetItemsPassword;    
     // list and data
     property ItemCount: Integer read GetCount;
     property Items[Index: Integer]: TILItem read GetItem; default;
@@ -172,6 +173,7 @@ uses
   SysUtils,
   SimpleCmdLineParser, StrRect,
   InflatablesList_Utils,
+  InflatablesList_Encryption,
   InflatablesList_ItemShop;
 
 const
@@ -200,20 +202,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.SetItemsPassword(const Value: String);
-var
-  i:  Integer;
-begin
-fItemsPassword := Value;
-UniqueString(fItemsPassword);
-If fHasItemsPassword then
-  For i := ItemLowIndex to ItemHighIndex do
-    fList[i].ItemPassword := fItemsPassword;
-fHasItemsPassword := True;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TILManager_Base.SetCompressed(Value: Boolean);
 begin
 If fCompressed <> Value then
@@ -221,6 +209,19 @@ If fCompressed <> Value then
     fCompressed := Value;
     UpdateSettings;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.SetItemsPassword(const Value: String);
+begin
+If CheckItemPassword(Value) then
+  begin
+    fItemsPassword := Value;
+    UniqueString(fItemsPassword);
+    fHasItemsPassword := True;
+  end
+else raise EILWrongPassword.Create('TILManager_Base.SetItemsPassword: Wrong password.');
 end;
 
 //------------------------------------------------------------------------------
@@ -395,7 +396,7 @@ Function TILManager_Base.ItemPasswordRequestHandler(Sender: TObject; out Passwor
 begin
 Password := '';
 If not fHasItemsPassword then
-  RequestItemsPassword; // prompt for password
+  RequestItemsPassword; // prompt for password, changes fItemsPassword
 If fHasItemsPassword then
   begin
     Password := fItemsPassword;
@@ -561,10 +562,10 @@ fStaticSettings := IL_THreadSafeCopy(Source.StaticSettings);
 fEncrypted := Source.Encrypted;
 fListPassword := Source.ListPassword;
 UniqueString(fListPassword);
+fCompressed := Source.Compressed;
 fHasItemsPassword := Source.HasItemsPassword;
 fItemsPassword := Source.ItemsPassword;
 UniqueString(fItemsPassword);
-fCompressed := Source.Compressed;
 // free existing items
 For i := ItemLowIndex to ItemHighIndex do
   FreeAndNil(fList[i]);
@@ -605,10 +606,10 @@ fBackupManager := TILBackupManager.CreateAsCopy(Source.BackupManager);
 fEncrypted := Source.Encrypted;
 fListPassword := Source.ListPassword;
 UniqueString(fListPassword);
+fCompressed := Source.Compressed;
 fHasItemsPassword := Source.HasItemsPassword;
 fItemsPassword := Source.ItemsPassword;
 UniqueString(fItemsPassword);
-fCompressed := Source.Compressed;
 // copy the list
 Capacity := Source.Count;
 For i := Source.LowIndex to Source.HighIndex do
@@ -990,6 +991,39 @@ Result := 0;
 For i := ItemLowIndex to ItemHighIndex do
   If fList[i].Encrypted and (not fList[i].DataAccessible or CountDecrypted) then
     Inc(Result);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.CheckItemPassword(const Password: String): Boolean;
+var
+  i:  Integer;
+begin
+Result := True;
+For i := ItemLowIndex to ItemHighIndex do
+  If fList[i].Encrypted and not fList[i].DataAccessible then
+    begin
+      // try it only on the first encountered item
+      Result := fList[i].TryDecrypt(Password);
+      Break{For i};
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.DecryptAllItems: Integer;
+var
+  i:      Integer;
+  Dummy:  String;
+begin
+Result := 0;
+If (EncryptedItemCount(False) > 0) and ItemPasswordRequestHandler(Self,Dummy) then
+  For i := ItemLowIndex to ItemHighIndex do
+    If fList[i].Encrypted and not fList[i].DataAccessible then
+      begin
+        fList[i].Decrypt;
+        Inc(Result);
+      end;
 end;
 
 end.

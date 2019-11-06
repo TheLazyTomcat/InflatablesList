@@ -128,15 +128,18 @@ var
   i:  TILItemSearchResult;
 begin
 Result := ilisrNone;
-i := IL_WrapSearchResult(Pred(From));
-while i <> From do
+If fDataAccessible then
   begin
-    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+    i := IL_WrapSearchResult(Pred(From));
+    while i <> From do
       begin
-        Result := i;
-        Break{while...};
+        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+          begin
+            Result := i;
+            Break{while...};
+          end;
+        i := IL_WrapSearchResult(Pred(i));
       end;
-    i := IL_WrapSearchResult(Pred(i));
   end;
 end;
 
@@ -147,15 +150,18 @@ var
   i:  TILItemSearchResult;
 begin
 Result := ilisrNone;
-i := IL_WrapSearchResult(Succ(From));
-while i <> From do
+If fDataAccessible then
   begin
-    If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+    i := IL_WrapSearchResult(Succ(From));
+    while i <> From do
       begin
-        Result := i;
-        Break{while...};
+        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+          begin
+            Result := i;
+            Break{while...};
+          end;
+        i := IL_WrapSearchResult(Succ(i));
       end;
-    i := IL_WrapSearchResult(Succ(i));
   end;
 end;
 

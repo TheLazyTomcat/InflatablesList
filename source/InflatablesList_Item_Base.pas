@@ -30,7 +30,6 @@ type
     fUpdated:               TILItemUpdatedFlags;      // transient
     fClearingSelected:      Boolean;                  // transient
     // encryption
-    fItemPassword:          String;
     fEncrypted:             Boolean;        // item will be encrypted during saving
     fDataAccessible:        Boolean;        // unencrypted or decrypted item
     fEncryptedData:         TMemoryBuffer;  // stores encrypted data until they are decrypted
@@ -103,8 +102,7 @@ type
     // getters and setters
     procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     procedure SetIndex(Value: Integer); virtual;
-    procedure SetItemPassword(const Value: String); virtual;
-    procedure SetEncrypted(Value: Boolean); virtual;
+    procedure SetEncrypted(Value: Boolean); virtual; abstract;
     // data getters and setters
     procedure SetItemPicture(Value: TBitmap); virtual;
     procedure SetSecondaryPicture(Value: TBitmap); virtual;
@@ -170,9 +168,6 @@ type
     procedure FinalizeData; virtual;
     procedure Initialize; virtual;
     procedure Finalize; virtual;
-    // encryption
-    procedure EncryptData; virtual;
-    procedure DecryptData; virtual;
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
@@ -224,7 +219,6 @@ type
     property RenderSmall: TBitmap read fRenderSmall;
     property FilteredOut: Boolean read fFilteredOut;
     // encryption
-    property ItemPassword: String read fItemPassword write SetItemPassword;
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
     property DataAccessible: Boolean read fDataAccessible;
     property EncryptedData: TMemoryBuffer read fEncryptedData;
@@ -291,33 +285,6 @@ begin
 If fIndex <> Value then
   begin
     fIndex := Value;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetItemPassword(const Value: String);
-begin
-If not IL_SameStr(fItemPassword,Value) then
-  begin
-    fItemPassword := Value;
-    UniqueString(fItemPassword);
-  end;
-end;
- 
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetEncrypted(Value: Boolean);
-begin
-If fEncrypted <> Value then
-  begin
-    If fEncrypted then
-      DecryptData   // sets fEncrypted and fDataAccessible if necessary
-    else
-      EncryptData;  // sets fEncrypted and fDataAccessible if necessary
-    UpdateTitle;    // to show lock icon
-    UpdateMainList;
-    UpdateSmallList;    
   end;
 end;
 
@@ -1016,7 +983,7 @@ fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
 fClearingSelected := False;
-fItemPassword := '';
+//fItemPassword := '';
 fEncrypted := False;
 fDataAccessible := True;
 InitBuffer(fEncryptedData);
@@ -1033,42 +1000,6 @@ If Assigned(fRenderSmall) then
   FreeAndNil(fRenderSmall);
 If Assigned(fRender) then
   FreeAndNil(fRender);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.EncryptData;
-begin
-If not fEncrypted then
-  If RequestItemsPassword(fItemPassword) then
-    begin
-      UniqueString(fItemPassword);
-      fEncrypted := True;
-      fDataAccessible := True;
-      // do not do the encryption itself, it is done during saving
-    end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.DecryptData;
-var
-  Password: String;
-begin
-If fEncrypted then
-  begin
-    If not fDataAccessible then
-      begin
-        If RequestItemsPassword(Password) then  // get password from the manager
-          begin
-            UniqueString(fItemPassword);
-            {$message 'implement actual decryption'}
-            fEncrypted := False;
-            fDataAccessible := True;
-          end;
-      end
-    else fEncrypted := False;
-  end;
 end;
 
 //==============================================================================
@@ -1097,8 +1028,8 @@ var
 begin
 Create(DataProvider);
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
-fItemPassword := Source.ItemPassword;
-UniqueString(fItemPassword);
+//fItemPassword := Source.ItemPassword;
+//UniqueString(fItemPassword);
 fEncrypted := Source.Encrypted;
 fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then

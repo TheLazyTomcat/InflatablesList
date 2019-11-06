@@ -44,6 +44,15 @@ const
   IL_LISTFILE_SLOW_SIZE_UCMP    = 12 * MiB;   // size of the list file to be compressed..  
   IL_LISTFILE_SLOW_SIZE_UCMPENC = 10 * MiB;   // size of the list file to be compressed and encrypted...
 
+{
+  number of encrypted items where the save is expected to be slow
+
+  note that given how the encrypted items are loaded (ie. not decrypted), there
+  is no need to use this in loading, only in saving
+}
+  IL_LISTFILE_SLOW_COUNT_ITEMENC = 10;
+
+
   IL_ITEMEXPORT_SIGNATURE = UInt32($49454C49);  // ILEI
 
 type
@@ -353,7 +362,8 @@ begin
 Result := (PreallocSize > IL_LISTFILE_SLOW_SIZE) or
   ((PreallocSize > IL_LISTFILE_SLOW_SIZE_ENC) and fEncrypted) or
   ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMP) and fCompressed) or
-  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMPENC) and fCompressed and fEncrypted);
+  ((PreallocSize > IL_LISTFILE_SLOW_SIZE_UCMPENC) and fCompressed and fEncrypted) or
+  (((EncryptedItemCount(True) - EncryptedItemCount(False){only decrypted}) >= IL_LISTFILE_SLOW_COUNT_ITEMENC));
 end;
 
 end.

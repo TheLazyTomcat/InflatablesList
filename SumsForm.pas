@@ -217,9 +217,10 @@ begin
 CDA_Clear(fSelectedShops);
 // enumerate all unique shops (by name)
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut and fIlManager[i].ShopsSelected(SelShop) then
-    If not CDA_CheckIndex(fSelectedShops,CDA_IndexOf(fSelectedShops,SelShop.Name,False)) then
-      CDA_Add(fSelectedShops,SelShop.Name);
+  If fIlManager[i].DataAccessible then
+    If not fIlManager[i].FilteredOut and fIlManager[i].ShopsSelected(SelShop) then
+      If not CDA_CheckIndex(fSelectedShops,CDA_IndexOf(fSelectedShops,SelShop.Name,False)) then
+        CDA_Add(fSelectedShops,SelShop.Name);
 CDA_Add(fSelectedShops,'<none>'); // for items without a selected shop
 // set table size
 sgSumsBySelShop.RowCount := 10;
@@ -256,9 +257,10 @@ begin
 CDA_Clear(fTextTags);
 // enumerate all unique text tags, case-sensitive
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut and (Length(fIlManager[i].TextTag) > 0) then
-    If not CDA_CheckIndex(fTextTags,CDA_IndexOf(fTextTags,fIlManager[i].TextTag,True)) then
-      CDA_Add(fTextTags,fIlManager[i].TextTag);
+  If fIlManager[i].DataAccessible then
+    If not fIlManager[i].FilteredOut and (Length(fIlManager[i].TextTag) > 0) then
+      If not CDA_CheckIndex(fTextTags,CDA_IndexOf(fTextTags,fIlManager[i].TextTag,True)) then
+        CDA_Add(fTextTags,fIlManager[i].TextTag);
 CDA_Sort(fTextTags,False,True);
 CDA_Add(fTextTags,'<none>');  // for items without a text tag
 // set table size
@@ -296,7 +298,7 @@ begin
 FillChar(Sums,SizeOf(TILSumRec),0);
 // sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
+  If fIlManager[i].DataAccessible and not fIlManager[i].FilteredOut then
     begin
       Inc(Sums.Items);
       Inc(Sums.Pieces,fILManager[i].Pieces);
@@ -332,7 +334,7 @@ begin
 FillChar(Sums,SizeOf(TILSumsByType),0);
 // sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
+  If fIlManager[i].DataAccessible and not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].ItemType].Items);
       Inc(Sums[fILManager[i].ItemType].Pieces,fILManager[i].Pieces);
@@ -371,7 +373,7 @@ begin
 FillChar(Sums,SizeOf(TILSumsByManufacturer),0);
 // sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
+  If fIlManager[i].DataAccessible and not fIlManager[i].FilteredOut then
     begin
       Inc(Sums[fILManager[i].Manufacturer].Items);
       Inc(Sums[fILManager[i].Manufacturer].Pieces,fILManager[i].Pieces);
@@ -412,7 +414,7 @@ begin
 SetLength(Sums,CDA_Count(fSelectedShops));
 // sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
+  If fIlManager[i].DataAccessible and not fIlManager[i].FilteredOut then
     begin
       If fILManager[i].ShopsSelected(SelShop) then
         Index := CDA_IndexOf(fSelectedShops,SelShop.Name,False)
@@ -472,7 +474,7 @@ begin
 SetLength(Sums,CDA_Count(fTextTags));
 // sum
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If not fIlManager[i].FilteredOut then
+  If fIlManager[i].DataAccessible and not fIlManager[i].FilteredOut then
     begin
       If Length(fILManager[i].TextTag) > 0 then
         Index := CDA_IndexOf(fTextTags,fILManager[i].TextTag,True)

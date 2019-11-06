@@ -38,6 +38,11 @@ type
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
     N5: TMenuItem;
+    mniMMI_Encrypted: TMenuItem;
+    mniMMI_Decrypt: TMenuItem;
+    mniMMI_DecryptAll: TMenuItem;
+    mniMMI_ChangeItemsPswd: TMenuItem;
+    N6: TMenuItem;    
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -89,11 +94,6 @@ type
     frmItemFrame: TfrmItemFrame;
     sbStatusBar: TStatusBar;
     shpListFiller: TShape;
-    mniMMI_Encrypted: TMenuItem;
-    mniMMI_Decrypt: TMenuItem;
-    mniMMI_DecryptAll: TMenuItem;
-    mniMMI_ChangeItemsPswd: TMenuItem;
-    N6: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -124,6 +124,10 @@ type
     procedure mniMMI_ItemExportClick(Sender: TObject);
     procedure mniMMI_ItemExportMultiClick(Sender: TObject);
     procedure mniMMI_ItemImportClick(Sender: TObject);
+    procedure mniMMI_EncryptedClick(Sender: TObject);
+    procedure mniMMI_DecryptClick(Sender: TObject);
+    procedure mniMMI_DecryptAllClick(Sender: TObject);
+    procedure mniMMI_ChangeItemsPswdClick(Sender: TObject);
     procedure mniMMI_MoveBeginningClick(Sender: TObject);
     procedure mniMMI_MoveUpByClick(Sender: TObject);
     procedure mniMMI_MoveUpClick(Sender: TObject);
@@ -180,10 +184,6 @@ type
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure mniMMI_EncryptedClick(Sender: TObject);
-    procedure mniMMI_DecryptClick(Sender: TObject);
-    procedure mniMMI_DecryptAllClick(Sender: TObject);
-    procedure mniMMI_ChangeItemsPswdClick(Sender: TObject);
   private
     // resizing
     fInitialFormWidth:    Integer;
@@ -195,6 +195,7 @@ type
     fInitialized:         Boolean;
     fILManager:           TILManager;
     fSaveOnExit:          Boolean;
+    fWrongPswdMessage:    String;
   protected
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
@@ -483,9 +484,13 @@ If IL_InputQuery('Items password','Enter items password (can be empty):',Passwor
     fILManager.ItemsPassword := Password;
   except
     on E: EILWrongPassword do
-      MessageDlg('Wrong password.',mtError,[mbOk],0)
-    else
-      raise;
+      begin
+        If Length(fWrongPswdMessage) > 0 then
+          MessageDlg(fWrongPswdMessage,mtError,[mbOk],0)
+        else
+          MessageDlg('Wrong password.',mtError,[mbOk],0);
+      end
+    else raise;
   end;
 end;
 
@@ -579,6 +584,7 @@ fILManager.OnMainListUpdate := InvalidateList;
 fILManager.OnSettingsChange := SettingsChange;
 fILManager.OnItemsPasswordRequest := ItemsPasswordRequest;
 fSaveOnExit := True;
+fWrongPswdMessage := '';
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
@@ -892,7 +898,6 @@ else
     mniMMI_Decrypt.Enabled := False;
   end;
 mniMMI_DecryptAll.Enabled := fILManager.EncryptedItemCount(False) > 0;
-mniMMI_ChangeItemsPswd.Enabled := fILManager.HasItemsPassword; 
 mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
@@ -970,6 +975,91 @@ If diaItemsImport.Execute then
       MessageDlg(IL_Format('%d items imported.',[Cntr]),mtInformation,[mbOK],0)
     else
       MessageDlg('No item imported.',mtInformation,[mbOK],0)
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_EncryptedClick(Sender: TObject);
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    If fILManager[lbList.ItemIndex].Encrypted then
+      fWrongPswdMessage := 'Wrong password entered, cannot decrypt the item.'
+    else
+      fWrongPswdMessage := 'Entered password does not match with already encrypted items.';
+    fILManager[lbList.ItemIndex].Encrypted := not fILManager[lbList.ItemIndex].Encrypted;
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_DecryptClick(Sender: TObject);
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    fWrongPswdMessage := 'Wrong password entered, cannot decrypt the item.';
+    fILManager[lbList.ItemIndex].Decrypt;
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_DecryptAllClick(Sender: TObject);
+begin
+Screen.Cursor := crHourGlass;
+try
+  fWrongPswdMessage := 'Wrong password entered, cannot decrypt items.';
+  fILManager.DecryptAllItems;
+finally
+  Screen.Cursor := crDefault;
+end;
+If lbList.ItemIndex >= 0 then
+  begin
+    frmItemFrame.SetItem(nil,False);
+    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_ChangeItemsPswdClick(Sender: TObject);
+var
+  Password: String;
+begin
+{$message 'implement'}
+If fILManager.HasItemsPassword then
+  begin
+    Password := fILManager.ItemsPassword;
+    If fILManager.EncryptedItemCount(False) > 0 then
+      If MessageDlg('Existing encrypted items must be decrypted before changing the password.' + sLineBreak +
+           'Do you want to continue and decrypt all encrypted items?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+        begin
+          Screen.Cursor := crHourGlass;
+          try
+            fILManager.DecryptAllItems;          
+          finally
+            Screen.Cursor := crDefault;
+          end;
+        end
+      else Exit;
+    If IL_InputQuery('Items password','Enter items password (can be empty):',Password,'*') then
+      fILManager.ItemsPassword := Password;
+  end
+else
+  begin
+    Password := '';
+    If IL_InputQuery('Items password','Enter items password (can be empty):',Password,'*') then
+      begin
+        If fILManager.CheckItemPassword(Password) then
+          fILManager.ItemsPassword := Password
+        else
+          MessageDlg('Entered password does not match with already encrypted items.',mtError,[mbOk],0);
+      end;    
   end;
 end;
 
@@ -1791,43 +1881,6 @@ If Button = mbLeft then
       IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniMMH_About.OnClick(nil);
     end;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniMMI_EncryptedClick(Sender: TObject);
-begin
-If lbList.ItemIndex >= 0 then
-  begin
-    fILManager[lbList.ItemIndex].Encrypted := not fILManager[lbList.ItemIndex].Encrypted;
-    frmItemFrame.SetItem(nil,False);
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
-  end;
-end;
-
-procedure TfMainForm.mniMMI_DecryptClick(Sender: TObject);
-begin
-If lbList.ItemIndex >= 0 then
-  begin
-    fILManager[lbList.ItemIndex].Decrypt;
-    frmItemFrame.SetItem(nil,False);
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
-  end;
-end;
-
-procedure TfMainForm.mniMMI_DecryptAllClick(Sender: TObject);
-begin
-fILManager.DecryptAllItems;
-If lbList.ItemIndex >= 0 then
-  begin
-    frmItemFrame.SetItem(nil,False);
-    frmItemFrame.SetItem(fILManager[lbList.ItemIndex],True);
-  end;
-end;
-
-procedure TfMainForm.mniMMI_ChangeItemsPswdClick(Sender: TObject);
-begin
-//
 end;
 
 end.

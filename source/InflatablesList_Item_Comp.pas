@@ -147,9 +147,10 @@ var
   end;
 
 begin
-If fDataAccessible and WithItem.DataAccessible then
+If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncrypted) then
   case WithValue of
     // internals = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+    ilivtItemEncrypted:     Result := IL_SortCompareBool(fEncrypted,WithItem.Encrypted);
     ilivtUniqueID:          Result := IL_SortCompareGUID(fUniqueID,WithItem.UniqueID);
     ilivtTimeOfAdd:         Result := IL_SortCompareDateTime(fTimeOfAddition,WithItem.TimeOfAddition);
   

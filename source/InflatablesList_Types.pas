@@ -240,19 +240,21 @@ Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSetti
 
 type
   TILItemValueTag = (
-    ilivtNone,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,ilivtSecondaryPicture,
-    ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,ilivtPieces,ilivtManufacturer,
-    ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,
-    ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,
-    ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
-    ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,ilivtNumTag,
-    ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,
-    ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,
-    ilivtReview,ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
-    ilivtSecondaryPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,ilivtUnitPriceDefault,
-    ilivtRating,ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
-    ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,
-    ilivtSelectedShop,ilivtWorstUpdateResult);
+    ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,
+    ilivtSecondaryPicture,ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,
+    ilivtPieces,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,ilivtID,
+    ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,
+    ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,
+    ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
+    ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
+    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,
+    ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,
+    ilivtThickness,ilivtNotes,ilivtReviewURL,ilivtReview,ilivtMainPictureFile,
+    ilivtMainPicFilePres,ilivtSecondaryPictureFile,ilivtSecondaryPicFilePres,
+    ilivtPackPictureFile,ilivtPackPicFilePres,ilivtUnitPriceDefault,ilivtRating,
+    ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
+    ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
+    ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -980,6 +982,7 @@ case ItemValueTag of
   ilivtSecondaryPictureFile:  Result := 60;
   ilivtSecondaryPicFilePres:  Result := 61;
   ilivtRating:                Result := 62;
+  ilivtItemEncrypted:         Result := 63;
 else
   {ilivtNone}
   Result := 0;
@@ -1054,6 +1057,7 @@ case Num of
   60: Result := ilivtSecondaryPictureFile;
   61: Result := ilivtSecondaryPicFilePres;
   62: Result := ilivtRating;
+  63: Result := ilivtItemEncrypted;
 else
   Result := ilivtNone;
 end;

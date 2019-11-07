@@ -1699,16 +1699,15 @@ If (Sender is TMenuItem) and Assigned(fCurrentItem) then
             end;
           end;
         // price and availability change checked
-    4:  If [ilifPriceChange,ilifAvailChange] <= fCurrentItem.Flags then
-          begin
-            fCurrentItem.BeginUpdate;
-            try
-              fCurrentItem.SetFlagValue(ilifPriceChange,False);
-              fCurrentItem.SetFlagValue(ilifAvailChange,False);
-            finally
-              fCurrentItem.EndUpdate;
-            end;
+    4:  begin
+          fCurrentItem.BeginUpdate;
+          try
+            fCurrentItem.SetFlagValue(ilifPriceChange,False);
+            fCurrentItem.SetFlagValue(ilifAvailChange,False);
+          finally
+            fCurrentItem.EndUpdate;
           end;
+        end;
   end;
 end;
 

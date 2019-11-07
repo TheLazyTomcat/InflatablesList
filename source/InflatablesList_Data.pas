@@ -132,7 +132,7 @@ const
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Item is encrypted','Unique identifier (UID)','Time of addition',
     'Main picture (is present)','Secondary picture (is present)','Package picture (is present)',
-    'Item type','Item type specifier','Count','Manufacturer','Manufacturer string',
+    'Item type','Item type specifier','Pieces','User ID','Manufacturer','Manufacturer string',
     'Textual ID','Numerical ID','ID string','Owned (flag)','Wanted (flag)','Ordered (flag)',
     'Boxed (flag)','Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
     'Damaged (flag)','Repaired (flag)','Price change (flag)','Availability change (flag)',
@@ -167,7 +167,7 @@ const
 
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
     'List index','Unique ID','Time of addition','Title','Type',
-    'Type specification','Type string','Pieces','Manufacturer',
+    'Type specification','Type string','Pieces','User ID','Manufacturer',
     'Manufacturer string','Text ID','Numerical ID','ID string','Flags',
     'Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
     'Flag - Elsewhere','Flag - Untested','Flag - Iesting','Flag - Tested',

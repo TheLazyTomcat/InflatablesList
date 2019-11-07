@@ -158,7 +158,7 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 
 type
   TILItemSearchResult = (ilisrNone,ilisrType,ilisrTypeSpec,ilisrPieces,
-    ilisrManufacturer,ilisrManufacturerStr,ilisrTextID,ilisrNumID,
+    ilisrUserID,ilisrManufacturer,ilisrManufacturerStr,ilisrTextID,ilisrNumID,
     ilisrFlagOwned,ilisrFlagWanted,ilisrFlagOrdered,ilisrFlagBoxed,
     ilisrFlagElsewhere,ilisrFlagUntested,ilisrFlagTesting,ilisrFlagTested,
     ilisrFlagDamaged,ilisrFlagRepaired,ilisrFlagPriceChange,
@@ -173,22 +173,23 @@ Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 type
   TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
     ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,ilaisrPieces,
-    ilaisrManufacturer,ilaisrManufacturerStr,ilaisrTextID,ilaisrNumID,
-    ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,ilaisrFlagOrdered,
-    ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,ilaisrFlagTesting,
-    ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,ilaisrFlagPriceChange,
-    ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
-    ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
-    ilaisrVariant,ilaisrMaterial,ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,
-    ilaisrTotalSize,ilaisrSizeStr,ilaisrUnitWeight,ilaisrTotalWeight,
-    ilaisrTotalWeightStr,ilaisrThickness,ilaisrNotes,ilaisrReviewURL,
-    ilaisrMainPictureFile,ilaisrSecondaryPictureFile,ilaisrPackagePictureFile,
-    ilaisrUnitPriceDefault,ilaisrRating,ilaisrUnitPrice,ilaisrUnitPriceLowest,
-    ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,
-    ilaisrUnitPriceSel,ilaisrTotalPriceSel,ilaisrTotalPrice,
-    ilaisrAvailableLowest,ilaisrAvailableHighest,ilaisrAvailableSel,
-    ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
-    ilaisrUsefulShopRatio,ilaisrSelectedShop,ilaisrWorstUpdateResult);
+    ilaisrUserID,ilaisrManufacturer,ilaisrManufacturerStr,ilaisrTextID,
+    ilaisrNumID,ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,
+    ilaisrFlagOrdered,ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,
+    ilaisrFlagTesting,ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,
+    ilaisrFlagPriceChange,ilaisrFlagAvailChange,ilaisrFlagNotAvailable,
+    ilaisrFlagLost,ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,
+    ilaisrWantedLevel,ilaisrVariant,ilaisrMaterial,ilaisrSizeX,ilaisrSizeY,
+    ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrUnitWeight,
+    ilaisrTotalWeight,ilaisrTotalWeightStr,ilaisrThickness,ilaisrNotes,
+    ilaisrReviewURL,ilaisrMainPictureFile,ilaisrSecondaryPictureFile,
+    ilaisrPackagePictureFile,ilaisrUnitPriceDefault,ilaisrRating,
+    ilaisrUnitPrice,ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,
+    ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,ilaisrUnitPriceSel,
+    ilaisrTotalPriceSel,ilaisrTotalPrice,ilaisrAvailableLowest,
+    ilaisrAvailableHighest,ilaisrAvailableSel,ilaisrShopCount,
+    ilaisrShopCountStr,ilaisrUsefulShopCount,ilaisrUsefulShopRatio,
+    ilaisrSelectedShop,ilaisrWorstUpdateResult);
 
   TILAdvItemSearchResults = set of TILAdvItemSearchResult;
 
@@ -242,19 +243,20 @@ type
   TILItemValueTag = (
     ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,
     ilivtSecondaryPicture,ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,
-    ilivtPieces,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,ilivtID,
-    ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,
-    ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,
-    ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
-    ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
-    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,ilivtSizeX,
-    ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtUnitWeight,ilivtTotalWeight,
-    ilivtThickness,ilivtNotes,ilivtReviewURL,ilivtReview,ilivtMainPictureFile,
-    ilivtMainPicFilePres,ilivtSecondaryPictureFile,ilivtSecondaryPicFilePres,
-    ilivtPackPictureFile,ilivtPackPicFilePres,ilivtUnitPriceDefault,ilivtRating,
-    ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,
-    ilivtTotalPrice,ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,
-    ilivtUsefulShopRatio,ilivtSelectedShop,ilivtWorstUpdateResult);
+    ilivtPieces,ilivtUserID,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,
+    ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,
+    ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,
+    ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,
+    ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,
+    ilivtTextTag,ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,
+    ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtUnitWeight,
+    ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,ilivtReview,
+    ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
+    ilivtSecondaryPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
+    ilivtUnitPriceDefault,ilivtRating,ilivtUnitPriceLowest,ilivtTotalPriceLowest,
+    ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,
+    ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,
+    ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -877,10 +879,10 @@ end;
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 begin
-If (Val <= ilisrNone) then
+If Ord(Val) < Ord(Low(TILItemSearchResult)) then
   Result := High(TILItemSearchResult)
-else If Val > High(TILItemSearchResult) then
-  Result := ilisrType
+else If Ord(Val) > Ord(High(TILItemSearchResult)) then
+  Result := Low(TILItemSearchResult)
 else
   Result := Val;
 end;
@@ -983,6 +985,7 @@ case ItemValueTag of
   ilivtSecondaryPicFilePres:  Result := 61;
   ilivtRating:                Result := 62;
   ilivtItemEncrypted:         Result := 63;
+  ilivtUserID:                Result := 64;
 else
   {ilivtNone}
   Result := 0;
@@ -1058,6 +1061,7 @@ case Num of
   61: Result := ilivtSecondaryPicFilePres;
   62: Result := ilivtRating;
   63: Result := ilivtItemEncrypted;
+  64: Result := ilivtUserID;
 else
   Result := ilivtNone;
 end;
@@ -1071,6 +1075,7 @@ case Val of
   ilisrType:              Result := ilivtItemType;
   ilisrTypeSpec:          Result := ilivtItemTypeSpec;
   ilisrPieces:            Result := ilivtPieces;
+  ilisrUserID:            Result := ilivtUserID;
   ilisrManufacturer:      Result := ilivtManufacturer;
   ilisrManufacturerStr:   Result := ilivtManufacturerStr;
   ilisrTextID:            Result := ilivtTextID;

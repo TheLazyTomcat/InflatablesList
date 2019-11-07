@@ -32,7 +32,7 @@ type
     // encryption
     fEncrypted:             Boolean;        // item will be encrypted during saving
     fDataAccessible:        Boolean;        // unencrypted or decrypted item
-    fEncryptedData:         TMemoryBuffer;  // stores encrypted data until they are decrypted
+    fEncryptedData:         TMemoryBuffer;  // stores encrypted data until they are decrypted, user data stores item structure
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILIndexedObjectL1Event;  // all events are transient
     fOnShopValuesUpdate:    TILObjectL1Event;
@@ -64,6 +64,7 @@ type
     fItemType:              TILItemType;
     fItemTypeSpec:          String;   // closer specification of type
     fPieces:                UInt32;
+    fUserID:                String;
     fManufacturer:          TILItemManufacturer;
     fManufacturerStr:       String;
     fTextID:                String;
@@ -110,6 +111,7 @@ type
     procedure SetItemType(Value: TILItemType); virtual;
     procedure SetItemTypeSpec(const Value: String); virtual;
     procedure SetPieces(Value: UInt32); virtual;
+    procedure SetUserID(const Value: String); virtual;
     procedure SetManufacturer(Value: TILItemManufacturer); virtual;
     procedure SetManufacturerStr(const Value: String); virtual;
     procedure SetTextID(const Value: String); virtual;
@@ -231,6 +233,7 @@ type
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
     property Pieces: UInt32 read fPieces write SetPieces;
+    property UserID: String read fUserID write SetUserID;
     property Manufacturer: TILItemManufacturer read fManufacturer write SetManufacturer;
     property ManufacturerStr: String read fManufacturerStr write SetManufacturerStr;
     property ID: Int32 read fID write SetID;
@@ -384,6 +387,19 @@ If fPieces <> Value then
     finally
       EndUpdate;
     end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetUserID(const Value: String);
+begin
+If not IL_SameStr(fUserID,Value) then
+  begin
+    fUserID := Value;
+    UniqueString(fUserID);
+    UpdateMainList;
+    UpdateSmallList;
   end;
 end;
 
@@ -909,6 +925,7 @@ fPackagePictureSmall := nil;
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
 fPieces := 1;
+fUserID := '';
 fManufacturer := ilimOthers;
 fManufacturerStr := '';
 fTextID := '';
@@ -1068,6 +1085,8 @@ fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;
 UniqueString(fItemTypeSpec);
 fPieces := Source.Pieces;
+fUserID := Source.UserID;
+UniqueString(fUserID);
 fManufacturer := Source.Manufacturer;
 fManufacturerStr := Source.ManufacturerStr;
 UniqueString(fManufacturerStr);

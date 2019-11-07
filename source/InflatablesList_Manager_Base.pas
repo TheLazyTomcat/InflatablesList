@@ -131,6 +131,7 @@ type
     Function EncryptedItemCount(CountDecrypted: Boolean): Integer; virtual;
     Function CheckItemPassword(const Password: String): Boolean; virtual;
     Function DecryptAllItems: Integer; virtual;
+    Function GenerateUserID(out NewID: String): Boolean; virtual;
     // properties
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;
@@ -171,7 +172,7 @@ implementation
 
 uses
   SysUtils,
-  SimpleCmdLineParser, StrRect,
+  SimpleCmdLineParser, StrRect, BitVector,
   InflatablesList_Utils,
   InflatablesList_Encryption,
   InflatablesList_ItemShop;
@@ -1024,6 +1025,35 @@ If (EncryptedItemCount(False) > 0) and ItemPasswordRequestHandler(Self,Dummy) th
         fList[i].Decrypt;
         Inc(Result);
       end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.GenerateUserID(out NewID: String): Boolean;
+var
+  i:      Integer;
+  Temp:   Integer;
+  Taken:  TBitVector;
+begin
+NewID := '';
+Result := False;
+Taken := TBitVector.Create(10000);
+try
+  Taken[0] := True; // ID 0 is not allowed
+  For i := ItemLowIndex to ItemHighIndex do
+    If TryStrToInt(fList[i].UserID,Temp) then
+      If (Temp > 0) and (Temp < Taken.Count) then
+        Taken[Temp] := True;
+  // find first unassigned id
+  i := Taken.FirstClean;
+  If i > 0 then
+    begin
+      NewId := IL_Format('%.4d',[i]);
+      Result := True;
+    end;
+finally
+  Taken.Free;
+end;
 end;
 
 end.

@@ -117,6 +117,10 @@ try
         TempStr := IL_Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr])
       else
         TempStr := IL_Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]);
+      // user id
+      If Length(fILManager[i].UserID) > 0 then
+        TempStr := IL_Format('[%s] %s',[fILManager[i].UserID,TempStr]);
+      // text tag
       If Length(fILManager[i].TextTag) > 0 then
         TempStr := TempStr + IL_Format(' {%s}',[fILManager[i].TextTag]);
       clbItems.Items.Add(TempStr);

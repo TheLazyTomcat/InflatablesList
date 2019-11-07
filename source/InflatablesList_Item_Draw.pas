@@ -161,6 +161,9 @@ with fRender,fRender.Canvas do
           TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
         else
           TempStr := TitleStr;
+        // add user ID if present
+        If Length(fUserID) > 0 then
+          TempStr := IL_Format('[%s] %s',[fUserID,TempStr]);          
         If ilifDiscarded in fFlags then
           begin
             SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,12);
@@ -342,6 +345,9 @@ with fRenderSmall,fRenderSmall.Canvas do
           TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
         else
           TempStr := TitleStr;
+        // add user ID if present
+        If Length(fUserID) > 0 then
+          TempStr := IL_Format('[%s] %s',[fUserID,TempStr]);
         If ilifDiscarded in fFlags then
           begin
             SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);

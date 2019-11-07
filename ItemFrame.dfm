@@ -159,7 +159,7 @@ object frmItemFrame: TfrmItemFrame
       Shape = bsTopLine
     end
     object lblPieces: TLabel
-      Left = 552
+      Left = 400
       Top = 152
       Width = 34
       Height = 13
@@ -626,7 +626,7 @@ object frmItemFrame: TfrmItemFrame
       MaxLength = 1
       MaxValue = 7
       MinValue = 0
-      TabOrder = 8
+      TabOrder = 10
       Value = 0
       OnChange = seWantedLevelChange
     end
@@ -637,7 +637,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 13
+      TabOrder = 15
       Value = 0
       OnChange = seSizeZChange
     end
@@ -648,7 +648,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 12
+      TabOrder = 14
       Value = 0
       OnChange = seSizeYChange
     end
@@ -659,7 +659,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 11
+      TabOrder = 13
       Value = 0
       OnChange = seSizeXChange
     end
@@ -670,7 +670,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 6
+      TabOrder = 8
       Value = 0
       OnChange = seIDChange
     end
@@ -681,7 +681,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 268435455
       MinValue = 0
-      TabOrder = 25
+      TabOrder = 27
       Value = 0
       OnChange = seUnitPriceDefaultChange
     end
@@ -697,7 +697,7 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
       ScrollBars = ssBoth
-      TabOrder = 16
+      TabOrder = 18
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -709,7 +709,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 99
       EditLabel.Height = 13
       EditLabel.Caption = 'Manufacturer string:'
-      TabOrder = 4
+      TabOrder = 6
       OnChange = leManufacturerStringChange
     end
     object leItemPictureFile: TLabeledEdit
@@ -720,7 +720,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 79
       EditLabel.Height = 13
       EditLabel.Caption = 'Item picture file:'
-      TabOrder = 19
+      TabOrder = 21
       OnChange = leItemPictureFileChange
     end
     object leVariant: TLabeledEdit
@@ -731,13 +731,13 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 163
       EditLabel.Height = 13
       EditLabel.Caption = 'Variant (color, pattern, type, ...):'
-      TabOrder = 9
+      TabOrder = 11
       OnChange = leVariantChange
     end
     object leItemTypeSpecification: TLabeledEdit
       Left = 168
       Top = 168
-      Width = 377
+      Width = 225
       Height = 21
       EditLabel.Width = 173
       EditLabel.Height = 13
@@ -753,7 +753,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 97
       EditLabel.Height = 13
       EditLabel.Caption = 'Package picture file:'
-      TabOrder = 23
+      TabOrder = 25
       OnChange = lePackagePictureFileChange
     end
     object gbFlagsTags: TGroupBox
@@ -764,7 +764,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Flags and tags'
       Color = clBtnFace
       ParentColor = False
-      TabOrder = 7
+      TabOrder = 9
       object bvlTagSep: TBevel
         Left = 455
         Top = 34
@@ -987,7 +987,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 3
+      TabOrder = 5
       OnChange = cmbManufacturerChange
     end
     object cmbItemType: TComboBox
@@ -1006,7 +1006,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Update shops...'
-      TabOrder = 27
+      TabOrder = 29
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
@@ -1015,7 +1015,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 105
       Height = 25
       Caption = 'Shops...'
-      TabOrder = 28
+      TabOrder = 30
       OnClick = btnShopsClick
     end
     object btnBrowseItemPictureFile: TButton
@@ -1027,7 +1027,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = '...'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 20
+      TabOrder = 22
       OnClick = btnBrowseItemPictureFileClick
     end
     object btnBrowsePackagePictureFile: TButton
@@ -1039,11 +1039,11 @@ object frmItemFrame: TfrmItemFrame
       Caption = '...'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 24
+      TabOrder = 26
       OnClick = btnBrowsePackagePictureFileClick
     end
     object sePieces: TSpinEdit
-      Left = 552
+      Left = 400
       Top = 168
       Width = 73
       Height = 22
@@ -1061,7 +1061,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 61
       EditLabel.Height = 13
       EditLabel.Caption = 'Review URL:'
-      TabOrder = 17
+      TabOrder = 19
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
@@ -1073,7 +1073,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = '>'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 18
+      TabOrder = 20
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
@@ -1083,7 +1083,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
-      TabOrder = 14
+      TabOrder = 16
       Value = 0
       OnChange = seUnitWeightChange
     end
@@ -1094,7 +1094,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 10
+      TabOrder = 12
     end
     object seThickness: TSpinEdit
       Left = 528
@@ -1103,7 +1103,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 15
+      TabOrder = 17
       Value = 0
     end
     object leTextID: TLabeledEdit
@@ -1114,7 +1114,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 54
       EditLabel.Height = 13
       EditLabel.Caption = 'Textual ID:'
-      TabOrder = 5
+      TabOrder = 7
       OnChange = leTextIDChange
     end
     object leSecondaryPictureFile: TLabeledEdit
@@ -1125,7 +1125,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 108
       EditLabel.Height = 13
       EditLabel.Caption = 'Secondary picture file:'
-      TabOrder = 21
+      TabOrder = 23
       OnChange = leSecondaryPictureFileChange
     end
     object btnBrowseSecondaryPictureFile: TButton
@@ -1137,7 +1137,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = '...'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 22
+      TabOrder = 24
       OnClick = btnBrowseSecondaryPictureFileClick
     end
     object seRating: TSpinEdit
@@ -1148,9 +1148,38 @@ object frmItemFrame: TfrmItemFrame
       MaxLength = 3
       MaxValue = 100
       MinValue = 0
-      TabOrder = 26
+      TabOrder = 28
       Value = 0
       OnChange = seRatingChange
+    end
+    object leUserID: TLabeledEdit
+      Left = 480
+      Top = 168
+      Width = 120
+      Height = 21
+      EditLabel.Width = 40
+      EditLabel.Height = 13
+      EditLabel.Caption = 'User ID:'
+      TabOrder = 3
+      OnChange = leUserIDChange
+    end
+    object btnUserIDGen: TButton
+      Left = 600
+      Top = 168
+      Width = 25
+      Height = 21
+      Hint = 'Generate user ID'
+      Caption = 'G'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+      OnClick = btnUserIDGenClick
     end
   end
   object diaPicOpenDialog: TOpenDialog

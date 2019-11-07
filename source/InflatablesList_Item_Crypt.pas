@@ -5,10 +5,10 @@ unit InflatablesList_Item_Crypt;
 interface
 
 uses
-  InflatablesList_Item_IO_00000006;
+  InflatablesList_Item_IO_00000007;
 
 type
-  TILItem_IO_Crypt = class(TILItem_IO_00000006)
+  TILItem_IO_Crypt = class(TILItem_IO_00000007)
   protected
     procedure SetEncrypted(Value: Boolean); override;
   public

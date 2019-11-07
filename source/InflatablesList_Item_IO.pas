@@ -19,8 +19,9 @@ const
   IL_ITEM_STREAMSTRUCTURE_00000004 = UInt32($00000004);
   IL_ITEM_STREAMSTRUCTURE_00000005 = UInt32($00000005);
   IL_ITEM_STREAMSTRUCTURE_00000006 = UInt32($00000006);
+  IL_ITEM_STREAMSTRUCTURE_00000007 = UInt32($00000007);
 
-  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000006;
+  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000007;
 
   IL_ITEM_DECRYPT_CHECK = UInt64($53444E454D455449);  // ITEMENDS
 
@@ -58,6 +59,7 @@ end;
 
 procedure TILItem_IO.Load(Stream: TStream; Struct: UInt32);
 begin
+fEncryptedData.Data := PtrInt(Struct);
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
 RenderSmallPictures;
@@ -66,10 +68,16 @@ end;
 //==============================================================================
 
 procedure TILItem_IO.SaveToStream(Stream: TStream);
+var
+  SelectedStruct: UInt32;
 begin
 Stream_WriteUInt32(Stream,IL_ITEM_SIGNATURE);
-Stream_WriteUInt32(Stream,IL_ITEM_STREAMSTRUCTURE_SAVE);
-Save(Stream,IL_ITEM_STREAMSTRUCTURE_SAVE);
+If fEncrypted and not fDataAccessible then
+  SelectedStruct := UInt32(fEncryptedData.Data)
+else
+  SelectedStruct := IL_ITEM_STREAMSTRUCTURE_SAVE;
+Stream_WriteUInt32(Stream,SelectedStruct);  
+Save(Stream,SelectedStruct);
 end;
 
 //------------------------------------------------------------------------------

@@ -23,6 +23,7 @@ uses
     TILItem_IO_00000004
     TILItem_IO_00000005
     TILItem_IO_00000006
+    TILItem_IO_00000007
     TILItem_Crypt
     TILItem
 }

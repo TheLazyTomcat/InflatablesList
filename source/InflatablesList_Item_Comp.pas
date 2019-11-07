@@ -34,6 +34,7 @@ If fDataAccessible then
     ilivtItemType:              Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
     ilivtItemTypeSpec:          Result := IL_ContainsText(fItemTypeSpec,Text);
     ilivtPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
+    ilivtUserID:                Result := IL_ContainsText(fUserID,Text);
     ilivtManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
     ilivtManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
     ilivtTextID:                Result := IL_ContainsText(fTextID,Text);
@@ -90,6 +91,7 @@ If fDataAccessible then
     Contains(Text,ilivtItemType) or
     Contains(Text,ilivtItemTypeSpec) or
     Contains(Text,ilivtPieces) or
+    Contains(Text,ilivtUserID) or
     Contains(Text,ilivtManufacturer) or
     Contains(Text,ilivtManufacturerStr) or
     Contains(Text,ilivtTextID) or
@@ -188,6 +190,15 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     ilivtItemTypeSpec:      Result := CompareText_Internal(fItemTypeSpec,WithItem.ItemTypeSpec);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtPieces:            Result := IL_SortCompareUInt32(fPieces,WithItem.Pieces);
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtUserID:            If (Length(fUserID) > 0) and (Length(WithItem.UserID) > 0) then
+                              Result := CompareText_Internal(fUserID,WithItem.UserID)
+                            else If (Length(fUserID) > 0) and (Length(WithItem.UserID) <= 0) then
+                              Result := IL_NegateValue(+1,Reversed)
+                            else If (Length(fUserID) <= 0) and (Length(WithItem.UserID) > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtManufacturer:      If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
                               Result := CompareText_Internal(

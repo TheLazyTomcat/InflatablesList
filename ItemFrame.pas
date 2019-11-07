@@ -84,6 +84,8 @@ type
     leItemTypeSpecification: TLabeledEdit;
     lblPieces: TLabel;
     sePieces: TSpinEdit;
+    leUserID: TLabeledEdit;
+    btnUserIDGen: TButton;
     lblManufacturer: TLabel;
     cmbManufacturer: TComboBox;
     leManufacturerString: TLabeledEdit;
@@ -186,6 +188,8 @@ type
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);
     procedure sePiecesChange(Sender: TObject);
+    procedure leUserIDChange(Sender: TObject);
+    procedure btnUserIDGenClick(Sender: TObject);    
     procedure cmbManufacturerChange(Sender: TObject);
     procedure leManufacturerStringChange(Sender: TObject);
     procedure leTextIDChange(Sender: TObject);
@@ -887,6 +891,7 @@ case Value of
   ilisrType:              Highlight(cmbItemType);
   ilisrTypeSpec:          Highlight(leItemTypeSpecification);
   ilisrPieces:            Highlight(sePieces);
+  ilisrUserID:            Highlight(leUserID);
   ilisrManufacturer:      Highlight(cmbManufacturer);
   ilisrManufacturerStr:   Highlight(leManufacturerString);
   ilisrTextID:            Highlight(leTextID);
@@ -966,6 +971,7 @@ try
   cmbItemType.OnChange(nil);
   leItemTypeSpecification.Text := '';
   sePieces.Value := 1;
+  leUserID.Text := '';
   cmbManufacturer.ItemIndex := 0;
   cmbManufacturer.OnChange(nil);
   leManufacturerString.Text := '';
@@ -1040,7 +1046,8 @@ If Assigned(fCurrentItem) then
       // basic specs
       fCurrentItem.ItemType := TILItemType(cmbItemType.ItemIndex);
       fCurrentItem.ItemTypeSpec := leItemTypeSpecification.Text;
-      fCurrentItem.Count := sePieces.Value;
+      fCurrentItem.Pieces := sePieces.Value;
+      fCurrentItem.UserID := leUserID.Text;
       fCurrentItem.Manufacturer := TILItemManufacturer(cmbManufacturer.ItemIndex);
       fCurrentItem.ManufacturerStr := leManufacturerString.Text;
       fCurrentItem.TextID := leTextID.Text;
@@ -1106,6 +1113,7 @@ If Assigned(fCurrentItem) then
       cmbItemType.ItemIndex := Ord(fCurrentItem.ItemType);
       leItemTypeSpecification.Text := fCurrentItem.ItemTypeSpec;
       sePieces.Value := fCurrentItem.Pieces;
+      leUserID.Text := fCurrentItem.UserID;
       cmbManufacturer.ItemIndex := Ord(fCurrentItem.Manufacturer);
       leManufacturerString.Text := fCurrentItem.ManufacturerStr;
       leTextID.Text := fCurrentItem.TextID;
@@ -1572,6 +1580,30 @@ procedure TfrmItemFrame.sePiecesChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.Pieces := sePieces.Value;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.leUserIDChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.UserID := leUserID.Text;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnUserIDGenClick(Sender: TObject);
+var
+  NewID:  String;
+begin
+If Assigned(fCurrentItem) then
+  If Length(fCurrentItem.UserID) <= 0 then
+    begin
+      If fILManager.GenerateUserID(NewID) then
+        leUserID.Text := NewID  // this will also set it in the current item
+      else
+        MessageDlg('Unable to generate unique user ID.',mtError,[mbOK],0);
+    end;
 end;
 
 //------------------------------------------------------------------------------

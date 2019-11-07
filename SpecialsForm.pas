@@ -220,7 +220,7 @@ var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If ilifOwned in fILManager[i].Flags then
+  If fILManager[i].DataAccessible and (ilifOwned in fILManager[i].Flags) then
     fILManager[i].WantedLevel := 0;
 ProcessingDone;
 end;

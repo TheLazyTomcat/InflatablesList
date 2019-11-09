@@ -20,7 +20,8 @@ type
     cbCloseWhenDone: TCheckBox;
     btnRunSelected: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);    
+    procedure FormShow(Sender: TObject);    
+    procedure FormDestroy(Sender: TObject);
     procedure lbFunctionsDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure lbFunctionsClick(Sender: TObject);
@@ -405,6 +406,13 @@ begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
 fDrawBuffer.Canvas.Font.Assign(lbFunctions.Font);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.FormShow(Sender: TObject);
+begin
+lbFunctions.SetFocus;
 end;
 
 //------------------------------------------------------------------------------

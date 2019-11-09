@@ -15,6 +15,7 @@ object fSpecialsForm: TfSpecialsForm
   Position = poMainFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   DesignSize = (
     776
     432)

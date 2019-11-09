@@ -43,6 +43,8 @@ type
     procedure Special_0009;
     procedure Special_0010;
     procedure Special_0011;
+    procedure Special_0012;
+    procedure Special_0013;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -68,7 +70,7 @@ type
   end;
 
 const
-  IL_SPECIALS: array[0..10] of TILSpecialsEntry = (
+  IL_SPECIALS: array[0..12] of TILSpecialsEntry = (
          (Title: 'Clear textual tags';
         Details: 'Item.TextTag := ''''';
     Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
@@ -145,12 +147,27 @@ const
                  'Parameters are not used in this function.';
     FunctionIdx: 10),
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-         (Title: 'Set wanted level to zero in owned items';   
-        Details: 'Item.Owned => Item.WantedLevel = 0';
+         (Title: 'Set wanted level to zero in owned items';
+        Details: 'Item.Owned => Item.WantedLevel := 0';
     Description: 'Sets wanted level to zero for all items that have accessible data and have "owned" flag set to true.' + sLineBreak +
                  sLineBreak +
                  'Parameters are not used in this function.';
-    FunctionIdx: 11)
+    FunctionIdx: 11),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Generate user ID for owned items';
+        Details: '(Item.Owned and (Item.UserID = '''')) => Item.GenerateUserID';
+    Description: 'Generates user ID or all items that has accessible data and the current user ID is empty.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 12),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Uncheck disabling of parsing error for templated shops';
+        Details: 'Item.Shop.TemplRef => Item.Shop.DisableParsingErrors := False';
+    Description: 'For all items that have accessible data, unchecks (sets to false) "disable parsing errors" options in ' +
+                 'all shops that have their parsing settings referenced to a template.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 13)
   );
 
 //==============================================================================
@@ -177,6 +194,8 @@ case Index of
   9:  Special_0009;
   10: Special_0010;
   11: Special_0011;
+  12: Special_0012;
+  13: Special_0013;
 else
   MessageDlg(IL_Format('Invalid special function index (%d).',[Index]),mtError,[mbOK],0);
 end;
@@ -324,6 +343,33 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     fILManager[i].WantedLevel := 0;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Special_0012;
+var
+  i:    Integer;
+  Temp: String;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If fILManager[i].DataAccessible then
+    If (ilifOwned in fILManager[i].Flags) and (Length(fILManager[i].UserID) <= 0) then
+      If fILManager.GenerateUserID(Temp) then
+        fILManager[i].UserID := Temp;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Special_0013;
+var
+  i,j:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      If Length(fILManager[i][j].ParsingSettings.TemplateReference) > 0 then
+        fILManager[i][j].ParsingSettings.DisableParsingErrors := False;
+end;
+
 //==============================================================================
 
 procedure TfSpecialsForm.Initialize(ILManager: TILManager);
@@ -431,7 +477,7 @@ If lbFunctions.ItemIndex >= 0 then
     If MessageDlg(IL_Format('You are about to execute function "%s".' + sLineBreak +
            'There will be no further dialogs, warnings or prompts, even in case of destructive actions' +
            sLineBreak + sLineBreak + 'Are you sure you want to continue?',[IL_SPECIALS[lbFunctions.ItemIndex].Title]),
-         mtConfirmation,[mbYes,mbNo],0) = mrYes then
+         mtWarning,[mbYes,mbNo],0) = mrYes then
       SpecialSelect(IL_SPECIALS[lbFunctions.ItemIndex].FunctionIdx);
   end
 else MessageDlg('No function selected.',mtError,[mbOK],0);

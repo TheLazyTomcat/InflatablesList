@@ -1,10 +1,10 @@
 object fSpecialsForm: TfSpecialsForm
-  Left = 537
+  Left = 471
   Top = 136
   BorderStyle = bsDialog
   Caption = 'Special functions'
-  ClientHeight = 396
-  ClientWidth = 728
+  ClientHeight = 432
+  ClientWidth = 776
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +16,8 @@ object fSpecialsForm: TfSpecialsForm
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    728
-    396)
+    776
+    432)
   PixelsPerInch = 96
   TextHeight = 13
   object lblFunctions: TLabel
@@ -28,7 +28,7 @@ object fSpecialsForm: TfSpecialsForm
     Caption = 'Available special functions:'
   end
   object lblDescription: TLabel
-    Left = 368
+    Left = 392
     Top = 88
     Width = 155
     Height = 13
@@ -37,7 +37,7 @@ object fSpecialsForm: TfSpecialsForm
   object pnlWarning: TPanel
     Left = 8
     Top = 8
-    Width = 713
+    Width = 761
     Height = 33
     Anchors = [akLeft, akTop, akRight]
     BevelInner = bvLowered
@@ -55,7 +55,7 @@ object fSpecialsForm: TfSpecialsForm
   object leParam_1: TLabeledEdit
     Left = 8
     Top = 64
-    Width = 233
+    Width = 249
     Height = 21
     EditLabel.Width = 63
     EditLabel.Height = 13
@@ -63,9 +63,9 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 0
   end
   object leParam_2: TLabeledEdit
-    Left = 248
+    Left = 264
     Top = 64
-    Width = 233
+    Width = 249
     Height = 21
     EditLabel.Width = 63
     EditLabel.Height = 13
@@ -73,8 +73,8 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 1
   end
   object cbCloseWhenDone: TCheckBox
-    Left = 368
-    Top = 364
+    Left = 392
+    Top = 404
     Width = 105
     Height = 17
     Caption = 'Close when done'
@@ -85,9 +85,9 @@ object fSpecialsForm: TfSpecialsForm
     TabOrder = 5
   end
   object leParam_3: TLabeledEdit
-    Left = 488
+    Left = 520
     Top = 64
-    Width = 233
+    Width = 249
     Height = 21
     EditLabel.Width = 63
     EditLabel.Height = 13
@@ -97,8 +97,8 @@ object fSpecialsForm: TfSpecialsForm
   object lbFunctions: TListBox
     Left = 8
     Top = 104
-    Width = 353
-    Height = 284
+    Width = 377
+    Height = 319
     Style = lbOwnerDrawFixed
     IntegralHeight = True
     ItemHeight = 35
@@ -107,8 +107,8 @@ object fSpecialsForm: TfSpecialsForm
     OnDrawItem = lbFunctionsDrawItem
   end
   object btnRunSelected: TButton
-    Left = 592
-    Top = 360
+    Left = 640
+    Top = 400
     Width = 129
     Height = 25
     Caption = 'Run selected function'
@@ -116,10 +116,10 @@ object fSpecialsForm: TfSpecialsForm
     OnClick = btnRunSelectedClick
   end
   object meDescription: TMemo
-    Left = 368
+    Left = 392
     Top = 104
-    Width = 353
-    Height = 249
+    Width = 377
+    Height = 289
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11

@@ -55,7 +55,6 @@ type
     btnParsCopyToLocal: TButton;
     btnParsAvail: TButton;
     btnParsPrice: TButton;
-    bvlParsSep: TBevel;
     cbParsDisableErrs: TCheckBox;
     leLastUpdateMsg: TLabeledEdit;    
     lblLastUpdateTime: TLabel;
@@ -78,6 +77,7 @@ type
     procedure lblNotesEditMouseLeave(Sender: TObject);
     procedure btnPredefNotesClick(Sender: TObject);
     procedure mniPredefNotesClick(Sender: TObject);
+    procedure cmbParsTemplRefChange(Sender: TObject);    
     procedure btnParsCopyToLocalClick(Sender: TObject);
     procedure btnParsAvailClick(Sender: TObject);
     procedure btnParsPriceClick(Sender: TObject);
@@ -96,6 +96,7 @@ type
     procedure BuildPredefNotesMenu;
     // filling methods
     procedure FillTemplatesList;
+    procedure FillTemplateSelection;
     procedure FillLastUpdateTime;
     // frame methods
     procedure FrameClear;
@@ -106,7 +107,7 @@ type
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
     procedure Save;
-    procedure Load(OnlyRefillTepmlatesList: Boolean = False);
+    procedure Load(OnlyRefillTemplatesList: Boolean = False);
     procedure SetItemShop(ItemShop: TILItemShop; ProcessChange: Boolean);
   end;
 
@@ -252,17 +253,49 @@ procedure TfrmShopFrame.FillTemplatesList;
 var
   i:  Integer;
 begin
-cmbParsTemplRef.Items.BeginUpdate;
+fInitializing := True;
 try
-  cmbParsTemplRef.Clear;
-  cmbParsTemplRef.Items.Add('<none - use local objects>');
-  For i := 0 to Pred(fILManager.ShopTemplateCount) do
-    cmbParsTemplRef.Items.Add(fILManager.ShopTemplates[i].Name);
+  cmbParsTemplRef.Items.BeginUpdate;
+  try
+    cmbParsTemplRef.Clear;
+    cmbParsTemplRef.Items.Add('<none - use local objects>');
+    For i := 0 to Pred(fILManager.ShopTemplateCount) do
+      cmbParsTemplRef.Items.Add(fILManager.ShopTemplates[i].Name);
+  finally
+    cmbParsTemplRef.Items.EndUpdate;
+  end;
 finally
-  cmbParsTemplRef.Items.EndUpdate;
+  fInitializing := False;
 end;
-If cmbParsTemplRef.Items.Count > 0 then
-  cmbParsTemplRef.ItemIndex := 0;
+If Assigned(fCurrentItemShop) then
+  FillTemplateSelection
+else
+  If cmbParsTemplRef.Items.Count > 0 then
+    cmbParsTemplRef.ItemIndex := 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmShopFrame.FillTemplateSelection;
+var
+  Index:  Integer;
+begin
+If Assigned(fCurrentItemShop) then
+  begin
+    Index := fILManager.ShopTemplateIndexOf(fCurrentItemShop.ParsingSettings.TemplateReference);
+    If Index >= 0 then
+      begin
+        cmbParsTemplRef.ItemIndex := Index + 1; // first (0) is noref
+        cbParsDisableErrs.Enabled := False;
+        cbParsDisableErrs.Checked := fILManager.ShopTemplates[Index].ParsingSettings.DisableParsingErrors;
+      end
+    else
+      begin
+        cmbParsTemplRef.ItemIndex := 0;
+        cbParsDisableErrs.Enabled := True;
+        cbParsDisableErrs.Checked := fCurrentItemShop.ParsingSettings.DisableParsingErrors;
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -349,7 +382,10 @@ If Assigned(fCurrentItemShop) then
         fCurrentItemShop.ParsingSettings.TemplateReference := fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].Name
       else
         fCurrentItemShop.ParsingSettings.TemplateReference := '';
-      fCurrentItemShop.ParsingSettings.DisableParsingErrors := cbParsDisableErrs.Checked;
+      If Length(fCurrentItemShop.ParsingSettings.TemplateReference) <= 0 then
+        fCurrentItemShop.ParsingSettings.DisableParsingErrors := cbParsDisableErrs.Checked
+      else
+        fCurrentItemShop.ParsingSettings.DisableParsingErrors := False;
       // last result is read only, do not save it from the edit
     finally
       fCurrentItemShop.EndUpdate;
@@ -360,8 +396,6 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfrmShopFrame.FrameLoad;
-var
-  Index:  Integer;
 begin
 If Assigned(fCurrentItemShop) then
   begin
@@ -387,12 +421,7 @@ If Assigned(fCurrentItemShop) then
       leParsVar_5.Text := fCurrentItemShop.ParsingSettings.Variables[5];
       leParsVar_6.Text := fCurrentItemShop.ParsingSettings.Variables[6];
       leParsVar_7.Text := fCurrentItemShop.ParsingSettings.Variables[7];
-      Index := fILManager.ShopTemplateIndexOf(fCurrentItemShop.ParsingSettings.TemplateReference);
-      If Index >= 0 then
-        cmbParsTemplRef.ItemIndex := Index + 1  // first (0) is noref
-      else
-        cmbParsTemplRef.ItemIndex := 0;
-      cbParsDisableErrs.Checked := fCurrentItemShop.ParsingSettings.DisableParsingErrors;
+      FillTemplateSelection;
       leLastUpdateMsg.Text := fCurrentItemShop.LastUpdateMsg;
       FillLastUpdateTime;
     finally
@@ -431,9 +460,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmShopFrame.Load(OnlyRefillTepmlatesList: Boolean = False);
+procedure TfrmShopFrame.Load(OnlyRefillTemplatesList: Boolean = False);
 begin
-If not OnlyRefillTepmlatesList then
+If not OnlyRefillTemplatesList then
   begin
     If Assigned(fCurrentItemShop) then
       FrameLoad
@@ -672,6 +701,20 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmShopFrame.cmbParsTemplRefChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItemShop) then
+  begin
+    If (cmbParsTemplRef.ItemIndex > 0) and (cmbParsTemplRef.ItemIndex <= fILManager.ShopTemplateCount) then
+      fCurrentItemShop.ParsingSettings.TemplateReference := fILManager.ShopTemplates[cmbParsTemplRef.ItemIndex - 1].Name
+    else
+      fCurrentItemShop.ParsingSettings.TemplateReference := '';
+    FillTemplateSelection;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmShopFrame.btnParsCopyToLocalClick(Sender: TObject);
 begin
 If Assigned(fCurrentItemShop) then
@@ -753,7 +796,7 @@ If Assigned(fCurrentItemShop) then
     FillTemplatesList;
     // rebuild templates submenu in shops form
     If Assigned(OnTemplatesChange) then
-      OnTemplatesChange(Self);    
+      OnTemplatesChange(Self);
     If Index >= 0 then
       If MessageDlg(IL_Format('Are you sure you want to replace current shop settings with template "%s"?',
         [fILManager.ShopTemplates[Index].Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes then

@@ -289,7 +289,7 @@ object frmShopFrame: TfrmShopFrame
       Left = 368
       Top = 16
       Width = 521
-      Height = 89
+      Height = 97
       ScrollBars = ssBoth
       TabOrder = 15
       WordWrap = False
@@ -297,21 +297,14 @@ object frmShopFrame: TfrmShopFrame
     end
     object gbParsing: TGroupBox
       Left = 368
-      Top = 112
+      Top = 120
       Width = 521
-      Height = 185
+      Height = 177
       Caption = 'Parsing'
       TabOrder = 16
       object bvlVarsSep: TBevel
         Left = 8
         Top = 100
-        Width = 505
-        Height = 9
-        Shape = bsTopLine
-      end
-      object bvlParsSep: TBevel
-        Left = 8
-        Top = 152
         Width = 505
         Height = 9
         Shape = bsTopLine
@@ -423,7 +416,7 @@ object frmShopFrame: TfrmShopFrame
       end
       object cbParsDisableErrs: TCheckBox
         Left = 8
-        Top = 160
+        Top = 152
         Width = 177
         Height = 17
         Caption = 'Disable raising of parsing errors'
@@ -434,9 +427,11 @@ object frmShopFrame: TfrmShopFrame
         Top = 120
         Width = 193
         Height = 21
+        AutoComplete = False
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 8
+        OnChange = cmbParsTemplRefChange
       end
       object btnParsCopyToLocal: TButton
         Left = 204

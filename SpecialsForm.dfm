@@ -1,10 +1,10 @@
 object fSpecialsForm: TfSpecialsForm
-  Left = 651
-  Top = 139
+  Left = 537
+  Top = 136
   BorderStyle = bsDialog
   Caption = 'Special functions'
-  ClientHeight = 217
-  ClientWidth = 616
+  ClientHeight = 396
+  ClientWidth = 728
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,15 +13,31 @@ object fSpecialsForm: TfSpecialsForm
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
-    616
-    217)
+    728
+    396)
   PixelsPerInch = 96
   TextHeight = 13
+  object lblFunctions: TLabel
+    Left = 8
+    Top = 88
+    Width = 129
+    Height = 13
+    Caption = 'Available special functions:'
+  end
+  object lblDescription: TLabel
+    Left = 368
+    Top = 88
+    Width = 155
+    Height = 13
+    Caption = 'Description of selected function:'
+  end
   object pnlWarning: TPanel
     Left = 8
     Top = 8
-    Width = 601
+    Width = 713
     Height = 33
     Anchors = [akLeft, akTop, akRight]
     BevelInner = bvLowered
@@ -34,135 +50,84 @@ object fSpecialsForm: TfSpecialsForm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 14
-  end
-  object btnClearTextTags: TButton
-    Left = 8
-    Top = 96
-    Width = 145
-    Height = 25
-    Caption = 'Clear text tags'
-    TabOrder = 2
-    OnClick = btnClearTextTagsClick
-  end
-  object btnClearParsing: TButton
-    Left = 160
-    Top = 96
-    Width = 145
-    Height = 25
-    Caption = 'Clear parsing settings'
-    TabOrder = 3
-    OnClick = btnClearParsingClick
-  end
-  object btnSetAltDownMethod: TButton
-    Left = 312
-    Top = 96
-    Width = 145
-    Height = 25
-    Caption = 'I.name = P1 => AltDM+'
-    TabOrder = 4
-    OnClick = btnSetAltDownMethodClick
+    TabOrder = 7
   end
   object leParam_1: TLabeledEdit
     Left = 8
     Top = 64
-    Width = 297
+    Width = 233
     Height = 21
     EditLabel.Width = 63
     EditLabel.Height = 13
     EditLabel.Caption = 'Parameter 1:'
     TabOrder = 0
   end
-  object btnUpdateAllAPF: TButton
-    Left = 464
-    Top = 96
-    Width = 145
-    Height = 25
-    Caption = 'Upd avail + prc and flag'
-    TabOrder = 5
-    OnClick = btnUpdateAllAPFClick
-  end
   object leParam_2: TLabeledEdit
-    Left = 312
+    Left = 248
     Top = 64
-    Width = 297
+    Width = 233
     Height = 21
     EditLabel.Width = 63
     EditLabel.Height = 13
     EditLabel.Caption = 'Parameter 2:'
     TabOrder = 1
   end
-  object btnSetMaterialToPVC: TButton
-    Left = 8
-    Top = 128
-    Width = 145
-    Height = 25
-    Caption = 'Material => PVC for all'
-    TabOrder = 6
-    OnClick = btnSetMaterialToPVCClick
-  end
-  object btnClearACPCFlags: TButton
-    Left = 160
-    Top = 128
-    Width = 145
-    Height = 25
-    Caption = 'Clr. avail + price ch. flags'
-    TabOrder = 7
-    OnClick = btnClearACPCFlagsClick
-  end
-  object btnReplaceInPicPaths: TButton
-    Left = 312
-    Top = 128
-    Width = 145
-    Height = 25
-    Caption = 'Pictures path P1 => P2'
-    TabOrder = 8
-    OnClick = btnReplaceInPicPathsClick
-  end
-  object btnReplaceTextTag: TButton
-    Left = 464
-    Top = 128
-    Width = 145
-    Height = 25
-    Caption = 'TextTag = P1 => P2'
-    TabOrder = 9
-    OnClick = btnReplaceTextTagClick
-  end
-  object btnRemoveShops: TButton
-    Left = 8
-    Top = 160
-    Width = 145
-    Height = 25
-    Caption = 'Rem. shops except sel.'
-    TabOrder = 10
-    OnClick = btnRemoveShopsClick
-  end
   object cbCloseWhenDone: TCheckBox
-    Left = 8
-    Top = 192
+    Left = 368
+    Top = 364
     Width = 105
     Height = 17
     Caption = 'Close when done'
     Checked = True
+    ParentShowHint = False
+    ShowHint = False
     State = cbChecked
-    TabOrder = 13
+    TabOrder = 5
   end
-  object btnRemShopsFromOwned: TButton
-    Left = 160
-    Top = 160
-    Width = 145
-    Height = 25
-    Caption = 'Rem. shops from owned'
-    TabOrder = 11
-    OnClick = btnRemShopsFromOwnedClick
+  object leParam_3: TLabeledEdit
+    Left = 488
+    Top = 64
+    Width = 233
+    Height = 21
+    EditLabel.Width = 63
+    EditLabel.Height = 13
+    EditLabel.Caption = 'Parameter 3:'
+    TabOrder = 2
   end
-  object btnRemoveWLFromOwned: TButton
-    Left = 312
-    Top = 160
-    Width = 145
+  object lbFunctions: TListBox
+    Left = 8
+    Top = 104
+    Width = 353
+    Height = 284
+    Style = lbOwnerDrawFixed
+    IntegralHeight = True
+    ItemHeight = 35
+    TabOrder = 3
+    OnClick = lbFunctionsClick
+    OnDrawItem = lbFunctionsDrawItem
+  end
+  object btnRunSelected: TButton
+    Left = 592
+    Top = 360
+    Width = 129
     Height = 25
-    Caption = 'Rem. W.L. from owned'
-    TabOrder = 12
-    OnClick = btnRemoveWLFromOwnedClick
+    Caption = 'Run selected function'
+    TabOrder = 6
+    OnClick = btnRunSelectedClick
+  end
+  object meDescription: TMemo
+    Left = 368
+    Top = 104
+    Width = 353
+    Height = 249
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 4
   end
 end

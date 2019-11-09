@@ -11,34 +11,38 @@ type
   TfSpecialsForm = class(TForm)
     pnlWarning: TPanel;
     leParam_1: TLabeledEdit;
-    btnClearTextTags: TButton;
-    btnClearParsing: TButton;
-    btnSetAltDownMethod: TButton;
-    btnUpdateAllAPF: TButton;
     leParam_2: TLabeledEdit;
-    btnSetMaterialToPVC: TButton;
-    btnClearACPCFlags: TButton;
-    btnReplaceInPicPaths: TButton;
-    btnReplaceTextTag: TButton;
-    btnRemoveShops: TButton;
+    leParam_3: TLabeledEdit;
+    lblFunctions: TLabel;
+    lbFunctions: TListBox;
+    lblDescription: TLabel;
+    meDescription: TMemo;
     cbCloseWhenDone: TCheckBox;
-    btnRemShopsFromOwned: TButton;
-    btnRemoveWLFromOwned: TButton;
-    procedure btnClearTextTagsClick(Sender: TObject);
-    procedure btnClearParsingClick(Sender: TObject);
-    procedure btnSetAltDownMethodClick(Sender: TObject);
-    procedure btnUpdateAllAPFClick(Sender: TObject);
-    procedure btnSetMaterialToPVCClick(Sender: TObject);
-    procedure btnClearACPCFlagsClick(Sender: TObject);
-    procedure btnReplaceInPicPathsClick(Sender: TObject);
-    procedure btnReplaceTextTagClick(Sender: TObject);
-    procedure btnRemoveShopsClick(Sender: TObject);
-    procedure btnRemShopsFromOwnedClick(Sender: TObject);
-    procedure btnRemoveWLFromOwnedClick(Sender: TObject);
+    btnRunSelected: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);    
+    procedure lbFunctionsDrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
+    procedure lbFunctionsClick(Sender: TObject);
+    procedure btnRunSelectedClick(Sender: TObject);
   private
-    fILManager: TILManager;
+    fILManager:   TILManager;
+    fDrawBuffer:  TBitmap;
   protected
     procedure ProcessingDone;
+    procedure SpecialSelect(Index: Integer);
+    // special functions implementation
+    procedure Special_0001;
+    procedure Special_0002;
+    procedure Special_0003;
+    procedure Special_0004;
+    procedure Special_0005;
+    procedure Special_0006;
+    procedure Special_0007;
+    procedure Special_0008;
+    procedure Special_0009;
+    procedure Special_0010;
+    procedure Special_0011;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -55,41 +59,144 @@ uses
   InflatablesList_Types,
   InflatablesList_Utils;
 
+type
+  TILSpecialsEntry = record
+    Title:        String;
+    Details:      String;
+    Description:  String;
+    FunctionIdx:  Integer;
+  end;
+
+const
+  IL_SPECIALS: array[0..10] of TILSpecialsEntry = (
+         (Title: 'Clear textual tags';
+        Details: 'Item.TextTag := ''''';
+    Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 1),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Clear parsing settings';
+        Details: 'Item.Shop.ParsingSettings.Clear';
+    Description: 'For all items that have accessible data, the parsing settings in all shops are cleared. ' +
+                 'This means the available and price extraction settings are cleared and all stages in available and price finders are removed.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 2),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Alt. download method for selected shops';
+        Details: 'Shop.Selected => Shop.AltDownloadMethod := True';
+    Description: 'For all items that have accessible data, the function traverses all shops and activates alternative download method when ' +
+                 'the shop name matches parameter 1 (case insensitive comparison).' + sLineBreak +
+                 sLineBreak +
+                 'Parameter 1 - item shop name';
+    FunctionIdx: 3),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Update and flag available count and price';
+        Details: 'Item.GetAndFlagPriceAndAvail(Price,Available)';
+    Description: 'Traverses all items and, for those with accessible data, calls method GetAndFlagPriceAndAvail with old price set to current price and old available count set to current count. ' +
+                 'This effectively updates the prices and available count fields from shops and sets appropriate flags ("available change", "price change" and "not available" flags).' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 4),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Set material to polyvinylchloride (PVC)';   
+        Details: '(Item.Material = Unknown) => Item.Material := Polyvinylchloride';
+    Description: 'For all items that have accessible data, if the selected material is unknown, sets material to polyvinylchloride (PVC).' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 5),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Clear available change and price change flags'; 
+        Details: 'Item.AvailChange := False; Item.PriceChange := False';
+    Description: 'Traverses all items and, for those with accessible data, clears "available change" and "price change" flags (sets them to false).' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 6),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Replace text in picture paths';
+        Details: 'Item.*PictureFile := ReplaceText(Item.*PictureFile,P1,P2)';
+    Description: 'For all items that have accessible data, replaces all occurences of text given in parameter 1 by a text given in paramter 2 within paths to main picture, secondary picture ' +
+                 'and package picture. Text to be replaced is searched for with case insensitive comparisons. The replacement text is inserted as is, no change to case is performed.' + sLineBreak +
+                 sLineBreak +
+                 'Parameter 1 - text to be replaced' + sLineBreak +
+                 'Parameter 2 - replacement text';
+    FunctionIdx: 7),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Replace textual tag when it matches';      
+        Details: '(Item.TextTag = P1) => Item.TextTag := P2';
+    Description: 'Traverses all items and, for those with accessible data, compares (case insensitive) textual tag to a parameter 1. When it matches, it is replaced by a text given in parameter 2.' + sLineBreak +
+                 sLineBreak +
+                 'Parameter 1 - tag to search for' + sLineBreak +
+                 'Parameter 2 - replacement tag';
+    FunctionIdx: 8),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Remove all shops except the selected one'; 
+        Details: 'not Item.Shop.Selected => Item.Remove(Shop)';
+    Description: 'For all items that have accessible data, removes all shos except the selected one.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 9),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Remove all shops from owned items';    
+        Details: 'Item.Owned => Item.ShopsClear';
+    Description: 'Removes all shops from all items that have accessible data and have "owned" flag set to true.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 10),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Set wanted level to zero in owned items';   
+        Details: 'Item.Owned => Item.WantedLevel = 0';
+    Description: 'Sets wanted level to zero for all items that have accessible data and have "owned" flag set to true.' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 11)
+  );
+
+//==============================================================================
+
 procedure TfSpecialsForm.ProcessingDone;
 begin
 If cbCloseWhenDone.Checked then
   Close;
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.Initialize(ILManager: TILManager);
+procedure TfSpecialsForm.SpecialSelect(Index: Integer);
 begin
-fILManager := ILManager;
+case Index of
+  1:  Special_0001;
+  2:  Special_0002;
+  3:  Special_0003;
+  4:  Special_0004;
+  5:  Special_0005;
+  6:  Special_0006;
+  7:  Special_0007;
+  8:  Special_0008;
+  9:  Special_0009;
+  10: Special_0010;
+  11: Special_0011;
+else
+  MessageDlg(IL_Format('Invalid special function index (%d).',[Index]),mtError,[mbOK],0);
+end;
+ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.Finalize;
-begin
-// nothing to do here
-end;
-
-//==============================================================================
-
-procedure TfSpecialsForm.btnClearTextTagsClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0001;
 var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     fILManager[i].TextTag := '';
-ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnClearParsingClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0002;
 var
   i,j:  Integer;
 begin
@@ -102,12 +209,11 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
         fILManager[i][j].ParsingSettings.PriceExtractionSettingsClear;
         fILManager[i][j].ParsingSettings.PriceFinder.StageClear;
       end;
-ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnSetAltDownMethodClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0003;
 var
   i,j:  Integer;
 begin
@@ -116,12 +222,11 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       If IL_SameText(fILManager[i][j].Name,leParam_1.Text) then
         fILManager[i][j].AltDownMethod := True;
-ProcessingDone;
 end;
-
+  
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnUpdateAllAPFClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0004;
 var
   i:  Integer;
 begin
@@ -129,24 +234,23 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     fILManager[i].GetAndFlagPriceAndAvail(
       fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
-ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnSetMaterialToPVCClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0005;
 var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
-    fILManager[i].Material := ilimtPolyvinylchloride;   
-ProcessingDone;
+    If fILManager[i].Material = ilimtUnknown then
+      fILManager[i].Material := ilimtPolyvinylchloride;
 end;
-
+   
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnClearACPCFlagsClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0006;
 var
   i:  Integer;
 begin
@@ -155,13 +259,12 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     begin
       fILManager[i].SetFlagValue(ilifPriceChange,False);
       fILManager[i].SetFlagValue(ilifAvailChange,False)
-    end;    
-ProcessingDone;
+    end;
 end;
-
+ 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnReplaceInPicPathsClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0007;
 var
   i:  Integer;
 begin
@@ -169,27 +272,26 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     begin
       fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+      fILManager[i].SecondaryPictureFile := IL_ReplaceText(fILManager[i].SecondaryPictureFile,leParam_1.Text,leParam_2.Text);
       fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
-    end;   
-ProcessingDone;
+    end;
 end;
-
+ 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnReplaceTextTagClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0008;
 var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     If IL_SameText(fILManager[i].TextTag,leParam_1.Text) then
-      fILManager[i].TextTag := leParam_2.Text; 
-ProcessingDone;
+      fILManager[i].TextTag := leParam_2.Text;
 end;
-
+ 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnRemoveShopsClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0009;
 var
   i,j:  Integer;
 begin
@@ -198,31 +300,141 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     For j := fILManager[i].ShopHighIndex downto fILManager[i].ShopLowIndex do
       If not fILManager[i][j].Selected then
         fILManager[i].ShopDelete(j);
-ProcessingDone;
 end;
-
+ 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnRemShopsFromOwnedClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0010;
 var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible and (ilifOwned in fILManager[i].Flags) then
       fILManager[i].ShopClear;
-ProcessingDone;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSpecialsForm.btnRemoveWLFromOwnedClick(Sender: TObject);
+procedure TfSpecialsForm.Special_0011;
 var
   i:  Integer;
 begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible and (ilifOwned in fILManager[i].Flags) then
     fILManager[i].WantedLevel := 0;
-ProcessingDone;
+end;
+
+//==============================================================================
+
+procedure TfSpecialsForm.Initialize(ILManager: TILManager);
+var
+  i:  Integer;
+begin
+fILManager := ILManager;
+// fill list of special functions
+lbFunctions.Items.BeginUpdate;
+try
+  lbFunctions.Items.Clear;
+  For i := Low(IL_SPECIALS) to High(IL_SPECIALS) do
+    lbFunctions.Items.Add(IL_SPECIALS[i].Title);
+finally
+  lbFunctions.Items.EndUpdate;
+end;
+If lbFunctions.Items.Count > 0 then
+  lbFunctions.ItemIndex := 0;
+lbFunctions.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Finalize;
+begin
+// nothing to do here
+end;
+
+//==============================================================================
+
+procedure TfSpecialsForm.FormCreate(Sender: TObject);
+begin
+fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(lbFunctions.Font);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.FormDestroy(Sender: TObject);
+begin
+FreeAndNil(fDrawBuffer);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.lbFunctionsDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+var
+  BoundsRect: TRect;
+begin
+If Assigned(fDrawBuffer) then
+  begin
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    with fDrawBuffer.Canvas do
+      begin
+        // background
+        Pen.Style := psClear;
+        Brush.Style := bsSolid;
+        If odSelected in State then
+          Brush.Color := $00E5E5E5
+        else
+          Brush.Color := clWindow;
+        Rectangle(BoundsRect);
+        // separator line
+        Pen.Style := psSolid;
+        Pen.Color := clSilver;
+        MoveTo(BoundsRect.Left,BoundsRect.Bottom - 1);
+        LineTo(BoundsRect.Right,BoundsRect.Bottom - 1);
+        // text
+        Brush.Style := bsClear;
+        Pen.Style := psClear;
+        Font.Style := Font.Style + [fsBold];
+        font.Color := clWindowText;
+        TextOut(2,2,IL_SPECIALS[Index].Title);
+        Font.Style := Font.Style - [fsBold];
+        font.Color := clGray;
+        TextOut(2,17,IL_SPECIALS[Index].Details);
+      end;
+    // move drawbuffer to the canvas
+    lbFunctions.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);        
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.lbFunctionsClick(Sender: TObject);
+begin
+If lbFunctions.ItemIndex >= 0 then
+  meDescription.Text := IL_SPECIALS[lbFunctions.ItemIndex].Description
+else
+  meDescription.Lines.Clear;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.btnRunSelectedClick(Sender: TObject);
+begin
+If lbFunctions.ItemIndex >= 0 then
+  begin
+    If MessageDlg(IL_Format('You are about to execute function "%s".' + sLineBreak +
+           'There will be no further dialogs, warnings or prompts, even in case of destructive actions' +
+           sLineBreak + sLineBreak + 'Are you sure you want to continue?',[IL_SPECIALS[lbFunctions.ItemIndex].Title]),
+         mtConfirmation,[mbYes,mbNo],0) = mrYes then
+      SpecialSelect(IL_SPECIALS[lbFunctions.ItemIndex].FunctionIdx);
+  end
+else MessageDlg('No function selected.',mtError,[mbOK],0);
 end;
 
 end.

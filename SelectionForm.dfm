@@ -1,11 +1,11 @@
 object fSelectionForm: TfSelectionForm
-  Left = 333
-  Top = 39
+  Left = 274
+  Top = 76
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsDialog
   Caption = 'Shop selection'
   ClientHeight = 664
-  ClientWidth = 936
+  ClientWidth = 984
   Color = clBtnFace
   Constraints.MinHeight = 100
   Constraints.MinWidth = 100
@@ -29,14 +29,14 @@ object fSelectionForm: TfSelectionForm
     Caption = 'Shops:'
   end
   object lblItems: TLabel
-    Left = 424
+    Left = 472
     Top = 8
     Width = 175
     Height = 13
     Caption = 'Items available in the selected shop:'
   end
   object lblItemsHint: TLabel
-    Left = 714
+    Left = 762
     Top = 8
     Width = 215
     Height = 13
@@ -50,7 +50,7 @@ object fSelectionForm: TfSelectionForm
     ParentFont = False
   end
   object lbItems: TListBox
-    Left = 424
+    Left = 472
     Top = 24
     Width = 505
     Height = 428
@@ -67,12 +67,12 @@ object fSelectionForm: TfSelectionForm
   object lvShops: TListView
     Left = 8
     Top = 24
-    Width = 409
+    Width = 457
     Height = 430
     Columns = <
       item
         Caption = 'Shop'
-        Width = 205
+        Width = 150
       end
       item
         Alignment = taRightJustify
@@ -88,6 +88,11 @@ object fSelectionForm: TfSelectionForm
         Alignment = taRightJustify
         Caption = 'Selected'
         Width = 60
+      end
+      item
+        Alignment = taRightJustify
+        Caption = 'Price of selected'
+        Width = 100
       end>
     HideSelection = False
     ReadOnly = True
@@ -99,14 +104,14 @@ object fSelectionForm: TfSelectionForm
   object grbItemShops: TGroupBox
     Left = 8
     Top = 456
-    Width = 921
+    Width = 969
     Height = 201
     Caption = 'Item shops'
     TabOrder = 2
     object lvItemShops: TListView
       Left = 8
       Top = 16
-      Width = 905
+      Width = 953
       Height = 178
       Columns = <
         item
@@ -118,7 +123,7 @@ object fSelectionForm: TfSelectionForm
         end
         item
           Caption = 'Item URL'
-          Width = 480
+          Width = 525
         end
         item
           Alignment = taRightJustify
@@ -143,7 +148,7 @@ object fSelectionForm: TfSelectionForm
   end
   object pmnItems: TPopupMenu
     OnPopup = pmnItemsPopup
-    Left = 904
+    Left = 944
     object mniIT_EditTextTag: TMenuItem
       Caption = 'Edit textual tag...'
       ShortCut = 16468

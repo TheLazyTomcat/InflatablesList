@@ -22,6 +22,7 @@ type
     Items:      TILCountedDynArrayShopSelectItem;
     Available:  Integer;
     Selected:   Integer;
+    PriceOfSel: UInt32;
   end;
 
   TCDABaseType = TILSelectionShopEntry;
@@ -181,6 +182,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
               CDA_Init(Temp.Items);
               Temp.Available := 0;
               Temp.Selected := 0;
+              Temp.PriceOfSel := 0;
               Index := CDA_Add(fShopTable,Temp);
             end;
           Entry.ItemObject := fILManager[i];
@@ -192,7 +194,10 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
           If fILManager[i][j].Available <> 0 then
             Inc(CDA_GetItemPtr(fShopTable,Index)^.Available);
           If fILManager[i][j].Selected then
-            Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
+            begin
+              Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
+              Inc(CDA_GetItemPtr(fShopTable,Index)^.PriceOfSel,fILManager[i][j].Price);
+            end;
         end;
     end;
 CDA_Sort(fShopTable);
@@ -216,6 +221,10 @@ try
         SubItems.Add(IntToStr(CDA_Count(CDA_GetItem(fShopTable,i).Items)));
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Available));
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Selected));
+        If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
+          SubItems.Add(IL_Format('%d Kè',[CDA_GetItem(fShopTable,i).PriceOfSel]))
+        else
+          SubItems.Add('');
       end;
 finally
   lvShops.Items.EndUpdate;
@@ -234,6 +243,7 @@ begin
 VScroll := lbItems.Count > (lbItems.ClientHeight div lbItems.ItemHeight);
 lbItems.Items.BeginUpdate;
 try
+  CDA_Sort(CDA_GetItemPtr(fShopTable,fCurrentShopIndex)^.Items);
   lbItems.Clear;
   If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
@@ -347,6 +357,7 @@ begin
 For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
   begin
     CDA_GetItemPtr(fShopTable,i)^.Selected := 0;
+    CDA_GetItemPtr(fShopTable,i)^.PriceOfSel := 0;
     For j := CDA_Low(CDA_GetItem(fShopTable,i).Items) to CDA_High(CDA_GetItem(fShopTable,i).Items) do
       begin
         Index := CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).ItemObject.ShopIndexOf(CDA_GetItem(fShopTable,i).ShopName);
@@ -355,11 +366,19 @@ For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
             CDA_GetItemPtr(CDA_GetItem(fShopTable,i).Items,j)^.Selected :=
               CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).ItemObject.Shops[Index].Selected;
             If CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).Selected then
-              Inc(CDA_GetItemPtr(fShopTable,i)^.Selected);
+              begin
+                Inc(CDA_GetItemPtr(fShopTable,i)^.Selected);
+                Inc(CDA_GetItemPtr(fShopTable,i)^.PriceOfSel,
+                  CDA_GetItem(CDA_GetItem(fShopTable,i).Items,j).Price);
+              end;  
           end
         else raise Exception.Create('Some weird things are happening...');
       end;
     lvShops.Items[i].SubItems[2] := IntToStr(CDA_GetItem(fShopTable,i).Selected);
+    If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
+      lvShops.Items[i].SubItems[3] := IL_Format('%d Kè',[CDA_GetItem(fShopTable,i).PriceOfSel])
+    else
+      lvShops.Items[i].SubItems[3] := '';
   end;
 end;
 

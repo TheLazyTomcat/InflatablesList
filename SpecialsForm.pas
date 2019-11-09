@@ -86,7 +86,7 @@ const
                  'Parameters are not used in this function.';
     FunctionIdx: 2),
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-         (Title: 'Alt. download method for selected shops';
+         (Title: 'Alternative download method for selected shops';
         Details: 'Shop.Selected => Shop.AltDownloadMethod := True';
     Description: 'For all items that have accessible data, the function traverses all shops and activates alternative download method when ' +
                  'the shop name matches parameter 1 (case insensitive comparison).' + sLineBreak +
@@ -437,7 +437,10 @@ If Assigned(fDrawBuffer) then
           Brush.Color := $00E5E5E5
         else
           Brush.Color := clWindow;
-        Rectangle(BoundsRect);
+        Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Right + 1,BoundsRect.Bottom);
+        // side strip
+        Brush.Color := clSilver;
+        Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 5,BoundsRect.Bottom);
         // separator line
         Pen.Style := psSolid;
         Pen.Color := clSilver;
@@ -448,10 +451,10 @@ If Assigned(fDrawBuffer) then
         Pen.Style := psClear;
         Font.Style := Font.Style + [fsBold];
         font.Color := clWindowText;
-        TextOut(2,2,IL_SPECIALS[Index].Title);
+        TextOut(7,2,IL_SPECIALS[Index].Title);
         Font.Style := Font.Style - [fsBold];
         font.Color := clGray;
-        TextOut(2,17,IL_SPECIALS[Index].Details);
+        TextOut(7,17,IL_SPECIALS[Index].Details);
       end;
     // move drawbuffer to the canvas
     lbFunctions.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);        

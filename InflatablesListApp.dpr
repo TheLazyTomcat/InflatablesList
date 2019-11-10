@@ -49,7 +49,7 @@ uses
   InflatablesList_Item_IO_00000004 in 'source\InflatablesList_Item_IO_00000004.pas',
   InflatablesList_Item_IO_00000005 in 'source\InflatablesList_Item_IO_00000005.pas',
   InflatablesList_Item_IO_00000006 in 'source\InflatablesList_Item_IO_00000006.pas',
-  InflatablesList_Item_IO_00000007 in 'source\InflatablesList_Item_IO_00000007.pas',  
+  InflatablesList_Item_IO_00000007 in 'source\InflatablesList_Item_IO_00000007.pas',
   InflatablesList_Item_Crypt in 'source\InflatablesList_Item_Crypt.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
@@ -89,7 +89,9 @@ uses
   PromptForm in 'PromptForm.pas' {fPromptForm},
   SplashForm in 'SplashForm.pas' {fSplashForm},
   SaveForm in 'SaveForm.pas' {fSaveForm},
-  AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm};
+  AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm},
+  ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItems},
+  InflatablesList_ShopSelectArray in 'source\InflatablesList_ShopSelectArray.pas';
 
 {$R *.res}
 

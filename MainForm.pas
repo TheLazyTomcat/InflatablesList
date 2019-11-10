@@ -78,6 +78,7 @@ type
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
     mniMMT_Selection: TMenuItem;
+    mniMMT_ShopByItems: TMenuItem;    
     mniMMT_Specials: TMenuItem;
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
@@ -165,6 +166,7 @@ type
     // ---
     procedure mniMM_ToolsClick(Sender: TObject);
     procedure mniMMT_SelectionClick(Sender: TObject);
+    procedure mniMMT_ShopByItemsClick(Sender: TObject);
     procedure mniMMT_SpecialsClick(Sender: TObject);
     // ---
     procedure mniMM_HelpClick(Sender: TObject);
@@ -234,7 +236,7 @@ uses
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
-  AdvancedSearchForm,
+  AdvancedSearchForm, ShopByItemsForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -522,6 +524,7 @@ fAboutForm.Initialize(fIlManager);
 fSplashForm.Initialize(fIlManager);
 fSaveForm.Initialize(fIlManager);
 fAdvancedSearchForm.Initialize(fIlManager);
+fShopByItems.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -546,6 +549,7 @@ fAboutForm.Finalize;
 fSplashForm.Finalize;
 fSaveForm.Finalize;
 fAdvancedSearchForm.Finalize;
+fShopByItems.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -1648,6 +1652,16 @@ frmItemFrame.Save;
 fSelectionForm.ShowSelection;
 // load potential changes (tags mainly)
 frmItemFrame.Load;
+lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMT_ShopByItemsClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+fShopByItems.ShowSelection;
+// no need to load changes, this window is only informative
 lbList.SetFocus;
 end;
 

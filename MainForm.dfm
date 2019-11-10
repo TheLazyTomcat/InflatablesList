@@ -474,6 +474,11 @@ object fMainForm: TfMainForm
         ShortCut = 16468
         OnClick = mniMMT_SelectionClick
       end
+      object mniMMT_ShopByItems: TMenuItem
+        Caption = 'Find shop by items...'
+        ShortCut = 16465
+        OnClick = mniMMT_ShopByItemsClick
+      end
       object mniMMT_Specials: TMenuItem
         Caption = 'Special functions...'
         ShortCut = 16460

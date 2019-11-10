@@ -1,5 +1,5 @@
 object fSelectionForm: TfSelectionForm
-  Left = 274
+  Left = 243
   Top = 76
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsDialog

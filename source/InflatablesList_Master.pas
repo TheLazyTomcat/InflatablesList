@@ -42,7 +42,7 @@ uses
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm,
   ItemSelectForm, BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm,
-  SplashForm, PromptForm, SaveForm, AdvancedSearchForm,
+  SplashForm, PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
@@ -97,6 +97,7 @@ Application.CreateForm(TfAboutForm, fAboutForm);
 Application.CreateForm(TfSplashForm, fSplashForm);
 Application.CreateForm(TfSaveForm, fSaveForm);
 Application.CreateForm(TfAdvancedSearchForm, fAdvancedSearchForm);
+Application.CreateForm(TfShopByItems,fShopByItems);
 // do not automatically create prompt form
 //Application.CreateForm(TfPromptForm, fPromptForm);
 end;

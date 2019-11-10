@@ -10,48 +10,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ComCtrls, Menus,
-  AuxTypes, CountedDynArrays,
   InflatablesList_ShopSelectItemsArray,
+  InflatablesList_ShopSelectArray,
   InflatablesList_Manager;
-
-//-- Table declaration ---------------------------------------------------------
-
-type
-  TILSelectionShopEntry = record
-    ShopName:   String;
-    Items:      TILCountedDynArrayShopSelectItem;
-    Available:  Integer;
-    Selected:   Integer;
-    PriceOfSel: UInt32;
-  end;
-
-  TCDABaseType = TILSelectionShopEntry;
-  PCDABaseType = ^TCDABaseType;
-
-  TILCountedDynArraySelectionShops = record
-  {$DEFINE CDA_Structure}
-    {$INCLUDE '.\CountedDynArrays.inc'}
-  {$UNDEF CDA_Structure}
-  end;
-  PILCountedDynArraySelectionShops = ^TILCountedDynArraySelectionShops;
-
-  // aliases
-  TILCountedDynArrayOfSelectionShops = TILCountedDynArraySelectionShops;
-  PILCountedDynArrayOfSelectionShops = PILCountedDynArraySelectionShops;
-
-  TILSelectionShopsCountedDynArray = TILCountedDynArraySelectionShops;
-  PILSelectionShopsCountedDynArray = PILCountedDynArraySelectionShops;
-
-  TCDAArrayType = TILCountedDynArraySelectionShops;
-  PCDAArrayType = PILCountedDynArraySelectionShops;
-
-{$DEFINE CDA_Interface}
-{$INCLUDE '.\CountedDynArrays.inc'}
-{$UNDEF CDA_Interface}
-
-//******************************************************************************
-//==============================================================================
-//******************************************************************************
 
 const
   IL_WM_USER_LVITEMSELECTED = WM_USER + 234;
@@ -130,36 +91,9 @@ implementation
 {$R *.dfm}
 
 uses
-  ListSorters,
-  InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_Item,
   MainForm, PromptForm;
-
-//-- Table implementation ------------------------------------------------------   
-
-procedure CDA_ItemUnique(var Item: TCDABaseType); {$IFDEF CanInline} inline; {$ENDIF}
-begin
-UniqueString(Item.ShopName);
-end;
-
-//------------------------------------------------------------------------------  
-
-Function CDA_ItemCompare(const A,B: TCDABaseType): Integer;
-begin
-Result := -AnsiCompareText(A.ShopName,B.ShopName);
-end;
-
-//------------------------------------------------------------------------------
-
-{$DEFINE CDA_Implementation}
-{$INCLUDE '.\CountedDynArrays.inc'}
-{$UNDEF CDA_Implementation}
-
-
-//******************************************************************************
-//==============================================================================
-//******************************************************************************
 
 procedure TfSelectionForm.BuildTable;
 var
@@ -477,6 +411,7 @@ end;
 procedure TfSelectionForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
 lvShops.DoubleBuffered := True;
 lbItems.DoubleBuffered := True;
 lvItemShops.DoubleBuffered := True;

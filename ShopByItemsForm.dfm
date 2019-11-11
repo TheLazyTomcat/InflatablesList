@@ -3,7 +3,7 @@ object fShopByItems: TfShopByItems
   Top = 158
   BorderStyle = bsDialog
   Caption = 'Selection of shops by items'
-  ClientHeight = 512
+  ClientHeight = 462
   ClientWidth = 832
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -35,20 +35,19 @@ object fShopByItems: TfShopByItems
     Left = 8
     Top = 24
     Width = 505
-    Height = 481
+    Height = 428
     OnClickCheck = clbItemsClickCheck
     IntegralHeight = True
     ItemHeight = 53
     Style = lbOwnerDrawFixed
     TabOrder = 0
-    OnClick = clbItemsClick
     OnDrawItem = clbItemsDrawItem
   end
   object lvShops: TListView
     Left = 520
     Top = 24
     Width = 305
-    Height = 481
+    Height = 430
     Columns = <
       item
         Caption = 'Shop'
@@ -59,6 +58,8 @@ object fShopByItems: TfShopByItems
         Caption = 'Price of selected'
         Width = 100
       end>
+    ReadOnly = True
+    RowSelect = True
     TabOrder = 1
     ViewStyle = vsReport
   end

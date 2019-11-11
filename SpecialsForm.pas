@@ -436,6 +436,7 @@ If Assigned(fDrawBuffer) then
     If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
       fDrawBuffer.Height := Rect.Bottom - Rect.Top;
     BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+
     with fDrawBuffer.Canvas do
       begin
         // background
@@ -465,7 +466,7 @@ If Assigned(fDrawBuffer) then
         TextOut(7,17,IL_SPECIALS[Index].Details);
       end;
     // move drawbuffer to the canvas
-    lbFunctions.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);        
+    lbFunctions.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
   end;
 end;
 

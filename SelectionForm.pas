@@ -1,16 +1,10 @@
 unit SelectionForm;
 
-{$INCLUDE '.\CountedDynArrays_defs.inc'}
-
-{$DEFINE CDA_FuncOverride_ItemUnique}
-{$DEFINE CDA_FuncOverride_ItemCompare}
-
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, StdCtrls, ComCtrls, Menus,
-  InflatablesList_ShopSelectItemsArray,
   InflatablesList_ShopSelectArray,
   InflatablesList_Manager;
 
@@ -92,6 +86,7 @@ implementation
 
 uses
   InflatablesList_Utils,
+  InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item,
   MainForm, PromptForm;
 
@@ -105,35 +100,33 @@ begin
 CDA_Init(fShopTable);
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
-    begin
-      For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
-        begin
-          Temp.ShopName := fILManager[i][j].Name;
-          Index := CDA_IndexOf(fShopTable,Temp);
-          If not CDA_CheckIndex(fShopTable,Index) then
-            begin
-              // shop is not in the table, add it
-              CDA_Init(Temp.Items);
-              Temp.Available := 0;
-              Temp.Selected := 0;
-              Temp.PriceOfSel := 0;
-              Index := CDA_Add(fShopTable,Temp);
-            end;
-          Entry.ItemObject := fILManager[i];
-          Entry.Available := fILManager[i][j].Available <> 0;
-          Entry.Selected :=  fILManager[i][j].Selected;
-          Entry.Index := i;
-          Entry.Price := fILManager[i][j].Price;
-          CDA_Add(CDA_GetItemPtr(fShopTable,Index)^.Items,Entry);
-          If fILManager[i][j].Available <> 0 then
-            Inc(CDA_GetItemPtr(fShopTable,Index)^.Available);
-          If fILManager[i][j].Selected then
-            begin
-              Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
-              Inc(CDA_GetItemPtr(fShopTable,Index)^.PriceOfSel,fILManager[i][j].Price);
-            end;
-        end;
-    end;
+    For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
+      begin
+        Temp.ShopName := fILManager[i][j].Name;
+        Index := CDA_IndexOf(fShopTable,Temp);
+        If not CDA_CheckIndex(fShopTable,Index) then
+          begin
+            // shop is not in the table, add it
+            CDA_Init(Temp.Items);
+            Temp.Available := 0;
+            Temp.Selected := 0;
+            Temp.PriceOfSel := 0;
+            Index := CDA_Add(fShopTable,Temp);
+          end;
+        Entry.ItemObject := fILManager[i];
+        Entry.Available := fILManager[i][j].Available <> 0;
+        Entry.Selected :=  fILManager[i][j].Selected;
+        Entry.Index := i;
+        Entry.Price := fILManager[i][j].Price;
+        CDA_Add(CDA_GetItemPtr(fShopTable,Index)^.Items,Entry);
+        If fILManager[i][j].Available <> 0 then
+          Inc(CDA_GetItemPtr(fShopTable,Index)^.Available);
+        If fILManager[i][j].Selected then
+          begin
+            Inc(CDA_GetItemPtr(fShopTable,Index)^.Selected);
+            Inc(CDA_GetItemPtr(fShopTable,Index)^.PriceOfSel,fILManager[i][j].Price);
+          end;
+      end;
 CDA_Sort(fShopTable);
 For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
   CDA_Sort(CDA_GetItemPtr(fShopTable,i)^.Items);
@@ -202,8 +195,16 @@ try
   If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
-      CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.
-        ReinitDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
+      with CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject do
+        begin
+          BeginUpdate;
+          try
+            ReinitDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
+            ChangeSmallStripSize(-1);
+          finally
+            EndUpdate;
+          end;
+        end;
 finally
   lbItems.Items.EndUpdate;
 end;
@@ -412,6 +413,7 @@ procedure TfSelectionForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(lbItems.Font);
 lvShops.DoubleBuffered := True;
 lbItems.DoubleBuffered := True;
 lvItemShops.DoubleBuffered := True;
@@ -463,7 +465,6 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
       with fDrawBuffer.Canvas do
         begin
           TempItem := CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,Index);
-          Font.Assign(lbItems.Font);
           
           // content
           Draw(BoundsRect.Left,BoundsRect.Top,TempItem.ItemObject.RenderSmall);
@@ -483,7 +484,8 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
             Brush.Color := $00D5FFD2
           else
             Brush.Color := $00F7F7F7;
-          Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 20,BoundsRect.Bottom);
+          Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left +
+            TempItem.ItemObject.SmallStrip,BoundsRect.Bottom);
 
           // shop price
           TempStr := IL_Format('%d Kè',[TempItem.Price]);
@@ -491,9 +493,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
           Font.Style := [fsBold];
           Font.Color := clWindowText;
           Font.Size := 10;
-          TextOut(
-            BoundsRect.Left + lbItems.ClientWidth - TextWidth(TempStr) - 64,
-            BoundsRect.Top + 2,TempStr);
+          TextOut(BoundsRect.Right - TextWidth(TempStr) - 64,BoundsRect.Top + 2,TempStr);
 
           // states
           If odSelected	in State then

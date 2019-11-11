@@ -5,7 +5,7 @@ unit InflatablesList_Manager_Base;
 interface
 
 uses
-  StdCtrls,
+  Graphics, StdCtrls,
   AuxClasses,
   InflatablesList_Types,
   InflatablesList_Data,
@@ -124,6 +124,7 @@ type
     // macro methods (broadcast to item objects)
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
+    procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;    
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     Function TotalPictureCount: Integer; virtual;
@@ -931,6 +932,21 @@ else
       EndUpdate;
     end;
   end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILManager_Base.ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
+var
+  i:  Integer;
+begin
+BeginUpdate;
+try
+  For i := ItemLowIndex to ItemHighIndex do
+    fList[i].ReinitDrawSize(SmallWidth,SmallHeight,SmallFont);;
+finally
+  EndUpdate;
+end;
 end;
 
 //------------------------------------------------------------------------------

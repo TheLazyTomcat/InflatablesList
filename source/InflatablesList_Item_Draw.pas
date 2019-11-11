@@ -17,6 +17,7 @@ type
     fMainHeight:  Integer;
     fSmallWidth:  Integer;
     fSmallHeight: Integer;
+    fSmallStrip:  Integer;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
     class procedure RenderSmallPicture(LargePicture: TBitmap; var SmallPicture: TBitmap); virtual;
@@ -31,11 +32,13 @@ type
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox); overload; virtual;
     procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
+    procedure ChangeSmallStripSize(NewSize: Integer); virtual;
     procedure ReDraw; virtual;
     property MainWidth: Integer read fMainWidth;
     property MainHeight: Integer read fMainHeight;
     property SmallWidth: Integer read fSmallWidth;
     property SmallHeight: Integer read fSmallHeight;
+    property SmallStrip: Integer read fSmallStrip;
   end;
 
 implementation
@@ -312,8 +315,6 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.ReDrawSmall;
-const
-  SIDE_STRIP_WIDTH  = 20;
 var
   TempStr:  String;
   TempInt:  Integer;
@@ -351,22 +352,22 @@ with fRenderSmall,fRenderSmall.Canvas do
         If ilifDiscarded in fFlags then
           begin
             SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite,10);
-            Rectangle(SIDE_STRIP_WIDTH - 1,0,SIDE_STRIP_WIDTH + TextWidth(TempStr) + 11,TextHeight(TempStr) + 10);
+            Rectangle(fSmallStrip - 1,0,fSmallStrip + TextWidth(TempStr) + 11,TextHeight(TempStr) + 4);
           end
         else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,10);
-        TextOut(SIDE_STRIP_WIDTH + 5,2,TempStr); 
+        TextOut(fSmallStrip + 5,2,TempStr);
     
         // type + size
         SetCanvas;
         TempStr := SizeStr;
         If Length(TempStr) > 0 then
-          TextOut(SIDE_STRIP_WIDTH + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
+          TextOut(fSmallStrip + 5,20,IL_Format('%s - %s',[TypeStr,TempStr]))
         else
-          TextOut(SIDE_STRIP_WIDTH + 5,20,TypeStr);
+          TextOut(fSmallStrip + 5,20,TypeStr);
     
         // variant/color
         SetCanvas;
-        TextOut(SIDE_STRIP_WIDTH + 5,35,fVariant);
+        TextOut(fSmallStrip + 5,35,fVariant);
     
         // lowest price
         SetCanvas;
@@ -396,10 +397,10 @@ with fRenderSmall,fRenderSmall.Canvas do
       begin
         // data are not accessible, draw placeholder
         // lock picture
-        Draw(SIDE_STRIP_WIDTH + 5,9,fDataProvider.ItemLockImage);
+        Draw(fSmallStrip + 5,9,fDataProvider.ItemLockImage);
 
         // text
-        TempInt := SIDE_STRIP_WIDTH + fDataProvider.ItemLockImage.Width + 10;        
+        TempInt := fSmallStrip + fDataProvider.ItemLockImage.Width + 10;        
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
         TextOut(TempInt,5,'Item is encrypted');
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
@@ -476,6 +477,7 @@ fMainWidth := 0;
 fMainHeight := 0;
 fSmallWidth := 0;
 fSmallHeight := 0;
+fSmallStrip := 20;
 fRender.Width := fMainWidth;
 fRender.Height := fMainHeight;
 fRenderSmall.Width := fSmallWidth;
@@ -493,6 +495,7 @@ If Source is TILItem_Draw then
     fMainHeight := TILItem_Draw(Source).MainHeight;
     fSmallWidth := TILItem_Draw(Source).SmallWidth;
     fSmallHeight := TILItem_Draw(Source).SmallHeight;
+    fSmallStrip := TILItem_Draw(Source).SmallStrip;
   end;
 end;
 
@@ -551,6 +554,24 @@ If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
     fRenderSmall.Canvas.Font.Assign(SmallFont);
     ReDrawSmall;
     inherited UpdateSmallList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.ChangeSmallStripSize(NewSize: Integer);
+var
+  OldSize:  Integer;
+begin
+OldSize := fSmallStrip;
+If NewSize >= 0 then
+  fSmallStrip := NewSize
+else
+  fSmallStrip := 20;
+If OldSize <> fSmallStrip then
+  begin
+    ReDrawSmall;
+    inherited UpdateSmallList;    
   end;
 end;
 

@@ -39,6 +39,7 @@ object fShopByItems: TfShopByItems
     OnClickCheck = clbItemsClickCheck
     IntegralHeight = True
     ItemHeight = 53
+    PopupMenu = pmnItems
     Style = lbOwnerDrawFixed
     TabOrder = 0
     OnDrawItem = clbItemsDrawItem
@@ -62,5 +63,12 @@ object fShopByItems: TfShopByItems
     RowSelect = True
     TabOrder = 1
     ViewStyle = vsReport
+  end
+  object pmnItems: TPopupMenu
+    Left = 488
+    object mniSL_UnselectAll: TMenuItem
+      Caption = 'Unselect all items'
+      OnClick = mniSL_UnselectAllClick
+    end
   end
 end

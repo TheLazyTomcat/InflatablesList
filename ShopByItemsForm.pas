@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, CheckLst,
+  Dialogs, StdCtrls, ComCtrls, CheckLst, Menus,
   InflatablesList_ShopSelectArray,
   InflatablesList_Manager;
 
@@ -14,11 +14,14 @@ type
     clbItems: TCheckListBox;
     lblShops: TLabel;
     lvShops: TListView;
+    pmnItems: TPopupMenu;
+    mniSL_UnselectAll: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure clbItemsClickCheck(Sender: TObject);
     procedure clbItemsDrawItem(Control: TWinControl; aIndex: Integer;
       Rect: TRect; State: TOwnerDrawState);
+    procedure mniSL_UnselectAllClick(Sender: TObject);
   private
     { Private declarations }
     fDrawBuffer:  TBitmap;
@@ -28,6 +31,7 @@ type
     procedure RecountShops;
     procedure FillItems;
     procedure FillShops;
+    procedure UpdateSelCount;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
@@ -192,6 +196,19 @@ For i := CDA_Low(fWorkTable) to CDA_High(fWorkTable) do
     end;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfShopByItems.UpdateSelCount;
+var
+  i,Cntr: Integer;
+begin
+Cntr := 0;
+For i := 0 to Pred(clbItems.Count) do
+  If clbItems.Checked[i] then
+    Inc(Cntr);
+lblItems.Caption := IL_Format('Items (%d selected):',[Cntr]);
+end;
+
 //==============================================================================
 
 procedure TfShopByItems.Initialize(ILManager: TILManager);
@@ -228,6 +245,7 @@ For i := 0 to Pred(clbItems.Count) do
         EndUpdate;
       end;
     end;
+UpdateSelCount;    
 ShowModal;
 end;
 
@@ -255,7 +273,7 @@ procedure TfShopByItems.clbItemsClickCheck(Sender: TObject);
 begin
 RecountShops;
 FillShops;
-clbItems.Invalidate;
+UpdateSelCount;
 end;
 
 //------------------------------------------------------------------------------
@@ -337,6 +355,19 @@ If Assigned(fDrawBuffer) then
     If odFocused in State then
       clbItems.Canvas.DrawFocusRect(Rect);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfShopByItems.mniSL_UnselectAllClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+For i := 0 to Pred(clbItems.Count) do
+  clbItems.Checked[i] := False;
+RecountShops;
+FillShops;  
+UpdateSelCount;
 end;
 
 end.

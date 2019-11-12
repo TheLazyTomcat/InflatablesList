@@ -53,10 +53,10 @@ type
   TLIItemPictureKind  = (ilipkUnknown,ilipkMain,ilipkSecondary,ilipkPackage);
   TLIItemPictureKinds = set of TLIItemPictureKind;
 
-  TILItemType = (ilitUnknown,ilitRing,ilitRingWithHandles,ilitBall,ilitRider,
-                 ilitLounger,ilitLoungerChair,ilitChair,ilitSeat,ilitMattress,
-                 ilitIsland,ilitIslandRider,ilitBed,ilitBoat,ilitToy,ilitWings,
-                 ilitBalloon,ilitOther);
+  TILItemType = (ilitUnknown,ilitRing,ilitRingWithHandles,ilitRingSpecial,
+                 ilitBall,ilitRider,ilitLounger,ilitLoungerChair,ilitSeat,
+                 ilitWings,ilitToy,ilitIsland,ilitIslandExtra,ilitBoat,
+                 ilitMattress,ilitBed,ilitChair,ilitSofa,ilitBalloon,ilitOther);
 
   TILItemManufacturer = (ilimBestway,ilimCrivit{Lidl},ilimIntex,ilimHappyPeople,
                          ilimMondo,ilimPolygroup,ilimSummerWaves,ilimSwimline,
@@ -567,7 +567,9 @@ case ItemType of
   ilitWings:            Result := 14;
   ilitOther:            Result := 15;
   ilitBalloon:          Result := 16;
-  ilitIslandRider:      Result := 17;
+  ilitIslandExtra:      Result := 17;
+  ilitRingSpecial:      Result := 18;
+  ilitSofa:             Result := 19;
 else
  {ilitUnknown}
  Result := 0;
@@ -595,7 +597,9 @@ case Num of
   14: Result := ilitWings;
   15: Result := ilitOther;
   16: Result := ilitBalloon;
-  17: Result := ilitIslandRider;
+  17: Result := ilitIslandExtra;
+  18: Result := ilitRingSpecial;
+  19: Result := ilitSofa;
 else
   Result := ilitUnknown;
 end;

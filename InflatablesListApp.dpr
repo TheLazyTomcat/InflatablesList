@@ -53,6 +53,7 @@ uses
   InflatablesList_Item_Crypt in 'source\InflatablesList_Item_Crypt.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
+  InflatablesList_ShopSelectArray in 'source\InflatablesList_ShopSelectArray.pas',  
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',
   InflatablesList_Manager_Sort in 'source\InflatablesList_Manager_Sort.pas',
   InflatablesList_Manager_Filter in 'source\InflatablesList_Manager_Filter.pas',
@@ -90,8 +91,7 @@ uses
   SplashForm in 'SplashForm.pas' {fSplashForm},
   SaveForm in 'SaveForm.pas' {fSaveForm},
   AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm},
-  ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItems},
-  InflatablesList_ShopSelectArray in 'source\InflatablesList_ShopSelectArray.pas';
+  ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItems};
 
 {$R *.res}
 

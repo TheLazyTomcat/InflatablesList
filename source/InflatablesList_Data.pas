@@ -21,8 +21,9 @@ type
     fItemManufacturers:     array[TILItemManufacturer] of TILItemManufacturerInfo;
     fItemReviewIcon:        TBitmap;
     fItemFlagIcons:         array[TILItemFlag] of TBitmap;
-    fItemDefaultPics:       array[TILITemType] of TBitmap;
-    fItemDefaultPicsSmall:  array[TILITemType] of TBitmap;
+    fItemDefaultPics:       array[TILItemType] of TBitmap;
+    fItemDefaultPicsSmall:  array[TILItemType] of TBitmap;
+    fItemDefaultPicsMini:   array[TILItemType] of TBitmap;
     fWantedGradientImage:   TBitmap;
     fRatingGradientImage:   TBitmap;
     fItemLockImage:         TBitmap;
@@ -36,6 +37,8 @@ type
     Function GetItemDefaultPicture(ItemType: TILITemType): TBitmap;
     Function GetItemDefaultPictureSmallCount: Integer;
     Function GetItemDefaultPictureSmall(ItemType: TILITemType): TBitmap;
+    Function GetItemDefaultPictureMiniCount: Integer;
+    Function GetItemDefaultPictureMini(ItemType: TILITemType): TBitmap;
   protected
     class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
     procedure InitializeItemManufacurers; virtual;
@@ -48,6 +51,8 @@ type
     procedure FinalizeDefaultPictures; virtual;
     procedure InitializeDefaultPicturesSmall; virtual;
     procedure FinalizeDefaultPicturesSmall; virtual;
+    procedure InitializeDefaultPicturesMini; virtual;
+    procedure FinalizeDefaultPicturesMini; virtual;
     procedure InitializeGradientImages; virtual;
     procedure FinalizeGradientImages; virtual;
     procedure InitializeItemLockImage; virtual;
@@ -75,6 +80,8 @@ type
     property ItemDefaultPictures[ItemType: TILITemType]: TBitmap read GetItemDefaultPicture;
     property ItemDefaultPictureSmallCount: Integer read GetItemDefaultPictureSmallCount;
     property ItemDefaultPicturesSmall[ItemType: TILITemType]: TBitmap read GetItemDefaultPictureSmall;
+    property ItemDefaultPictureMiniCount: Integer read GetItemDefaultPictureMiniCount;
+    property ItemDefaultPicturesMini[ItemType: TILITemType]: TBitmap read GetItemDefaultPictureMini;
     property WantedGradientImage: TBitmap read fWantedGradientImage;
     property RatingGradientImage: TBitmap read fRatingGradientImage;
     property ItemLockImage: TBitmap read fItemLockImage;
@@ -108,9 +115,9 @@ const
     'man_logo_vetroplus','man_logo_wehncke','man_logo_wiky','man_logo_others');
 
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
-    ('neznámý','kruh','kruh s madly','míè','rider','lehátko','lehátko/køeslo',
-     'køeslo','sedátko','matrace','ostrov','ostrov/rider','postel','èlun',
-     'hraèka','rukávky','balónek','ostatní');
+    ('neznámý','kruh','kruh s madly','kruh speciální','míè','rider','lehátko',
+     'lehátko s opìrkou','sedátko','rukávky','hraèka','ostrov','ostrov extra',
+     'èlun','matrace','postel','køeslo','pohovka','balónek','ostatní');
 
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
     ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
@@ -152,10 +159,11 @@ const
     'Download fail','Parsing fail','Fatal error');
 
   IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
-    'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles','def_pic_ball',
-    'def_pic_rider','def_pic_lounger','def_pic_lounger_chair','def_pic_chair',
-    'def_pic_seat','def_pic_mattress','def_pic_island','def_pic_island_rider',
-    'def_pic_bed','def_pic_boat','def_pic_toy','def_pic_wings','def_pic_balloon',
+    'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles',
+    'def_pic_ring_special','def_pic_ball','def_pic_rider','def_pic_lounger',
+    'def_pic_lounger_chair','def_pic_seat','def_pic_wings','def_pic_toy',
+    'def_pic_island','def_pic_island_rider','def_pic_boat','def_pic_mattress',
+    'def_pic_bed','def_pic_chair','def_pic_sofa','def_pic_balloon',
     'def_pic_others');
 
   IL_DATA_SHOPPARSING_EXTRACTFROM: array[TILItemShopParsingExtrFrom] of String = (
@@ -258,6 +266,23 @@ If (ItemType >= Low(fItemDefaultPicsSmall)) and (ItemType <= High(fItemDefaultPi
   Result := fItemDefaultPicsSmall[ItemType]
 else
   raise Exception.CreateFmt('TILDataProvider.GetItemDefaultPictureSmall: Invalid item type (%d).',[Ord(ItemType)]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemDefaultPictureMiniCount: Integer;
+begin
+Result := Length(fItemDefaultPicsMini);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemDefaultPictureMini(ItemType: TILITemType): TBitmap;
+begin
+If (ItemType >= Low(fItemDefaultPicsMini)) and (ItemType <= High(fItemDefaultPicsMini)) then
+  Result := fItemDefaultPicsMini[ItemType]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetItemDefaultPictureMini: Invalid item type (%d).',[Ord(ItemType)]);
 end;
 
 //==============================================================================
@@ -407,6 +432,35 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILDataProvider.InitializeDefaultPicturesMini;
+var
+  i:  TILItemType;
+begin
+For i := Low(fItemDefaultPicsMini) to High(fItemDefaultPicsMini) do
+  try
+    fItemDefaultPicsMini[i] := TBitmap.Create;
+    fItemDefaultPicsMini[i].PixelFormat := pf24bit;
+    fItemDefaultPicsMini[i].Width := 48;
+    fItemDefaultPicsMini[i].Height := 48;
+    IL_PicShrink(fItemDefaultPics[i],fItemDefaultPicsMini[i],3);
+  except
+    fItemDefaultPics[i] := nil;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILDataProvider.FinalizeDefaultPicturesMini;
+var
+  i:  TILItemType;
+begin
+For i := Low(fItemDefaultPicsMini) to High(fItemDefaultPicsMini) do
+  If Assigned(fItemDefaultPicsMini[i]) then
+    FreeAndNil(fItemDefaultPicsMini[i]);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.InitializeGradientImages;
 begin
 fWantedGradientImage := TBitmap.Create;
@@ -463,6 +517,7 @@ InitializeItemReviewIcon;
 InitializeItemFlagIcons;
 InitializeDefaultPictures;
 InitializeDefaultPicturesSmall;
+InitializeDefaultPicturesMini;
 InitializeGradientImages;
 InitializeItemLockImage;
 end;
@@ -473,6 +528,7 @@ procedure TILDataProvider.Finalize;
 begin
 FinalizeItemLockImage;
 FinalizeGradientImages;
+FinalizeDefaultPicturesMini;
 FinalizeDefaultPicturesSmall;
 FinalizeDefaultPictures;
 FinalizeItemFlagIcons;

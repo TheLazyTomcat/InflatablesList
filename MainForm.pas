@@ -78,6 +78,7 @@ type
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
     mniMMT_Selection: TMenuItem;
+    mniMMT_ItemsShopsTable: TMenuItem;
     mniMMT_ShopByItems: TMenuItem;    
     mniMMT_Specials: TMenuItem;
     mniMM_Help: TMenuItem;
@@ -166,6 +167,7 @@ type
     // ---
     procedure mniMM_ToolsClick(Sender: TObject);
     procedure mniMMT_SelectionClick(Sender: TObject);
+    procedure mniMMT_ItemsShopsTableClick(Sender: TObject);
     procedure mniMMT_ShopByItemsClick(Sender: TObject);
     procedure mniMMT_SpecialsClick(Sender: TObject);
     // ---
@@ -1651,6 +1653,16 @@ begin
 frmItemFrame.Save;
 fSelectionForm.ShowSelection;
 // load potential changes (tags mainly)
+frmItemFrame.Load;
+lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMT_ItemsShopsTableClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+//...
 frmItemFrame.Load;
 lbList.SetFocus;
 end;

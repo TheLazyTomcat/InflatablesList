@@ -474,6 +474,12 @@ object fMainForm: TfMainForm
         ShortCut = 16468
         OnClick = mniMMT_SelectionClick
       end
+      object mniMMT_ItemsShopsTable: TMenuItem
+        Caption = 'Items - shops table...'
+        Enabled = False
+        ShortCut = 49236
+        OnClick = mniMMT_ItemsShopsTableClick
+      end
       object mniMMT_ShopByItems: TMenuItem
         Caption = 'Find shop by items...'
         ShortCut = 16465

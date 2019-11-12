@@ -111,7 +111,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=8
 Release=1
-Build=820
+Build=821
 Debug=1
 PreRelease=1
 Special=0
@@ -122,7 +122,7 @@ CodePage=1250
 [Version Info Keys]
 CompanyName=František Milt
 FileDescription=Inflatables List application
-FileVersion=1.8.1.820
+FileVersion=1.8.1.821
 InternalName=Inflatables List
 LegalCopyright=© 2019 František Milt
 LegalTrademarks=Inflatables List

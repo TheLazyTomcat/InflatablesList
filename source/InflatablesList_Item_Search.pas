@@ -58,6 +58,7 @@ case Field of
   ilaisrUserID:               Result := SearchSettings.CompareFunc(fUserID,True,True,False);
   ilaisrManufacturer:         Result := SearchSettings.CompareFunc(fDataProvider.ItemManufacturers[fManufacturer].Str,False,True,False);
   ilaisrManufacturerStr:      Result := SearchSettings.CompareFunc(fManufacturerStr,True,True,False);
+  ilaisrManufacturerTag:      Result := SearchSettings.CompareFunc(fDataProvider.ItemManufacturers[fManufacturer].Tag ,True,False,False);
   ilaisrTextID:               Result := SearchSettings.CompareFunc(fTextID,True,True,False);
   ilaisrNumID:                Result := SearchSettings.CompareFunc(IntToStr(fID),False,True,False);
   ilaisrIDStr:                Result := SearchSettings.CompareFunc(IDStr,True,False,False);

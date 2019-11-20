@@ -181,8 +181,8 @@ const
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
     'List index','Unique ID','Time of addition','Itemd descriptor','Title',
     'Type','Type specification','Type string','Pieces','User ID','Manufacturer',
-    'Manufacturer string','Text ID','Numerical ID','ID string','Flags',
-    'Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
+    'Manufacturer string','Manufaturer tag','Text ID','Numerical ID','ID string',
+    'Flags','Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
     'Flag - Elsewhere','Flag - Untested','Flag - Iesting','Flag - Tested',
     'Flag - Damaged','Flag - Rrepaired','Flag  - Price change',
     'Flag - Availability change','Flag - Not available','Flag - Lost',

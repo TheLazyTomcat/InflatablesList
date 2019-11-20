@@ -49,6 +49,7 @@ case Field of
   ilaisrListIndex:            Result := SearchSettings.CompareFunc(IntToStr(fIndex),False,False,False);
   ilaisrUniqueID:             Result := SearchSettings.CompareFunc(GUIDToString(fUniqueID),False,False,False);
   ilaisrTimeOfAdd:            Result := SearchSettings.CompareFunc(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',fTimeOfAddition),False,False,False);
+  ilaisrDescriptor:           Result := SearchSettings.CompareFunc(Descriptor,True,False,True);
   ilaisrTitleStr:             Result := SearchSettings.CompareFunc(TitleStr,True,False,True);
   ilaisrType:                 Result := SearchSettings.CompareFunc(fDataProvider.GetItemTypeString(fItemType),False,True,False);
   ilaisrTypeSpec:             Result := SearchSettings.CompareFunc(fItemTypeSpec,True,True,False);
@@ -80,6 +81,7 @@ case Field of
   ilaisrNumTag:               Result := SearchSettings.CompareFunc(IntToStr(fNumTag),True,True,False);
   ilaisrWantedLevel:          Result := SearchSettings.CompareFunc(IntToStr(fWantedLevel),False,True,False);
   ilaisrVariant:              Result := SearchSettings.CompareFunc(fVariant,True,True,False);
+  ilaisrVariantTag:           Result := SearchSettings.CompareFunc(fVariantTag,True,True,False);
   ilaisrMaterial:             Result := SearchSettings.CompareFunc(fDataProvider.GetItemMaterialString(fMaterial),False,True,False);
   ilaisrSizeX:                Result := SearchSettings.CompareFunc(IntToStr(fSizeX),False,True,False,'mm');
   ilaisrSizeY:                Result := SearchSettings.CompareFunc(IntToStr(fSizeY),False,True,False,'mm');

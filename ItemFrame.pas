@@ -118,6 +118,7 @@ type
     lblWantedLevel: TLabel;
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
+    leVariantTag: TLabeledEdit;    
     lblMaterial: TLabel;
     cmbMaterial: TComboBox;    
     lblSizeX: TLabel;
@@ -915,6 +916,7 @@ case Value of
   ilisrNumTag:            Highlight(seNumTag);
   ilisrWantedLevel:       Highlight(seWantedLevel);
   ilisrVariant:           Highlight(leVariant);
+  ilisrVariantTag:        Highlight(leVariantTag);
   ilisrMaterial:          Highlight(cmbMaterial);
   ilisrSizeX:             Highlight(seSizeX);
   ilisrSizeY:             Highlight(seSizeY);
@@ -998,6 +1000,7 @@ try
   // ext. specs
   seWantedLevel.Value := 0;
   leVariant.Text := '';
+  leVariantTag.Text := '';
   cmbMaterial.ItemIndex := 0; 
   seSizeX.Value := 0;
   seSizeY.Value := 0;
@@ -1073,6 +1076,7 @@ If Assigned(fCurrentItem) then
       // extended specs
       fCurrentItem.WantedLevel := seWantedLevel.Value;
       fCurrentItem.Variant := leVariant.Text;
+      fCurrentItem.VariantTag := leVariantTag.Text;
       fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
       fCurrentItem.SizeX := seSizeX.Value;
       fCurrentItem.SizeY := seSizeY.Value;
@@ -1125,6 +1129,7 @@ If Assigned(fCurrentItem) then
       // extended specs
       seWantedLevel.Value := fCurrentItem.WantedLevel;
       leVariant.Text := fCurrentItem.Variant;
+      leVariantTag.Text := fCurrentItem.VariantTag;
       cmbMaterial.ItemIndex := Ord(fCurrentItem.Material);
       seSizeX.Value := fCurrentItem.SizeX;
       seSizeY.Value := fCurrentItem.SizeY;

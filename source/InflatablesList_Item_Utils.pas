@@ -13,6 +13,7 @@ uses
 type
   TILItem_Utils = class(TILItem_Base)
   public
+    Function Descriptor: String; virtual;
     Function TitleStr: String; virtual;
     Function TypeStr: String; virtual;
     Function IDStr: String; virtual;
@@ -37,6 +38,16 @@ implementation
 uses
   SysUtils,
   InflatablesList_Utils;
+
+Function TILItem_Utils.Descriptor: String;
+begin
+If (Length(IDStr) > 0) and (Length(fVariantTag) > 0) then
+  Result := IL_Format('%s%s_%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr,fVariantTag])
+else
+  Result := GUIDToString(fUniqueID);
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILItem_Utils.TitleStr: String;
 begin

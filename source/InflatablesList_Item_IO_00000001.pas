@@ -56,8 +56,8 @@ var
 begin
 Stream_WriteFloat64(Stream,fTimeOfAddition);
 // pictures
-SavePicture_00000000(Stream,fItemPicture);
-SavePicture_00000000(Stream,fPackagePicture);
+fFNSavePicture(Stream,fItemPicture);
+fFNSavePicture(Stream,fPackagePicture);
 // basic specs
 Stream_WriteInt32(Stream,IL_ItemTypeToNum(fItemType));
 Stream_WriteString(Stream,fItemTypeSpec);
@@ -104,8 +104,8 @@ var
 begin
 fTimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
 // pictures
-LoadPicture_00000000(Stream,fItemPicture);
-LoadPicture_00000000(Stream,fPackagePicture);
+fFNLoadPicture(Stream,fItemPicture);
+fFNLoadPicture(Stream,fPackagePicture);
 // basic specs
 fItemType := IL_NumToItemType(Stream_ReadInt32(Stream));
 fItemTypeSpec := Stream_ReadString(Stream);

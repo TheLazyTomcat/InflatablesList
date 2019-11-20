@@ -76,6 +76,7 @@ type
     // extended specs
     fWantedLevel:           UInt32;           // 0..7
     fVariant:               String;           // color, pattern, ...
+    fVariantTag:            String;           // for automation
     fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
     fSizeX:                 UInt32;           // length (diameter if applicable)
     fSizeY:                 UInt32;           // width (inner diameter if applicable)
@@ -121,6 +122,7 @@ type
     procedure SetNumTag(Value: Int32); virtual;
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
+    procedure SetVariantTag(const Value: String); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
@@ -243,6 +245,7 @@ type
     property NumTag: Int32 read fNumTag write SetNumTag;
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
+    property VariantTag: String read fVariantTag write SetVariantTag;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
@@ -521,6 +524,17 @@ If not IL_SameStr(fVariant,Value) then
     UniqueString(fVariant);
     UpdateMainList;
     UpdateSmallList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetVariantTag(const Value: String);
+begin
+If not IL_SameStr(fVariantTag,Value) then
+  begin
+    fVariantTag := Value;
+    UniqueString(fVariantTag);
   end;
 end;
 

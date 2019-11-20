@@ -11,6 +11,7 @@ uses
 type
   TILItemManufacturerInfo = record
     Str:          String;
+    Tag:          String;
     LogoResName:  String;
     Logo:         TBitmap;  // 256 x 96 px, white background, loaded from resources
   end;
@@ -109,6 +110,9 @@ const
     'Bestway','Crivit','Intex','HappyPeople','Mondo','Polygroup','Summer Waves',
     'Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
 
+  IL_DATA_ITEMMANUFACTURER_TAGS: array[TILItemManufacturer] of String = (
+    'bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','os');
+
   IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
     'man_logo_bestway','man_logo_crivit','man_logo_intex','man_logo_happypeople',
     'man_logo_mondo','man_logo_polygroup','man_logo_summerwaves','man_logo_swimline',
@@ -122,7 +126,8 @@ const
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
     ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
      'polypropylen (PP)','akrylonitrilbutadienstyren (ABS)','polystyren (PS)',
-     'povloèkované PVC','latex','silokon','gumotextílie','ostatní');
+     'polyuretan (PUR)','povloèkované PVC','latex','silokon','gumotextílie',
+     'ostatní');
 
   IL_DATA_ITEMFLAG_STRS: array[TILItemFlag] of String = (
     'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
@@ -137,15 +142,15 @@ const
     'flag_icon_lost','flag_icon_discarded');
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
-    '<none>','Item is encrypted','Unique identifier (UID)','Time of addition',
+    '<none>','Item is encrypted','Unique identifier (UID)','Time of addition','Item descriptor',
     'Main picture (is present)','Secondary picture (is present)','Package picture (is present)',
     'Item type','Item type specifier','Pieces','User ID','Manufacturer','Manufacturer string',
     'Textual ID','Numerical ID','ID string','Owned (flag)','Wanted (flag)','Ordered (flag)',
     'Boxed (flag)','Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
     'Damaged (flag)','Repaired (flag)','Price change (flag)','Availability change (flag)',
     'Not available (flag)','Lost (flag)','Discarded (flag)','Textual tag','Numerical tag',
-    'Wanted level (flagged)','Variant (color, pattern, type, ...)','Material type',
-    'Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
+    'Wanted level (flagged)','Variant (color, pattern, type, ...)','Variant tag',
+    'Material type','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
     'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
     'Wall thickness','Notes','ReviewURL','Review (is present)','Main picture file',
     'Main picture file (is present)','Secondary picture file','Secondary picture file (is present)',
@@ -174,23 +179,23 @@ const
     'First number','First number tagged');
 
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
-    'List index','Unique ID','Time of addition','Title','Type',
-    'Type specification','Type string','Pieces','User ID','Manufacturer',
+    'List index','Unique ID','Time of addition','Itemd descriptor','Title',
+    'Type','Type specification','Type string','Pieces','User ID','Manufacturer',
     'Manufacturer string','Text ID','Numerical ID','ID string','Flags',
     'Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
     'Flag - Elsewhere','Flag - Untested','Flag - Iesting','Flag - Tested',
     'Flag - Damaged','Flag - Rrepaired','Flag  - Price change',
     'Flag - Availability change','Flag - Not available','Flag - Lost',
     'Flag - Discarded','Textual tag','Numerical tag','Wanted level','Variant',
-    'Material','Size X','Size Y','Size Z','Total size','Size string',
-    'Unit weight','Total weight','Total weight string','Thickness','Notes',
-    'Review URL','Main picture file','Secondary picture file',
-    'Package picture file','Unit price default','Rating','Unit price',
-    'Unit price lowest','Total price lowest','Unit price highest',
-    'Total price highest','Unit price selected','Total price selected',
-    'Total price','Available lowest','Available highest','Available selected',
-    'Shop count','Shop count string','Useful shop count','Useful shop ratio',
-    'Selected shop','Worst update result');
+    'Variant tag','Material','Size X','Size Y','Size Z','Total size',
+    'Size string','Unit weight','Total weight','Total weight string',
+    'Thickness','Notes','Review URL','Main picture file',
+    'Secondary picture file','Package picture file','Unit price default',
+    'Rating','Unit price','Unit price lowest','Total price lowest',
+    'Unit price highest','Total price highest','Unit price selected',
+    'Total price selected','Total price','Available lowest','Available highest',
+    'Available selected','Shop count','Shop count string','Useful shop count',
+    'Useful shop ratio','Selected shop','Worst update result');
 
   IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
     'List index','Selected','Untracked','Alternative download method','Name',
@@ -315,6 +320,7 @@ begin
 For i := Low(fItemManufacturers) to High(fItemManufacturers) do
   begin
     fItemManufacturers[i].Str := IL_DATA_ITEMMANUFACTURER_STRS[i];
+    fItemManufacturers[i].Tag := IL_DATA_ITEMMANUFACTURER_TAGS[i];
     fItemManufacturers[i].LogoResName := IL_DATA_ITEMMANUFACTURER_LOGORESNAMES[i];
     Bitmap := TBitmap.Create;
     If not LoadBitmapFromResource(fItemManufacturers[i].LogoResName,Bitmap) then

@@ -29,6 +29,7 @@ Function TILItem_Comp.Contains(const Text: String; Value: TILItemValueTag): Bool
 var
   SelShop:  TILItemShop;
 begin
+// search only in editable values
 If fDataAccessible then
   case Value of
     ilivtItemType:              Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
@@ -58,6 +59,7 @@ If fDataAccessible then
     ilivtNumTag:                Result := IL_ContainsText(IntToStr(fNumTag),Text);
     ilivtWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
     ilivtVariant:               Result := IL_ContainsText(fVariant,Text);
+    ilivtVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
     ilivtMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
     ilivtSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
     ilivtSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
@@ -115,6 +117,7 @@ If fDataAccessible then
     Contains(Text,ilivtNumTag) or
     Contains(Text,ilivtWantedLevel) or
     Contains(Text,ilivtVariant) or
+    Contains(Text,ilivtVariantTag) or
     Contains(Text,ilivtMaterial) or
     Contains(Text,ilivtSizeX) or
     Contains(Text,ilivtSizeY) or
@@ -155,7 +158,8 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     ilivtItemEncrypted:     Result := IL_SortCompareBool(fEncrypted,WithItem.Encrypted);
     ilivtUniqueID:          Result := IL_SortCompareGUID(fUniqueID,WithItem.UniqueID);
     ilivtTimeOfAdd:         Result := IL_SortCompareDateTime(fTimeOfAddition,WithItem.TimeOfAddition);
-  
+    ilivtDescriptor:        Result := CompareText_Internal(Descriptor,WithItem.Descriptor);
+
     // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     ilivtMainPicture:       Result := IL_SortCompareBool(Assigned(fItemPicture),Assigned(WithItem.ItemPicture));
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -279,6 +283,15 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtVariant:           Result := CompareText_Internal(fVariant,WithItem.Variant);
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtVariantTag:        If (Length(fVariantTag) > 0) and (Length(WithItem.VariantTag) > 0) then
+                              Result := CompareText_Internal(fVariantTag,WithItem.VariantTag)
+                            else If (Length(fVariantTag) > 0) and (Length(WithItem.VariantTag) <= 0) then
+                              Result := IL_NegateValue(+1,Reversed)
+                            else If (Length(fVariantTag) <= 0) and (Length(WithItem.VariantTag) > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtMaterial:          If fMaterial <> WithItem.Material then
                               begin

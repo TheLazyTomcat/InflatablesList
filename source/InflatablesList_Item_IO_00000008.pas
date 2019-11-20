@@ -1,4 +1,4 @@
-unit InflatablesList_Item_IO_00000004;
+unit InflatablesList_Item_IO_00000008;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,15 +7,16 @@ interface
 uses
   Classes,
   AuxTypes,
-  InflatablesList_Item_IO_00000003;
+  InflatablesList_Item_IO_00000007;
 
 type
-  TILItem_IO_00000004 = class(TILItem_IO_00000003)
+  TILItem_IO_00000008 = class(TILItem_IO_00000007)
   protected
+    // normal IO funtions
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
-    procedure SaveItem_00000004(Stream: TStream); virtual;
-    procedure LoadItem_00000004(Stream: TStream); virtual;
+    procedure SaveItem_Plain_00000008(Stream: TStream); virtual;
+    procedure LoadItem_Plain_00000008(Stream: TStream); virtual;
   end;
 
 implementation
@@ -23,34 +24,39 @@ implementation
 uses
   BinaryStreaming,
   InflatablesList_Types,
-  InflatablesList_Item_IO,
-  InflatablesList_ItemShop;
+  InflatablesList_ItemShop,
+  InflatablesList_Item_IO;
 
-procedure TILItem_IO_00000004.InitSaveFunctions(Struct: UInt32);
+procedure TILItem_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000004 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000008 then
   begin
-    fFNSaveToStream := SaveItem_00000004;
+    fFNSaveToStream := SaveItem_00000006;
     fFNSavePicture := SavePicture_00000000;
+    fFNSaveToStreamPlain := SaveItem_Plain_00000008;
+    fFNSaveToStreamProc := SaveItem_Processed_00000006;
   end
 else inherited InitSaveFunctions(Struct);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000004.InitLoadFunctions(Struct: UInt32);
+procedure TILItem_IO_00000008.InitLoadFunctions(Struct: UInt32);
 begin
-If Struct = IL_ITEM_STREAMSTRUCTURE_00000004 then
+If Struct = IL_ITEM_STREAMSTRUCTURE_00000008 then
   begin
-    fFNLoadFromStream := LoadItem_00000004;
+    fFNLoadFromStream := LoadItem_00000006;
     fFNLoadPicture := LoadPicture_00000000;
+    fFNLoadFromStreamPlain := LoadItem_Plain_00000008;
+    fFNLoadFromStreamProc := LoadItem_Processed_00000006;
+    fFNDeferredLoadProc := LoadItem_Plain_00000007;
   end
 else inherited InitLoadFunctions(Struct);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000004.SaveItem_00000004(Stream: TStream);
+procedure TILItem_IO_00000008.SaveItem_Plain_00000008(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -58,11 +64,13 @@ Stream_WriteBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 Stream_WriteFloat64(Stream,fTimeOfAddition);
 // pictures
 fFNSavePicture(Stream,fItemPicture);
+fFNSavePicture(Stream,fSecondaryPicture);
 fFNSavePicture(Stream,fPackagePicture);
 // basic specs
 Stream_WriteInt32(Stream,IL_ItemTypeToNum(fItemType));
 Stream_WriteString(Stream,fItemTypeSpec);
 Stream_WriteUInt32(Stream,fPieces);
+Stream_WriteString(Stream,fUserID);
 Stream_WriteInt32(Stream,IL_ItemManufacturerToNum(fManufacturer));
 Stream_WriteString(Stream,fManufacturerStr);
 Stream_WriteString(Stream,fTextID);
@@ -74,6 +82,7 @@ Stream_WriteInt32(Stream,fNumTag);
 // extended specs
 Stream_WriteUInt32(Stream,fWantedLevel);
 Stream_WriteString(Stream,fVariant);
+Stream_WriteString(Stream,fVariantTag);
 Stream_WriteInt32(Stream,IL_ItemMaterialToNum(fMaterial));
 Stream_WriteUInt32(Stream,fSizeX);
 Stream_WriteUInt32(Stream,fSizeY);
@@ -84,8 +93,10 @@ Stream_WriteUInt32(Stream,fThickness);
 Stream_WriteString(Stream,fNotes);
 Stream_WriteString(Stream,fReviewURL);
 Stream_WriteString(Stream,fItemPictureFile);
+Stream_WriteString(Stream,fSecondaryPictureFile);
 Stream_WriteString(Stream,fPackagePictureFile);
 Stream_WriteUInt32(Stream,fUnitPriceDefault);
+Stream_WriteUInt32(Stream,fRating);
 // shop avail and prices
 Stream_WriteUInt32(Stream,fUnitPriceLowest);
 Stream_WriteUInt32(Stream,fUnitPriceHighest);
@@ -101,7 +112,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO_00000004.LoadItem_00000004(Stream: TStream);
+procedure TILItem_IO_00000008.LoadItem_Plain_00000008(Stream: TStream);
 var
   i:  Integer;
 begin
@@ -109,11 +120,13 @@ Stream_ReadBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 fTimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
 // pictures
 fFNLoadPicture(Stream,fItemPicture);
+fFNLoadPicture(Stream,fSecondaryPicture);
 fFNLoadPicture(Stream,fPackagePicture);
 // basic specs
 fItemType := IL_NumToItemType(Stream_ReadInt32(Stream));
 fItemTypeSpec := Stream_ReadString(Stream);
 fPieces := Stream_ReadUInt32(Stream);
+fUserID := Stream_ReadString(Stream);
 fManufacturer := IL_NumToItemManufacturer(Stream_ReadInt32(Stream));
 fManufacturerStr := Stream_ReadString(Stream);
 fTextID := Stream_ReadString(Stream);
@@ -125,6 +138,7 @@ fNumTag := Stream_ReadInt32(Stream);
 // extended specs
 fWantedLevel := Stream_ReadUInt32(Stream);
 fVariant := Stream_ReadString(Stream);
+fVariantTag := Stream_ReadString(Stream);
 fMaterial := IL_NumToItemMaterial(Stream_ReadInt32(Stream));
 fSizeX := Stream_ReadUInt32(Stream);
 fSizeY := Stream_ReadUInt32(Stream);
@@ -135,8 +149,10 @@ fThickness := Stream_ReadUInt32(Stream);
 fNotes := Stream_ReadString(Stream);
 fReviewURL := Stream_ReadString(Stream);
 fItemPictureFile := Stream_ReadString(Stream);
+fSecondaryPictureFile := Stream_ReadString(Stream);
 fPackagePictureFile := Stream_ReadString(Stream);
 fUnitPriceDefault := Stream_ReadUInt32(Stream);
+fRating := Stream_ReadUInt32(Stream);
 // shop avail and prices
 fUnitPriceLowest := Stream_ReadUInt32(Stream);
 fUnitPriceHighest := Stream_ReadUInt32(Stream);

@@ -410,6 +410,7 @@ end;
 Function TfMainForm.SaveList: Boolean;
 begin
 Result := False;
+frmItemFrame.Save;
 If not fILManager.StaticSettings.NoSave then
   begin
     If fILManager.SlowSaving then
@@ -755,7 +756,6 @@ procedure TfMainForm.mniMMF_SaveClick(Sender: TObject);
 begin
 Screen.Cursor := crHourGlass;
 try
-  frmItemFrame.Save;
   If not SaveList then
     Beep;
 finally
@@ -785,6 +785,7 @@ end;
 
 procedure TfMainForm.mniMML_AddClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 lbList.Items.Add(IntToStr(lbList.Count));
 lbList.ItemIndex := fILManager.ItemAddEmpty;
 // following will also redraw new item and update the list
@@ -815,6 +816,7 @@ procedure TfMainForm.mniMML_RemoveClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If lbList.ItemIndex >= 0 then
   If MessageDlg(IL_Format('Are you sure you want to remove the item "%s"?',
        [fILManager[lbList.ItemIndex].TitleStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
@@ -840,6 +842,7 @@ end;
 
 procedure TfMainForm.mniMML_ClearClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 If lbList.Count > 0 then
   If MessageDlg('Are you sure you want to clear the entire list?',
        mtWarning,[mbYes,mbNo],0) = mrYes then
@@ -858,6 +861,7 @@ procedure TfMainForm.mniMML_GoToItemNumClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If lbList.Count > 0 then
   begin
     Index := Succ(lbList.ItemIndex);
@@ -889,6 +893,7 @@ end;
 
 procedure TfMainForm.mniMML_OverviewClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 fOverviewForm.ShowOverview;
 end;
 
@@ -898,6 +903,7 @@ procedure TfMainForm.mniMML_RenameClick(Sender: TObject);
 var
   ListName: String;
 begin
+frmItemFrame.Save;
 ListName := fILManager.ListName;
 If IL_InputQuery('List name','Enter list name:',ListName) then
   begin
@@ -949,6 +955,7 @@ end;
 
 procedure TfMainForm.mniMMI_ItemShopsClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 If lbList.ItemIndex >= 0 then
   begin
     fILManager[lbList.ItemIndex].BroadcastReqCount;
@@ -1008,6 +1015,7 @@ procedure TfMainForm.mniMMI_ItemImportClick(Sender: TObject);
 var
   Cntr,i: Integer;
 begin
+frmItemFrame.Save;
 If diaItemsImport.Execute then
   begin
     Cntr := fILManager.ItemsImport(diaItemsImport.FileName);
@@ -1116,6 +1124,7 @@ procedure TfMainForm.mniMMI_MoveBeginningClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If lbList.ItemIndex > 0 then
   begin
     Index := lbList.ItemIndex;
@@ -1135,6 +1144,7 @@ var
   Index:  Integer;
   NewPos: Integer;
 begin
+frmItemFrame.Save;
 If lbList.ItemIndex > 0 then
   begin
     Index := lbList.ItemIndex;
@@ -1157,6 +1167,7 @@ procedure TfMainForm.mniMMI_MoveUpClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If lbList.ItemIndex > 0 then
   begin
     Index := lbList.ItemIndex;
@@ -1175,6 +1186,7 @@ procedure TfMainForm.mniMMI_MoveDownClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
   begin
     Index := lbList.ItemIndex;
@@ -1194,6 +1206,7 @@ var
   Index:  Integer;
   NewPos: Integer;
 begin
+frmItemFrame.Save;
 If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
   begin
     Index := lbList.ItemIndex;
@@ -1216,6 +1229,7 @@ procedure TfMainForm.mniMMI_MoveEndClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If (lbList.ItemIndex >= 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
   begin
     Index := lbList.ItemIndex;
@@ -1240,6 +1254,7 @@ end;
 
 procedure TfMainForm.mniMMS_FindClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 eSearchFor.SetFocus;
 end;
 
@@ -1249,6 +1264,7 @@ procedure TfMainForm.mniMMS_FindPrevClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If Length(eSearchFor.Text) > 0 then
   begin
     Screen.Cursor := crHourGlass;
@@ -1272,6 +1288,7 @@ procedure TfMainForm.mniMMS_FindNextClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If Length(eSearchFor.Text) > 0 then
   begin
     Screen.Cursor := crHourGlass;
@@ -1293,6 +1310,7 @@ end;
 
 procedure TfMainForm.mniMMS_AdvSearchClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 fAdvancedSearchForm.ShowAdvancedSearch;
 end;
 
@@ -1302,6 +1320,7 @@ procedure TfMainForm.mniMMS_FindPrevValueClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If (Length(eSearchFor.Text) > 0) and (lbList.ItemIndex >= 0) then
   begin
     If not fILManager[lbList.ItemIndex].Contains(eSearchFor.Text) then
@@ -1333,6 +1352,7 @@ procedure TfMainForm.mniMMS_FindNextValueClick(Sender: TObject);
 var
   Index:  Integer;
 begin
+frmItemFrame.Save;
 If (Length(eSearchFor.Text) > 0) and (lbList.ItemIndex >= 0) then
   begin
     If not fILManager[lbList.ItemIndex].Contains(eSearchFor.Text) then
@@ -1434,6 +1454,7 @@ end;
 
 procedure TfMainForm.mniMMO_SortClick(Sender: TObject);
 begin
+frmItemFrame.Save;
 mniMMO_SortCommon(-1);
 lbList.SetFocus;
 end;
@@ -1444,6 +1465,7 @@ procedure TfMainForm.mniMMO_SortByClick(Sender: TObject);
 begin
 If Sender is TMenuItem then
   begin
+    frmItemFrame.Save;
     mniMMO_SortCommon(TMenuItem(Sender).Tag);
     lbList.SetFocus;
   end;

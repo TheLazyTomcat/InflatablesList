@@ -72,7 +72,8 @@ type
   TILItemMaterial = (ilimtUnknown,ilimtPolyvinylchloride{PVC},ilimtPolyester{PES},
                      ilimtPolyetylene{PE},ilimtPolypropylene{PP},
                      ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
-                     ilimtFlockedPVC,ilimtLatex,ilimtSilicone,ilimtGumoTex,ilimtOther);
+                     ilimtPolyurethane{PUR},ilimtFlockedPVC,ilimtLatex,
+                     ilimtSilicone,ilimtGumoTex,ilimtOther);
 
 Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
 
@@ -163,26 +164,27 @@ type
     ilisrFlagElsewhere,ilisrFlagUntested,ilisrFlagTesting,ilisrFlagTested,
     ilisrFlagDamaged,ilisrFlagRepaired,ilisrFlagPriceChange,
     ilisrFlagAvailChange,ilisrFlagNotAvailable,ilisrFlagLost,ilisrFlagDiscarded,
-    ilisrTextTag,ilisrNumTag,ilisrWantedLevel,ilisrVariant,ilisrMaterial,
-    ilisrSizeX,ilisrSizeY,ilisrSizeZ,ilisrUnitWeight,ilisrThickness,
-    ilisrNotes,ilisrReviewURL,ilisrItemPicFile,ilisrSecondaryPicFile,
-    ilisrPackagePicFile,ilisrUnitPriceDefault,ilisrRating,ilisrSelectedShop);
+    ilisrTextTag,ilisrNumTag,ilisrWantedLevel,ilisrVariant,ilisrVariantTag,
+    ilisrMaterial,ilisrSizeX,ilisrSizeY,ilisrSizeZ,ilisrUnitWeight,
+    ilisrThickness,ilisrNotes,ilisrReviewURL,ilisrItemPicFile,
+    ilisrSecondaryPicFile,ilisrPackagePicFile,ilisrUnitPriceDefault,ilisrRating,
+    ilisrSelectedShop);
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
 type
   TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
-    ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,ilaisrPieces,
-    ilaisrUserID,ilaisrManufacturer,ilaisrManufacturerStr,ilaisrTextID,
-    ilaisrNumID,ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,
-    ilaisrFlagOrdered,ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,
-    ilaisrFlagTesting,ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,
-    ilaisrFlagPriceChange,ilaisrFlagAvailChange,ilaisrFlagNotAvailable,
-    ilaisrFlagLost,ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,
-    ilaisrWantedLevel,ilaisrVariant,ilaisrMaterial,ilaisrSizeX,ilaisrSizeY,
-    ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrUnitWeight,
-    ilaisrTotalWeight,ilaisrTotalWeightStr,ilaisrThickness,ilaisrNotes,
-    ilaisrReviewURL,ilaisrMainPictureFile,ilaisrSecondaryPictureFile,
+    ilaisrDescriptor,ilaisrTitleStr,ilaisrType,ilaisrTypeSpec,ilaisrTypeStr,
+    ilaisrPieces,ilaisrUserID,ilaisrManufacturer,ilaisrManufacturerStr,
+    ilaisrTextID,ilaisrNumID,ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,
+    ilaisrFlagWanted,ilaisrFlagOrdered,ilaisrFlagBoxed,ilaisrFlagElsewhere,
+    ilaisrFlagUntested,ilaisrFlagTesting,ilaisrFlagTested,ilaisrFlagDamaged,
+    ilaisrFlagRepaired,ilaisrFlagPriceChange,ilaisrFlagAvailChange,
+    ilaisrFlagNotAvailable,ilaisrFlagLost,ilaisrFlagDiscarded,ilaisrTextTag,
+    ilaisrNumTag,ilaisrWantedLevel,ilaisrVariant,ilaisrVariantTag,ilaisrMaterial,
+    ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,
+    ilaisrUnitWeight,ilaisrTotalWeight,ilaisrTotalWeightStr,ilaisrThickness,
+    ilaisrNotes,ilaisrReviewURL,ilaisrMainPictureFile,ilaisrSecondaryPictureFile,
     ilaisrPackagePictureFile,ilaisrUnitPriceDefault,ilaisrRating,
     ilaisrUnitPrice,ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,
     ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,ilaisrUnitPriceSel,
@@ -241,14 +243,15 @@ Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSetti
 
 type
   TILItemValueTag = (
-    ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtMainPicture,
-    ilivtSecondaryPicture,ilivtPackagePicture,ilivtItemType,ilivtItemTypeSpec,
-    ilivtPieces,ilivtUserID,ilivtManufacturer,ilivtManufacturerStr,ilivtTextID,
-    ilivtID,ilivtIDStr,ilivtFlagOwned,ilivtFlagWanted,ilivtFlagOrdered,
-    ilivtFlagBoxed,ilivtFlagElsewhere,ilivtFlagUntested,ilivtFlagTesting,
-    ilivtFlagTested,ilivtFlagDamaged,ilivtFlagRepaired,ilivtFlagPriceChange,
-    ilivtFlagAvailChange,ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,
-    ilivtTextTag,ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtMaterial,
+    ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtDescriptor,
+    ilivtMainPicture,ilivtSecondaryPicture,ilivtPackagePicture,ilivtItemType,
+    ilivtItemTypeSpec,ilivtPieces,ilivtUserID,ilivtManufacturer,
+    ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,
+    ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
+    ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,
+    ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
+    ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
+    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtMaterial,
     ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtUnitWeight,
     ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
@@ -720,6 +723,8 @@ case Material of
   ilimtPolypropylene:                 Result := 9;
   ilimtAcrylonitrileButadieneStyrene: Result := 10;
   ilimtPolystyren:                    Result := 11;
+  // new
+  ilimtPolyurethane:                  Result := 12;
 else
  {ilimUnknown}
   Result := 0;
@@ -742,6 +747,7 @@ case Num of
   9:  Result := ilimtPolypropylene;
   10: Result := ilimtAcrylonitrileButadieneStyrene;
   11: Result := ilimtPolystyren;
+  12: Result := ilimtPolyurethane;
 else
   Result := ilimtUnknown;
 end;
@@ -990,6 +996,8 @@ case ItemValueTag of
   ilivtRating:                Result := 62;
   ilivtItemEncrypted:         Result := 63;
   ilivtUserID:                Result := 64;
+  ilivtVariantTag:            Result := 65;
+  ilivtDescriptor:            Result := 66;
 else
   {ilivtNone}
   Result := 0;
@@ -1066,6 +1074,8 @@ case Num of
   62: Result := ilivtRating;
   63: Result := ilivtItemEncrypted;
   64: Result := ilivtUserID;
+  65: Result := ilivtVariantTag;
+  66: Result := ilivtDescriptor;
 else
   Result := ilivtNone;
 end;
@@ -1103,6 +1113,7 @@ case Val of
   ilisrNumTag:            Result := ilivtNumTag;
   ilisrWantedLevel:       Result := ilivtWantedLevel;
   ilisrVariant:           Result := ilivtVariant;
+  ilisrVariantTag:        Result := ilivtVariantTag;
   ilisrMaterial:          Result := ilivtMaterial;
   ilisrSizeX:             Result := ilivtSizeX;
   ilisrSizeY:             Result := ilivtSizeY;

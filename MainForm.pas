@@ -28,6 +28,8 @@ type
     mniMML_Clear: TMenuItem;
     N3: TMenuItem;
     mniMML_GoToItemNum: TMenuItem;
+    mniMML_PrevItem: TMenuItem;
+    mniMML_NextItem: TMenuItem;
     N4: TMenuItem;    
     mniMML_Sums: TMenuItem;
     mniMML_Overview: TMenuItem;
@@ -118,7 +120,9 @@ type
     procedure mniMML_AddCopyClick(Sender: TObject);
     procedure mniMML_RemoveClick(Sender: TObject);
     procedure mniMML_ClearClick(Sender: TObject);
-    procedure mniMML_GoToItemNumClick(Sender: TObject);    
+    procedure mniMML_GoToItemNumClick(Sender: TObject);
+    procedure mniMML_PrevItemClick(Sender: TObject);
+    procedure mniMML_NextItemClick(Sender: TObject); 
     procedure mniMML_SumsClick(Sender: TObject);
     procedure mniMML_OverviewClick(Sender: TObject);
     procedure mniMML_NotesClick(Sender: TObject);
@@ -646,6 +650,8 @@ sbStatusBar.DoubleBuffered := True;
 // build shortcuts
 mniMML_AddCopy.ShortCut := ShortCut(VK_INSERT,[ssCtrl,ssShift]);
 mniMML_Clear.ShortCut := ShortCut(VK_DELETE,[ssCtrl,ssShift]);
+mniMML_PrevItem.ShortCut := ShortCut(VK_TAB,[ssCtrl,ssShift]);
+mniMML_NextItem.ShortCut := ShortCut(VK_TAB,[ssCtrl]);  
 mniMMI_MoveBeginning.ShortCut := ShortCut(VK_UP,[ssCtrl,ssAlt]);
 mniMMI_MoveUpBy.ShortCut := ShortCut(VK_UP,[ssShift,ssCtrl]);
 mniMMI_MoveUp.ShortCut := ShortCut(VK_UP,[ssCtrl]);
@@ -779,6 +785,8 @@ mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
 mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
 mniMML_Clear.Enabled := lbList.Count > 0;
 mniMML_GoToItemNum.Enabled := lbList.Count > 0;
+mniMML_PrevItem.Enabled := lbList.ItemIndex > 0;
+mniMML_NextItem.Enabled := (lbList.Count > 0) and (lbList.ItemIndex < Pred(lbList.Count));
 end;
 
 //------------------------------------------------------------------------------
@@ -877,6 +885,30 @@ If lbList.Count > 0 then
           end
         else MessageDlg(IL_Format('Invalid item number (%d).',[Index]),mtError,[mbOK],0);
       end;
+  end;
+end; 
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_PrevItemClick(Sender: TObject);
+begin
+If lbList.ItemIndex > 0 then
+  begin
+    frmItemFrame.Save;
+    lbList.ItemIndex := lbList.ItemIndex - 1;
+    lbList.OnClick(nil);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_NextItemClick(Sender: TObject);
+begin
+If (lbList.Count > 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
+  begin
+    frmItemFrame.Save;
+    lbList.ItemIndex := lbList.ItemIndex + 1;
+    lbList.OnClick(nil);
   end;
 end;
 

@@ -637,7 +637,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 16
+      TabOrder = 15
       Value = 0
       OnChange = seSizeZChange
     end
@@ -648,7 +648,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 15
+      TabOrder = 14
       Value = 0
       OnChange = seSizeYChange
     end
@@ -659,7 +659,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 14
+      TabOrder = 13
       Value = 0
       OnChange = seSizeXChange
     end
@@ -1083,7 +1083,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
-      TabOrder = 17
+      TabOrder = 16
       Value = 0
       OnChange = seUnitWeightChange
     end
@@ -1094,7 +1094,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 13
+      TabOrder = 12
     end
     object seThickness: TSpinEdit
       Left = 440
@@ -1103,7 +1103,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 18
+      TabOrder = 17
       Value = 0
     end
     object leTextID: TLabeledEdit
@@ -1190,7 +1190,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Height = 13
       EditLabel.Caption = 'Variant tag:'
       MaxLength = 16
-      TabOrder = 12
+      TabOrder = 18
     end
   end
   object diaPicOpenDialog: TOpenDialog

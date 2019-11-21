@@ -255,6 +255,14 @@ object fMainForm: TfMainForm
         ShortCut = 16455
         OnClick = mniMML_GoToItemNumClick
       end
+      object mniMML_PrevItem: TMenuItem
+        Caption = 'Previous item (keep focus)'
+        OnClick = mniMML_PrevItemClick
+      end
+      object mniMML_NextItem: TMenuItem
+        Caption = 'Next item (keep focus)'
+        OnClick = mniMML_NextItemClick
+      end
       object N4: TMenuItem
         Caption = '-'
       end

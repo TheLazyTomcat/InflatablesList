@@ -41,10 +41,14 @@ uses
 
 Function TILItem_Utils.Descriptor: String;
 begin
-If (Length(IDStr) > 0) and (Length(fVariantTag) > 0) then
-  Result := IL_Format('%s%s_%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr,fVariantTag])
-else
-  Result := GUIDToString(fUniqueID);
+If (Length(IDStr) > 0) then
+  begin
+    If Length(fVariantTag) > 0 then
+      Result := IL_Format('%s%s_%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr,fVariantTag])
+    else
+      Result := IL_Format('%s%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr])
+  end
+else Result := GUIDToString(fUniqueID);
 end;
 
 //------------------------------------------------------------------------------

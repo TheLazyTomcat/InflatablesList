@@ -5,7 +5,8 @@ unit InflatablesList_ItemPictures_Base;
 interface
 
 uses
-  Graphics;
+  Graphics,
+  AuxClasses;
 
 type
   TILItemPicturesEntry = record
@@ -18,13 +19,20 @@ type
   end;
   PILItemPicturesEntry = ^TILItemPicturesEntry;
 
-  TILItemPictures_Base = class(TObject)
+  TILItemPictures_Base = class(TCustomListObject)
   protected
     fPictures:          array of TILItemPicturesEntry;
+    fCount:             Integer;
     fCurrentSecondary:  Integer;
-    Function GetPictureCount: Integer;
+    // getters, setters
     Function GetEntry(Index: Integer): TILItemPicturesEntry;
     Function GetEntryPtr(Index: Integer): PILItemPicturesEntry;
+    // list methods
+    Function GetCapacity: Integer; override;
+    procedure SetCapacity(Value: Integer); override;
+    Function GetCount: Integer; override;
+    procedure SetCount(Value: Integer); override;
+    // other methods
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
@@ -32,6 +40,8 @@ type
     constructor Create;
     constructor CreateAsCopy(Source: TILItemPictures_Base);
     destructor Destroy; override;
+    Function LowIndex: Integer; override;
+    Function HighIndex: Integer; override;
     Function IndexOf(const PictureFile: String): Integer; overload; virtual;
     Function IndexOf(Thumbnail: TBitmap): Integer; overload; virtual;
     Function IndexOfItemPicture: Integer; virtual;
@@ -40,14 +50,13 @@ type
     procedure Delete(Index: Integer); virtual;
     procedure Clear; virtual;
     procedure SetThumbnail(Index: Integer; Thumbnail: TBitmap; CreateCopy: Boolean); virtual;
-    procedure SetItemPicture(Index: Integer); virtual;
-    procedure SetPackagePicture(Index: Integer); virtual;
+    procedure SetItemPicture(Index: Integer; Value: Boolean); virtual;
+    procedure SetPackagePicture(Index: Integer; Value: Boolean); virtual;
     Function SecondaryCount: Integer; virtual;
     Function PrevSecondary: Integer; virtual;
     Function NextSecondary: Integer; virtual;
-    property Count: Integer read GetPictureCount;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry;
-    property Pointers[Index: Integer]: PILItemPicturesEntry read GetEntryPtr;
+    property Pointers[Index: Integer]: PILItemPicturesEntry read GetEntryPtr; {$message 'remove?'}
     property CurrentSecondary: Integer read fCurrentSecondary;
   end;
 
@@ -56,13 +65,6 @@ implementation
 uses
   SysUtils,
   InflatablesList_Utils;
-
-Function TILItemPictures_Base.GetPictureCount: Integer;
-begin
-Result := Length(fPictures);
-end;
-
-//------------------------------------------------------------------------------
 
 Function TILItemPictures_Base.GetEntry(Index: Integer): TILItemPicturesEntry;
 begin
@@ -84,9 +86,46 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILItemPictures_Base.GetCapacity: Integer;
+begin
+Result := Length(fPictures);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.SetCapacity(Value: Integer);
+var
+  i:  Integer;
+begin
+If Value < fCount then
+  begin
+    For i := Value to Pred(fCount) do
+      FreeEntry(fPictures[i]);
+    fCount := Value;
+  end;
+SetLength(fPictures,Value);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.GetCount: Integer;
+begin
+Result := fCount;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.SetCount(Value: Integer);
+begin
+// do nothing
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItemPictures_Base.Initialize;
 begin
 SetLength(fPictures,0);
+fCount := 0;
 fCurrentSecondary := -1;
 end;
 
@@ -127,6 +166,20 @@ destructor TILItemPictures_Base.Destroy;
 begin
 Finalize;
 inherited;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.LowIndex: Integer;
+begin
+Result := Low(fPictures);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.HighIndex: Integer;
+begin
+Result := Pred(fCount);
 end;
 
 //------------------------------------------------------------------------------
@@ -214,10 +267,11 @@ end;
 
 Function TILItemPictures_Base.Add(const PictureFile: String): Integer;
 begin
-SetLength(fPictures,Length(fPictures) + 1);
-Result := High(fPictures);
+Grow;
+Result := fCount;
 FreeEntry(fPictures[Result]);
 fPictures[Result].PictureFile := PictureFile;
+Inc(fCount);
 If fCurrentSecondary < 0 then
   fCurrentSecondary := Result;
 end;
@@ -239,7 +293,7 @@ If (Index >= Low(fPictures)) and (Index <= High(fPictures)) then
     FreeEntry(fPictures[Index]);
     For i := Index to Pred(High(fPictures)) do
       fPictures[i] := fPictures[i + 1];
-    SetLength(fPictures,Length(fPictures) - 1);
+    Shrink;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -253,6 +307,7 @@ begin
 For i := Low(fPictures) to High(fPictures) do
   FreeEntry(fPictures[i]);
 SetLength(fPictures,0);
+fCount := 0;
 fCurrentSecondary := -1;
 end;
 
@@ -290,14 +345,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemPictures_Base.SetItemPicture(Index: Integer);
+procedure TILItemPictures_Base.SetItemPicture(Index: Integer; Value: Boolean);
 var
   i:  Integer;
 begin
 If (Index >= Low(fPictures)) and (Index <= High(fPictures)) then
   begin
     For i := Low(fPictures) to High(fPictures) do
-      fPictures[i].ItemPicture := i = Index;
+      fPictures[i].ItemPicture := (i = Index) and Value;
     If fCurrentSecondary = Index then
       NextSecondary;
   end
@@ -306,14 +361,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemPictures_Base.SetPackagePicture(Index: Integer);
+procedure TILItemPictures_Base.SetPackagePicture(Index: Integer; Value: Boolean);
 var
   i:  Integer;
 begin
 If (Index >= Low(fPictures)) and (Index <= High(fPictures)) then
   begin
     For i := Low(fPictures) to High(fPictures) do
-      fPictures[i].PackagePicture := i = Index;
+      fPictures[i].ItemPicture := (i = Index) and Value;
     If fCurrentSecondary = Index then
       NextSecondary;      
   end

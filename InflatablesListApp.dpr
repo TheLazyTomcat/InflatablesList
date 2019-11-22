@@ -39,7 +39,7 @@ uses
   InflatablesList_ItemPictures_Base in 'source\InflatablesList_ItemPictures_Base.pas',
   InflatablesList_ItemPictures_IO in 'source\InflatablesList_ItemPictures_IO.pas',
   InflatablesList_ItemPictures_IO_00000000 in 'source\InflatablesList_ItemPictures_IO_00000000.pas',
-  InflatablesList_ItemPictures in 'source\InflatablesList_ItemPictures.pas',  
+  InflatablesList_ItemPictures in 'source\InflatablesList_ItemPictures.pas',
   InflatablesList_Item_Base in 'source\InflatablesList_Item_Base.pas',
   InflatablesList_Item_Utils in 'source\InflatablesList_Item_Utils.pas',
   InflatablesList_Item_Draw in 'source\InflatablesList_Item_Draw.pas',
@@ -96,7 +96,8 @@ uses
   SplashForm in 'SplashForm.pas' {fSplashForm},
   SaveForm in 'SaveForm.pas' {fSaveForm},
   AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm},
-  ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItems};
+  ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItemsForm},
+  ItemPicturesForm in 'ItemPicturesForm.pas' {fItemPicturesForm};
 
 {$R *.res}
 

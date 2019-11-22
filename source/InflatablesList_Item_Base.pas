@@ -1069,10 +1069,10 @@ fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then
   CopyBuffer(Source.EncryptedData,fEncryptedData);
 // do not copy time of addition and UID
-FreeAndNil(fPictures);
-fPictures := TILItemPictures.CreateAsCopy(Source.Pictures);
 If CopyPics then
   begin
+    FreeAndNil(fPictures);
+    fPictures := TILItemPictures.CreateAsCopy(Source.Pictures);
     If Assigned(Source.ItemPicture) then
       begin
         fItemPicture := TBitmap.Create;

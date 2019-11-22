@@ -1192,6 +1192,15 @@ object frmItemFrame: TfrmItemFrame
       MaxLength = 16
       TabOrder = 18
     end
+    object Button1: TButton
+      Left = 328
+      Top = 568
+      Width = 75
+      Height = 25
+      Caption = 'pics'
+      TabOrder = 32
+      OnClick = Button1Click
+    end
   end
   object diaPicOpenDialog: TOpenDialog
     Filter = 'BMP image files|*.bmp|All files|*.*'

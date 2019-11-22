@@ -170,6 +170,7 @@ type
     shpFiller: TShape;
     tmrHighlightTimer: TTimer;
     shpHighlight: TShape;
+    Button1: TButton;
     procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
     procedure imgPictureClick(Sender: TObject);
@@ -223,6 +224,7 @@ type
     procedure btnUpdateShopsClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
     procedure tmrHighlightTimerTimer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     // resizing
     fInitialHeight:   Integer;
@@ -282,7 +284,7 @@ implementation
 uses
   Themes,
   StrRect,
-  TextEditForm, ShopsForm, UpdateForm,
+  TextEditForm, ShopsForm, UpdateForm, ItemPicturesForm,
   InflatablesList_Utils,
   InflatablesList_ItemShop;
 
@@ -2000,6 +2002,11 @@ begin
 tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
 If tmrHighlightTimer.Tag <= 0 then
   DisableHighlight;
+end;
+
+procedure TfrmItemFrame.Button1Click(Sender: TObject);
+begin
+fItemPicturesForm.ShowPictures(fCurrentItem);
 end;
 
 end.

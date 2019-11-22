@@ -242,7 +242,7 @@ uses
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
-  AdvancedSearchForm, ShopByItemsForm,
+  AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -531,7 +531,8 @@ fAboutForm.Initialize(fIlManager);
 fSplashForm.Initialize(fIlManager);
 fSaveForm.Initialize(fIlManager);
 fAdvancedSearchForm.Initialize(fIlManager);
-fShopByItems.Initialize(fIlManager);
+fShopByItemsForm.Initialize(fIlManager);
+fItemPicturesForm.Initialize(fIlManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -556,7 +557,8 @@ fAboutForm.Finalize;
 fSplashForm.Finalize;
 fSaveForm.Finalize;
 fAdvancedSearchForm.Finalize;
-fShopByItems.Finalize;
+fShopByItemsForm.Finalize;
+fItemPicturesForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -1726,7 +1728,7 @@ end;
 procedure TfMainForm.mniMMT_ShopByItemsClick(Sender: TObject);
 begin
 frmItemFrame.Save;
-fShopByItems.ShowSelection;
+fShopByItemsForm.ShowSelection;
 // no need to load changes, this window is only informative
 lbList.SetFocus;
 end;

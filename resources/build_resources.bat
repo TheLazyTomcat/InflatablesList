@@ -6,3 +6,4 @@ brcc32 -fo down_bins.res    down_bins.rc
 brcc32 -fo gradient.res     gradient.rc
 brcc32 -fo splash.res       splash.rc
 brcc32 -fo item_lock.res    item_lock.rc
+brcc32 -fo empty_pic.res    empty_pic.rc

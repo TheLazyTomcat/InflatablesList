@@ -22,6 +22,9 @@ type
     fItemManufacturers:     array[TILItemManufacturer] of TILItemManufacturerInfo;
     fItemReviewIcon:        TBitmap;
     fItemFlagIcons:         array[TILItemFlag] of TBitmap;
+    fEmptyPicture:          TBitmap;
+    fEmptyPictureSmall:     TBitmap;
+    fEmptyPictureMini:      TBitmap;
     fItemDefaultPics:       array[TILItemType] of TBitmap;
     fItemDefaultPicsSmall:  array[TILItemType] of TBitmap;
     fItemDefaultPicsMini:   array[TILItemType] of TBitmap;
@@ -48,6 +51,8 @@ type
     procedure FinalizeItemReviewIcon; virtual;
     procedure InitializeItemFlagIcons; virtual;
     procedure FinalizeItemFlagIcons; virtual;
+    procedure InitializeEmptyPictures; virtual;
+    procedure FinalizeEmptyPictures; virtual;
     procedure InitializeDefaultPictures; virtual;
     procedure FinalizeDefaultPictures; virtual;
     procedure InitializeDefaultPicturesSmall; virtual;
@@ -77,6 +82,9 @@ type
     property ItemReviewIcon: TBitmap read fItemReviewIcon;
     property ItemFlagIconCount: Integer read GetItemFlagIconCount;
     property ItemFlagIcons[ItemFlag: TILItemFlag]: TBitmap read GetItemFlagIcon;
+    property EmptyPicture: TBitmap read fEmptyPicture;
+    property EmptyPictureSmall: TBitmap read fEmptyPictureSmall;
+    property EmptyPictureMini: TBitmap read fEmptyPictureMini;
     property ItemDefaultPictureCount: Integer read GetItemDefaultPictureCount;
     property ItemDefaultPictures[ItemType: TILITemType]: TBitmap read GetItemDefaultPicture;
     property ItemDefaultPictureSmallCount: Integer read GetItemDefaultPictureSmallCount;
@@ -104,6 +112,7 @@ uses
 {$R '..\resources\default_pics.res'}
 {$R '..\resources\gradient.res'}
 {$R '..\resources\item_lock.res'}
+{$R '..\resources\empty_pic.res'}
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
@@ -384,6 +393,43 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILDataProvider.InitializeEmptyPictures;
+begin
+fEmptyPicture := TBitmap.Create;
+If LoadBitmapFromResource('empty_pic',fEmptyPicture) then
+  begin
+    fEmptyPictureSmall := TBitmap.Create;
+    fEmptyPictureSmall.PixelFormat := pf24bit;
+    fEmptyPictureSmall.Width := 48;
+    fEmptyPictureSmall.Height := 48;
+    IL_PicShrink(fEmptyPicture,fEmptyPictureSmall,2);
+    fEmptyPictureMini := TBitmap.Create;
+    fEmptyPictureMini.PixelFormat := pf24bit;
+    fEmptyPictureMini.Width := 32;
+    fEmptyPictureMini.Height := 32;
+    IL_PicShrink(fEmptyPicture,fEmptyPictureMini,3);
+  end
+else
+  begin
+    FreeAndNil(fEmptyPicture);
+    raise Exception.Create('TILDataProvider.InitializeEmptyPictures: Failed to load empty item picture.');
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILDataProvider.FinalizeEmptyPictures;
+begin
+If Assigned(fEmptyPictureMini) then
+  FreeAndNil(fEmptyPictureMini);
+If Assigned(fEmptyPictureSmall) then
+  FreeAndNil(fEmptyPictureSmall);
+If Assigned(fEmptyPicture) then
+  FreeAndNil(fEmptyPicture);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILDataProvider.InitializeDefaultPictures;
 var
   i:  TILItemType;
@@ -446,8 +492,8 @@ For i := Low(fItemDefaultPicsMini) to High(fItemDefaultPicsMini) do
   try
     fItemDefaultPicsMini[i] := TBitmap.Create;
     fItemDefaultPicsMini[i].PixelFormat := pf24bit;
-    fItemDefaultPicsMini[i].Width := 48;
-    fItemDefaultPicsMini[i].Height := 48;
+    fItemDefaultPicsMini[i].Width := 32;
+    fItemDefaultPicsMini[i].Height := 32;
     IL_PicShrink(fItemDefaultPics[i],fItemDefaultPicsMini[i],3);
   except
     fItemDefaultPics[i] := nil;
@@ -521,6 +567,7 @@ begin
 InitializeItemManufacurers;
 InitializeItemReviewIcon;
 InitializeItemFlagIcons;
+InitializeEmptyPictures;
 InitializeDefaultPictures;
 InitializeDefaultPicturesSmall;
 InitializeDefaultPicturesMini;
@@ -537,6 +584,7 @@ FinalizeGradientImages;
 FinalizeDefaultPicturesMini;
 FinalizeDefaultPicturesSmall;
 FinalizeDefaultPictures;
+FinalizeEmptyPictures;
 FinalizeItemFlagIcons;
 FinalizeItemReviewIcon;
 FinalizeItemManufacturers;

@@ -933,6 +933,7 @@ begin
 CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
+fPictures := TILItemPictures.Create;
 fItemPicture := nil;
 fSecondaryPicture := nil;
 fPackagePicture := nil;
@@ -984,6 +985,7 @@ procedure TILItem_Base.FinalizeData;
 var
   i:  Integer;
 begin
+FreeAndNil(fPictures);
 If Assigned(fItemPicture) then
   FreeAndNil(fItemPicture);
 If Assigned(fSecondaryPicture) then
@@ -1062,13 +1064,13 @@ var
 begin
 Create(DataProvider);
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
-//fItemPassword := Source.ItemPassword;
-//UniqueString(fItemPassword);
 fEncrypted := Source.Encrypted;
 fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then
   CopyBuffer(Source.EncryptedData,fEncryptedData);
 // do not copy time of addition and UID
+FreeAndNil(fPictures);
+fPictures := TILItemPictures.CreateAsCopy(Source.Pictures);
 If CopyPics then
   begin
     If Assigned(Source.ItemPicture) then

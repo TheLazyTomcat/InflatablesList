@@ -9,7 +9,8 @@ uses
   AuxTypes, AuxClasses, MemoryBuffer,
   InflatablesList_Types,
   InflatablesList_Data,
-  InflatablesList_ItemShop;
+  InflatablesList_ItemShop,
+  InflatablesList_ItemPictures;
 
 type
   TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufOverview,iliufTitle,
@@ -53,6 +54,7 @@ type
     fUniqueID:              TGUID;
     fTimeOfAddition:        TDateTime;
     // stored pictures
+    fPictures:              TILItemPictures;
     fItemPicture:           TBitmap;  // 96 x 96 px, white background
     fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
     fPackagePicture:        TBitmap;  // 96 x 96 px, white background
@@ -229,6 +231,7 @@ type
     // item data
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
+    property Pictures: TILItemPictures read fPictures;
     property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
     property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
     property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;

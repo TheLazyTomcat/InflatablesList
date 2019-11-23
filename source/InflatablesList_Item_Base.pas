@@ -144,6 +144,8 @@ type
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
+    // handlers for poctures events
+    Function ItemObjectRequired(Sender: TObject): TObject; virtual;
     // handlers for item shop events
     procedure ShopClearSelectedHandler(Sender: TObject); virtual;
     procedure ShopUpdateOverviewHandler(Sender: TObject); virtual;
@@ -741,6 +743,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILItem_Base.ItemObjectRequired(Sender: TObject): TObject;
+begin
+Result := Self;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.ShopClearSelectedHandler(Sender: TObject);
 var
   i:  Integer;
@@ -934,6 +943,7 @@ CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
 fPictures := TILItemPictures.Create;
+fPictures.AssignInternalEvents(ItemObjectRequired);
 fItemPicture := nil;
 fSecondaryPicture := nil;
 fPackagePicture := nil;
@@ -1019,7 +1029,6 @@ fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
 fClearingSelected := False;
-//fItemPassword := '';
 fEncrypted := False;
 fDataAccessible := True;
 InitBuffer(fEncryptedData);
@@ -1073,6 +1082,7 @@ If CopyPics then
   begin
     FreeAndNil(fPictures);
     fPictures := TILItemPictures.CreateAsCopy(Source.Pictures);
+    fPictures.AssignInternalEvents(ItemObjectRequired);
     If Assigned(Source.ItemPicture) then
       begin
         fItemPicture := TBitmap.Create;

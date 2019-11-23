@@ -58,6 +58,7 @@ Function IL_IncludeTrailingPathDelimiter(const Path: String): String;
 Function IL_ExtractFileDir(const FileName: String): String;
 Function IL_ExtractFilePath(const FileName: String): String;
 Function IL_ExtractFileNameNoExt(const FileName: String): String;
+Function IL_ExtractFileExt(const FileName: String): String;
 
 Function IL_ChangeFileExt(const FileName,NewExt: String): String;
 
@@ -394,6 +395,13 @@ end;
 Function IL_ExtractFileNameNoExt(const FileName: String): String;
 begin
 Result := IL_ChangeFileExt(RTLToStr(ExtractFileName(StrToRTL(FileName))),'');
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_ExtractFileExt(const FileName: String): String;
+begin
+Result := RTLToStr(ExtractFileExt(StrToRTL(FileName)));
 end;
 
 //------------------------------------------------------------------------------

@@ -367,6 +367,7 @@ type
     DefaultPath:      String; // initialized to program path
     ListPath:         String; // filled with list path
     ListFile:         String; // file, where the list will be saved, or was loaded from
+    ListName:         String; // list file without extension
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings; overload;

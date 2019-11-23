@@ -493,6 +493,7 @@ try
           fStaticSettings.ListPath := IL_ExtractFilePath(fStaticSettings.ListFile);
         end;
     end;
+  fStaticSettings.ListName := IL_ExtractFileNameNoExt(fStaticSettings.ListFile);
 finally
   CMDLineParser.Free;
 end;

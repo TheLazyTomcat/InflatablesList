@@ -14,8 +14,8 @@ type
     lblPictures: TLabel;
     pmnPictures: TPopupMenu;
     mniIP_Add: TMenuItem;
-    mniIP_LoadThumb: TMenuItem;    
-    mniIP_AddThumb: TMenuItem;
+    mniIP_LoadThumb: TMenuItem;
+    mniIP_AddWithThumb: TMenuItem;
     mniIP_Remove: TMenuItem;
     mniIP_RemoveAll: TMenuItem;
     N1: TMenuItem;
@@ -35,14 +35,15 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lbPicturesClick(Sender: TObject);
+    procedure lbPicturesDblClick(Sender: TObject);
     procedure lbPicturesMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure lbPicturesDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure pmnPicturesPopup(Sender: TObject);
     procedure mniIP_AddClick(Sender: TObject);
-    procedure mniIP_AddThumbClick(Sender: TObject);
     procedure mniIP_LoadThumbClick(Sender: TObject);
+    procedure mniIP_AddWithThumbClick(Sender: TObject);
     procedure mniIP_RemoveClick(Sender: TObject);
     procedure mniIP_RemoveAllClick(Sender: TObject);
     procedure mniIP_ExportPicClick(Sender: TObject);
@@ -53,7 +54,6 @@ type
     procedure mniIP_PackagePictureClick(Sender: TObject);
     procedure mniIP_MoveUpClick(Sender: TObject);
     procedure mniIP_MoveDownClick(Sender: TObject);
-    procedure lbPicturesDblClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:     TILManager;
@@ -81,7 +81,7 @@ implementation
 {$R *.dfm}
 
 uses
-  WinFileInfo,
+  WinFileInfo, StrRect,
   InflatablesList_Utils,
   InflatablesList_ItemPictures_Base;
 
@@ -285,7 +285,7 @@ If Assigned(fDrawBuffer) then
 
         // thumbnail
         TempInt := BoundsRect.Right - fILManager.DataProvider.EmptyPictureMini.Width - 5;
-        If Assigned(fCurrentItem.Pictures[Index].ThumbnailMini) (*and not fILManager.StaticSettings.NoPictures*) then
+        If Assigned(fCurrentItem.Pictures[Index].ThumbnailMini) and not fILManager.StaticSettings.NoPictures then
           Draw(TempInt,BoundsRect.Top + 1,fCurrentItem.Pictures[Index].ThumbnailMini)
         else
           Draw(TempInt,BoundsRect.Top + 1,fILManager.DataProvider.EmptyPictureMini);
@@ -385,7 +385,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemPicturesForm.mniIP_AddThumbClick(Sender: TObject);
+procedure TfItemPicturesForm.mniIP_AddWithThumbClick(Sender: TObject);
 var
   Info:         TILPictureAutomationInfo;
   PicFileName:  String;
@@ -413,7 +413,7 @@ If diaOpenDialog.Execute then
           begin
             Thumbnail := TBitmap.Create;
             try
-              Thumbnail.LoadFromFile(diaOpenDialog.FileName);
+              Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
               Index := fCurrentItem.Pictures.Add(Info);
               fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
               FillList;
@@ -445,7 +445,7 @@ If lbPictures.ItemIndex >= 0 then
         fDirThumbs := IL_ExtractFileDir(diaOpenDialog.FileName);
         Thumbnail := TBitmap.Create;
         try
-          Thumbnail.LoadFromFile(diaOpenDialog.FileName);
+          Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
           fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
           FillList;
         finally
@@ -499,29 +499,89 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfItemPicturesForm.mniIP_ExportPicClick(Sender: TObject);
+var
+  Directory:  String;
 begin
-//
+If lbPictures.ItemIndex >= 0 then
+  begin
+    Directory := fDirPicsExp;
+    If IL_SelectDirectory('Select directory for picture export',Directory) then
+      begin
+        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        If fCurrentItem.Pictures.ExportPicture(lbPictures.ItemIndex,IL_ExcludeTrailingPathDelimiter(Directory)) then
+          MessageDlg('Picture successfully exported.',mtInformation,[mbOK],0)
+        else
+          MessageDlg('Picture export has failed.',mtError,[mbOK],0)
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfItemPicturesForm.mniIP_ExportThumbClick(Sender: TObject);
+var
+  Directory:  String;
 begin
-//
+If lbPictures.ItemIndex >= 0 then
+  If Assigned(fCurrentItem.Pictures[lbPictures.ItemIndex].Thumbnail) then
+    begin
+      Directory := fDirThumbsExp;
+      If IL_SelectDirectory('Select directory for thumbnail export',Directory) then
+        begin
+          fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+          If fCurrentItem.Pictures.ExportThumbnail(lbPictures.ItemIndex,IL_ExcludeTrailingPathDelimiter(Directory)) then
+            MessageDlg('Picture thumbnail successfully exported.',mtInformation,[mbOK],0)
+          else
+            MessageDlg('Picture thumbnail export has failed.',mtError,[mbOK],0)
+        end;
+    end
+  else MessageDlg('No thumbnail is assigned to this picture.',mtInformation,[mbOK],0)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfItemPicturesForm.mniIP_ExportPicAllClick(Sender: TObject);
+var
+  Directory:  String;
+  i,Cntr:     Integer;
 begin
-//
+If lbPictures.ItemIndex >= 0 then
+  begin
+    Directory := fDirPicsExp;
+    If IL_SelectDirectory('Select directory for pictures export',Directory) then
+      begin
+        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        Cntr := 0;
+        For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
+          If fCurrentItem.Pictures.ExportPicture(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+             Inc(Cntr);
+        MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',
+          [Cntr,fCurrentItem.Pictures.Count - Cntr]),mtInformation,[mbOK],0);
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfItemPicturesForm.mniIP_ExportThumbAllClick(Sender: TObject);
+var
+  Directory:  String;
+  i,Cntr:     Integer;
 begin
-//
+If lbPictures.ItemIndex >= 0 then
+  begin
+    Directory := fDirThumbsExp;
+    If IL_SelectDirectory('Select directory for thumbnails export',Directory) then
+      begin
+        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        Cntr := 0;
+        For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
+          If fCurrentItem.Pictures.ExportThumbnail(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+             Inc(Cntr);
+        MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',
+          [Cntr,fCurrentItem.Pictures.Count - Cntr]),mtInformation,[mbOK],0);
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

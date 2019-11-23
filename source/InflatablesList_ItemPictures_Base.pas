@@ -79,6 +79,8 @@ type
     Function SecondaryCount: Integer; virtual;
     Function PrevSecondary: Integer; virtual;
     Function NextSecondary: Integer; virtual;
+    Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
+    Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
     property Pointers[Index: Integer]: PILItemPicturesEntry read GetEntryPtr; {$message 'remove?'}
     property CurrentSecondary: Integer read fCurrentSecondary;
@@ -89,7 +91,7 @@ implementation
 
 uses
   SysUtils, JPEG,
-  WinFileInfo,
+  WinFileInfo, StrRect,
   InflatablesList_Utils,
   InflatablesList_Item;
 
@@ -212,6 +214,30 @@ end;
 
 //------------------------------------------------------------------------------
 
+constructor TILItemPictures_Base.CreateAsCopy(Source: TILItemPictures_Base);
+var
+  i:  Integer;
+begin
+Create;
+SetLength(fPictures,Source.Count);
+For i := LowIndex to HighIndex do
+  begin
+    fPictures[i] := Source.Pictures[i];
+    UniqueString(fPictures[i].PictureFile);
+    fPictures[i].Thumbnail := TBitmap.Create;
+    fPictures[i].Thumbnail.Assign(Source.Pictures[i].Thumbnail);
+    fPictures[i].ThumbnailSmall := TBitmap.Create;
+    fPictures[i].ThumbnailSmall.Assign(Source.Pictures[i].ThumbnailSmall);
+    fPictures[i].ThumbnailMini := TBitmap.Create;
+    fPictures[i].ThumbnailMini.Assign(Source.Pictures[i].ThumbnailMini);
+  end;
+fCurrentSecondary := Source.CurrentSecondary;
+fAutomationFolder := Source.AutomationFolder;
+UniqueString(fAutomationFolder);
+end;
+
+//------------------------------------------------------------------------------
+
 destructor TILItemPictures_Base.Destroy;
 begin
 Finalize;
@@ -230,27 +256,6 @@ end;
 Function TILItemPictures_Base.HighIndex: Integer;
 begin
 Result := Pred(fCount);
-end;
-
-//------------------------------------------------------------------------------
-
-constructor TILItemPictures_Base.CreateAsCopy(Source: TILItemPictures_Base);
-var
-  i:  Integer;
-begin
-Create;
-SetLength(fPictures,Source.Count);
-For i := LowIndex to HighIndex do
-  begin
-    fPictures[i] := Source.Pictures[i];
-    fPictures[i].Thumbnail := TBitmap.Create;
-    fPictures[i].Thumbnail.Assign(Source.Pictures[i].Thumbnail);
-    fPictures[i].ThumbnailSmall := TBitmap.Create;
-    fPictures[i].ThumbnailSmall.Assign(Source.Pictures[i].ThumbnailSmall);
-    fPictures[i].ThumbnailMini := TBitmap.Create;
-    fPictures[i].ThumbnailMini.Assign(Source.Pictures[i].ThumbnailMini);
-  end;
-fCurrentSecondary := Source.CurrentSecondary;
 end;
 
 //------------------------------------------------------------------------------
@@ -385,6 +390,7 @@ If CheckIndex(Index) then
     For i := Index to Pred(HighIndex) do
       fPictures[i] := fPictures[i + 1];
     Shrink;
+    Dec(fCount);
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.Delete: Index (%d) out of bounds.',[Index]);
 end;
@@ -433,7 +439,7 @@ If IL_FileExists(FileName) then
     try
       with TJPEGImage.Create do
       try
-        LoadFromFile(FileName);
+        LoadFromFile(StrToRTL(FileName));
         AutomationInfo.Width := Width;
         AutomationInfo.Height := Height;
       finally
@@ -533,7 +539,7 @@ If CheckIndex(Index) then
     For i := LowIndex to HighIndex do
       fPictures[i].PackagePicture := (i = Index) and Value;
     If fCurrentSecondary = Index then
-      NextSecondary;      
+      NextSecondary;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.SetPackagePicture: Index (%d) out of bounds.',[Index]);
 end;
@@ -584,6 +590,42 @@ If SecondaryCount > 0 then
   end
 else fCurrentSecondary := -1;
 Result := fCurrentSecondary;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.ExportPicture(Index: Integer; const IntoDirectory: String): Boolean;
+begin
+Result := False;
+If CheckIndex(Index) then
+  begin
+    DeferredInitialize;
+    If IL_FileExists(fAutomationFolder + fPictures[Index].PictureFile) then
+      begin
+        IL_CopyFile(fAutomationFolder + fPictures[Index].PictureFile,
+          IL_IncludeTrailingPathDelimiter(IntoDirectory) + fPictures[Index].PictureFile);
+        Result := True;
+      end;
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.ExportPicture: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean;
+begin
+Result := False;
+If CheckIndex(Index) then
+  begin
+    DeferredInitialize;
+    If Assigned(fPictures[Index].Thumbnail) then
+      begin
+        fPictures[Index].Thumbnail.SaveToFile(
+          StrToRTL(IL_ChangeFileExt(IL_IncludeTrailingPathDelimiter(IntoDirectory) + fPictures[Index].PictureFile,'.bmp')));
+        Result := True;  
+      end;
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.ExportThumbnail: Index (%d) out of bounds.',[Index]);
 end;
 
 end.

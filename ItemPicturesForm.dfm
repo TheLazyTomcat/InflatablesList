@@ -53,10 +53,10 @@ object fItemPicturesForm: TfItemPicturesForm
       ShortCut = 8237
       OnClick = mniIP_LoadThumbClick
     end
-    object mniIP_AddThumb: TMenuItem
+    object mniIP_AddWithThumb: TMenuItem
       Caption = 'Add picture with thumbnail...'
       ShortCut = 16429
-      OnClick = mniIP_AddThumbClick
+      OnClick = mniIP_AddWithThumbClick
     end
     object mniIP_Remove: TMenuItem
       Caption = 'Remove selected picture'

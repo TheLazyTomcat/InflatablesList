@@ -54,6 +54,7 @@ Function IL_PathRelative(const Base,Path: String; PrependDot: Boolean = True): S
 Function IL_PathAbsolute(const Base,Path: String): String;
 
 Function IL_IncludeTrailingPathDelimiter(const Path: String): String;
+Function IL_ExcludeTrailingPathDelimiter(const Path: String): String;
 
 Function IL_ExtractFileDir(const FileName: String): String;
 Function IL_ExtractFilePath(const FileName: String): String;
@@ -106,6 +107,8 @@ Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer;
 Function IL_BoolToStr(Value: Boolean; FalseStr, TrueStr: String): String;
 
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
+
+Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
 
 implementation
 
@@ -378,6 +381,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function IL_ExcludeTrailingPathDelimiter(const Path: String): String;
+begin
+Result := RTLToStr(ExcludeTrailingPathDelimiter(StrToRTL(Path)));
+end;
+
+//------------------------------------------------------------------------------
+
 Function IL_ExtractFileDir(const FileName: String): String;
 begin
 Result := RTLToStr(ExtractFileDir(StrToRTL(FileName)));
@@ -631,6 +641,13 @@ procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: Str
 begin
 If Length(Path) > 0 then
   ShellExecute(WindowHandle,'open',PChar(StrToWin(Path)),PChar(StrToWin(Params)),PChar(StrToWin(Directory)),SW_SHOWNORMAL);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
+begin
+Result := SelectDirectory(Title,'',Directory);
 end;
 
 //==============================================================================

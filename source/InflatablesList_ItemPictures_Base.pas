@@ -35,20 +35,24 @@ type
 
   TILItemPictures_Base = class(TCustomListObject)
   protected
-    fPictures:          array of TILItemPicturesEntry;
-    fCount:             Integer;
-    fCurrentSecondary:  Integer;
-    fDeferrInitDone:    Boolean;
-    fAutomationFolder:  String;
-    fOnItemObjectReq:   TILItemObjectRequired;
+    fPictures:            array of TILItemPicturesEntry;
+    fCount:               Integer;
+    fCurrentSecondary:    Integer;
+    fDeferrInitDone:      Boolean;
+    fAutomationFolder:    String;
+    fOnItemObjectReq:     TILItemObjectRequired;
+    fOnPicturesChange:    TNotifyEvent; {$message 'implement'}
+    fOnItemPictureChange: TNotifyEvent;
     // getters, setters
     Function GetEntry(Index: Integer): TILItemPicturesEntry;
-    Function GetEntryPtr(Index: Integer): PILItemPicturesEntry;
     // list methods
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
+    // event callers
+    procedure UpdatePictures; virtual;
+    procedure UpdateItemPicture; virtual;
     // other methods
     procedure Initialize; virtual;
     procedure Finalize; virtual;
@@ -82,7 +86,6 @@ type
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
-    property Pointers[Index: Integer]: PILItemPicturesEntry read GetEntryPtr; {$message 'remove?'}
     property CurrentSecondary: Integer read fCurrentSecondary;
     property AutomationFolder: String read fAutomationFolder;
   end;
@@ -101,16 +104,6 @@ If CheckIndex(Index) then
   Result := fPictures[Index]
 else
   raise Exception.CreateFmt('TILItemPictures_Base.GetEntry: Index (%d) out of bounds.',[Index]);
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItemPictures_Base.GetEntryPtr(Index: Integer): PILItemPicturesEntry;
-begin
-If CheckIndex(Index) then
-  Result := Addr(fPictures[Index])
-else
-  raise Exception.CreateFmt('TILItemPictures_Base.GetEntryPtr: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
@@ -147,6 +140,22 @@ end;
 procedure TILItemPictures_Base.SetCount(Value: Integer);
 begin
 // do nothing
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.UpdatePictures;
+begin
+If Assigned(fOnPicturesChange) then
+  fOnPicturesChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.UpdateItemPicture;
+begin
+If Assigned(fOnItemPictureChange) then
+  fOnItemPictureChange(Self);
 end;
 
 //------------------------------------------------------------------------------

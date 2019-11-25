@@ -38,15 +38,17 @@ type
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
     mniMMI_ItemShops: TMenuItem;
+    mniMMI_ItemPictures: TMenuItem;
+    N6: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMI_Encrypted: TMenuItem;
     mniMMI_Decrypt: TMenuItem;
     mniMMI_DecryptAll: TMenuItem;
     mniMMI_ChangeItemsPswd: TMenuItem;
-    N7: TMenuItem;
+    N8: TMenuItem;
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -58,7 +60,7 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
-    N8: TMenuItem;
+    N9: TMenuItem;
     mniMMS_FindPrevValue: TMenuItem;
     mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
@@ -75,7 +77,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N9: TMenuItem;
+    N10: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -86,7 +88,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N10: TMenuItem;
+    N11: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -130,6 +132,7 @@ type
     // ---
     procedure mniMM_ItemClick(Sender: TObject);
     procedure mniMMI_ItemShopsClick(Sender: TObject);
+    procedure mniMMI_ItemPicturesClick(Sender: TObject);
     procedure mniMMI_ItemExportClick(Sender: TObject);
     procedure mniMMI_ItemExportMultiClick(Sender: TObject);
     procedure mniMMI_ItemImportClick(Sender: TObject);
@@ -962,6 +965,7 @@ end;
 procedure TfMainForm.mniMM_ItemClick(Sender: TObject);
 begin
 mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ItemPictures.Enabled := lbList.ItemIndex >= 0;
 mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
 mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
 mniMMI_Encrypted.Enabled := lbList.ItemIndex >= 0;
@@ -994,6 +998,18 @@ If lbList.ItemIndex >= 0 then
   begin
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
+    lbList.SetFocus;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_ItemPicturesClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+If lbList.ItemIndex >= 0 then
+  begin
+    fItemPicturesForm.ShowPictures(fILManager[lbList.ItemIndex]);
     lbList.SetFocus;
   end;
 end;

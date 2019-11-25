@@ -20,11 +20,15 @@ object frmItemFrame: TfrmItemFrame
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
+    DesignSize = (
+      625
+      652)
     object shpTotalPriceSelectedBcgr: TShape
       Left = 541
       Top = 634
       Width = 80
       Height = 18
+      Anchors = [akLeft, akBottom]
       Brush.Color = clYellow
       Pen.Style = psClear
     end
@@ -33,6 +37,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 634
       Width = 80
       Height = 18
+      Anchors = [akLeft, akBottom]
       Brush.Color = clYellow
       Pen.Style = psClear
     end
@@ -100,10 +105,11 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Numerical ID:'
     end
     object lblUnitDefaultPrice: TLabel
-      Left = 0
-      Top = 552
+      Left = 344
+      Top = 512
       Width = 87
       Height = 13
+      Anchors = [akLeft, akBottom]
       Caption = 'Default price [K'#269']:'
     end
     object imgManufacturerLogo: TImage
@@ -118,6 +124,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 598
       Width = 625
       Height = 9
+      Anchors = [akLeft, akBottom]
       Shape = bsTopLine
     end
     object lblPieces: TLabel
@@ -155,6 +162,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 63
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Total weight:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -169,6 +177,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblTotalWeight'
       Font.Charset = DEFAULT_CHARSET
@@ -184,6 +193,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 88
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Total price lowest:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -198,6 +208,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblTotalPriceLowest'
       Font.Charset = DEFAULT_CHARSET
@@ -213,6 +224,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 114
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Total price selected:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -227,6 +239,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblTotalPriceSelected'
       Color = clBtnFace
@@ -245,6 +258,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 83
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Unit price lowest:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -259,6 +273,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblUnitPriceLowest'
       Font.Charset = DEFAULT_CHARSET
@@ -274,6 +289,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 108
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Unit price selected:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -288,6 +304,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 80
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Available pieces:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -302,6 +319,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblAvailPieces'
       Font.Charset = DEFAULT_CHARSET
@@ -317,6 +335,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 71
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Selected shop:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -330,6 +349,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 604
       Width = 75
       Height = 13
+      Anchors = [akLeft, akBottom]
       Caption = 'lblSelectedShop'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -344,6 +364,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 73
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblUnitPriceSelected'
       Font.Charset = DEFAULT_CHARSET
@@ -360,6 +381,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 85
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = 'Number of shops:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -374,6 +396,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 57
       Height = 13
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'lblShopCount'
       Font.Charset = DEFAULT_CHARSET
@@ -384,7 +407,7 @@ object frmItemFrame: TfrmItemFrame
       ParentFont = False
     end
     object lblNotesEdit: TLabel
-      Left = 313
+      Left = 609
       Top = 388
       Width = 16
       Height = 19
@@ -438,21 +461,12 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblRating: TLabel
-      Left = 128
-      Top = 552
+      Left = 488
+      Top = 512
       Width = 97
       Height = 13
+      Anchors = [akLeft, akBottom]
       Caption = 'Rating (0..100)[%]:'
-    end
-    object shpFiller: TShape
-      Left = 0
-      Top = 634
-      Width = 193
-      Height = 17
-      Brush.Color = clSilver
-      Brush.Style = bsFDiagonal
-      Pen.Style = psClear
-      Visible = False
     end
     object lblItemTitleShadow: TLabel
       Left = 25
@@ -616,7 +630,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = imgPictureClick
     end
     object imgNextPicture: TImage
-      Left = 504
+      Left = 488
       Top = 48
       Width = 10
       Height = 56
@@ -638,38 +652,38 @@ object frmItemFrame: TfrmItemFrame
         0000CFCFCFCCCCCCCCCCCCE2E2E2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000CFCFCFCCCCCCCCCCCCD1D1D1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000CFCFCFCCCCCCCCCCCCCCCCCCF0F0F0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCECECEFDFDFDFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCEEEEEEFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCDBDBDBFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCDCDCDFBFBFBFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEBEBEBFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDBDBDBFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDCDCDFBFBFBFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEAEAEAFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD9D9D9FFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFAFAFAFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCE7E7E7FFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD6D6D6FFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCF8F8F8
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCE5E5E5
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD4D4D4
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD4D4D4
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCE5E5E5
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCF8F8F8
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD7D7D7FFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCE8E8E8FFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCF9F9F9FFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD8D8D8FFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEAEAEAFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFAFAFAFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCD9D9D9FFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEAEAEAFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCCDCDCDFAFAFAFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCDADADAFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCCCCCCEDEDEDFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCCECECEFDFDFDFFFFFFFFFFFFFFFFFFFFFFFF
-        0000CFCFCFCCCCCCCCCCCCCCCCCCDDDDDDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCCFCFCFCCCCCCDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCD7D7D7CCCCCCCECECEFDFDFDFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCDFDFDFCECECECCCCCCEEEEEEFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0D6D6D6CCCCCCDBDBDBFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0DFDFDFCCCCCCCDCDCDFBFBFBFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6CFCFCFCCCCCCEBEBEBFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6D9D9D9CCCCCCDBDBDBFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E2E2E2CCCCCCCDCDCDFBFBFBFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6D2D2D2CCCCCCEAEAEAFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6DADADACCCCCCD9D9D9FFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E4E4E4CCCCCCCCCCCCFAFAFAFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6D3D3D3CCCCCCE7E7E7FFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6DBDBDBCCCCCCD6D6D6FFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E4E4E4CDCDCDCCCCCCF8F8F8
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E6E6E6D4D4D4CCCCCCE5E5E5
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E6E6E6DDDDDDCCCCCCD4D4D4
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E6E6E6DCDCDCCCCCCCD4D4D4
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E6E6E6D4D4D4CCCCCCE5E5E5
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6E5E5E5CCCCCCCCCCCCF8F8F8
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6DCDCDCCCCCCCD7D7D7FFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E6E6E6D2D2D2CCCCCCE8E8E8FFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6E3E3E3CDCDCDCCCCCCF9F9F9FFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6DBDBDBCCCCCCD8D8D8FFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E6E6E6D2D2D2CCCCCCEAEAEAFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6E2E2E2CCCCCCCCCCCCFAFAFAFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6D9D9D9CCCCCCD9D9D9FFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E6E6E6D0D0D0CCCCCCEAEAEAFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0E0E0E0CCCCCCCDCDCDFAFAFAFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCE0E0E0D7D7D7CCCCCCDADADAFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCDFDFDFCECECECCCCCCEDEDEDFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCD8D8D8CCCCCCCECECEFDFDFDFFFFFFFFFFFFFFFFFFFFFFFF
+        0000CFCFCFCCCCCCCFCFCFCCCCCCDDDDDDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000CFCFCFCCCCCCCCCCCCCCCCCCF0F0F0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000CFCFCFCCCCCCCCCCCCD0D0D0FEFEFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000CFCFCFCCCCCCCCCCCCE2E2E2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -683,12 +697,13 @@ object frmItemFrame: TfrmItemFrame
         0000E1E1E1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000F6F6F6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000}
-      ShowHint = True
+      ShowHint = False
       Visible = False
       OnClick = imgNextPictureClick
+      OnDblClick = imgNextPictureDblClick
     end
     object imgPrevPicture: TImage
-      Left = 424
+      Left = 440
       Top = 48
       Width = 10
       Height = 56
@@ -710,38 +725,38 @@ object frmItemFrame: TfrmItemFrame
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE2E2E2CCCCCCCCCCCCCFCFCF
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFED0D0D0CCCCCCCCCCCCCFCFCF
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF1F1F1CCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFDFCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFFDFDFDCECECECCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFEDEDEDCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFDCDCDCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFBFBFBCDCDCDCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFECECECCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFDADADACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFBFBFBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFEAEAEACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFD7D7D7CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFAFAFACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFE8E8E8CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFD7D7D7CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000F8F8F8CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000E6E6E6CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000D4D4D4CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000D4D4D4CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000E6E6E6CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000F6F6F6CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFD6D6D6CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFE8E8E8CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFF8F8F8CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFD7D7D7CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFE9E9E9CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFAFAFACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFD8D8D8CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFEBEBEBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFAFAFACDCDCDCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFDBDBDBCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFECECECCCCCCCCCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFFDFDFDCECECECCCCCCCCCCCCCCCCCCCFCFCF
-        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCCCCCCCCCCCCCCCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFDFCCCCCCCFCFCFCCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFFDFDFDCECECECCCCCCD7D7D7CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFEDEDEDCCCCCCCECECEDFDFDFCCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFDCDCDCCCCCCCD6D6D6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFBFBFBCDCDCDCCCCCCE0E0E0E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFECECECCCCCCCCFCFCFE6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFDADADACCCCCCD9D9D9E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFBFBFBCCCCCCCCCCCCE2E2E2E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFEAEAEACCCCCCD2D2D2E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFD7D7D7CCCCCCDBDBDBE6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFAFAFACCCCCCCCCCCCE4E4E4E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFE8E8E8CCCCCCD3D3D3E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFD7D7D7CCCCCCDCDCDCE6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000F8F8F8CCCCCCCDCDCDE4E4E4E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000E6E6E6CCCCCCD4D4D4E6E6E6E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000D4D4D4CCCCCCDDDDDDE6E6E6E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000D4D4D4CCCCCCDDDDDDE6E6E6E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000E6E6E6CCCCCCD4D4D4E6E6E6E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000F6F6F6CCCCCCCCCCCCE5E5E5E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFD6D6D6CCCCCCDCDCDCE6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFE8E8E8CCCCCCD3D3D3E6E6E6E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFF8F8F8CCCCCCCDCDCDE4E4E4E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFD7D7D7CCCCCCDBDBDBE6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFE9E9E9CCCCCCD2D2D2E6E6E6E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFAFAFACCCCCCCCCCCCE2E2E2E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFD8D8D8CCCCCCD9D9D9E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFEBEBEBCCCCCCD0D0D0E6E6E6E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFAFAFACDCDCDCCCCCCE0E0E0E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFDBDBDBCCCCCCD7D7D7E0E0E0CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFECECECCCCCCCCECECEDFDFDFCCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFFDFDFDCECECECCCCCCD8D8D8CCCCCCCFCFCF
+        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCCCCCCCCFCFCFCCCCCCCFCFCF
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFEFCCCCCCCCCCCCCCCCCCCFCFCF
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFECFCFCFCCCCCCCCCCCCCFCFCF
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE1E1E1CCCCCCCCCCCCCFCFCF
@@ -755,9 +770,10 @@ object frmItemFrame: TfrmItemFrame
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE0E0E0
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F5
         0000}
-      ShowHint = True
+      ShowHint = False
       Visible = False
       OnClick = imgPrevPictureClick
+      OnDblClick = imgPrevPictureDblClick
     end
     object seWantedLevel: TSpinEdit
       Left = 0
@@ -816,21 +832,23 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seIDChange
     end
     object seUnitPriceDefault: TSpinEdit
-      Left = 0
-      Top = 568
-      Width = 121
+      Left = 344
+      Top = 528
+      Width = 137
       Height = 22
+      Anchors = [akLeft, akBottom]
       MaxValue = 268435455
       MinValue = 0
-      TabOrder = 28
+      TabOrder = 22
       Value = 0
       OnChange = seUnitPriceDefaultChange
     end
     object meNotes: TMemo
       Left = 0
       Top = 408
-      Width = 329
-      Height = 141
+      Width = 625
+      Height = 101
+      Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -853,17 +871,6 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 6
       OnChange = leManufacturerStringChange
     end
-    object leItemPictureFile: TLabeledEdit
-      Left = 336
-      Top = 448
-      Width = 264
-      Height = 21
-      EditLabel.Width = 79
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Item picture file:'
-      TabOrder = 22
-      OnChange = leItemPictureFileChange
-    end
     object leVariant: TLabeledEdit
       Left = 128
       Top = 328
@@ -885,17 +892,6 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Caption = 'Item type specification (eg. animal):'
       TabOrder = 1
       OnChange = leItemTypeSpecificationChange
-    end
-    object lePackagePictureFile: TLabeledEdit
-      Left = 336
-      Top = 528
-      Width = 264
-      Height = 21
-      EditLabel.Width = 97
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Package picture file:'
-      TabOrder = 26
-      OnChange = lePackagePictureFileChange
     end
     object gbFlagsTags: TGroupBox
       Left = 0
@@ -1142,46 +1138,24 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbItemTypeChange
     end
     object btnUpdateShops: TButton
-      Left = 408
-      Top = 566
+      Left = 520
+      Top = 562
       Width = 105
       Height = 25
+      Anchors = [akLeft, akBottom]
       Caption = 'Update shops...'
-      TabOrder = 30
+      TabOrder = 26
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
-      Left = 520
-      Top = 566
+      Left = 408
+      Top = 562
       Width = 105
       Height = 25
+      Anchors = [akLeft, akBottom]
       Caption = 'Shops...'
-      TabOrder = 31
+      TabOrder = 25
       OnClick = btnShopsClick
-    end
-    object btnBrowseItemPictureFile: TButton
-      Left = 600
-      Top = 448
-      Width = 25
-      Height = 21
-      Hint = 'Select item picture file...'
-      Caption = '...'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 23
-      OnClick = btnBrowseItemPictureFileClick
-    end
-    object btnBrowsePackagePictureFile: TButton
-      Left = 600
-      Top = 528
-      Width = 25
-      Height = 21
-      Hint = 'Select package picture file...'
-      Caption = '...'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 27
-      OnClick = btnBrowsePackagePictureFileClick
     end
     object sePieces: TSpinEdit
       Left = 448
@@ -1195,10 +1169,11 @@ object frmItemFrame: TfrmItemFrame
       OnChange = sePiecesChange
     end
     object leReviewURL: TLabeledEdit
-      Left = 336
-      Top = 408
-      Width = 264
+      Left = 0
+      Top = 528
+      Width = 312
       Height = 21
+      Anchors = [akLeft, akBottom]
       EditLabel.Width = 61
       EditLabel.Height = 13
       EditLabel.Caption = 'Review URL:'
@@ -1206,11 +1181,12 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
-      Left = 600
-      Top = 408
+      Left = 312
+      Top = 528
       Width = 25
       Height = 21
       Hint = 'Open review URL in web browser'
+      Anchors = [akLeft, akBottom]
       Caption = '>'
       ParentShowHint = False
       ShowHint = True
@@ -1258,38 +1234,16 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 7
       OnChange = leTextIDChange
     end
-    object leSecondaryPictureFile: TLabeledEdit
-      Left = 336
-      Top = 488
-      Width = 264
-      Height = 21
-      EditLabel.Width = 108
-      EditLabel.Height = 13
-      EditLabel.Caption = 'Secondary picture file:'
-      TabOrder = 24
-      OnChange = leSecondaryPictureFileChange
-    end
-    object btnBrowseSecondaryPictureFile: TButton
-      Left = 600
-      Top = 488
-      Width = 25
-      Height = 21
-      Hint = 'Select secondary picture file...'
-      Caption = '...'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 25
-      OnClick = btnBrowseSecondaryPictureFileClick
-    end
     object seRating: TSpinEdit
-      Left = 128
-      Top = 568
-      Width = 121
+      Left = 488
+      Top = 528
+      Width = 137
       Height = 22
+      Anchors = [akLeft, akBottom]
       MaxLength = 3
       MaxValue = 100
       MinValue = 0
-      TabOrder = 29
+      TabOrder = 23
       Value = 0
       OnChange = seRatingChange
     end
@@ -1335,11 +1289,12 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnPictures: TButton
       Left = 296
-      Top = 566
+      Top = 562
       Width = 105
       Height = 25
+      Anchors = [akLeft, akBottom]
       Caption = 'Pictures...'
-      TabOrder = 32
+      TabOrder = 24
       OnClick = btnPicturesClick
     end
   end

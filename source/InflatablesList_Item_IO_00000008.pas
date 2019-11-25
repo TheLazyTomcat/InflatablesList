@@ -178,6 +178,8 @@ For i := ShopLowIndex to ShopHighIndex do
   end;
 
 {$message 'remove'}
+fPictures.BeginInitialization;
+try
 If Length(fItemPictureFile) > 0 then
   begin
     i := fPictures.Add(fItemPictureFile);
@@ -195,6 +197,9 @@ If Length(fSecondaryPictureFile) > 0 then
     i := fPictures.Add(fSecondaryPictureFile);
     fPictures.SetThumbnail(i,fSecondaryPicture,True);
   end;
+finally
+fPictures.EndInitialization;
+end;
 end;
 
 end.

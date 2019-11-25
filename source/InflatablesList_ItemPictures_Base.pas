@@ -35,14 +35,14 @@ type
 
   TILItemPictures_Base = class(TCustomListObject)
   protected
+    fInitializing:        Boolean;
     fPictures:            array of TILItemPicturesEntry;
     fCount:               Integer;
     fCurrentSecondary:    Integer;
     fDeferrInitDone:      Boolean;
     fAutomationFolder:    String;
     fOnItemObjectReq:     TILItemObjectRequired;
-    fOnPicturesChange:    TNotifyEvent; {$message 'implement'}
-    fOnItemPictureChange: TNotifyEvent;
+    fOnPicturesChange:    TNotifyEvent;
     // getters, setters
     Function GetEntry(Index: Integer): TILItemPicturesEntry;
     // list methods
@@ -52,7 +52,6 @@ type
     procedure SetCount(Value: Integer); override;
     // event callers
     procedure UpdatePictures; virtual;
-    procedure UpdateItemPicture; virtual;
     // other methods
     procedure Initialize; virtual;
     procedure Finalize; virtual;
@@ -65,6 +64,8 @@ type
     destructor Destroy; override;
     Function LowIndex: Integer; override;
     Function HighIndex: Integer; override;
+    procedure BeginInitialization; virtual;
+    procedure EndInitialization; virtual;
     Function IndexOf(const PictureFile: String): Integer; overload; virtual;
     Function IndexOf(Thumbnail: TBitmap): Integer; overload; virtual;
     Function IndexOfItemPicture: Integer; virtual;
@@ -73,8 +74,7 @@ type
     Function Add(const PictureFile: String): Integer; overload; virtual;
     procedure Exchange(Idx1,Idx2: Integer); virtual;
     procedure Delete(Index: Integer); virtual;
-    procedure Clear(UnAutomate: Boolean = True); virtual;
-    procedure AssignInternalEvents(ItemObjectReq: TILItemObjectRequired); virtual;
+    procedure Clear(UnAutomate: Boolean = True; Destroying: Boolean = False); virtual;
     Function AutomatePictureFile(const FileName: String; out AutomationInfo: TILPictureAutomationInfo): Boolean; virtual;
     procedure OpenPictureFile(Index: Integer); virtual;
     procedure SetThumbnail(Index: Integer; Thumbnail: TBitmap; CreateCopy: Boolean); virtual;
@@ -85,6 +85,7 @@ type
     Function NextSecondary: Integer; virtual;
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
+    procedure AssignInternalEvents(ItemObjectReq: TILItemObjectRequired; OnPicturesChange: TNotifyEvent); virtual;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
     property CurrentSecondary: Integer read fCurrentSecondary;
     property AutomationFolder: String read fAutomationFolder;
@@ -146,22 +147,15 @@ end;
 
 procedure TILItemPictures_Base.UpdatePictures;
 begin
-If Assigned(fOnPicturesChange) then
+If Assigned(fOnPicturesChange) and not fInitializing then
   fOnPicturesChange(Self);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemPictures_Base.UpdateItemPicture;
-begin
-If Assigned(fOnItemPictureChange) then
-  fOnItemPictureChange(Self);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItemPictures_Base.Initialize;
 begin
+fInitializing := False;
 SetLength(fPictures,0);
 fCount := 0;
 fCurrentSecondary := -1;
@@ -173,7 +167,7 @@ end;
 
 procedure TILItemPictures_Base.Finalize;
 begin
-Clear(False);
+Clear(False,True);
 end;
 
 //------------------------------------------------------------------------------
@@ -266,6 +260,20 @@ Function TILItemPictures_Base.HighIndex: Integer;
 begin
 Result := Pred(fCount);
 end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.BeginInitialization;
+begin
+fInitializing := True;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.EndInitialization;
+begin
+fInitializing := False;
+end;
 
 //------------------------------------------------------------------------------
 
@@ -341,6 +349,7 @@ fPictures[Result].PictureHeight := AutomationInfo.Height;
 Inc(fCount);
 If fCurrentSecondary < 0 then
   fCurrentSecondary := Result;
+UpdatePictures;
 end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -377,6 +386,7 @@ If Idx1 <> Idx2 then
     Temp := fPictures[Idx1];
     fPictures[Idx1] := fPictures[Idx2];
     fPictures[Idx2] := Temp;
+    UpdatePictures;
   end;
 end;
 
@@ -400,13 +410,14 @@ If CheckIndex(Index) then
       fPictures[i] := fPictures[i + 1];
     Shrink;
     Dec(fCount);
+    UpdatePictures;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.Delete: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItemPictures_Base.Clear(UnAutomate: Boolean = True);
+procedure TILItemPictures_Base.Clear(UnAutomate: Boolean = True; Destroying: Boolean = False);
 var
   i:  Integer;
 begin
@@ -419,13 +430,8 @@ For i := LowIndex to HighIndex do
 SetLength(fPictures,0);
 fCount := 0;
 fCurrentSecondary := -1;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemPictures_Base.AssignInternalEvents(ItemObjectReq: TILItemObjectRequired);
-begin
-fOnItemObjectReq := ItemObjectReq;
+If not Destroying then
+  UpdatePictures;
 end;
 
 //------------------------------------------------------------------------------
@@ -517,6 +523,7 @@ If CheckIndex(Index) then
         fPictures[Index].ThumbnailMini.Height := 32;
         IL_PicShrink(fPictures[Index].Thumbnail,fPictures[Index].ThumbnailMini,3);
       end;
+    UpdatePictures;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.SetThumbnail: Index (%d) out of bounds.',[Index]);
 end;
@@ -533,6 +540,7 @@ If CheckIndex(Index) then
       fPictures[i].ItemPicture := (i = Index) and Value;
     If fCurrentSecondary = Index then
       NextSecondary;
+    UpdatePictures;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.SetItemPicture: Index (%d) out of bounds.',[Index]);
 end;
@@ -549,6 +557,7 @@ If CheckIndex(Index) then
       fPictures[i].PackagePicture := (i = Index) and Value;
     If fCurrentSecondary = Index then
       NextSecondary;
+    UpdatePictures;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.SetPackagePicture: Index (%d) out of bounds.',[Index]);
 end;
@@ -635,6 +644,14 @@ If CheckIndex(Index) then
       end;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.ExportThumbnail: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.AssignInternalEvents(ItemObjectReq: TILItemObjectRequired; OnPicturesChange: TNotifyEvent);
+begin
+fOnItemObjectReq := ItemObjectReq;
+fOnPicturesChange := OnPicturesChange;
 end;
 
 end.

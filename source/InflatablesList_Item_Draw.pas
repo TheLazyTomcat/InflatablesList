@@ -279,8 +279,8 @@ with fRender,fRender.Canvas do
           end;
     
         // main picture
-        If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
-          Draw(Width - 103,5,fItemPicture)
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
+          Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
         else
           Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
     
@@ -388,8 +388,8 @@ with fRenderSmall,fRenderSmall.Canvas do
           TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
     
         // picture
-        If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
-          Draw(Width - 54,2,fItemPictureSmall)
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
+          Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall)
         else
           Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);      
       end

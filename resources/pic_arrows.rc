@@ -1,0 +1,4 @@
+pic_arr_l       RCDATA  "..\pics\left.bmp"
+pic_arr_l_d     RCDATA  "..\pics\left_d.bmp"
+pic_arr_r       RCDATA  "..\pics\right.bmp"
+pic_arr_r_d     RCDATA  "..\pics\right_d.bmp"

@@ -49,6 +49,7 @@ type
     lblItemTitle: TLabel;
     lblItemTitleShadow: TLabel;
     shpHighlight: TShape;
+    tmrSecondaryPics: TTimer;    
     tmrHighlightTimer: TTimer;
     imgManufacturerLogo: TImage;
     imgPrevPicture: TImage;
@@ -148,11 +149,16 @@ type
     shpTotalPriceSelectedBcgr: TShape;
     procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
+    procedure tmrSecondaryPicsTimer(Sender: TObject);
     procedure tmrHighlightTimerTimer(Sender: TObject);
     procedure imgPrevPictureMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure imgPrevPictureMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure imgNextPictureMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure imgNextPictureMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);      
     procedure imgPictureClick(Sender: TObject); 
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);
@@ -195,6 +201,11 @@ type
     fCurrentItem:     TILItem;
     // searching
     fLastFoundValue:  TILItemSearchResult;
+    // picture arrows
+    fPicArrowLeft:    TBitmap;
+    fPicArrowRight:   TBitmap;
+    fPicArrowLeftD:   TBitmap;
+    fPicArrowRightD:  TBitmap;
   protected
     // item event handlers (manager)
     procedure UpdateTitle(Sender: TObject; Item: TObject);
@@ -214,6 +225,7 @@ type
     procedure HighLight(Value: TILItemSearchResult); overload;
     // initialization
     procedure BuildFlagMacrosMenu;
+    procedure PrepareArrows;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -237,9 +249,12 @@ uses
   StrRect,
   TextEditForm, ShopsForm, UpdateForm, ItemPicturesForm,
   InflatablesList_Utils,
+  InflatablesList_Data,
   InflatablesList_ItemShop;
 
 {$R *.dfm}
+
+{$R '..\resources\pic_arrows.res'}
 
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
@@ -366,7 +381,7 @@ If Assigned(fPictures) then
     TempInt := fRightAnchor;
     ArrowsVisible := False;
     ArrowShift := (((SPACING * 3) - fRight.Width) div 2) + fRight.Width;
-    SecCount := fPictures.SecondaryCount;
+    SecCount := fPictures.SecondaryCount(False);
     For i := Low(fImages) to High(fImages) do
       begin
         If (fImages[i].PictureKind = ilipkSecondary) and (SecCount > 1) then
@@ -825,6 +840,22 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.PrepareArrows;
+begin
+fPicArrowLeft := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_l',fPicArrowLeft);
+fPicArrowRight := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_r',fPicArrowRight);
+fPicArrowLeftD := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_l_d',fPicArrowLeftD);
+fPicArrowRightD := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_r_d',fPicArrowRightD);
+imgPrevPicture.Picture.Assign(fPicArrowLeft);
+imgNextPicture.Picture.Assign(fPicArrowRight);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.FrameClear;
 begin
 fInitializing := True;
@@ -1027,6 +1058,9 @@ fILManager.OnItemPicturesUpdate := UpdatePictures;
 fILManager.OnItemFlagsUpdate := UpdateFlags;
 fILManager.OnItemValuesUpdate := UpdateValues;
 SetItem(nil,True);
+// prepare objects
+imgPrevPicture.Tag := 0;
+imgNextPicture.Tag := 0;
 // fill drop-down lists...
 // types
 cmbItemType.Items.BeginUpdate;
@@ -1058,6 +1092,7 @@ end;
 // initialization
 DisableHighlight;
 BuildFlagMacrosMenu;
+PrepareArrows;
 end;
 
 //------------------------------------------------------------------------------
@@ -1069,6 +1104,10 @@ fILManager.OnItemPicturesUpdate := nil;
 fILManager.OnItemFlagsUpdate := nil;
 fILManager.OnItemValuesUpdate := nil;
 FreeAndNil(fPicturesManager);
+FreeAndNil(fPicArrowLeft);
+FreeAndNil(fPicArrowRight);
+FreeAndNil(fPicArrowLeftD);
+FreeAndNil(fPicArrowRightD);
 end;
 
 //------------------------------------------------------------------------------
@@ -1186,6 +1225,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.tmrSecondaryPicsTimer(Sender: TObject);
+begin
+If imgNextPicture.Tag <> 0 then
+  imgNextPicture.OnMouseDown(nil,mbLeft,[],0,0)
+else If imgPrevPicture.Tag <> 0 then
+  imgPrevPicture.OnMouseDown(nil,mbLeft,[],0,0);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.tmrHighlightTimerTimer(Sender: TObject);
 begin
 tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
@@ -1198,11 +1247,24 @@ end;
 procedure TfrmItemFrame.imgPrevPictureMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+imgPrevPicture.Picture.Assign(fPicArrowLeftD);
 If Assigned(fCurrentItem) then
   begin
     fCurrentItem.Pictures.PrevSecondary;
     fPicturesManager.UpdateSecondary;
+    imgPrevPicture.Tag := -1;
+    tmrSecondaryPics.Enabled := True;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgPrevPictureMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgPrevPicture.Picture.Assign(fPicArrowLeft);
+imgPrevPicture.Tag := 0;
+tmrSecondaryPics.Enabled := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -1210,11 +1272,24 @@ end;
 procedure TfrmItemFrame.imgNextPictureMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+imgNextPicture.Picture.Assign(fPicArrowRightD);
 If Assigned(fCurrentItem) then
   begin
     fCurrentItem.Pictures.NextSecondary;
     fPicturesManager.UpdateSecondary;
+    imgNextPicture.Tag := -1;
+    tmrSecondaryPics.Enabled := True;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgNextPictureMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgNextPicture.Picture.Assign(fPicArrowRight);
+imgNextPicture.Tag := 0;
+tmrSecondaryPics.Enabled := False;
 end;
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,6 @@ type
     Function GetItemDefaultPictureMiniCount: Integer;
     Function GetItemDefaultPictureMini(ItemType: TILITemType): TBitmap;
   protected
-    class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
     procedure InitializeItemManufacurers; virtual;
     procedure FinalizeItemManufacturers; virtual;
     procedure InitializeItemReviewIcon; virtual;
@@ -66,6 +65,7 @@ type
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
+    class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
     class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
     class Function GetItemFlagString(ItemFlag: TILItemFlag): String; virtual;
@@ -300,26 +300,6 @@ else
 end;
 
 //==============================================================================
-
-class Function TILDataProvider.LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean;
-var
-  ResStream:  TResourceStream;
-begin
-try
-  ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10){RT_RCDATA});
-  try
-    ResStream.Seek(0,soBeginning);
-    Bitmap.LoadFromStream(ResStream);
-  finally
-    ResStream.Free;
-  end;
-  Result := True;
-except
-  Result := False;
-end;
-end;
-
-//------------------------------------------------------------------------------
 
 procedure TILDataProvider.InitializeItemManufacurers;
 var
@@ -591,6 +571,26 @@ FinalizeItemManufacturers;
 end;
 
 //==============================================================================
+
+class Function TILDataProvider.LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean;
+var
+  ResStream:  TResourceStream;
+begin
+try
+  ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10){RT_RCDATA});
+  try
+    ResStream.Seek(0,soBeginning);
+    Bitmap.LoadFromStream(ResStream);
+  finally
+    ResStream.Free;
+  end;
+  Result := True;
+except
+  Result := False;
+end;
+end;
+
+//------------------------------------------------------------------------------
 
 class Function TILDataProvider.GetItemTypeString(ItemType: TILItemType): String;
 begin

@@ -7,3 +7,4 @@ brcc32 -fo gradient.res     gradient.rc
 brcc32 -fo splash.res       splash.rc
 brcc32 -fo item_lock.res    item_lock.rc
 brcc32 -fo empty_pic.res    empty_pic.rc
+brcc32 -fo pic_arrows.res   pic_arrows.rc

@@ -84,7 +84,7 @@ type
     procedure SetThumbnail(Index: Integer; Thumbnail: TBitmap; CreateCopy: Boolean); virtual;
     procedure SetItemPicture(Index: Integer; Value: Boolean); virtual;
     procedure SetPackagePicture(Index: Integer; Value: Boolean); virtual;
-    Function SecondaryCount: Integer; virtual;
+    Function SecondaryCount(WithThumbnailOnly: Boolean): Integer; virtual;
     Function PrevSecondary: Integer; virtual;
     Function NextSecondary: Integer; virtual;
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
@@ -572,7 +572,8 @@ If CheckIndex(Index) then
   begin
     For i := LowIndex to HighIndex do
       fPictures[i].ItemPicture := (i = Index) and Value;
-    If fCurrentSecondary = Index then
+    If ((fPictures[Index].ItemPicture or fPictures[Index].PackagePicture) and
+        (fCurrentSecondary = Index)) or not CheckIndex(fCurrentSecondary) then
       NextSecondary;
     UpdatePictures;
   end
@@ -589,7 +590,8 @@ If CheckIndex(Index) then
   begin
     For i := LowIndex to HighIndex do
       fPictures[i].PackagePicture := (i = Index) and Value;
-    If fCurrentSecondary = Index then
+    If ((fPictures[Index].ItemPicture or fPictures[Index].PackagePicture) and
+        (fCurrentSecondary = Index)) or not CheckIndex(fCurrentSecondary) then
       NextSecondary;
     UpdatePictures;
   end
@@ -598,14 +600,15 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILItemPictures_Base.SecondaryCount: Integer;
+Function TILItemPictures_Base.SecondaryCount(WithThumbnailOnly: Boolean): Integer;
 var
   i:  Integer;
 begin
 Result := 0;
 For i := LowIndex to HighIndex do
-  If not fPictures[i].ItemPicture and not fPictures[i].PackagePicture then
-    Inc(Result);
+  If (not fPictures[i].ItemPicture and not fPictures[i].PackagePicture) and
+     (Assigned(fPictures[i].Thumbnail) or not WithThumbnailOnly) then
+    Inc(Result); 
 end;
 
 //------------------------------------------------------------------------------
@@ -614,7 +617,7 @@ Function TILItemPictures_Base.PrevSecondary: Integer;
 var
   i:  Integer;
 begin
-If SecondaryCount > 0 then
+If SecondaryCount(False) > 0 then
   begin
     i := fCurrentSecondary;
     repeat
@@ -632,7 +635,7 @@ Function TILItemPictures_Base.NextSecondary: Integer;
 var
   i:  Integer;
 begin
-If SecondaryCount > 0 then
+If SecondaryCount(False) > 0 then
   begin
     i := fCurrentSecondary;
     repeat

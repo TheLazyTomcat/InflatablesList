@@ -700,6 +700,7 @@ object frmItemFrame: TfrmItemFrame
       ShowHint = True
       Visible = False
       OnMouseDown = imgNextPictureMouseDown
+      OnMouseUp = imgNextPictureMouseUp
     end
     object imgPrevPicture: TImage
       Left = 272
@@ -772,6 +773,7 @@ object frmItemFrame: TfrmItemFrame
       ShowHint = True
       Visible = False
       OnMouseDown = imgPrevPictureMouseDown
+      OnMouseUp = imgPrevPictureMouseUp
     end
     object seWantedLevel: TSpinEdit
       Left = 0
@@ -1316,5 +1318,11 @@ object frmItemFrame: TfrmItemFrame
     Alignment = paRight
     Left = 464
     Top = 248
+  end
+  object tmrSecondaryPics: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = tmrSecondaryPicsTimer
+    Left = 536
   end
 end

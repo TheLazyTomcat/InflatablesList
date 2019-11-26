@@ -89,13 +89,13 @@ var
         end;
   end;
 
-  procedure DrawPictureIndication(Small,Large: Boolean; OffX,OffY: Integer);
+  procedure DrawPictureIndication(ThumbPresent: Boolean; OffX,OffY: Integer);
   const
     PIC_INDICATOR_SIZE = 8;
   begin
     with fRender,fRender.Canvas do
       begin
-        If Small then
+        If ThumbPresent then
           begin
             SetCanvas(bsSolid,$00E7E7E7,psClear);
             FillRect(Rect(
@@ -104,15 +104,12 @@ var
               Width - (OffX * PIC_INDICATOR_SIZE) - 1,
               Height - (OffY * PIC_INDICATOR_SIZE) - 2));
           end;
-        If Large then
-          begin
-            SetCanvas(bsClear,clSilver,psClear);
-            FrameRect(Rect(
-              Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
-              Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
-              Width - (OffX * PIC_INDICATOR_SIZE) - 1,
-              Height - (OffY * PIC_INDICATOR_SIZE) - 2));
-          end;
+        SetCanvas(bsClear,clSilver,psClear);
+        FrameRect(Rect(
+          Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
+          Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
+          Width - (OffX * PIC_INDICATOR_SIZE) - 1,
+          Height - (OffY * PIC_INDICATOR_SIZE) - 2));
       end;
   end;
 
@@ -296,9 +293,13 @@ with fRender,fRender.Canvas do
           end;
     
         // picture presence indication
-        DrawPictureIndication(Assigned(fItemPicture),Length(fItemPictureFile) > 0,0,0);
-        DrawPictureIndication(Assigned(fSecondaryPicture),Length(fSecondaryPictureFile) > 0,0,1);
-        DrawPictureIndication(Assigned(fPackagePicture),Length(fPackagePictureFile) > 0,1,0);
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+          DrawPictureIndication(Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail),0,0);
+        TempInt := fPictures.SecondaryCount(False);
+        If TempInt > 0 then
+          DrawPictureIndication(fPictures.SecondaryCount(True) = TempInt,0,1);
+        If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+          DrawPictureIndication(Assigned(fPictures[fPictures.IndexOfPackagePicture].Thumbnail),1,0);
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin

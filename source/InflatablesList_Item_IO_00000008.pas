@@ -5,38 +5,69 @@ unit InflatablesList_Item_IO_00000008;
 interface
 
 uses
-  Classes,
+  Classes, Graphics,
   AuxTypes,
-  InflatablesList_Item_IO_00000007;
+  InflatablesList_Item_IO;
 
 type
-  TILItem_IO_00000008 = class(TILItem_IO_00000007)
+  TILItem_IO_00000008 = class(TILItem_IO)
   protected
+    fFNSaveToStreamPlain:   procedure(Stream: TStream) of object;
+    fFNLoadFromStreamPlain: procedure(Stream: TStream) of object;
+    fFNSaveToStreamProc:    procedure(Stream: TStream) of object;
+    fFNLoadFromStreamProc:  procedure(Stream: TStream) of object;
+    fFNDeferredLoadProc:    procedure(Stream: TStream) of object;
+    // special functions
+    Function GetFlagsWord: UInt32; virtual;
+    procedure SetFlagsWord(FlagsWord: UInt32); virtual;
     // normal IO funtions
     procedure InitSaveFunctions(Struct: UInt32); override;
     procedure InitLoadFunctions(Struct: UInt32); override;
+    procedure SaveItem_00000008(Stream: TStream); virtual;
+    procedure LoadItem_00000008(Stream: TStream); virtual;
+    procedure SavePicture_00000008(Stream: TStream; Pic: TBitmap); virtual;
+    procedure LoadPicture_00000008(Stream: TStream; out Pic: TBitmap); virtual;
     procedure SaveItem_Plain_00000008(Stream: TStream); virtual;
     procedure LoadItem_Plain_00000008(Stream: TStream); virtual;
+    procedure SaveItem_Processed_00000008(Stream: TStream); virtual;
+    procedure LoadItem_Processed_00000008(Stream: TStream); virtual;
   end;
 
 implementation
 
 uses
-  BinaryStreaming,
+  SysUtils,
+  BinaryStreaming, BitOps, MemoryBuffer,
   InflatablesList_Types,
+  InflatablesList_Encryption,
   InflatablesList_ItemShop,
-  InflatablesList_Item_IO;
+  InflatablesList_Manager_IO;
+
+Function TILItem_IO_00000008.GetFlagsWord: UInt32;
+begin
+Result := 0;
+SetFlagStateValue(Result,IL_ITEM_FLAG_BITMASK_ENCRYPTED,fEncrypted);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.SetFlagsWord(FlagsWord: UInt32);
+begin
+fEncrypted := GetFlagState(FlagsWord,IL_ITEM_FLAG_BITMASK_ENCRYPTED);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILItem_IO_00000008.InitSaveFunctions(Struct: UInt32);
 begin
 If Struct = IL_ITEM_STREAMSTRUCTURE_00000008 then
   begin
-    fFNSaveToStream := SaveItem_00000006;
-    fFNSavePicture := SavePicture_00000000;
+    fFNSaveToStream := SaveItem_00000008;
+    fFNSavePicture := SavePicture_00000008;
     fFNSaveToStreamPlain := SaveItem_Plain_00000008;
-    fFNSaveToStreamProc := SaveItem_Processed_00000006;
+    fFNSaveToStreamProc := SaveItem_Processed_00000008;
   end
-else inherited InitSaveFunctions(Struct);
+else raise Exception.CreateFmt('TILItem_IO_00000008.InitSaveFunctions: Invalid stream structure (%.8x).',[Struct]);
 end;
 
 //------------------------------------------------------------------------------
@@ -45,13 +76,82 @@ procedure TILItem_IO_00000008.InitLoadFunctions(Struct: UInt32);
 begin
 If Struct = IL_ITEM_STREAMSTRUCTURE_00000008 then
   begin
-    fFNLoadFromStream := LoadItem_00000006;
-    fFNLoadPicture := LoadPicture_00000000;
+    fFNLoadFromStream := LoadItem_00000008;
+    fFNLoadPicture := LoadPicture_00000008;
     fFNLoadFromStreamPlain := LoadItem_Plain_00000008;
-    fFNLoadFromStreamProc := LoadItem_Processed_00000006;
+    fFNLoadFromStreamProc := LoadItem_Processed_00000008;
     fFNDeferredLoadProc := LoadItem_Plain_00000008;
   end
-else inherited InitLoadFunctions(Struct);
+else raise Exception.CreateFmt('TILItem_IO_00000008.InitLoadFunctions: Invalid stream structure (%.8x).',[Struct]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.SaveItem_00000008(Stream: TStream);
+begin
+Stream_WriteUInt32(Stream,GetFlagsWord);
+If fEncrypted then
+  fFNSaveToStreamProc(Stream)
+else
+  fFNSaveToStreamPlain(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.LoadItem_00000008(Stream: TStream);
+begin
+SetFlagsWord(Stream_ReadUInt32(Stream));
+If fEncrypted then
+  fFNLoadFromStreamProc(Stream)
+else
+  fFNLoadFromStreamPlain(Stream);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.SavePicture_00000008(Stream: TStream; Pic: TBitmap);
+var
+  TempStream: TMemoryStream;
+begin
+If Assigned(Pic) then
+  begin
+    TempStream := TMemoryStream.Create;
+    try
+      Pic.SaveToStream(TempStream);
+      Stream_WriteUInt32(Stream,TempStream.Size);
+      Stream.CopyFrom(TempStream,0);
+    finally
+      TempStream.Free;
+    end;
+  end
+else Stream_WriteUInt32(Stream,0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.LoadPicture_00000008(Stream: TStream; out Pic: TBitmap);
+var
+  Size:       UInt32;
+  TempStream: TMemoryStream;
+begin
+Size := Stream_ReadUInt32(Stream);
+If Size > 0 then
+  begin
+    TempStream := TMemoryStream.Create;
+    try
+      TempStream.CopyFrom(Stream,Size);
+      TempStream.Seek(0,soBeginning);
+      Pic := TBitmap.Create;
+      try
+        Pic.LoadFromStream(TempStream);
+      except
+        FreeAndNil(Pic);
+      end;
+    finally
+      TempStream.Free;
+    end;
+  end
+else Pic := nil;
 end;
 
 //------------------------------------------------------------------------------
@@ -200,6 +300,70 @@ If Length(fSecondaryPictureFile) > 0 then
 finally
 fPictures.EndInitialization;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.SaveItem_Processed_00000008(Stream: TStream);
+var
+  TempStream: TMemoryStream;
+  Password:   String;
+begin
+// in current implementation, if we are here, we are writing encrypted item...
+If fDataAccessible then
+  begin
+    {
+      data are not encrypted, encrypt them and then save the resulting stream
+
+      if the item is marked for encryption and the data are decrypted, this
+      means the password is valid since it was already put in (item was either
+      marked for encryption - in that case thee manager prompted for the
+      password, or the item was decrypted and in that case the password was
+      entered for that to happen)
+    }
+    TempStream := TMemoryStream.Create;
+    try
+      // preallocate
+      TempStream.Size := Int64(IL_LISTFILE_PREALLOC_BYTES_ITEM + (3 * IL_LISTFILE_PREALLOC_BYTES_PIC));
+      TempStream.Seek(0,soBeginning);
+      // write plain data
+      fFNSaveToStreamPlain(TempStream);
+      TempStream.Size := TempStream.Position;
+      // encrypt the stream
+      If RequestItemsPassword(Password) then
+        InflatablesList_Encryption.EncryptStream_AES256(TempStream,Password,IL_ITEM_DECRYPT_CHECK)
+      else
+        raise Exception.Create('TILItem_IO_00000006.SaveItem_Processed_00000006: Unable to obtain password for saving, cannot continue.');
+      // save the encrypted stream
+      Stream_WriteUInt64(Stream,UInt64(TempStream.Size));                       // write size of encrypted data      
+      Stream_WriteBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));  // TempStream contains unencrypted size
+    finally
+      TempStream.Free;
+    end;    
+  end
+else
+  begin
+    {
+      data are still stored in encrypted state, do nothing, just take the
+      encrypted data buffer and save it as is (expects fEncryptedData to contain
+      the data :O)
+    }
+    Stream_WriteUInt64(Stream,UInt64(fEncryptedData.Size));                 // encrypted size
+    Stream_WriteBuffer(Stream,fEncryptedData.Memory^,fEncryptedData.Size);  // encrypted data
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.LoadItem_Processed_00000008(Stream: TStream);
+begin
+{
+  the item is marked as encrypted - do not decrypt it here, just load it into
+  fEncryptedData buffer and set fDataAccessible to false
+}
+fDataAccessible := False;
+ReallocBuffer(fEncryptedData,TMemSize(Stream_ReadUInt64(Stream)));
+Stream_ReadBuffer(Stream,fEncryptedData.Memory^,fEncryptedData.Size);
 end;
 
 end.

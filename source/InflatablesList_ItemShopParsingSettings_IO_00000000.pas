@@ -16,9 +16,7 @@ type
     procedure InitLoadFunctions(Struct: UInt32); override;
     procedure SaveSettings_00000000(Stream: TStream); virtual;
     procedure LoadSettings_00000000(Stream: TStream); virtual;
-  public
-    class procedure Convert(Stream, ConvStream: TStream); virtual;    
-  end;  
+  end;
 
 implementation
 
@@ -104,51 +102,6 @@ For i := Low(fPriceExtrSetts) to High(fPriceExtrSetts) do
     fPriceExtrSetts[i].NegativeTag := Stream_ReadString(Stream);
   end;
 fPriceFinder.LoadFromStream(Stream);
-end;
-
-//==============================================================================
-
-class procedure TILItemShopParsingSettings_IO_00000000.Convert(Stream, ConvStream: TStream);
-var
-  i:  Integer;
-
-  procedure ConvertStage;
-  var
-    ii:     Integer;
-    Cntr:   UInt32;
-    Finder: TILElementFinder;
-  begin
-    Cntr := Stream_ReadUInt32(Stream);
-    Stream_WriteUInt32(ConvStream,Cntr);
-    For ii := 0 to Pred(Cntr) do
-      begin
-        Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // ExtractFrom
-        Stream_WriteInt32(ConvStream,Stream_ReadInt32(Stream));   // ExtractionMethod
-        Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // ExtractionData
-        Stream_WriteString(ConvStream,Stream_ReadString(Stream)); // NegativeTag
-      end;
-    Finder := TILElementFinder.Create;
-    try
-      Finder.LoadFromStream(Stream);
-      Finder.SaveToStream(ConvStream);
-    finally
-      FreeAndNil(Finder);
-    end;
-  end;
-
-begin
-Stream_WriteUInt32(ConvStream,IL_SHOPPARSSETT_SIGNATURE);
-Stream_WriteUInt32(ConvStream,IL_SHOPPARSSETT_STREAMSTRUCTURE_00000000);
-// data (structure is the same as in 7)
-// variables
-For i := 0 to Pred(IL_ITEMSHOP_PARSING_VARS_COUNT) do
-  Stream_WriteString(ConvStream,Stream_ReadString(Stream));
-Stream_WriteString(ConvStream,Stream_ReadString(Stream));   // template reference
-Stream_WriteBool(ConvStream,Stream_ReadBool(Stream));       // disable parsing errors
-// available
-ConvertStage;
-// price
-ConvertStage;
 end;
 
 end.

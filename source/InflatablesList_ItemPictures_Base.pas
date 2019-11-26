@@ -35,6 +35,8 @@ type
 
   TILItemPictures_Base = class(TCustomListObject)
   protected
+    fUpdateCounter:       Integer;
+    fUpdated:             Boolean;
     fInitializing:        Boolean;
     fPictures:            array of TILItemPicturesEntry;
     fCount:               Integer;
@@ -64,11 +66,10 @@ type
     destructor Destroy; override;
     Function LowIndex: Integer; override;
     Function HighIndex: Integer; override;
+    procedure BeginUpdate; virtual;
+    procedure EndUpdate; virtual;
     procedure BeginInitialization; virtual;
     procedure EndInitialization; virtual;
-    {$message 'implement and use'}
-    //procedure BeginUpdate; virtual;
-    //procedure EndUpdate; virtual;
     Function IndexOf(const PictureFile: String): Integer; overload; virtual;
     Function IndexOf(Thumbnail: TBitmap): Integer; overload; virtual;
     Function IndexOfItemPicture: Integer; virtual;
@@ -150,14 +151,17 @@ end;
 
 procedure TILItemPictures_Base.UpdatePictures;
 begin
-If Assigned(fOnPicturesChange) and not fInitializing then
+If Assigned(fOnPicturesChange) and not fInitializing and (fUpdateCounter <= 0) then
   fOnPicturesChange(Self);
+fUpdated := True
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItemPictures_Base.Initialize;
 begin
+fUpdateCounter := 0;
+fUpdated := False;
 fInitializing := False;
 SetLength(fPictures,0);
 fCount := 0;
@@ -263,18 +267,43 @@ Function TILItemPictures_Base.HighIndex: Integer;
 begin
 Result := Pred(fCount);
 end;
- 
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.BeginUpdate;
+begin
+If fUpdateCounter <= 0 then
+  fUpdated := False;
+Inc(fUpdateCounter);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.EndUpdate;
+begin
+Dec(fUpdateCounter);
+If fUpdateCounter <= 0 then
+  begin
+    fUpdateCounter := 0;
+    If fUpdated then
+      UpdatePictures;
+    fUpdated := False;
+  end;
+end;
+
 //------------------------------------------------------------------------------
 
 procedure TILItemPictures_Base.BeginInitialization;
 begin
 fInitializing := True;
+BeginUpdate;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItemPictures_Base.EndInitialization;
 begin
+EndUpdate;
 fInitializing := False;
 end;
 
@@ -404,9 +433,11 @@ If CheckIndex(Index) then
     If Index = fCurrentSecondary then
       begin
         NextSecondary;
-        If Index = fCurrentSecondary then
+        If fCurrentSecondary = Index then
           fCurrentSecondary := -1;
       end;
+    If fCurrentSecondary > Index then
+      Dec(fCurrentSecondary);
     UnAutomatePictureFile(fPictures[Index].PictureFile);
     FreeEntry(fPictures[Index]);
     For i := Index to Pred(HighIndex) do

@@ -31,6 +31,7 @@ type
   public
     constructor Create(ILManager: TILManager; RightAnchor: Integer; Left,Right: TControl; ImgA,ImgB,ImgC: TImage; BcgrA,BcgrB,BcgrC: TControl);
     Function Kind(Image: TImage): TLIItemPictureKind; virtual;
+    Function Image(PictureKind: TLIItemPictureKind): TImage; virtual;
     procedure ShowPictures(Pictures: TILItemPictures);
     procedure UpdateSecondary; virtual;
     property CurrentItem: TILItem read fCurrentItem write fCurrentItem;
@@ -148,10 +149,10 @@ type
     procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
     procedure tmrHighlightTimerTimer(Sender: TObject);
-    procedure imgPrevPictureClick(Sender: TObject);
-    procedure imgPrevPictureDblClick(Sender: TObject);
-    procedure imgNextPictureClick(Sender: TObject);
-    procedure imgNextPictureDblClick(Sender: TObject);
+    procedure imgPrevPictureMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure imgNextPictureMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure imgPictureClick(Sender: TObject); 
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);
@@ -287,6 +288,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function TILItemFramePicturesManager.Image(PictureKind: TLIItemPictureKind): TImage;
+var
+  i:  Integer;
+begin
+Result := nil;
+For i := Low(fImages) to High(fImages) do
+  If fImages[i].PictureKind = PictureKind then
+    begin
+      Result := fImages[i].Image;
+      Break{For i};
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItemFramePicturesManager.ShowPictures(Pictures: TILItemPictures);
 const
   SPACING = 8;
@@ -297,19 +313,15 @@ var
   ArrowShift:     Integer;
   SecCount:       Integer;
 
-  procedure AssignPic(Index: Integer; PictureKind: TLIItemPictureKind);
+  Function AssignPic(Index: Integer; PictureKind: TLIItemPictureKind): Boolean;
   begin
+    Result := False;
     If fPictures.CheckIndex(Index) then
       begin
         fImages[i].PictureKind := PictureKind;
         fImages[i].Picture := fPictures[Index].Thumbnail;
-        Inc(i);
+        Result := True;
       end
-    else
-      begin
-        fImages[i].PictureKind := ilipkUnknown;
-        fImages[i].Picture := nil;
-      end;
   end;
 
 begin
@@ -317,17 +329,21 @@ fPictures := Pictures;
 If Assigned(fPictures) then
   begin
     For i := Low(fImages) to High(fImages) do
-      fImages[i].OldPicture := fImages[i].Picture;
+      begin
+        fImages[i].PictureKind := ilipkUnknown;
+        fImages[i].OldPicture := fImages[i].Picture;
+        fImages[i].Picture := nil;
+      end;
     i := Low(fImages);
     // assign pictures
-    AssignPic(fPictures.IndexOfPackagePicture,ilipkPackage);
-    AssignPic(fPictures.CurrentSecondary,ilipkSecondary);
-    AssignPic(fPictures.IndexOfItemPicture,ilipkMain);
-    while i <= High(fImages) do
-      begin
-        AssignPic(-1,ilipkUnknown);
-        Inc(i);
-      end;
+    If AssignPic(fPictures.IndexOfPackagePicture,ilipkPackage) then Inc(i);
+    If AssignPic(fPictures.CurrentSecondary,ilipkSecondary) then Inc(i);
+    If AssignPic(fPictures.IndexOfItemPicture,ilipkMain) then Inc(i);
+    //while i <= High(fImages) do
+    //  begin
+    //    AssignPic(-1,ilipkUnknown);
+    //    Inc(i);
+    //  end;
     // update image objects
     For i := Low(fImages) to High(fImages) do
       begin
@@ -402,11 +418,11 @@ If Assigned(fPictures) then
         If fPictures.CheckIndex(fPictures.CurrentSecondary) then
           If fImages[i].Picture <> fPictures[fPictures.CurrentSecondary].Thumbnail then
             begin
-              fImages[i].Picture := fPictures[fPictures.CurrentSecondary].Thumbnail;
-              If Assigned(fImages[i].Picture) then
-                fImages[i].Image.Picture.Assign(fImages[i].Picture)
+              If Assigned(fPictures[fPictures.CurrentSecondary].Thumbnail) then
+                fImages[i].Picture := fPictures[fPictures.CurrentSecondary].Thumbnail
               else
-                fImages[i].Image.Picture.Assign(fILManager.DataProvider.EmptyPicture);
+                fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
+              fImages[i].Image.Picture.Assign(fImages[i].Picture)
             end;
         Break{For i};
       end;
@@ -449,6 +465,7 @@ end;
 
 procedure TfrmItemFrame.UpdatePictures(Sender: TObject; Item: TObject);
 begin
+DisableHighlight;
 If Assigned(fCurrentItem) and (Item = fCurrentItem) and not fILManager.StaticSettings.NoPictures then
   fPicturesManager.ShowPictures(fCurrentItem.Pictures)
 else
@@ -708,6 +725,13 @@ else If Control is TLabel then
     shpHighlight.Width := 5;
     shpHighlight.Height := Control.Height + 1;
   end
+else If Control is TImage then
+  begin
+    shpHighlight.Left := Control.Left;
+    shpHighlight.Top := Control.Top + Control.Height + 1;
+    shpHighlight.Width := Control.Width + 1;
+    shpHighlight.Height := 5;
+  end
 // special cases
 else If (Control = seNumTag) or (Control = eTextTag) then
   begin
@@ -766,10 +790,9 @@ case Value of
   ilisrThickness:         Highlight(seThickness);
   ilisrNotes:             Highlight(meNotes);
   ilisrReviewURL:         Highlight(leReviewURL);
-  {$message 'reimplement'}
-  //ilisrItemPicFile:       Highlight(leItemPictureFile);
-  //ilisrSecondaryPicFile:  Highlight(leSecondaryPictureFile);
-  //ilisrPackagePicFile:    Highlight(lePackagePictureFile);
+  ilisrItemPicFile:       Highlight(fPicturesManager.Image(ilipkMain));
+  ilisrSecondaryPicFile:  Highlight(fPicturesManager.Image(ilipkSecondary));
+  ilisrPackagePicFile:    Highlight(fPicturesManager.Image(ilipkPackage));
   ilisrUnitPriceDefault:  Highlight(seUnitPriceDefault);
   ilisrRating:            Highlight(seRating);
   ilisrSelectedShop:      Highlight(lblSelectedShop);
@@ -1172,7 +1195,8 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.imgPrevPictureClick(Sender: TObject);
+procedure TfrmItemFrame.imgPrevPictureMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 If Assigned(fCurrentItem) then
   begin
@@ -1183,27 +1207,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.imgPrevPictureDblClick(Sender: TObject);
-begin
-imgPrevPicture.OnClick(nil);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.imgNextPictureClick(Sender: TObject);
+procedure TfrmItemFrame.imgNextPictureMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 If Assigned(fCurrentItem) then
   begin
     fCurrentItem.Pictures.NextSecondary;
     fPicturesManager.UpdateSecondary;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.imgNextPictureDblClick(Sender: TObject);
-begin
-imgNextPicture.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------

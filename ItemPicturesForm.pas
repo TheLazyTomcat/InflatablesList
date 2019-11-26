@@ -365,14 +365,19 @@ diaOpenDialog.Options := diaOpenDialog.Options + [ofAllowMultiselect];
 If diaOpenDialog.Execute then
   begin
     If diaOpenDialog.Files.Count > 0 then
-      fDirPics := IL_ExtractFileDir(diaOpenDialog.Files[0]);  
+      fDirPics := IL_ExtractFileDir(diaOpenDialog.Files[Pred(diaOpenDialog.Files.Count)]);
     Cntr := 0;
-    For i := 0 to Pred(diaOpenDialog.Files.Count) do
-      If fCurrentItem.Pictures.AutomatePictureFile(diaOpenDialog.Files[i],Info) then
-        begin
-          fCurrentItem.Pictures.Add(Info);
-          Inc(Cntr);
-        end;
+    fCurrentItem.Pictures.BeginUpdate;
+    try
+      For i := 0 to Pred(diaOpenDialog.Files.Count) do
+        If fCurrentItem.Pictures.AutomatePictureFile(diaOpenDialog.Files[i],Info) then
+          begin
+            fCurrentItem.Pictures.Add(Info);
+            Inc(Cntr);
+          end;
+    finally
+      fCurrentItem.Pictures.EndUpdate;
+    end;
     FillList;
     If Cntr > 0 then
       begin
@@ -414,8 +419,13 @@ If diaOpenDialog.Execute then
             Thumbnail := TBitmap.Create;
             try
               Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
-              Index := fCurrentItem.Pictures.Add(Info);
-              fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
+              fCurrentItem.Pictures.BeginUpdate;
+              try
+                Index := fCurrentItem.Pictures.Add(Info);
+                fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
+              finally
+                fCurrentItem.Pictures.EndUpdate;
+              end;
               FillList;
               lbPictures.ItemIndex := Pred(lbPictures.Count);
               lbPictures.OnClick(nil);  // also updates index

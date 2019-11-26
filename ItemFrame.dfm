@@ -699,8 +699,7 @@ object frmItemFrame: TfrmItemFrame
         0000}
       ShowHint = True
       Visible = False
-      OnClick = imgNextPictureClick
-      OnDblClick = imgNextPictureDblClick
+      OnMouseDown = imgNextPictureMouseDown
     end
     object imgPrevPicture: TImage
       Left = 272
@@ -772,8 +771,7 @@ object frmItemFrame: TfrmItemFrame
         0000}
       ShowHint = True
       Visible = False
-      OnClick = imgPrevPictureClick
-      OnDblClick = imgPrevPictureDblClick
+      OnMouseDown = imgPrevPictureMouseDown
     end
     object seWantedLevel: TSpinEdit
       Left = 0

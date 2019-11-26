@@ -16,14 +16,8 @@ uses
     TILItem_Comp
     TILItem_Search
     TILItem_IO
-    TILItem_IO_00000000
-    TILItem_IO_00000001
-    TILItem_IO_00000002
-    TILItem_IO_00000003
-    TILItem_IO_00000004
-    TILItem_IO_00000005
-    TILItem_IO_00000006
-    TILItem_IO_00000007
+    TILItem_IO_00000008
+    TILItem_IO_00000009    
     TILItem_Crypt
     TILItem
 }

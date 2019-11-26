@@ -97,7 +97,8 @@ uses
   SaveForm in 'SaveForm.pas' {fSaveForm},
   AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm},
   ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItemsForm},
-  ItemPicturesForm in 'ItemPicturesForm.pas' {fItemPicturesForm};
+  ItemPicturesForm in 'ItemPicturesForm.pas' {fItemPicturesForm},
+  InflatablesList_Item_IO_00000009 in 'source\InflatablesList_Item_IO_00000009.pas';
 
 {$R *.res}
 

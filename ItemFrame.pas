@@ -354,12 +354,6 @@ If Assigned(fPictures) then
     If AssignPic(fPictures.IndexOfPackagePicture,ilipkPackage) then Inc(i);
     If AssignPic(fPictures.CurrentSecondary,ilipkSecondary) then Inc(i);
     If AssignPic(fPictures.IndexOfItemPicture,ilipkMain) then Inc(i);
-    //while i <= High(fImages) do
-    //  begin
-    //    AssignPic(-1,ilipkUnknown);
-    //    Inc(i);
-    //  end;
-    // update image objects
     For i := Low(fImages) to High(fImages) do
       begin
         If not Assigned(fImages[i].Picture) and (fImages[i].PictureKind <> ilipkUnknown) then

@@ -13,7 +13,7 @@ uses
 type
   TILItemFramePicturesManagerEntry = record
     PictureKind:  TLIItemPictureKind;
-    Changed:      Boolean;
+    OldPicture:   TBitmap;    
     Picture:      TBitmap;
     Image:        TImage;
     Background:   TControl;
@@ -22,6 +22,7 @@ type
   TILItemFramePicturesManager = class(TObject)
   private
     fILManager:     TILManager;
+    fCurrentItem:   TILItem;
     fRightAnchor:   Integer;
     fLeft:          TControl;
     fRight:         TControl;
@@ -32,6 +33,7 @@ type
     Function Kind(Image: TImage): TLIItemPictureKind; virtual;
     procedure ShowPictures(Pictures: TILItemPictures);
     procedure UpdateSecondary; virtual;
+    property CurrentItem: TILItem read fCurrentItem write fCurrentItem;
   end;
 
 //******************************************************************************
@@ -44,16 +46,18 @@ type
     shpItemTitleBcgr: TShape;
     imgItemLock: TImage;    
     lblItemTitle: TLabel;
-    lblItemTitleShadow: TLabel;    
+    lblItemTitleShadow: TLabel;
+    shpHighlight: TShape;
+    tmrHighlightTimer: TTimer;
     imgManufacturerLogo: TImage;
+    imgPrevPicture: TImage;
+    imgNextPicture: TImage;
     imgPictureA: TImage;
     imgPictureB: TImage;
     imgPictureC: TImage;
     shpPictureABcgr: TShape;
     shpPictureBBcgr: TShape;
     shpPictureCBcgr: TShape;
-    imgPrevPicture: TImage;
-    imgNextPicture: TImage;
     diaPicOpenDialog: TOpenDialog;
     diaPicExport: TSaveDialog;    
     lblUniqueID: TLabel;
@@ -97,7 +101,9 @@ type
     lblWantedLevel: TLabel;
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
-    leVariantTag: TLabeledEdit;    
+    leVariantTag: TLabeledEdit;
+    lblThickness: TLabel;
+    seThickness: TSpinEdit;
     lblMaterial: TLabel;
     cmbMaterial: TComboBox;    
     lblSizeX: TLabel;
@@ -108,8 +114,6 @@ type
     seSizeZ: TSpinEdit;
     lblUnitWeight: TLabel;
     seUnitWeight: TSpinEdit;
-    lblThickness: TLabel;
-    seThickness: TSpinEdit;    
     lblNotes: TLabel;
     meNotes: TMemo;
     lblNotesEdit: TLabel;    
@@ -119,8 +123,9 @@ type
     seUnitPriceDefault: TSpinEdit;
     lblRating: TLabel;
     seRating: TSpinEdit;
-    btnUpdateShops: TButton;
+    btnPictures: TButton;
     btnShops: TButton;
+    btnUpdateShops: TButton;
     bvlInfoSep: TBevel;
     lblSelectedShopTitle: TLabel;
     lblSelectedShop: TLabel;
@@ -140,18 +145,14 @@ type
     lblTotalPriceSelectedTitle: TLabel;
     lblTotalPriceSelected: TLabel;
     shpTotalPriceSelectedBcgr: TShape;
-    tmrHighlightTimer: TTimer;
-    shpHighlight: TShape;
-
-    btnPictures: TButton;
-    
     procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
-    procedure imgPictureClick(Sender: TObject);
+    procedure tmrHighlightTimerTimer(Sender: TObject);
     procedure imgPrevPictureClick(Sender: TObject);
     procedure imgPrevPictureDblClick(Sender: TObject);
     procedure imgNextPictureClick(Sender: TObject);
-    procedure imgNextPictureDblClick(Sender: TObject);       
+    procedure imgNextPictureDblClick(Sender: TObject);
+    procedure imgPictureClick(Sender: TObject); 
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);
     procedure sePiecesChange(Sender: TObject);
@@ -180,10 +181,9 @@ type
     procedure btnReviewOpenClick(Sender: TObject);
     procedure seUnitPriceDefaultChange(Sender: TObject);
     procedure seRatingChange(Sender: TObject);
-    procedure btnUpdateShopsClick(Sender: TObject);
-    procedure btnShopsClick(Sender: TObject);
-    procedure tmrHighlightTimerTimer(Sender: TObject);
     procedure btnPicturesClick(Sender: TObject);
+    procedure btnShopsClick(Sender: TObject);
+    procedure btnUpdateShopsClick(Sender: TObject);
   private
     // other fields
     fPicturesManager: TILItemFramePicturesManager;    
@@ -256,6 +256,7 @@ constructor TILItemFramePicturesManager.Create(ILManager: TILManager; RightAncho
 begin
 inherited Create;
 fILManager := ILManager;
+fCurrentItem := nil;
 fRightAnchor := RightAnchor;
 fLeft := Left;
 fRight := Right;
@@ -294,21 +295,19 @@ var
   TempInt:        Integer;
   ArrowsVisible:  Boolean;
   ArrowShift:     Integer;
+  SecCount:       Integer;
 
   procedure AssignPic(Index: Integer; PictureKind: TLIItemPictureKind);
   begin
-    If Index >= 0 then
+    If fPictures.CheckIndex(Index) then
       begin
         fImages[i].PictureKind := PictureKind;
-        fImages[i].Changed := fPictures[Index].Thumbnail <> fImages[i].Picture; // different object
         fImages[i].Picture := fPictures[Index].Thumbnail;
         Inc(i);
       end
     else
       begin
         fImages[i].PictureKind := ilipkUnknown;
-        If not fImages[i].Changed then
-          fImages[i].Changed := Assigned(fImages[i].Picture);
         fImages[i].Picture := nil;
       end;
   end;
@@ -318,7 +317,7 @@ fPictures := Pictures;
 If Assigned(fPictures) then
   begin
     For i := Low(fImages) to High(fImages) do
-      fImages[i].Changed := False;
+      fImages[i].OldPicture := fImages[i].Picture;
     i := Low(fImages);
     // assign pictures
     AssignPic(fPictures.IndexOfPackagePicture,ilipkPackage);
@@ -331,25 +330,30 @@ If Assigned(fPictures) then
       end;
     // update image objects
     For i := Low(fImages) to High(fImages) do
-      If fImages[i].Changed then
-        begin
-          fImages[i].Changed := False;
-          If Assigned(fImages[i].Picture) then
-            fImages[i].Image.Picture.Assign(fImages[i].Picture)
-          else
-            fImages[i].Image.Picture.Assign(fILManager.DataProvider.EmptyPicture);
-          fImages[i].Image.ShowHint := fImages[i].PictureKind <> ilipkUnknown;
-          fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
-          fImages[i].Image.Visible := Assigned(fImages[i].Picture);
-          fImages[i].Background.Visible := not Assigned(fImages[i].Picture);
-        end;
+      begin
+        If not Assigned(fImages[i].Picture) and (fImages[i].PictureKind <> ilipkUnknown) then
+          begin
+            If (fImages[i].PictureKind = ilipkMain) and Assigned(fCurrentItem) then
+              fImages[i].Picture := fILManager.DataProvider.ItemDefaultPictures[fCurrentItem.ItemType]
+            else
+              fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
+          end;
+        If fImages[i].Picture <> fImages[i].OldPicture then
+          begin
+            fImages[i].Image.Picture.Assign(fImages[i].Picture);
+            fImages[i].Image.ShowHint := fImages[i].PictureKind <> ilipkUnknown;
+            fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
+            fImages[i].Background.Visible := not Assigned(fImages[i].Picture);
+          end;
+      end; 
     // realign
     TempInt := fRightAnchor;
     ArrowsVisible := False;
     ArrowShift := (((SPACING * 3) - fRight.Width) div 2) + fRight.Width;
+    SecCount := fPictures.SecondaryCount;
     For i := Low(fImages) to High(fImages) do
       begin
-        If (fImages[i].PictureKind = ilipkSecondary) and (fPictures.SecondaryCount > 1) then
+        If (fImages[i].PictureKind = ilipkSecondary) and (SecCount > 1) then
           begin
             fRight.Left := TempInt - ArrowShift;
             fImages[i].Image.Left := TempInt - fImages[i].Image.Width - SPACING * 3;
@@ -369,17 +373,17 @@ If Assigned(fPictures) then
   end
 else
   begin
+    TempInt := fRightAnchor;
     For i := Low(fImages) to High(fImages) do
       begin
         fImages[i].PictureKind := ilipkUnknown;
-        fImages[i].Changed := False;
-        If Assigned(fImages[i].Picture) then  // prevent unnecessary redraws
-          begin
-            fImages[i].Picture := nil;
-            fImages[i].Image.Picture.Assign(nil);
-            // do not alter visibility
-          end;
+        fImages[i].Picture := nil;
+        fImages[i].Image.Picture.Assign(nil);
         fImages[i].Image.ShowHint := False;
+        fImages[i].Image.Left := TempInt - fImages[i].Image.Width;
+        fImages[i].Background.Visible := True;        
+        fImages[i].Background.Left := fImages[i].Image.Left + (fImages[i].Image.Width - fImages[i].Background.Width) div 2;        
+        Dec(TempInt,fImages[i].Image.Width + SPACING);
       end;
   end;
 end;
@@ -762,6 +766,7 @@ case Value of
   ilisrThickness:         Highlight(seThickness);
   ilisrNotes:             Highlight(meNotes);
   ilisrReviewURL:         Highlight(leReviewURL);
+  {$message 'reimplement'}
   //ilisrItemPicFile:       Highlight(leItemPictureFile);
   //ilisrSecondaryPicFile:  Highlight(leSecondaryPictureFile);
   //ilisrPackagePicFile:    Highlight(lePackagePictureFile);
@@ -1087,6 +1092,7 @@ If ProcessChange then
     Enabled := Assigned(fCurrentItem) and fCurrentItem.DataAccessible;
   end
 else fCurrentItem := Item;
+fPicturesManager.CurrentItem := fCurrentItem;
 DisableHighlight;
 end;
 
@@ -1157,21 +1163,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
-
-  procedure OpenPicture(Index: Integer);
-  begin
-    If fCurrentItem.Pictures.CheckIndex(Index) then
-      fCurrentItem.Pictures.OpenPictureFile(Index);
-  end;
-
+procedure TfrmItemFrame.tmrHighlightTimerTimer(Sender: TObject);
 begin
-If Assigned(fCurrentItem) and (Sender is TImage) then
-  case fPicturesManager.Kind(TImage(Sender)) of
-    ilipkMain:      OpenPicture(fCurrentItem.Pictures.IndexOfItemPicture);
-    ilipkSecondary: OpenPicture(fCurrentItem.Pictures.CurrentSecondary);
-    ilipkPackage:   OpenPicture(fCurrentItem.Pictures.IndexOfPackagePicture);
-  end;
+tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
+If tmrHighlightTimer.Tag <= 0 then
+  DisableHighlight;
 end;
 
 //------------------------------------------------------------------------------
@@ -1208,6 +1204,25 @@ end;
 procedure TfrmItemFrame.imgNextPictureDblClick(Sender: TObject);
 begin
 imgNextPicture.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
+
+  procedure OpenPicture(Index: Integer);
+  begin
+    If fCurrentItem.Pictures.CheckIndex(Index) then
+      fCurrentItem.Pictures.OpenPictureFile(Index);
+  end;
+
+begin
+If Assigned(fCurrentItem) and (Sender is TImage) then
+  case fPicturesManager.Kind(TImage(Sender)) of
+    ilipkMain:      OpenPicture(fCurrentItem.Pictures.IndexOfItemPicture);
+    ilipkSecondary: OpenPicture(fCurrentItem.Pictures.CurrentSecondary);
+    ilipkPackage:   OpenPicture(fCurrentItem.Pictures.IndexOfPackagePicture);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1534,6 +1549,31 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.btnPicturesClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    fItemPicturesForm.ShowPictures(fCurrentItem);
+    If Assigned(OnFocusList) then
+      OnFocusList(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    fCurrentItem.BroadcastReqCount; // should not be needed, but to be sure
+    fShopsForm.ShowShops(fCurrentItem);
+    If Assigned(OnFocusList) then
+      OnFocusList(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.btnUpdateShopsClick(Sender: TObject);
 var
   i:    Integer;
@@ -1558,38 +1598,6 @@ If Assigned(fCurrentItem) then
           OnFocusList(Self);
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  begin
-    fCurrentItem.BroadcastReqCount; // should not be needed, but to be sure
-    fShopsForm.ShowShops(fCurrentItem);
-    If Assigned(OnFocusList) then
-      OnFocusList(Self);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.tmrHighlightTimerTimer(Sender: TObject);
-begin
-tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
-If tmrHighlightTimer.Tag <= 0 then
-  DisableHighlight;
-end;
-
-procedure TfrmItemFrame.btnPicturesClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  begin
-    fItemPicturesForm.ShowPictures(fCurrentItem);
-    If Assigned(OnFocusList) then
-      OnFocusList(Self);
   end;
 end;
 

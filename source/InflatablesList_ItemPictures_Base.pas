@@ -66,6 +66,9 @@ type
     Function HighIndex: Integer; override;
     procedure BeginInitialization; virtual;
     procedure EndInitialization; virtual;
+    {$message 'implement and use'}
+    //procedure BeginUpdate; virtual;
+    //procedure EndUpdate; virtual;
     Function IndexOf(const PictureFile: String): Integer; overload; virtual;
     Function IndexOf(Thumbnail: TBitmap): Integer; overload; virtual;
     Function IndexOfItemPicture: Integer; virtual;
@@ -347,7 +350,7 @@ fPictures[Result].PictureSize := AutomationInfo.Size;
 fPictures[Result].PictureWidth := AutomationInfo.Width;
 fPictures[Result].PictureHeight := AutomationInfo.Height;
 Inc(fCount);
-If fCurrentSecondary < 0 then
+If not CheckIndex(fCurrentSecondary) then
   fCurrentSecondary := Result;
 UpdatePictures;
 end;

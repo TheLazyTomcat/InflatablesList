@@ -56,21 +56,21 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Wanted level (0..7):'
     end
     object lblSizeZ: TLabel
-      Left = 224
+      Left = 416
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Z [mm]:'
     end
     object lblSizeY: TLabel
-      Left = 112
+      Left = 304
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Y [mm]:'
     end
     object lblSizeX: TLabel
-      Left = 0
+      Left = 192
       Top = 352
       Width = 59
       Height = 13
@@ -105,7 +105,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Numerical ID:'
     end
     object lblUnitDefaultPrice: TLabel
-      Left = 344
+      Left = 376
       Top = 512
       Width = 87
       Height = 13
@@ -150,7 +150,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitWeight: TLabel
-      Left = 336
+      Left = 528
       Top = 352
       Width = 55
       Height = 13
@@ -427,15 +427,15 @@ object frmItemFrame: TfrmItemFrame
       OnMouseLeave = lblNotesEditMouseLeave
     end
     object lblMaterial: TLabel
-      Left = 440
-      Top = 312
+      Left = 0
+      Top = 352
       Width = 42
       Height = 13
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 440
-      Top = 352
+      Left = 528
+      Top = 312
       Width = 75
       Height = 13
       Caption = 'Thickness ['#283'm]:'
@@ -461,7 +461,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblRating: TLabel
-      Left = 488
+      Left = 504
       Top = 512
       Width = 97
       Height = 13
@@ -630,7 +630,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = imgPictureClick
     end
     object imgNextPicture: TImage
-      Left = 488
+      Left = 296
       Top = 48
       Width = 10
       Height = 56
@@ -697,13 +697,13 @@ object frmItemFrame: TfrmItemFrame
         0000E1E1E1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000F6F6F6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         0000}
-      ShowHint = False
+      ShowHint = True
       Visible = False
       OnClick = imgNextPictureClick
       OnDblClick = imgNextPictureDblClick
     end
     object imgPrevPicture: TImage
-      Left = 440
+      Left = 272
       Top = 48
       Width = 10
       Height = 56
@@ -770,7 +770,7 @@ object frmItemFrame: TfrmItemFrame
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE0E0E0
         0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F5
         0000}
-      ShowHint = False
+      ShowHint = True
       Visible = False
       OnClick = imgPrevPictureClick
       OnDblClick = imgPrevPictureDblClick
@@ -788,7 +788,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seWantedLevelChange
     end
     object seSizeZ: TSpinEdit
-      Left = 224
+      Left = 416
       Top = 368
       Width = 105
       Height = 22
@@ -799,7 +799,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeZChange
     end
     object seSizeY: TSpinEdit
-      Left = 112
+      Left = 304
       Top = 368
       Width = 105
       Height = 22
@@ -810,7 +810,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeYChange
     end
     object seSizeX: TSpinEdit
-      Left = 0
+      Left = 192
       Top = 368
       Width = 105
       Height = 22
@@ -832,9 +832,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seIDChange
     end
     object seUnitPriceDefault: TSpinEdit
-      Left = 344
+      Left = 376
       Top = 528
-      Width = 137
+      Width = 121
       Height = 22
       Anchors = [akLeft, akBottom]
       MaxValue = 268435455
@@ -1138,9 +1138,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbItemTypeChange
     end
     object btnUpdateShops: TButton
-      Left = 520
-      Top = 562
-      Width = 105
+      Left = 504
+      Top = 560
+      Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Update shops...'
@@ -1148,9 +1148,9 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
-      Left = 408
-      Top = 562
-      Width = 105
+      Left = 376
+      Top = 560
+      Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Shops...'
@@ -1171,7 +1171,7 @@ object frmItemFrame: TfrmItemFrame
     object leReviewURL: TLabeledEdit
       Left = 0
       Top = 528
-      Width = 312
+      Width = 344
       Height = 21
       Anchors = [akLeft, akBottom]
       EditLabel.Width = 61
@@ -1181,7 +1181,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
-      Left = 312
+      Left = 344
       Top = 528
       Width = 25
       Height = 21
@@ -1194,7 +1194,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
-      Left = 336
+      Left = 528
       Top = 368
       Width = 97
       Height = 22
@@ -1205,8 +1205,8 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seUnitWeightChange
     end
     object cmbMaterial: TComboBox
-      Left = 440
-      Top = 328
+      Left = 0
+      Top = 368
       Width = 185
       Height = 21
       Style = csDropDownList
@@ -1214,8 +1214,8 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 12
     end
     object seThickness: TSpinEdit
-      Left = 440
-      Top = 368
+      Left = 528
+      Top = 328
       Width = 97
       Height = 22
       MaxValue = 0
@@ -1235,9 +1235,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leTextIDChange
     end
     object seRating: TSpinEdit
-      Left = 488
+      Left = 504
       Top = 528
-      Width = 137
+      Width = 121
       Height = 22
       Anchors = [akLeft, akBottom]
       MaxLength = 3
@@ -1277,8 +1277,8 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnUserIDGenClick
     end
     object leVariantTag: TLabeledEdit
-      Left = 544
-      Top = 368
+      Left = 440
+      Top = 328
       Width = 81
       Height = 21
       EditLabel.Width = 57
@@ -1288,9 +1288,9 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 18
     end
     object btnPictures: TButton
-      Left = 296
-      Top = 562
-      Width = 105
+      Left = 248
+      Top = 560
+      Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Pictures...'

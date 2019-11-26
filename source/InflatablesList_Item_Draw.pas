@@ -280,9 +280,13 @@ with fRender,fRender.Canvas do
     
         // main picture
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
-          Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
-        else
-          Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+          begin
+            If Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail) then
+              Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
+            else
+              Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+          end
+        else Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
     
         // worst result indication
         If (fShopCount > 0) and (ilifWanted in fFlags) then
@@ -389,9 +393,13 @@ with fRenderSmall,fRenderSmall.Canvas do
     
         // picture
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
-          Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall)
-        else
-          Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);      
+          begin
+            If Assigned(fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall) then
+              Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall)
+            else
+              Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+          end
+        else Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin

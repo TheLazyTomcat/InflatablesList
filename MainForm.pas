@@ -37,8 +37,8 @@ type
     mniMML_Rename: TMenuItem;
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
-    mniMMI_ItemShops: TMenuItem;
     mniMMI_ItemPictures: TMenuItem;
+    mniMMI_ItemShops: TMenuItem;
     N6: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
@@ -131,8 +131,8 @@ type
     procedure mniMML_RenameClick(Sender: TObject);
     // ---
     procedure mniMM_ItemClick(Sender: TObject);
+    procedure mniMMI_ItemPicturesClick(Sender: TObject);    
     procedure mniMMI_ItemShopsClick(Sender: TObject);
-    procedure mniMMI_ItemPicturesClick(Sender: TObject);
     procedure mniMMI_ItemExportClick(Sender: TObject);
     procedure mniMMI_ItemExportMultiClick(Sender: TObject);
     procedure mniMMI_ItemImportClick(Sender: TObject);
@@ -990,6 +990,18 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniMMI_ItemPicturesClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+If lbList.ItemIndex >= 0 then
+  begin
+    fItemPicturesForm.ShowPictures(fILManager[lbList.ItemIndex]);
+    lbList.SetFocus;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 
 procedure TfMainForm.mniMMI_ItemShopsClick(Sender: TObject);
 begin
@@ -998,18 +1010,6 @@ If lbList.ItemIndex >= 0 then
   begin
     fILManager[lbList.ItemIndex].BroadcastReqCount;
     fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
-    lbList.SetFocus;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniMMI_ItemPicturesClick(Sender: TObject);
-begin
-frmItemFrame.Save;
-If lbList.ItemIndex >= 0 then
-  begin
-    fItemPicturesForm.ShowPictures(fILManager[lbList.ItemIndex]);
     lbList.SetFocus;
   end;
 end;

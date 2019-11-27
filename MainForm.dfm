@@ -293,15 +293,15 @@ object fMainForm: TfMainForm
     object mniMM_Item: TMenuItem
       Caption = 'Item'
       OnClick = mniMM_ItemClick
-      object mniMMI_ItemShops: TMenuItem
-        Caption = 'Item shops...'
-        ShortCut = 16452
-        OnClick = mniMMI_ItemShopsClick
-      end
       object mniMMI_ItemPictures: TMenuItem
         Caption = 'Item pictures...'
         ShortCut = 16464
         OnClick = mniMMI_ItemPicturesClick
+      end
+      object mniMMI_ItemShops: TMenuItem
+        Caption = 'Item shops...'
+        ShortCut = 16452
+        OnClick = mniMMI_ItemShopsClick
       end
       object N6: TMenuItem
         Caption = '-'

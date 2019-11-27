@@ -127,6 +127,8 @@ type
     btnShops: TButton;
     btnUpdateShops: TButton;
     bvlInfoSep: TBevel;
+    lblPictureCountTitle: TLabel;
+    lblPictureCount: TLabel;
     lblSelectedShopTitle: TLabel;
     lblSelectedShop: TLabel;
     lblShopCountTitle: TLabel;
@@ -476,7 +478,10 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) and not fILManager.StaticSet
   fPicturesManager.ShowPictures(fCurrentItem.Pictures)
 else
   fPicturesManager.ShowPictures(nil);
-{$message 'indicate picture count somewhere'}
+If Assigned(fCurrentItem) then
+  lblPictureCount.Caption := fCurrentItem.PictureCountStr
+else
+  lblPictureCount.Caption := '-';
 end;
 
 //------------------------------------------------------------------------------
@@ -901,13 +906,14 @@ try
   seUnitPriceDefault.Value := 0;
   seRating.Value := 0;
   // read-only things
-  lblTotalWeight.Caption := '-';
+  lblPictureCount.Caption := '0';
   FillSelectedShop('-');
-  lblShopCount.Caption := '0';
+  lblShopCount.Caption := '0';  
+  lblAvailPieces.Caption := '0';
   lblUnitPriceLowest.Caption := '-';
   lblUnitPriceSelected.Caption := '-';
   shpUnitPriceSelectedBcgr.Visible := False;
-  lblAvailPieces.Caption := '0';
+  lblTotalWeight.Caption := '-';
   lblTotalPriceLowest.Caption := '-';
   lblTotalPriceSelected.Caption := '-';
   shpTotalPriceSelectedBcgr.Visible := False;

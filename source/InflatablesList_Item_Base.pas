@@ -55,13 +55,6 @@ type
     fTimeOfAddition:        TDateTime;
     // stored pictures
     fPictures:              TILItemPictures;
-    //fItemPicture:           TBitmap;  // 96 x 96 px, white background
-    //fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
-    //fPackagePicture:        TBitmap;  // 96 x 96 px, white background
-    // not stored pictures
-    //fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
-    //fSecondaryPictureSmall: TBitmap;  // 48 x 48 px, white background
-    //fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
     // basic specs
     fItemType:              TILItemType;
     fItemTypeSpec:          String;   // closer specification of type
@@ -88,9 +81,6 @@ type
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
-    //fItemPictureFile:       String;
-    //fSecondaryPictureFile:  String;
-    //fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
     fRating:                UInt32;           // 0..100 [%]
     // availability and prices (calculated from shops)
@@ -108,9 +98,6 @@ type
     procedure SetIndex(Value: Integer); virtual;
     procedure SetEncrypted(Value: Boolean); virtual; abstract;
     // data getters and setters
-    procedure SetItemPicture(Value: TBitmap); virtual;
-    procedure SetSecondaryPicture(Value: TBitmap); virtual;
-    procedure SetPackagePicture(Value: TBitmap); virtual;
     procedure SetItemType(Value: TILItemType); virtual;
     procedure SetItemTypeSpec(const Value: String); virtual;
     procedure SetPieces(Value: UInt32); virtual;
@@ -133,9 +120,6 @@ type
     procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
-    procedure SetItemPictureFile(const Value: String); virtual;
-    procedure SetSecondaryPictureFile(const Value: String); virtual;
-    procedure SetPackagePictureFile(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
     procedure SetRating(Value: UInt32); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
@@ -234,9 +218,6 @@ type
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
     property Pictures: TILItemPictures read fPictures;
-    //property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
-    //property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
-    //property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
     property Pieces: UInt32 read fPieces write SetPieces;
@@ -259,9 +240,6 @@ type
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
-    //property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
-    //property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
-    //property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property Rating: UInt32 read fRating write SetRating;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
@@ -297,53 +275,6 @@ If fIndex <> Value then
   begin
     fIndex := Value;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetItemPicture(Value: TBitmap);
-begin
-(*
-If fItemPicture <> Value {a different object reference} then
-  begin
-    If Assigned(fItemPicture) then
-      FreeAndNil(fItemPicture);
-    fItemPicture := Value;
-    RenderSmallItemPicture;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdatePictures;
-  end;*)
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetSecondaryPicture(Value: TBitmap);
-begin
-(*If fSecondaryPicture <> Value then
-  begin
-    If Assigned(fSecondaryPicture) then
-      FreeAndNil(fSecondaryPicture);
-    fSecondaryPicture := Value;
-    RenderSmallSecondaryPicture;
-    UpdateMainList;
-    UpdatePictures;
-  end; *)
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetPackagePicture(Value: TBitmap);
-begin
-(*If fPackagePicture <> Value then
-  begin
-    If Assigned(fPackagePicture) then
-      FreeAndNil(fPackagePicture);
-    fPackagePicture := Value;
-    RenderSmallPackagePicture;
-    UpdateMainList;
-    UpdatePictures;
-  end; *)
 end;
 
 //------------------------------------------------------------------------------
@@ -633,43 +564,6 @@ If not IL_SameStr(fReviewURL,Value) then
     UniqueString(fReviewURL);
     UpdateMainList;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetItemPictureFile(const Value: String);
-begin
-(*
-If not IL_SameStr(fItemPictureFile,Value) then
-  begin
-    fItemPictureFile := Value;
-    UniqueString(fItemPictureFile);
-    UpdateMainList;
-  end;*)
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetSecondaryPictureFile(const Value: String);
-begin
-(*If not IL_SameStr(fSecondaryPictureFile,Value) then
-  begin
-    fSecondaryPictureFile := Value;
-    UniqueString(fSecondaryPictureFile);
-    UpdateMainList;
-  end;*)
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetPackagePictureFile(const Value: String);
-begin
-(*If not IL_SameStr(fPackagePictureFile,Value) then
-  begin
-    fPackagePictureFile := Value;
-    UniqueString(fPackagePictureFile);
-    UpdateMainList;
-  end; *)
 end;
 
 //------------------------------------------------------------------------------

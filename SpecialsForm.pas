@@ -71,7 +71,7 @@ type
   end;
 
 const
-  IL_SPECIALS: array[0..12] of TILSpecialsEntry = (
+  IL_SPECIALS: array[0..11] of TILSpecialsEntry = (
          (Title: 'Clear textual tags';
         Details: 'Item.TextTag := ''''';
     Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
@@ -116,15 +116,6 @@ const
                  sLineBreak +
                  'Parameters are not used in this function.';
     FunctionIdx: 6),
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-         (Title: 'Replace text in picture paths';
-        Details: 'Item.*PictureFile := ReplaceText(Item.*PictureFile,P1,P2)';
-    Description: 'For all items that have accessible data, replaces all occurences of text given in parameter 1 by a text given in paramter 2 within paths to main picture, secondary picture ' +
-                 'and package picture. Text to be replaced is searched for with case insensitive comparisons. The replacement text is inserted as is, no change to case is performed.' + sLineBreak +
-                 sLineBreak +
-                 'Parameter 1 - text to be replaced' + sLineBreak +
-                 'Parameter 2 - replacement text';
-    FunctionIdx: 7),
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
          (Title: 'Replace textual tag when it matches';      
         Details: '(Item.TextTag = P1) => Item.TextTag := P2';
@@ -285,17 +276,8 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfSpecialsForm.Special_0007;
-var
-  i:  Integer;
 begin
-{$message 'remove'}
-For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-  If fILManager[i].DataAccessible then
-    begin
-      //fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
-      //fILManager[i].SecondaryPictureFile := IL_ReplaceText(fILManager[i].SecondaryPictureFile,leParam_1.Text,leParam_2.Text);
-      //fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
-    end;
+// not needed anymore
 end;
  
 //------------------------------------------------------------------------------

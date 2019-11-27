@@ -331,7 +331,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblSelectedShopTitle: TLabel
       Left = 34
-      Top = 604
+      Top = 620
       Width = 71
       Height = 13
       Alignment = taRightJustify
@@ -346,7 +346,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblSelectedShop: TLabel
       Left = 112
-      Top = 604
+      Top = 620
       Width = 75
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -377,7 +377,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblShopCountTitle: TLabel
       Left = 20
-      Top = 620
+      Top = 636
       Width = 85
       Height = 13
       Alignment = taRightJustify
@@ -392,7 +392,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblShopCount: TLabel
       Left = 112
-      Top = 620
+      Top = 636
       Width = 57
       Height = 13
       Alignment = taRightJustify
@@ -774,6 +774,37 @@ object frmItemFrame: TfrmItemFrame
       Visible = False
       OnMouseDown = imgPrevPictureMouseDown
       OnMouseUp = imgPrevPictureMouseUp
+    end
+    object lblPictureCountTitle: TLabel
+      Left = 38
+      Top = 604
+      Width = 67
+      Height = 13
+      Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
+      Caption = 'Picture count:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblPictureCount: TLabel
+      Left = 112
+      Top = 604
+      Width = 57
+      Height = 13
+      Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
+      AutoSize = False
+      Caption = 'lblPictureCount'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
     object seWantedLevel: TSpinEdit
       Left = 0

@@ -152,20 +152,22 @@ const
 
   IL_DATA_ITEMVALUETAG_STRS: array[TILItemValueTag] of String = (
     '<none>','Item is encrypted','Unique identifier (UID)','Time of addition','Item descriptor',
-    'Main picture (is present)','Secondary picture (is present)','Package picture (is present)',
-    'Item type','Item type specifier','Pieces','User ID','Manufacturer','Manufacturer string',
-    'Textual ID','Numerical ID','ID string','Owned (flag)','Wanted (flag)','Ordered (flag)',
-    'Boxed (flag)','Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)',
-    'Damaged (flag)','Repaired (flag)','Price change (flag)','Availability change (flag)',
-    'Not available (flag)','Lost (flag)','Discarded (flag)','Textual tag','Numerical tag',
-    'Wanted level (flagged)','Variant (color, pattern, type, ...)','Variant tag',
-    'Material type','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
+    'Main picture (is present)','Main picture file','Main picture thumbnail (is present)',
+    'Package picture (is present)','Package picture file','Package picture thumbnail (is present)',
+    'Current secondary picture (is present)','Current secondary picture file',
+    'Current secondary picture thumbnail (is present)','Picture count','Secondary picture count',
+    'Secondary picture count (with thumbnails)','Item type','Item type specifier',
+    'Pieces','User ID','Manufacturer','Manufacturer string','Textual ID','Numerical ID',
+    'ID string','Owned (flag)','Wanted (flag)','Ordered (flag)','Boxed (flag)',
+    'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)','Damaged (flag)',
+    'Repaired (flag)','Price change (flag)','Availability change (flag)','Not available (flag)',
+    'Lost (flag)','Discarded (flag)','Textual tag','Numerical tag','Wanted level (flagged)',
+    'Variant (color, pattern, type, ...)','Variant tag','Wall thickness','Material type',
+    'Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
     'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
-    'Wall thickness','Notes','ReviewURL','Review (is present)','Main picture file',
-    'Main picture file (is present)','Secondary picture file','Secondary picture file (is present)',
-    'Package picture file','Package picture file (is present)','Default unit price',
-    'Rating','Unit price lowest','Total price lowest','Unit price selected','Total price selected',
-    'Total price','Available pieces','Shop count','Useful shop count',
+    'Notes','ReviewURL','Review (is present)','Default unit price',
+    'Rating','Unit price lowest','Total price lowest','Unit price selected',
+    'Total price selected','Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
   IL_DATA_SHOPUPDATERESULT_STRS: array[TILItemShopUpdateResult] of String = (
@@ -188,7 +190,7 @@ const
     'First number','First number tagged');
 
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
-    'List index','Unique ID','Time of addition','Itemd descriptor','Title',
+    'List index','Unique ID','Time of addition','Item descriptor','Title',
     'Type','Type specification','Type string','Pieces','User ID','Manufacturer',
     'Manufacturer string','Manufaturer tag','Text ID','Numerical ID','ID string',
     'Flags','Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
@@ -198,8 +200,8 @@ const
     'Flag - Discarded','Textual tag','Numerical tag','Wanted level','Variant',
     'Variant tag','Material','Size X','Size Y','Size Z','Total size',
     'Size string','Unit weight','Total weight','Total weight string',
-    'Thickness','Notes','Review URL','Main picture file',
-    'Secondary picture file','Package picture file','Unit price default',
+    'Thickness','Notes','Review URL','Pictures','Main picture file',
+    'Package picture file','Current secondary picture file','Unit price default',
     'Rating','Unit price','Unit price lowest','Total price lowest',
     'Unit price highest','Total price highest','Unit price selected',
     'Total price selected','Total price','Available lowest','Available highest',

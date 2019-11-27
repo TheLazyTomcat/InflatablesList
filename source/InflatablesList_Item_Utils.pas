@@ -14,6 +14,7 @@ type
   TILItem_Utils = class(TILItem_Base)
   public
     Function Descriptor: String; virtual;
+    Function PictureCountStr: String; virtual;
     Function TitleStr: String; virtual;
     Function TypeStr: String; virtual;
     Function IDStr: String; virtual;
@@ -49,6 +50,25 @@ If (Length(IDStr) > 0) then
       Result := IL_Format('%s%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr])
   end
 else Result := GUIDToString(fUniqueID);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Utils.PictureCountStr: String;
+var
+  SecCnt:   Integer;
+  SecCntWT: Integer;
+begin
+SecCnt := fPictures.SecondaryCount(False);
+SecCntWT := fPictures.SecondaryCount(True);
+If SecCnt > 0 then
+  begin
+    If SecCnt <> SecCntWT then
+      REsult := IL_Format('%d - %d/%d',[fPictures.Count,SecCnt,SecCntWT])
+    else
+      Result := IL_Format('%d - %d',[fPictures.Count,SecCnt]);
+  end
+else Result := IntToStr(fPictures.Count);
 end;
 
 //------------------------------------------------------------------------------

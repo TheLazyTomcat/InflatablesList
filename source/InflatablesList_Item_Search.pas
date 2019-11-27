@@ -28,6 +28,7 @@ uses
 Function TILItem_Search.SearchField(const SearchSettings: TILAdvSearchSettings; Field: TILAdvItemSearchResult): Boolean;
 var
   SelShop:  TILItemShop;
+  i:        Integer;
 
   Function GetFlagsString: String;
   var
@@ -95,10 +96,27 @@ case Field of
   ilaisrThickness:            Result := SearchSettings.CompareFunc(IntToStr(fThickness),False,True,False,'um');
   ilaisrNotes:                Result := SearchSettings.CompareFunc(fNotes,True,True,False);
   ilaisrReviewURL:            Result := SearchSettings.CompareFunc(fReviewURL,True,True,False);
-  {$message 'reimplement'}
-  //ilaisrMainPictureFile:      Result := SearchSettings.CompareFunc(fItemPictureFile,True,True,False);
-  //ilaisrSecondaryPictureFile: Result := SearchSettings.CompareFunc(fSecondaryPictureFile,True,True,False);
-  //ilaisrPackagePictureFile:   Result := SearchSettings.CompareFunc(fPackagePictureFile,True,True,False);
+  ilaisrPictures:             begin
+                                Result := False;
+                                For i := fPictures.LowIndex to fPictures.HighIndex do
+                                  If SearchSettings.CompareFunc(fPictures[i].PictureFile,True,False,False) then
+                                    begin
+                                      Result := True;
+                                      Break{For i};
+                                    end;
+                              end;
+  ilaisrMainPictureFile:      If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.IndexOfItemPicture].PictureFile,True,False,False)
+                              else
+                                Result := False;
+  ilaisrPackagePictureFile:   If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.IndexOfPackagePicture].PictureFile,True,False,False)
+                              else
+                                Result := False;
+  ilaisrCurrSecPictureFile:   If fPictures.CheckIndex(fPictures.CurrentSecondary) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.CurrentSecondary].PictureFile,True,False,False)
+                              else
+                                Result := False;
   ilaisrUnitPriceDefault:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceDefault),False,True,False,'Kè');
   ilaisrRating:               Result := SearchSettings.CompareFunc(IntToStr(fRating),False,True,False,'%');
   ilaisrUnitPrice:            Result := SearchSettings.CompareFunc(IntToStr(UnitPrice),False,False,True,'Kè');
@@ -138,7 +156,7 @@ If fDataAccessible then
     i := IL_WrapSearchResult(Pred(From));
     while i <> From do
       begin
-        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+        If Contains(Text,i) then
           begin
             Result := i;
             Break{while...};
@@ -160,7 +178,7 @@ If fDataAccessible then
     i := IL_WrapSearchResult(Succ(From));
     while i <> From do
       begin
-        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+        If Contains(Text,i) then
           begin
             Result := i;
             Break{while...};

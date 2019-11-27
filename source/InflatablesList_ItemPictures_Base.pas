@@ -550,8 +550,8 @@ If IL_FileExists(FileName) then
       begin
         // now copy the file into automation folder
         IL_CreateDirectoryPathForFile(AutomationInfo.FilePath);
-        {$message 'enable in release'}
-        //IL_CopyFile(FileName,AutomationInfo.FilePath);
+        If not IL_SameText(FileName,AutomationInfo.FilePath) then
+          IL_CopyFile(FileName,AutomationInfo.FilePath);
         // all is well...
         Result := True;
       end

@@ -185,8 +185,8 @@ type
     ilaisrVariant,ilaisrVariantTag,ilaisrMaterial,ilaisrSizeX,ilaisrSizeY,
     ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrUnitWeight,
     ilaisrTotalWeight,ilaisrTotalWeightStr,ilaisrThickness,ilaisrNotes,
-    ilaisrReviewURL,ilaisrMainPictureFile,ilaisrSecondaryPictureFile,
-    ilaisrPackagePictureFile,ilaisrUnitPriceDefault,ilaisrRating,
+    ilaisrReviewURL,ilaisrPictures,ilaisrMainPictureFile,ilaisrPackagePictureFile,
+    ilaisrCurrSecPictureFile,ilaisrUnitPriceDefault,ilaisrRating,
     ilaisrUnitPrice,ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,
     ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,ilaisrUnitPriceSel,
     ilaisrTotalPriceSel,ilaisrTotalPrice,ilaisrAvailableLowest,
@@ -245,18 +245,19 @@ Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSetti
 type
   TILItemValueTag = (
     ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtDescriptor,
-    ilivtMainPicture,ilivtSecondaryPicture,ilivtPackagePicture,ilivtItemType,
+    ilivtMainPicFilePres,ilivtMainPictureFile,ilivtMainPictureThumb,
+    ilivtPackPicFilePres,ilivtPackPictureFile,ilivtPackPictureThumb,
+    ilivtCurrSecPicPres,ilivtCurrSecPicFile,ilivtCurrSecPicThumb,
+    ilivtPictureCount,ilivtSecPicCount,ilivtSecPicThumbCount,ilivtItemType,
     ilivtItemTypeSpec,ilivtPieces,ilivtUserID,ilivtManufacturer,
     ilivtManufacturerStr,ilivtTextID,ilivtID,ilivtIDStr,ilivtFlagOwned,
     ilivtFlagWanted,ilivtFlagOrdered,ilivtFlagBoxed,ilivtFlagElsewhere,
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,
     ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
     ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
-    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtMaterial,
-    ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtUnitWeight,
-    ilivtTotalWeight,ilivtThickness,ilivtNotes,ilivtReviewURL,ilivtReview,
-    ilivtMainPictureFile,ilivtMainPicFilePres,ilivtSecondaryPictureFile,
-    ilivtSecondaryPicFilePres,ilivtPackPictureFile,ilivtPackPicFilePres,
+    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtThickness,
+    ilivtMaterial,ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtTotalSize,
+    ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtUnitPriceDefault,ilivtRating,ilivtUnitPriceLowest,ilivtTotalPriceLowest,
     ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,
     ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,
@@ -283,8 +284,6 @@ Function IL_SameSortingSettings(A,B: TILSortingSettings): Boolean;
 
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
-
-Function IL_ItemSearchResultToValueTag(Val: TILItemSearchResult): TILItemValueTag;
 
 Function IL_ThreadSafeCopy(const Value: TILSortingProfile): TILSortingProfile; overload;
 
@@ -933,8 +932,17 @@ end;
 Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 begin
 case ItemValueTag of
-  ilivtMainPicture:           Result := 1;
-  ilivtPackagePicture:        Result := 2;
+  // pictures
+  ilivtMainPicFilePres:       Result := 36;
+  ilivtMainPictureFile:       Result := 35;
+  ilivtMainPictureThumb:      Result := 1;
+  ilivtPackPicFilePres:       Result := 38;
+  ilivtPackPictureFile:       Result := 37;
+  ilivtPackPictureThumb:      Result := 2;
+  ilivtCurrSecPicPres:        Result := 61;
+  ilivtCurrSecPicFile:        Result := 60;
+  ilivtCurrSecPicThumb:       Result := 59;
+  // others
   ilivtTimeOfAdd:             Result := 3;
   ilivtItemType:              Result := 4;
   ilivtItemTypeSpec:          Result := 5;
@@ -967,10 +975,6 @@ case ItemValueTag of
   ilivtNotes:                 Result := 32;
   ilivtReviewURL:             Result := 33;
   ilivtReview:                Result := 34;
-  ilivtMainPictureFile:       Result := 35;
-  ilivtMainPicFilePres:       Result := 36;
-  ilivtPackPictureFile:       Result := 37;
-  ilivtPackPicFilePres:       Result := 38;
   ilivtUnitPriceDefault:      Result := 39;
   ilivtUnitPriceLowest:       Result := 40;
   ilivtTotalPriceLowest:      Result := 41;
@@ -992,14 +996,14 @@ case ItemValueTag of
   ilivtIDStr:                 Result := 56;
   ilivtUniqueID:              Result := 57;
   ilivtNumTag:                Result := 58;
-  ilivtSecondaryPicture:      Result := 59;
-  ilivtSecondaryPictureFile:  Result := 60;
-  ilivtSecondaryPicFilePres:  Result := 61;
   ilivtRating:                Result := 62;
   ilivtItemEncrypted:         Result := 63;
   ilivtUserID:                Result := 64;
   ilivtVariantTag:            Result := 65;
   ilivtDescriptor:            Result := 66;
+  ilivtPictureCount:          Result := 67;
+  ilivtSecPicCount:           Result := 68;
+  ilivtSecPicThumbCount:      Result := 69;
 else
   {ilivtNone}
   Result := 0;
@@ -1011,8 +1015,17 @@ end;
 Function IL_NumToItemValueTag(Num: Int32): TILItemValueTag;
 begin
 case Num of
-  1:  Result := ilivtMainPicture;
-  2:  Result := ilivtPackagePicture;
+  // pictures
+  36: Result := ilivtMainPicFilePres;
+  35: Result := ilivtMainPictureFile;
+  1:  Result := ilivtMainPictureThumb;
+  38: Result := ilivtPackPicFilePres;
+  37: Result := ilivtPackPictureFile;
+  2:  Result := ilivtPackPictureThumb;
+  61: Result := ilivtCurrSecPicPres; 
+  60: Result := ilivtCurrSecPicFile;
+  59: Result := ilivtCurrSecPicThumb;
+  // others
   3:  Result := ilivtTimeOfAdd;
   4:  Result := ilivtItemType;
   5:  Result := ilivtItemTypeSpec;
@@ -1045,10 +1058,6 @@ case Num of
   32: Result := ilivtNotes;
   33: Result := ilivtReviewURL;
   34: Result := ilivtReview;
-  35: Result := ilivtMainPictureFile;
-  36: Result := ilivtMainPicFilePres;
-  37: Result := ilivtPackPictureFile;
-  38: Result := ilivtPackPicFilePres;
   39: Result := ilivtUnitPriceDefault;
   40: Result := ilivtUnitPriceLowest;
   41: Result := ilivtTotalPriceLowest;
@@ -1070,66 +1079,14 @@ case Num of
   56: Result := ilivtIDStr;
   57: Result := ilivtUniqueID;
   58: Result := ilivtNumTag;
-  59: Result := ilivtSecondaryPicture;
-  60: Result := ilivtSecondaryPictureFile;
-  61: Result := ilivtSecondaryPicFilePres;
   62: Result := ilivtRating;
   63: Result := ilivtItemEncrypted;
   64: Result := ilivtUserID;
   65: Result := ilivtVariantTag;
   66: Result := ilivtDescriptor;
-else
-  Result := ilivtNone;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function IL_ItemSearchResultToValueTag(Val: TILItemSearchResult): TILItemValueTag;
-begin
-case Val of
-  ilisrType:              Result := ilivtItemType;
-  ilisrTypeSpec:          Result := ilivtItemTypeSpec;
-  ilisrPieces:            Result := ilivtPieces;
-  ilisrUserID:            Result := ilivtUserID;
-  ilisrManufacturer:      Result := ilivtManufacturer;
-  ilisrManufacturerStr:   Result := ilivtManufacturerStr;
-  ilisrTextID:            Result := ilivtTextID;
-  ilisrNumID:             Result := ilivtID;
-  ilisrFlagOwned:         Result := ilivtFlagOwned;
-  ilisrFlagWanted:        Result := ilivtFlagWanted;
-  ilisrFlagOrdered:       Result := ilivtFlagOrdered;
-  ilisrFlagBoxed:         Result := ilivtFlagBoxed;
-  ilisrFlagElsewhere:     Result := ilivtFlagElsewhere;
-  ilisrFlagUntested:      Result := ilivtFlagUntested;
-  ilisrFlagTesting:       Result := ilivtFlagTesting;
-  ilisrFlagTested:        Result := ilivtFlagTested;
-  ilisrFlagDamaged:       Result := ilivtFlagDamaged;
-  ilisrFlagRepaired:      Result := ilivtFlagRepaired;
-  ilisrFlagPriceChange:   Result := ilivtFlagPriceChange;
-  ilisrFlagAvailChange:   Result := ilivtFlagAvailChange;
-  ilisrFlagNotAvailable:  Result := ilivtFlagNotAvailable;
-  ilisrFlagLost:          Result := ilivtFlagLost;
-  ilisrFlagDiscarded:     Result := ilivtFlagDiscarded;
-  ilisrTextTag:           Result := ilivtTextTag;
-  ilisrNumTag:            Result := ilivtNumTag;
-  ilisrWantedLevel:       Result := ilivtWantedLevel;
-  ilisrVariant:           Result := ilivtVariant;
-  ilisrVariantTag:        Result := ilivtVariantTag;
-  ilisrMaterial:          Result := ilivtMaterial;
-  ilisrSizeX:             Result := ilivtSizeX;
-  ilisrSizeY:             Result := ilivtSizeY;
-  ilisrSizeZ:             Result := ilivtSizeZ;
-  ilisrUnitWeight:        Result := ilivtUnitWeight;
-  ilisrThickness:         Result := ilivtThickness;
-  ilisrNotes:             Result := ilivtNotes;
-  ilisrReviewURL:         Result := ilivtReviewURL;
-  ilisrItemPicFile:       Result := ilivtMainPictureFile;
-  ilisrSecondaryPicFile:  Result := ilivtSecondaryPictureFile;
-  ilisrPackagePicFile:    Result := ilivtPackPictureFile;
-  ilisrUnitPriceDefault:  Result := ilivtUnitPriceDefault;
-  ilisrRating:            Result := ilivtRating;
-  ilisrSelectedShop:      Result := ilivtSelectedShop;
+  67: Result := ilivtPictureCount;
+  68: Result := ilivtSecPicCount;
+  69: Result := ilivtSecPicThumbCount;
 else
   Result := ilivtNone;
 end;

@@ -1,10 +1,10 @@
 object fSortForm: TfSortForm
-  Left = 307
-  Top = 136
+  Left = 115
+  Top = 131
   BorderStyle = bsDialog
   Caption = 'Sorting settings'
   ClientHeight = 452
-  ClientWidth = 960
+  ClientWidth = 1136
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,16 +24,16 @@ object fSortForm: TfSortForm
     Caption = 'Sort by values (-/30):'
   end
   object lblAvailable: TLabel
-    Left = 664
+    Left = 752
     Top = 8
     Width = 81
     Height = 13
     Caption = 'Available values:'
   end
   object bvlSplitter: TBevel
-    Left = 8
+    Left = 0
     Top = 412
-    Width = 945
+    Width = 1137
     Height = 9
     Shape = bsTopLine
   end
@@ -47,7 +47,7 @@ object fSortForm: TfSortForm
   object lbSortBy: TListBox
     Left = 288
     Top = 24
-    Width = 289
+    Width = 377
     Height = 382
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -61,9 +61,9 @@ object fSortForm: TfSortForm
     OnDblClick = lbSortByDblClick
   end
   object lbAvailable: TListBox
-    Left = 664
+    Left = 752
     Top = 24
-    Width = 289
+    Width = 377
     Height = 382
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -77,8 +77,8 @@ object fSortForm: TfSortForm
     OnDblClick = lbAvailableDblClick
   end
   object btnMoveUp: TButton
-    Left = 584
-    Top = 136
+    Left = 672
+    Top = 128
     Width = 73
     Height = 25
     Caption = 'Move up'
@@ -86,8 +86,8 @@ object fSortForm: TfSortForm
     OnClick = btnMoveUpClick
   end
   object btnAdd: TButton
-    Left = 592
-    Top = 168
+    Left = 680
+    Top = 160
     Width = 57
     Height = 25
     Hint = 'Add value to sorting'
@@ -98,8 +98,8 @@ object fSortForm: TfSortForm
     OnClick = btnAddClick
   end
   object btnToggleOrder: TButton
-    Left = 600
-    Top = 200
+    Left = 688
+    Top = 192
     Width = 41
     Height = 25
     Hint = 'Toggle reverse'
@@ -110,8 +110,8 @@ object fSortForm: TfSortForm
     OnClick = btnToggleOrderClick
   end
   object btnRemove: TButton
-    Left = 592
-    Top = 232
+    Left = 680
+    Top = 224
     Width = 57
     Height = 25
     Hint = 'Remove value from sorting'
@@ -122,8 +122,8 @@ object fSortForm: TfSortForm
     OnClick = btnRemoveClick
   end
   object btnMoveDown: TButton
-    Left = 584
-    Top = 264
+    Left = 672
+    Top = 256
     Width = 73
     Height = 25
     Caption = 'Move down'
@@ -131,7 +131,7 @@ object fSortForm: TfSortForm
     OnClick = btnMoveDownClick
   end
   object btnClose: TButton
-    Left = 864
+    Left = 1040
     Top = 420
     Width = 89
     Height = 25
@@ -140,7 +140,7 @@ object fSortForm: TfSortForm
     OnClick = btnCloseClick
   end
   object btnSort: TButton
-    Left = 768
+    Left = 944
     Top = 420
     Width = 89
     Height = 25
@@ -189,7 +189,7 @@ object fSortForm: TfSortForm
     OnClick = btnLoadDefaultClick
   end
   object cbSortRev: TCheckBox
-    Left = 672
+    Left = 848
     Top = 424
     Width = 89
     Height = 17
@@ -208,7 +208,7 @@ object fSortForm: TfSortForm
     OnClick = btnClearClick
   end
   object cbSortCase: TCheckBox
-    Left = 552
+    Left = 728
     Top = 424
     Width = 113
     Height = 17

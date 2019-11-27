@@ -951,6 +951,7 @@ fNumTag := 0;
 // ext. specs
 fWantedLevel := 0;
 fVariant := '';
+fVariantTag := '';
 fMaterial := ilimtUnknown;
 fSizeX := 0;
 fSizeY := 0;
@@ -1114,6 +1115,8 @@ fNumTag := Source.NumTag;
 fWantedLevel := Source.WantedLevel;
 fVariant := Source.Variant;
 UniqueString(fVariant);
+fVariantTag := Source.VariantTag;
+UniqueString(fVariantTag);
 fMaterial := Source.Material;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;

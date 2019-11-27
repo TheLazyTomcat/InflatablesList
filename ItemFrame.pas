@@ -22,7 +22,6 @@ type
   TILItemFramePicturesManager = class(TObject)
   private
     fILManager:     TILManager;
-    fCurrentItem:   TILItem;
     fRightAnchor:   Integer;
     fLeft:          TControl;
     fRight:         TControl;
@@ -34,7 +33,6 @@ type
     Function Image(PictureKind: TLIItemPictureKind): TImage; virtual;
     procedure ShowPictures(Pictures: TILItemPictures);
     procedure UpdateSecondary; virtual;
-    property CurrentItem: TILItem read fCurrentItem write fCurrentItem;
   end;
 
 //******************************************************************************
@@ -272,7 +270,6 @@ constructor TILItemFramePicturesManager.Create(ILManager: TILManager; RightAncho
 begin
 inherited Create;
 fILManager := ILManager;
-fCurrentItem := nil;
 fRightAnchor := RightAnchor;
 fLeft := Left;
 fRight := Right;
@@ -358,8 +355,8 @@ If Assigned(fPictures) then
       begin
         If not Assigned(fImages[i].Picture) and (fImages[i].PictureKind <> ilipkUnknown) then
           begin
-            If (fImages[i].PictureKind = ilipkMain) and Assigned(fCurrentItem) then
-              fImages[i].Picture := fILManager.DataProvider.ItemDefaultPictures[fCurrentItem.ItemType]
+            If fImages[i].PictureKind = ilipkMain then
+              fImages[i].Picture := fILManager.DataProvider.ItemDefaultPictures[TILItem(fPictures.Owner).ItemType]
             else
               fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
           end;
@@ -479,6 +476,7 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) and not fILManager.StaticSet
   fPicturesManager.ShowPictures(fCurrentItem.Pictures)
 else
   fPicturesManager.ShowPictures(nil);
+{$message 'indicate picture count somewhere'}
 end;
 
 //------------------------------------------------------------------------------
@@ -1148,7 +1146,6 @@ If ProcessChange then
     Enabled := Assigned(fCurrentItem) and fCurrentItem.DataAccessible;
   end
 else fCurrentItem := Item;
-fPicturesManager.CurrentItem := fCurrentItem;
 DisableHighlight;
 end;
 

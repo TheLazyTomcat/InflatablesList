@@ -55,13 +55,13 @@ type
     fTimeOfAddition:        TDateTime;
     // stored pictures
     fPictures:              TILItemPictures;
-    fItemPicture:           TBitmap;  // 96 x 96 px, white background
-    fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
-    fPackagePicture:        TBitmap;  // 96 x 96 px, white background
+    //fItemPicture:           TBitmap;  // 96 x 96 px, white background
+    //fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
+    //fPackagePicture:        TBitmap;  // 96 x 96 px, white background
     // not stored pictures
-    fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
-    fSecondaryPictureSmall: TBitmap;  // 48 x 48 px, white background
-    fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
+    //fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
+    //fSecondaryPictureSmall: TBitmap;  // 48 x 48 px, white background
+    //fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
     // basic specs
     fItemType:              TILItemType;
     fItemTypeSpec:          String;   // closer specification of type
@@ -88,9 +88,9 @@ type
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
-    fItemPictureFile:       String;
-    fSecondaryPictureFile:  String;
-    fPackagePictureFile:    String;
+    //fItemPictureFile:       String;
+    //fSecondaryPictureFile:  String;
+    //fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
     fRating:                UInt32;           // 0..100 [%]
     // availability and prices (calculated from shops)
@@ -198,8 +198,7 @@ type
     procedure ShopClear; virtual;
     // data helpers
     procedure ResetTimeOfAddition; virtual;
-    procedure SwapPictures(Src,Dst: TLIItemPictureKind); virtual;
-    procedure BroadcastReqCount; virtual;    
+    procedure BroadcastReqCount; virtual;
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
     procedure GetPriceAndAvailFromShops; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
@@ -235,9 +234,9 @@ type
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
     property Pictures: TILItemPictures read fPictures;
-    property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
-    property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
-    property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
+    //property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
+    //property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
+    //property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
     property Pieces: UInt32 read fPieces write SetPieces;
@@ -260,9 +259,9 @@ type
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
-    property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
-    property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
-    property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
+    //property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
+    //property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
+    //property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property Rating: UInt32 read fRating write SetRating;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
@@ -304,6 +303,7 @@ end;
 
 procedure TILItem_Base.SetItemPicture(Value: TBitmap);
 begin
+(*
 If fItemPicture <> Value {a different object reference} then
   begin
     If Assigned(fItemPicture) then
@@ -313,14 +313,14 @@ If fItemPicture <> Value {a different object reference} then
     UpdateMainList;
     UpdateSmallList;
     UpdatePictures;
-  end;
+  end;*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetSecondaryPicture(Value: TBitmap);
 begin
-If fSecondaryPicture <> Value then
+(*If fSecondaryPicture <> Value then
   begin
     If Assigned(fSecondaryPicture) then
       FreeAndNil(fSecondaryPicture);
@@ -328,14 +328,14 @@ If fSecondaryPicture <> Value then
     RenderSmallSecondaryPicture;
     UpdateMainList;
     UpdatePictures;
-  end;
+  end; *)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetPackagePicture(Value: TBitmap);
 begin
-If fPackagePicture <> Value then
+(*If fPackagePicture <> Value then
   begin
     If Assigned(fPackagePicture) then
       FreeAndNil(fPackagePicture);
@@ -343,7 +343,7 @@ If fPackagePicture <> Value then
     RenderSmallPackagePicture;
     UpdateMainList;
     UpdatePictures;
-  end;
+  end; *)
 end;
 
 //------------------------------------------------------------------------------
@@ -639,36 +639,37 @@ end;
 
 procedure TILItem_Base.SetItemPictureFile(const Value: String);
 begin
+(*
 If not IL_SameStr(fItemPictureFile,Value) then
   begin
     fItemPictureFile := Value;
     UniqueString(fItemPictureFile);
     UpdateMainList;
-  end;
+  end;*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetSecondaryPictureFile(const Value: String);
 begin
-If not IL_SameStr(fSecondaryPictureFile,Value) then
+(*If not IL_SameStr(fSecondaryPictureFile,Value) then
   begin
     fSecondaryPictureFile := Value;
     UniqueString(fSecondaryPictureFile);
     UpdateMainList;
-  end;
+  end;*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Base.SetPackagePictureFile(const Value: String);
 begin
-If not IL_SameStr(fPackagePictureFile,Value) then
+(*If not IL_SameStr(fPackagePictureFile,Value) then
   begin
     fPackagePictureFile := Value;
     UniqueString(fPackagePictureFile);
     UpdateMainList;
-  end;
+  end; *)
 end;
 
 //------------------------------------------------------------------------------
@@ -952,14 +953,8 @@ begin
 CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
-fPictures := TILItemPictures.Create;
+fPictures := TILItemPictures.Create(Self);
 fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
-fItemPicture := nil;
-fSecondaryPicture := nil;
-fPackagePicture := nil;
-fItemPictureSmall := nil;
-fSecondaryPictureSmall := nil;
-fPackagePictureSmall := nil;
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
 fPieces := 1;
@@ -985,8 +980,6 @@ fUnitWeight := 0;
 // other info
 fNotes := '';
 fReviewURL := '';
-fItemPictureFile := '';
-fPackagePictureFile := '';
 fUnitPriceDefault := 0;
 fRating := 0;
 fUnitPriceLowest := 0;
@@ -1007,19 +1000,7 @@ var
   i:  Integer;
 begin
 FreeAndNil(fPictures);
-If Assigned(fItemPicture) then
-  FreeAndNil(fItemPicture);
-If Assigned(fSecondaryPicture) then
-  FreeAndNil(fSecondaryPicture);
-If Assigned(fPackagePicture) then
-  FreeAndNil(fPackagePicture);
-If Assigned(fItemPictureSmall) then
-  FreeAndNil(fItemPictureSmall);
-If Assigned(fSecondaryPictureSmall) then
-  FreeAndNil(fSecondaryPictureSmall);
-If Assigned(fPackagePictureSmall) then
-  FreeAndNil(fPackagePictureSmall);
-// remove shops  
+// remove shops
 For i := LowIndex to HighIndex do
   fShops[i].Free;
 fShopCount := 0;
@@ -1092,23 +1073,8 @@ If fEncrypted and not fDataAccessible then
 If CopyPics then
   begin
     FreeAndNil(fPictures);
-    fPictures := TILItemPictures.CreateAsCopy(Source.Pictures);
+    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
     fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
-    If Assigned(Source.ItemPicture) then
-      begin
-        fItemPicture := TBitmap.Create;
-        fItemPicture.Assign(Source.ItemPicture);
-      end;
-    If Assigned(Source.SecondaryPicture) then
-      begin
-        fSecondaryPicture := TBitmap.Create;
-        fSecondaryPicture.Assign(Source.SecondaryPicture);
-      end;
-    If Assigned(Source.PackagePicture) then
-      begin
-        fPackagePicture := TBitmap.Create;
-        fPackagePicture.Assign(Source.PackagePicture);
-      end;
     RenderSmallPictures;
     If Assigned(Source.Render) then
       begin
@@ -1152,12 +1118,6 @@ fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;
 UniqueString(fReviewURL);
-fItemPictureFile := Source.ItemPictureFile;
-UniqueString(fItemPictureFile);
-fSecondaryPictureFile := Source.SecondaryPictureFile;
-UniqueString(fSecondaryPictureFile);
-fPackagePictureFile := Source.PackagePictureFile;
-UniqueString(fPackagePictureFile);
 fUnitPriceDefault := Source.UnitPriceDefault;
 fRating := Source.Rating;
 fUnitPriceLowest := Source.UnitPriceLowest;
@@ -1374,68 +1334,6 @@ end;
 procedure TILItem_Base.ResetTimeOfAddition;
 begin
 fTimeOfAddition := Now;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SwapPictures(Src,Dst: TLIItemPictureKind);
-type
-  PBitmap = ^TBitmap;
-var
-  SrcBmpPtr:  PBitmap;
-  DstBmpPtr:  PBitmap;
-  BmpTemp:    TBitmap;
-  SrcStrPtr:  PString;
-  DstStrPtr:  PString;
-  StrTemp:    String;
-begin
-If (Src <> Dst) and (Src <> ilipkUnknown) and (Dst <> ilipkUnknown) then
-  begin
-    case Src of
-      ilipkMain:      begin
-                        SrcBmpPtr := @fItemPicture;
-                        SrcStrPtr := @fItemPictureFile;
-                      end;
-      ilipkSecondary: begin
-                        SrcBmpPtr := @fSecondaryPicture;
-                        SrcStrPtr := @fSecondaryPictureFile;
-                      end;
-      ilipkPackage:   begin
-                        SrcBmpPtr := @fPackagePicture;
-                        SrcStrPtr := @fPackagePictureFile;
-                      end;  
-    else
-      raise Exception.CreateFmt('Invalid source picture kind (%d).',[Ord(Src)]);
-    end;
-    case Dst of
-      ilipkMain:      begin
-                        DstBmpPtr := @fItemPicture;
-                        DstStrPtr := @fItemPictureFile;
-                      end;
-      ilipkSecondary: begin
-                        DstBmpPtr := @fSecondaryPicture;
-                        DstStrPtr := @fSecondaryPictureFile;
-                      end;
-      ilipkPackage:   begin
-                        DstBmpPtr := @fPackagePicture;
-                        DstStrPtr := @fPackagePictureFile;
-                      end;
-    else
-      raise Exception.CreateFmt('Invalid destination picture kind (%d).',[Ord(Dst)]);
-    end;
-    // switch picture bitmaps
-    BmpTemp := DstBmpPtr^;
-    DstBmpPtr^ := SrcBmpPtr^;
-    SrcBmpPtr^ := BmpTemp;
-    RenderSmallPictures;
-    // switch picture files
-    StrTemp := DstStrPtr^;
-    DstStrPtr^ := SrcStrPtr^;
-    SrcStrPtr^ := StrTemp;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdatePictures;
-  end;
 end;
 
 //------------------------------------------------------------------------------

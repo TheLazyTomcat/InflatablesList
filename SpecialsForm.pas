@@ -288,12 +288,13 @@ procedure TfSpecialsForm.Special_0007;
 var
   i:  Integer;
 begin
+{$message 'remove'}
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     begin
-      fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
-      fILManager[i].SecondaryPictureFile := IL_ReplaceText(fILManager[i].SecondaryPictureFile,leParam_1.Text,leParam_2.Text);
-      fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
+      //fILManager[i].ItemPictureFile := IL_ReplaceText(fILManager[i].ItemPictureFile,leParam_1.Text,leParam_2.Text);
+      //fILManager[i].SecondaryPictureFile := IL_ReplaceText(fILManager[i].SecondaryPictureFile,leParam_1.Text,leParam_2.Text);
+      //fILManager[i].PackagePictureFile := IL_ReplaceText(fILManager[i].PackagePictureFile,leParam_1.Text,leParam_2.Text);
     end;
 end;
  

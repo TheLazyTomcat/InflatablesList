@@ -68,9 +68,10 @@ If fDataAccessible then
     ilivtThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
     ilivtNotes:                 Result := IL_ContainsText(fNotes,Text);
     ilivtReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
-    ilivtMainPictureFile:       Result := IL_ContainsText(fItemPictureFile,Text);
-    ilivtSecondaryPictureFile:  Result := IL_ContainsText(fSecondaryPictureFile,Text);
-    ilivtPackPictureFile:       Result := IL_ContainsText(fPackagePictureFile,Text);
+    {$message 'reimplement'}
+    //ilivtMainPictureFile:       Result := IL_ContainsText(fItemPictureFile,Text);
+    //ilivtSecondaryPictureFile:  Result := IL_ContainsText(fSecondaryPictureFile,Text);
+   // ilivtPackPictureFile:       Result := IL_ContainsText(fPackagePictureFile,Text);
     ilivtUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
     ilivtRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
     ilivtSelectedShop:          If ShopsSelected(SelShop) then
@@ -161,11 +162,12 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     ilivtDescriptor:        Result := CompareText_Internal(Descriptor,WithItem.Descriptor);
 
     // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-    ilivtMainPicture:       Result := IL_SortCompareBool(Assigned(fItemPicture),Assigned(WithItem.ItemPicture));
+    {$message 'reimplement'}
+    //ilivtMainPicture:       Result := IL_SortCompareBool(Assigned(fItemPicture),Assigned(WithItem.ItemPicture));
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPicture:  Result := IL_SortCompareBool(Assigned(fSecondaryPicture),Assigned(WithItem.SecondaryPicture));
+    //ilivtSecondaryPicture:  Result := IL_SortCompareBool(Assigned(fSecondaryPicture),Assigned(WithItem.SecondaryPicture));
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackagePicture:    Result := IL_SortCompareBool(Assigned(fPackagePicture),Assigned(WithItem.PackagePicture));
+    //ilivtPackagePicture:    Result := IL_SortCompareBool(Assigned(fPackagePicture),Assigned(WithItem.PackagePicture));
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtItemType:          If fItemType <> WithItem.ItemType then
                               begin
@@ -366,17 +368,17 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtReview:            Result := IL_SortCompareBool(Length(fReviewURL) > 0,Length(WithItem.ReviewURL) > 0);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtMainPictureFile:   Result := CompareText_Internal(fItemPictureFile,WithItem.ItemPictureFile);
+    //ilivtMainPictureFile:   Result := CompareText_Internal(fItemPictureFile,WithItem.ItemPictureFile);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtMainPicFilePres:   Result := IL_SortCompareBool(Length(fItemPictureFile) > 0,Length(WithItem.ItemPictureFile) > 0);
+    //ilivtMainPicFilePres:   Result := IL_SortCompareBool(Length(fItemPictureFile) > 0,Length(WithItem.ItemPictureFile) > 0);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPictureFile:  Result := CompareText_Internal(fSecondaryPictureFile,WithItem.SecondaryPictureFile);
+    //ilivtSecondaryPictureFile:  Result := CompareText_Internal(fSecondaryPictureFile,WithItem.SecondaryPictureFile);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPicFilePres:  Result := IL_SortCompareBool(Length(fSecondaryPictureFile) > 0,Length(WithItem.SecondaryPictureFile) > 0);
+    //ilivtSecondaryPicFilePres:  Result := IL_SortCompareBool(Length(fSecondaryPictureFile) > 0,Length(WithItem.SecondaryPictureFile) > 0);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackPictureFile:   Result := CompareText_Internal(fPackagePictureFile,WithItem.PackagePictureFile);
+    //ilivtPackPictureFile:   Result := CompareText_Internal(fPackagePictureFile,WithItem.PackagePictureFile);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackPicFilePres:   Result := IL_SortCompareBool(Length(fPackagePictureFile) > 0,Length(WithItem.PackagePictureFile) > 0);
+    //ilivtPackPicFilePres:   Result := IL_SortCompareBool(Length(fPackagePictureFile) > 0,Length(WithItem.PackagePictureFile) > 0);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtUnitPriceDefault:  Result := IL_SortCompareUInt32(fUnitPriceDefault,WithItem.UnitPriceDefault);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

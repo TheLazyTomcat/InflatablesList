@@ -35,6 +35,7 @@ type
 
   TILItemPictures_Base = class(TCustomListObject)
   protected
+    fOwner:               TObject;  // should be TILItem, but it would cause circular reference
     fUpdateCounter:       Integer;
     fUpdated:             Boolean;
     fInitializing:        Boolean;
@@ -59,10 +60,11 @@ type
     procedure Finalize; virtual;
     procedure DeferredInitialize; virtual;
     procedure UnAutomatePictureFile(const AutomatedPictureFile: String); virtual;
-  public
     class procedure FreeEntry(var Entry: TILItemPicturesEntry; KeepFile: Boolean = False); virtual;
-    constructor Create;
-    constructor CreateAsCopy(Source: TILItemPictures_Base);
+    class procedure GenerateSmallThumbnails(var Entry: TILItemPicturesEntry); virtual;
+  public
+    constructor Create(Owner: TObject);
+    constructor CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base);
     destructor Destroy; override;
     Function LowIndex: Integer; override;
     Function HighIndex: Integer; override;
@@ -90,6 +92,7 @@ type
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     procedure AssignInternalEvents(ItemObjectReq: TILItemObjectRequired; OnPicturesChange: TNotifyEvent); virtual;
+    property Owner: TObject read fOwner;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
     property CurrentSecondary: Integer read fCurrentSecondary;
     property AutomationFolder: String read fAutomationFolder;
@@ -198,12 +201,17 @@ begin
 IL_DeleteFile(fAutomationFolder + AutomatedPictureFile);
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
 class procedure TILItemPictures_Base.FreeEntry(var Entry: TILItemPicturesEntry; KeepFile: Boolean = False);
 begin
 If not KeepFile then
-  Entry.PictureFile := '';
+  begin
+    Entry.PictureFile := '';
+    Entry.PictureSize := 0;
+    Entry.PictureWidth := -1;
+    Entry.PictureHeight := -1;
+  end;
 If Assigned(Entry.Thumbnail) then
   FreeAndnil(Entry.Thumbnail);
 If Assigned(Entry.ThumbnailSmall) then
@@ -216,19 +224,50 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemPictures_Base.Create;
+class procedure TILItemPictures_Base.GenerateSmallThumbnails(var Entry: TILItemPicturesEntry);
+begin
+If Assigned(Entry.Thumbnail) then
+  begin
+    // create small (1/2) thumb
+    Entry.ThumbnailSmall := TBitmap.Create;
+    Entry.ThumbnailSmall.PixelFormat := pf24Bit;
+    Entry.ThumbnailSmall.Width := 48;
+    Entry.ThumbnailSmall.Height := 48;
+    IL_PicShrink(Entry.Thumbnail,Entry.ThumbnailSmall,2);
+    // create mini (1/3) thumb
+    Entry.ThumbnailMini := TBitmap.Create;
+    Entry.ThumbnailMini.PixelFormat := pf24Bit;
+    Entry.ThumbnailMini.Width := 32;
+    Entry.ThumbnailMini.Height := 32;
+    IL_PicShrink(Entry.Thumbnail,Entry.ThumbnailMini,3);
+  end
+else
+  begin
+    Entry.ThumbnailSmall := nil;
+    Entry.ThumbnailMini := nil;
+  end;
+end;
+
+//==============================================================================
+
+constructor TILItemPictures_Base.Create(Owner: TObject);
 begin
 inherited Create;
-Initialize;
+If Owner is TILItem then
+  begin
+    fOwner := Owner;
+    Initialize;
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.Create: Invalid owner class (%s).',[Owner.ClassName]);
 end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemPictures_Base.CreateAsCopy(Source: TILItemPictures_Base);
+constructor TILItemPictures_Base.CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base);
 var
   i:  Integer;
 begin
-Create;
+Create(Owner);
 SetLength(fPictures,Source.Count);
 For i := LowIndex to HighIndex do
   begin
@@ -471,12 +510,15 @@ end;
 //------------------------------------------------------------------------------
 
 Function TILItemPictures_Base.AutomatePictureFile(const FileName: String; out AutomationInfo: TILPictureAutomationInfo): Boolean;
+var
+  Temp: TGUID;
 begin
 DeferredInitialize;
 If IL_FileExists(FileName) then
   begin
     FillChar(AutomationInfo,SizeOf(TILPictureAutomationInfo),0);
-    AutomationInfo.CRC32 := FileCRC32(FileName);
+    Temp := TILItem(fOwner).UniqueID; // cannot directly pass a property
+    AutomationInfo.CRC32 := FileCRC32(FileName) xor BufferCRC32(Temp,SizeOf(TGUID));
     // get size
     with TWinFileInfo.Create(FileName,WFI_LS_LoadSize) do
     try
@@ -508,7 +550,8 @@ If IL_FileExists(FileName) then
       begin
         // now copy the file into automation folder
         IL_CreateDirectoryPathForFile(AutomationInfo.FilePath);
-        IL_CopyFile(FileName,AutomationInfo.FilePath);
+        {$message 'enable in release'}
+        //IL_CopyFile(FileName,AutomationInfo.FilePath);
         // all is well...
         Result := True;
       end
@@ -544,18 +587,7 @@ If CheckIndex(Index) then
             fPictures[Index].Thumbnail.Assign(Thumbnail);
           end
         else fPictures[Index].Thumbnail := Thumbnail;
-        // create small (1/2) thumb
-        fPictures[Index].ThumbnailSmall := TBitmap.Create;
-        fPictures[Index].ThumbnailSmall.PixelFormat := pf24Bit;
-        fPictures[Index].ThumbnailSmall.Width := 48;
-        fPictures[Index].ThumbnailSmall.Height := 48;
-        IL_PicShrink(fPictures[Index].Thumbnail,fPictures[Index].ThumbnailSmall,2);
-        // create mini (1/3) thumb
-        fPictures[Index].ThumbnailMini := TBitmap.Create;
-        fPictures[Index].ThumbnailMini.PixelFormat := pf24Bit;
-        fPictures[Index].ThumbnailMini.Width := 32;
-        fPictures[Index].ThumbnailMini.Height := 32;
-        IL_PicShrink(fPictures[Index].Thumbnail,fPictures[Index].ThumbnailMini,3);
+        GenerateSmallThumbnails(fPictures[Index]);
       end;
     UpdatePictures;
   end

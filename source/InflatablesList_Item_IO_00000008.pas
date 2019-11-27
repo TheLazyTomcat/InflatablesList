@@ -39,7 +39,9 @@ uses
   SysUtils,
   BinaryStreaming, BitOps, MemoryBuffer,
   InflatablesList_Types,
+  InflatablesList_Utils,
   InflatablesList_Encryption,
+  InflatablesList_ItemPictures_Base,
   InflatablesList_ItemShop,
   InflatablesList_Manager_IO;
 
@@ -163,9 +165,9 @@ begin
 Stream_WriteBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 Stream_WriteFloat64(Stream,fTimeOfAddition);
 // pictures
-fFNSavePicture(Stream,fItemPicture);
-fFNSavePicture(Stream,fSecondaryPicture);
-fFNSavePicture(Stream,fPackagePicture);
+//fFNSavePicture(Stream,fItemPicture);
+//fFNSavePicture(Stream,fSecondaryPicture);
+//fFNSavePicture(Stream,fPackagePicture);
 // basic specs
 Stream_WriteInt32(Stream,IL_ItemTypeToNum(fItemType));
 Stream_WriteString(Stream,fItemTypeSpec);
@@ -192,9 +194,9 @@ Stream_WriteUInt32(Stream,fThickness);
 // others
 Stream_WriteString(Stream,fNotes);
 Stream_WriteString(Stream,fReviewURL);
-Stream_WriteString(Stream,fItemPictureFile);
-Stream_WriteString(Stream,fSecondaryPictureFile);
-Stream_WriteString(Stream,fPackagePictureFile);
+//Stream_WriteString(Stream,fItemPictureFile);
+//Stream_WriteString(Stream,fSecondaryPictureFile);
+//Stream_WriteString(Stream,fPackagePictureFile);
 Stream_WriteUInt32(Stream,fUnitPriceDefault);
 Stream_WriteUInt32(Stream,fRating);
 // shop avail and prices
@@ -214,91 +216,116 @@ end;
 
 procedure TILItem_IO_00000008.LoadItem_Plain_00000008(Stream: TStream);
 var
-  i:  Integer;
+  i:                      Integer;
+  ItemPictureThumb:       TBitmap;
+  SecondaryPictureThumb:  TBitmap;
+  PackagePictureThumb:    TBitmap;
+  ItemPictureFile:        String;
+  SecondaryPictureFile:   String;
+  PackagePictureFile:     String;
+  AutomationInfo:         TILPictureAutomationInfo;
 begin
-Stream_ReadBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
-fTimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
-// pictures
-fFNLoadPicture(Stream,fItemPicture);
-fFNLoadPicture(Stream,fSecondaryPicture);
-fFNLoadPicture(Stream,fPackagePicture);
-// basic specs
-fItemType := IL_NumToItemType(Stream_ReadInt32(Stream));
-fItemTypeSpec := Stream_ReadString(Stream);
-fPieces := Stream_ReadUInt32(Stream);
-fUserID := Stream_ReadString(Stream);
-fManufacturer := IL_NumToItemManufacturer(Stream_ReadInt32(Stream));
-fManufacturerStr := Stream_ReadString(Stream);
-fTextID := Stream_ReadString(Stream);
-fID := Stream_ReadInt32(Stream);
-// flags
-fFlags := IL_DecodeItemFlags(Stream_ReadUInt32(Stream));
-fTextTag := Stream_ReadString(Stream);
-fNumTag := Stream_ReadInt32(Stream);
-// extended specs
-fWantedLevel := Stream_ReadUInt32(Stream);
-fVariant := Stream_ReadString(Stream);
-fVariantTag := Stream_ReadString(Stream);
-fMaterial := IL_NumToItemMaterial(Stream_ReadInt32(Stream));
-fSizeX := Stream_ReadUInt32(Stream);
-fSizeY := Stream_ReadUInt32(Stream);
-fSizeZ := Stream_ReadUInt32(Stream);
-fUnitWeight := Stream_ReadUInt32(Stream);
-fThickness := Stream_ReadUInt32(Stream);
-// other info
-fNotes := Stream_ReadString(Stream);
-fReviewURL := Stream_ReadString(Stream);
-fItemPictureFile := Stream_ReadString(Stream);
-fSecondaryPictureFile := Stream_ReadString(Stream);
-fPackagePictureFile := Stream_ReadString(Stream);
-fUnitPriceDefault := Stream_ReadUInt32(Stream);
-fRating := Stream_ReadUInt32(Stream);
-// shop avail and prices
-fUnitPriceLowest := Stream_ReadUInt32(Stream);
-fUnitPriceHighest := Stream_ReadUInt32(Stream);
-fUnitPriceSelected := Stream_ReadUInt32(Stream);
-fAvailableLowest := Stream_ReadInt32(Stream);
-fAvailableHighest := Stream_ReadInt32(Stream);
-fAvailableSelected := Stream_ReadInt32(Stream);
-// shops
-SetLength(fShops,Stream_ReadUInt32(Stream));
-fShopCount := Length(fShops);
-For i := ShopLowIndex to ShopHighIndex do
-  begin
-    fShops[i] := TILItemShop.Create;
-    fShops[i].StaticSettings := fStaticSettings;    
-    fShops[i].LoadFromStream(Stream);
-    fShops[i].AssignInternalEvents(
-      ShopClearSelectedHandler,
-      ShopUpdateOverviewHandler,
-      ShopUpdateShopListItemHandler,
-      ShopUpdateValuesHandler,
-      ShopUpdateAvailHistoryHandler,
-      ShopUpdatePriceHistoryHandler);
-  end;
-
-{$message 'remove'}
-fPictures.BeginInitialization;
+ItemPictureThumb := nil;
+SecondaryPictureThumb := nil;
+PackagePictureThumb := nil;
 try
-If Length(fItemPictureFile) > 0 then
-  begin
-    i := fPictures.Add(fItemPictureFile);
-    fPictures.SetThumbnail(i,fItemPicture,True);
-    fPictures.SetItemPicture(i,True);
-  end;
-If Length(fPackagePictureFile) > 0 then
-  begin
-    i := fPictures.Add(fPackagePictureFile);
-    fPictures.SetThumbnail(i,fPackagePicture,True);
-    fPictures.SetPackagePicture(i,True);
-  end;
-If Length(fSecondaryPictureFile) > 0 then
-  begin
-    i := fPictures.Add(fSecondaryPictureFile);
-    fPictures.SetThumbnail(i,fSecondaryPicture,True);
+  Stream_ReadBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
+  fTimeOfAddition := TDateTime(Stream_ReadFloat64(Stream));
+  // pictures - load into temporaries
+  fFNLoadPicture(Stream,ItemPictureThumb);
+  fFNLoadPicture(Stream,SecondaryPictureThumb);
+  fFNLoadPicture(Stream,PackagePictureThumb);
+  // basic specs
+  fItemType := IL_NumToItemType(Stream_ReadInt32(Stream));
+  fItemTypeSpec := Stream_ReadString(Stream);
+  fPieces := Stream_ReadUInt32(Stream);
+  fUserID := Stream_ReadString(Stream);
+  fManufacturer := IL_NumToItemManufacturer(Stream_ReadInt32(Stream));
+  fManufacturerStr := Stream_ReadString(Stream);
+  fTextID := Stream_ReadString(Stream);
+  fID := Stream_ReadInt32(Stream);
+  // flags
+  fFlags := IL_DecodeItemFlags(Stream_ReadUInt32(Stream));
+  fTextTag := Stream_ReadString(Stream);
+  fNumTag := Stream_ReadInt32(Stream);
+  // extended specs
+  fWantedLevel := Stream_ReadUInt32(Stream);
+  fVariant := Stream_ReadString(Stream);
+  fVariantTag := Stream_ReadString(Stream);
+  fMaterial := IL_NumToItemMaterial(Stream_ReadInt32(Stream));
+  fSizeX := Stream_ReadUInt32(Stream);
+  fSizeY := Stream_ReadUInt32(Stream);
+  fSizeZ := Stream_ReadUInt32(Stream);
+  fUnitWeight := Stream_ReadUInt32(Stream);
+  fThickness := Stream_ReadUInt32(Stream);
+  // other info
+  fNotes := Stream_ReadString(Stream);
+  fReviewURL := Stream_ReadString(Stream);
+  // picture files - load into temporaries and expand them  
+  ItemPictureFile := Stream_ReadString(Stream);
+  SecondaryPictureFile := Stream_ReadString(Stream);
+  PackagePictureFile := Stream_ReadString(Stream);
+  ItemPictureFile := IL_ExpandFileName(fStaticSettings.ListPath + ItemPictureFile);
+  SecondaryPictureFile := IL_ExpandFileName(fStaticSettings.ListPath + SecondaryPictureFile);
+  PackagePictureFile := IL_ExpandFileName(fStaticSettings.ListPath + PackagePictureFile);
+  fUnitPriceDefault := Stream_ReadUInt32(Stream);
+  fRating := Stream_ReadUInt32(Stream);
+  // shop avail and prices
+  fUnitPriceLowest := Stream_ReadUInt32(Stream);
+  fUnitPriceHighest := Stream_ReadUInt32(Stream);
+  fUnitPriceSelected := Stream_ReadUInt32(Stream);
+  fAvailableLowest := Stream_ReadInt32(Stream);
+  fAvailableHighest := Stream_ReadInt32(Stream);
+  fAvailableSelected := Stream_ReadInt32(Stream);
+  // shops
+  SetLength(fShops,Stream_ReadUInt32(Stream));
+  fShopCount := Length(fShops);
+  For i := ShopLowIndex to ShopHighIndex do
+    begin
+      fShops[i] := TILItemShop.Create;
+      fShops[i].StaticSettings := fStaticSettings;
+      fShops[i].LoadFromStream(Stream);
+      fShops[i].AssignInternalEvents(
+        ShopClearSelectedHandler,
+        ShopUpdateOverviewHandler,
+        ShopUpdateShopListItemHandler,
+        ShopUpdateValuesHandler,
+        ShopUpdateAvailHistoryHandler,
+        ShopUpdatePriceHistoryHandler);
+    end;
+  // convert pictures
+  fPictures.BeginInitialization;
+  try
+    If Length(ItemPictureFile) > 0 then
+      If fPictures.AutomatePictureFile(ItemPictureFile,AutomationInfo) then
+        begin
+          i := fPictures.Add(AutomationInfo);
+          fPictures.SetThumbnail(i,ItemPictureThumb,True);
+          fPictures.SetItemPicture(i,True);
+        end;
+    If Length(PackagePictureFile) > 0 then
+      If fPictures.AutomatePictureFile(PackagePictureFile,AutomationInfo) then
+        begin
+          i := fPictures.Add(AutomationInfo);
+          fPictures.SetThumbnail(i,PackagePictureThumb,True);
+          fPictures.SetPackagePicture(i,True);
+        end;
+    If Length(SecondaryPictureFile) > 0 then
+      If fPictures.AutomatePictureFile(SecondaryPictureFile,AutomationInfo) then
+        begin
+          i := fPictures.Add(AutomationInfo);
+          fPictures.SetThumbnail(i,SecondaryPictureThumb,True);
+        end;
+  finally
+    fPictures.EndInitialization;
   end;
 finally
-fPictures.EndInitialization;
+  If Assigned(ItemPictureThumb) then
+    FreeAndNil(ItemPictureThumb);
+  If Assigned(SecondaryPictureThumb) then
+    FreeAndNil(SecondaryPictureThumb);
+  If Assigned(PackagePictureThumb) then
+    FreeAndNil(PackagePictureThumb);
 end;
 end;
 

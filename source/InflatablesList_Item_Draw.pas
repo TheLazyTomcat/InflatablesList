@@ -442,21 +442,21 @@ end;
 
 procedure TILItem_Draw.RenderSmallItemPicture;
 begin
-RenderSmallPicture(fItemPicture,fItemPictureSmall);
+//RenderSmallPicture(fItemPicture,fItemPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallSecondaryPicture;
 begin
-RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
+//RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallPackagePicture;
 begin
-RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
+//RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
 end;
 
 //------------------------------------------------------------------------------

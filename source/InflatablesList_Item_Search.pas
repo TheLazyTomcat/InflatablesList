@@ -95,9 +95,10 @@ case Field of
   ilaisrThickness:            Result := SearchSettings.CompareFunc(IntToStr(fThickness),False,True,False,'um');
   ilaisrNotes:                Result := SearchSettings.CompareFunc(fNotes,True,True,False);
   ilaisrReviewURL:            Result := SearchSettings.CompareFunc(fReviewURL,True,True,False);
-  ilaisrMainPictureFile:      Result := SearchSettings.CompareFunc(fItemPictureFile,True,True,False);
-  ilaisrSecondaryPictureFile: Result := SearchSettings.CompareFunc(fSecondaryPictureFile,True,True,False);
-  ilaisrPackagePictureFile:   Result := SearchSettings.CompareFunc(fPackagePictureFile,True,True,False);
+  {$message 'reimplement'}
+  //ilaisrMainPictureFile:      Result := SearchSettings.CompareFunc(fItemPictureFile,True,True,False);
+  //ilaisrSecondaryPictureFile: Result := SearchSettings.CompareFunc(fSecondaryPictureFile,True,True,False);
+  //ilaisrPackagePictureFile:   Result := SearchSettings.CompareFunc(fPackagePictureFile,True,True,False);
   ilaisrUnitPriceDefault:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceDefault),False,True,False,'Kè');
   ilaisrRating:               Result := SearchSettings.CompareFunc(IntToStr(fRating),False,True,False,'%');
   ilaisrUnitPrice:            Result := SearchSettings.CompareFunc(IntToStr(UnitPrice),False,False,True,'Kè');

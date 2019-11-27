@@ -966,11 +966,7 @@ var
 begin
 Result := 0;
 For i := ItemLowIndex to ItemhighIndex do
-  begin
-    If Assigned(fList[i].ItemPicture) then Inc(Result);
-    If Assigned(fList[i].SecondaryPicture) then Inc(Result);
-    If Assigned(fList[i].PackagePicture) then Inc(Result);
-  end;
+  Inc(Result,fList[i].Pictures.Count);
 end;
 
 //------------------------------------------------------------------------------

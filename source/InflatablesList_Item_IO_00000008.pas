@@ -165,9 +165,18 @@ begin
 Stream_WriteBuffer(Stream,fUniqueID,SizeOf(fUniqueID));
 Stream_WriteFloat64(Stream,fTimeOfAddition);
 // pictures
-//fFNSavePicture(Stream,fItemPicture);
-//fFNSavePicture(Stream,fSecondaryPicture);
-//fFNSavePicture(Stream,fPackagePicture);
+If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+  fFNSavePicture(Stream,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
+else
+  fFNSavePicture(Stream,nil);
+If fPictures.CheckIndex(fPictures.CurrentSecondary) then
+  fFNSavePicture(Stream,fPictures[fPictures.CurrentSecondary].Thumbnail)
+else
+  fFNSavePicture(Stream,nil);
+If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+  fFNSavePicture(Stream,fPictures[fPictures.IndexOfPackagePicture].Thumbnail)
+else
+  fFNSavePicture(Stream,nil);
 // basic specs
 Stream_WriteInt32(Stream,IL_ItemTypeToNum(fItemType));
 Stream_WriteString(Stream,fItemTypeSpec);
@@ -194,9 +203,25 @@ Stream_WriteUInt32(Stream,fThickness);
 // others
 Stream_WriteString(Stream,fNotes);
 Stream_WriteString(Stream,fReviewURL);
-//Stream_WriteString(Stream,fItemPictureFile);
-//Stream_WriteString(Stream,fSecondaryPictureFile);
-//Stream_WriteString(Stream,fPackagePictureFile);
+// pictures
+If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+  Stream_WriteString(Stream,
+    IL_PathRelative(fStaticSettings.ListPath,
+      fPictures.AutomationFolder + fPictures[fPictures.IndexOfItemPicture].PictureFile))
+else
+  Stream_WriteString(Stream,'');
+If fPictures.CheckIndex(fPictures.CurrentSecondary) then
+  Stream_WriteString(Stream,
+    IL_PathRelative(fStaticSettings.ListPath,
+      fPictures.AutomationFolder + fPictures[fPictures.CurrentSecondary].PictureFile))
+else
+  Stream_WriteString(Stream,'');
+If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+  Stream_WriteString(Stream,
+    IL_PathRelative(fStaticSettings.ListPath,
+      fPictures.AutomationFolder + fPictures[fPictures.IndexOfPackagePicture].PictureFile))
+else
+  Stream_WriteString(Stream,'');
 Stream_WriteUInt32(Stream,fUnitPriceDefault);
 Stream_WriteUInt32(Stream,fRating);
 // shop avail and prices

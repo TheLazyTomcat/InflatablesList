@@ -295,11 +295,11 @@ If Assigned(fDrawBuffer) then
         Font.Style := Font.Style - [fsBold];
         Brush.Style := bsClear;
         TempStr := SizeToStr(fCurrentItem.Pictures[Index].PictureSize);
-        TextOut(TempInt - TextWidth(TempStr),3,TempStr);
+        TextOut(TempInt - TextWidth(TempStr),2,TempStr);
         If (fCurrentItem.Pictures[Index].PictureWidth > 0) and (fCurrentItem.Pictures[Index].PictureHeight > 0) then
           begin
             TempStr := IL_Format('%d x %d px',[fCurrentItem.Pictures[Index].PictureWidth,fCurrentItem.Pictures[Index].PictureHeight]);
-            TextOut(TempInt - TextWidth(TempStr),17,TempStr);            
+            TextOut(TempInt - TextWidth(TempStr),17,TempStr);
           end;
 
         // state

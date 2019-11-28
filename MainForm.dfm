@@ -250,6 +250,17 @@ object fMainForm: TfMainForm
       object N3: TMenuItem
         Caption = '-'
       end
+      object mniMML_ExportAllPics: TMenuItem
+        Caption = 'Export all pictures...'
+        OnClick = mniMML_ExportAllPicsClick
+      end
+      object mniMML_ExportAllThumbs: TMenuItem
+        Caption = 'Export all thumbnails...'
+        OnClick = mniMML_ExportAllThumbsClick
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
       object mniMML_GoToItemNum: TMenuItem
         Caption = 'Go to item #...'
         ShortCut = 16455
@@ -263,7 +274,7 @@ object fMainForm: TfMainForm
         Caption = 'Next item (keep focus)'
         OnClick = mniMML_NextItemClick
       end
-      object N4: TMenuItem
+      object N5: TMenuItem
         Caption = '-'
       end
       object mniMML_Sums: TMenuItem
@@ -276,7 +287,7 @@ object fMainForm: TfMainForm
         ShortCut = 16471
         OnClick = mniMML_OverviewClick
       end
-      object N5: TMenuItem
+      object N6: TMenuItem
         Caption = '-'
       end
       object mniMML_Rename: TMenuItem
@@ -303,7 +314,7 @@ object fMainForm: TfMainForm
         ShortCut = 16452
         OnClick = mniMMI_ItemShopsClick
       end
-      object N6: TMenuItem
+      object N7: TMenuItem
         Caption = '-'
       end
       object mniMMI_ItemExport: TMenuItem
@@ -321,7 +332,7 @@ object fMainForm: TfMainForm
         ShortCut = 16457
         OnClick = mniMMI_ItemImportClick
       end
-      object N7: TMenuItem
+      object N8: TMenuItem
         Caption = '-'
       end
       object mniMMI_Encrypted: TMenuItem
@@ -343,7 +354,18 @@ object fMainForm: TfMainForm
         Caption = 'Change items encryption password...'
         OnClick = mniMMI_ChangeItemsPswdClick
       end
-      object N8: TMenuItem
+      object N9: TMenuItem
+        Caption = '-'
+      end
+      object mniMMI_ExportAllItemPics: TMenuItem
+        Caption = 'Export all item pictures...'
+        OnClick = mniMMI_ExportAllItemPicsClick
+      end
+      object mniMMI_ExportAllItemThumbs: TMenuItem
+        Caption = 'Export all item thumbnails...'
+        OnClick = mniMMI_ExportAllItemThumbsClick
+      end
+      object N10: TMenuItem
         Caption = '-'
       end
       object mniMMI_MoveBeginning: TMenuItem
@@ -394,7 +416,7 @@ object fMainForm: TfMainForm
         ShortCut = 49222
         OnClick = mniMMS_AdvSearchClick
       end
-      object N9: TMenuItem
+      object N11: TMenuItem
         Caption = '-'
       end
       object mniMMS_FindPrevValue: TMenuItem
@@ -468,7 +490,7 @@ object fMainForm: TfMainForm
         Caption = 'Update selected shops...'
         OnClick = mniMMU_UpdateSelectedClick
       end
-      object N10: TMenuItem
+      object N12: TMenuItem
         Caption = '-'
       end
       object mniMMU_UpdateItemShopHistory: TMenuItem
@@ -518,7 +540,7 @@ object fMainForm: TfMainForm
         Caption = 'Settings tag legend...'
         OnClick = mniMMH_SettingsLegendClick
       end
-      object N11: TMenuItem
+      object N13: TMenuItem
         Caption = '-'
       end
       object mniMMH_About: TMenuItem

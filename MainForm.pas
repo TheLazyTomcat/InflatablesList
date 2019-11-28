@@ -27,28 +27,34 @@ type
     mniMML_Remove: TMenuItem;
     mniMML_Clear: TMenuItem;
     N3: TMenuItem;
+    mniMML_ExportAllPics: TMenuItem;
+    mniMML_ExportAllThumbs: TMenuItem;
+    N4: TMenuItem;
     mniMML_GoToItemNum: TMenuItem;
     mniMML_PrevItem: TMenuItem;
     mniMML_NextItem: TMenuItem;
-    N4: TMenuItem;    
-    mniMML_Sums: TMenuItem;
-    mniMML_Overview: TMenuItem;
     N5: TMenuItem;
+    mniMML_Sums: TMenuItem;
+    mniMML_Overview: TMenuItem;  
+    N6: TMenuItem;    
     mniMML_Rename: TMenuItem;
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
     mniMMI_ItemPictures: TMenuItem;
     mniMMI_ItemShops: TMenuItem;
-    N6: TMenuItem;
+    N7: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N7: TMenuItem;
+    N8: TMenuItem;
     mniMMI_Encrypted: TMenuItem;
     mniMMI_Decrypt: TMenuItem;
     mniMMI_DecryptAll: TMenuItem;
     mniMMI_ChangeItemsPswd: TMenuItem;
-    N8: TMenuItem;
+    N9: TMenuItem;
+    mniMMI_ExportAllItemPics: TMenuItem;
+    mniMMI_ExportAllItemThumbs: TMenuItem;
+    N10: TMenuItem;
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -60,7 +66,7 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
-    N9: TMenuItem;
+    N11: TMenuItem;
     mniMMS_FindPrevValue: TMenuItem;
     mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
@@ -77,7 +83,7 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N10: TMenuItem;
+    N12: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
@@ -88,7 +94,7 @@ type
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N11: TMenuItem;
+    N13: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;
@@ -122,9 +128,11 @@ type
     procedure mniMML_AddCopyClick(Sender: TObject);
     procedure mniMML_RemoveClick(Sender: TObject);
     procedure mniMML_ClearClick(Sender: TObject);
+    procedure mniMML_ExportAllPicsClick(Sender: TObject);
+    procedure mniMML_ExportAllThumbsClick(Sender: TObject);
     procedure mniMML_GoToItemNumClick(Sender: TObject);
     procedure mniMML_PrevItemClick(Sender: TObject);
-    procedure mniMML_NextItemClick(Sender: TObject); 
+    procedure mniMML_NextItemClick(Sender: TObject);
     procedure mniMML_SumsClick(Sender: TObject);
     procedure mniMML_OverviewClick(Sender: TObject);
     procedure mniMML_NotesClick(Sender: TObject);
@@ -140,6 +148,8 @@ type
     procedure mniMMI_DecryptClick(Sender: TObject);
     procedure mniMMI_DecryptAllClick(Sender: TObject);
     procedure mniMMI_ChangeItemsPswdClick(Sender: TObject);
+    procedure mniMMI_ExportAllItemPicsClick(Sender: TObject);
+    procedure mniMMI_ExportAllItemThumbsClick(Sender: TObject);
     procedure mniMMI_MoveBeginningClick(Sender: TObject);
     procedure mniMMI_MoveUpByClick(Sender: TObject);
     procedure mniMMI_MoveUpClick(Sender: TObject);
@@ -210,6 +220,7 @@ type
     fILManager:           TILManager;
     fSaveOnExit:          Boolean;
     fWrongPswdMessage:    String;
+    fDirExport:           String; // last directory for pictures export
   protected
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
@@ -608,6 +619,7 @@ fILManager.OnSettingsChange := SettingsChange;
 fILManager.OnItemsPasswordRequest := ItemsPasswordRequest;
 fSaveOnExit := True;
 fWrongPswdMessage := '';
+fDirExport := '';
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;
@@ -789,6 +801,8 @@ begin
 mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
 mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
 mniMML_Clear.Enabled := lbList.Count > 0;
+mniMML_ExportAllPics.Enabled := lbList.Count > 0;
+mniMML_ExportAllThumbs.Enabled := lbList.Count > 0;
 mniMML_GoToItemNum.Enabled := lbList.Count > 0;
 mniMML_PrevItem.Enabled := lbList.ItemIndex > 0;
 mniMML_NextItem.Enabled := (lbList.Count > 0) and (lbList.ItemIndex < Pred(lbList.Count));
@@ -866,6 +880,70 @@ If lbList.Count > 0 then
       fILManager.ItemClear;
       UpdateIndexAndCount;
     end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_ExportAllPicsClick(Sender: TObject);
+var
+  Directory:  String;
+  i,j,CA,CS:  Integer;
+begin
+If lbList.Count > 0 then
+  begin
+    Directory := fDirExport;
+    If IL_SelectDirectory('Select directory for pictures export',Directory) then
+      begin
+        fDirExport := IL_ExcludeTrailingPathDelimiter(Directory);
+        CA := 0;
+        CS := 0;
+        Screen.Cursor := crHourGlass;
+        try
+          For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+            For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+              begin
+                Inc(CA);
+                If fILManager[i].Pictures.ExportPicture(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                  Inc(CS);
+              end;
+        finally
+          Screen.Cursor := crDefault;
+        end;
+        MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',[CA,CA - CS]),mtInformation,[mbOK],0);
+      end;
+  end;
+end;
+ 
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_ExportAllThumbsClick(Sender: TObject);
+var
+  Directory:  String;
+  i,j,CA,CS:  Integer;
+begin
+If lbList.Count > 0 then
+  begin
+    Directory := fDirExport;
+    If IL_SelectDirectory('Select directory for thumbnails export',Directory) then
+      begin
+        fDirExport := IL_ExcludeTrailingPathDelimiter(Directory);
+        CA := 0;
+        CS := 0;
+        Screen.Cursor := crHourGlass;
+        try
+          For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+            For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+              begin
+                Inc(CA);
+                If fILManager[i].Pictures.ExportThumbnail(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                  Inc(CS);
+              end;
+        finally
+          Screen.Cursor := crDefault;
+        end;
+        MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',[CA,CA - CS]),mtInformation,[mbOK],0);
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -980,6 +1058,8 @@ else
     mniMMI_Decrypt.Enabled := False;
   end;
 mniMMI_DecryptAll.Enabled := fILManager.EncryptedItemCount(False) > 0;
+mniMMI_ExportAllItemPics.Enabled := lbList.ItemIndex >= 0;
+mniMMI_ExportAllItemThumbs.Enabled := lbList.ItemIndex >= 0;
 mniMMI_MoveBeginning.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUpBy.Enabled := lbList.ItemIndex > 0;
 mniMMI_MoveUp.Enabled := lbList.ItemIndex > 0;
@@ -1165,6 +1245,62 @@ else
         else
           MessageDlg('Entered password does not match with already encrypted items.',mtError,[mbOk],0);
       end;    
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_ExportAllItemPicsClick(Sender: TObject);
+var
+  Directory:  String;
+  i,Cntr:     Integer;
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    Directory := fDirExport;
+    If IL_SelectDirectory('Select directory for pictures export',Directory) then
+      with fILManager[lbList.ItemIndex] do
+        begin
+          fDirExport := IL_ExcludeTrailingPathDelimiter(Directory);
+          Cntr := 0;
+          Screen.Cursor := crHourGlass;
+          try
+            For i := Pictures.LowIndex to Pictures.HighIndex do
+              If Pictures.ExportPicture(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                 Inc(Cntr);
+          finally
+            Screen.Cursor := crDefault;
+          end;
+          MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',[Cntr,Pictures.Count - Cntr]),mtInformation,[mbOK],0);
+        end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMI_ExportAllItemThumbsClick(Sender: TObject);
+var
+  Directory:  String;
+  i,Cntr:     Integer;
+begin
+If lbList.ItemIndex >= 0 then
+  begin
+    Directory := fDirExport;
+    If IL_SelectDirectory('Select directory for thumbnails export',Directory) then
+      with fILManager[lbList.ItemIndex] do
+        begin
+          fDirExport := IL_ExcludeTrailingPathDelimiter(Directory);
+          Cntr := 0;
+          Screen.Cursor := crHourGlass;
+          try
+            For i := Pictures.LowIndex to Pictures.HighIndex do
+              If Pictures.ExportThumbnail(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                 Inc(Cntr);
+          finally
+            Screen.Cursor := crDefault;
+          end;
+          MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',[Cntr,Pictures.Count - Cntr]),mtInformation,[mbOK],0);
+        end;
   end;
 end;
 

@@ -61,8 +61,7 @@ type
     fDrawBuffer:    TBitmap;
     fDirPics:       String;
     fDirThumbs:     String;
-    fDirPicsExp:    String;
-    fDirThumbsExp:  String;
+    fDirExport:     String;
   protected
     procedure FillList;
     procedure UpdateIndex;
@@ -131,8 +130,7 @@ begin
 fILManager := ILManager;
 fDirPics := '';
 fDirThumbs := '';
-fDirPicsExp := '';
-fDirThumbsExp := '';
+fDirExport := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -369,12 +367,17 @@ If diaOpenDialog.Execute then
     Cntr := 0;
     fCurrentItem.Pictures.BeginUpdate;
     try
-      For i := 0 to Pred(diaOpenDialog.Files.Count) do
-        If fCurrentItem.Pictures.AutomatePictureFile(diaOpenDialog.Files[i],Info) then
-          begin
-            fCurrentItem.Pictures.Add(Info);
-            Inc(Cntr);
-          end;
+      Screen.Cursor := crHourGlass;
+      try
+        For i := 0 to Pred(diaOpenDialog.Files.Count) do
+          If fCurrentItem.Pictures.AutomatePictureFile(diaOpenDialog.Files[i],Info) then
+            begin
+              fCurrentItem.Pictures.Add(Info);
+              Inc(Cntr);
+            end;
+      finally
+        Screen.Cursor := crDefault;
+      end;
     finally
       fCurrentItem.Pictures.EndUpdate;
     end;
@@ -500,7 +503,12 @@ If lbPictures.Count > 0 then
   If MessageDlg('Are you sure you want to remove all pictures?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
       lbPictures.ItemIndex := -1;
-      fCurrentItem.Pictures.Clear;
+      Screen.Cursor := crHourGlass;
+      try
+        fCurrentItem.Pictures.Clear;  // files get deleted here
+      finally
+        Screen.Cursor := crDefault;
+      end;
       lbPictures.Items.Clear;
       lbPictures.OnClick(nil);
     end;
@@ -514,10 +522,10 @@ var
 begin
 If lbPictures.ItemIndex >= 0 then
   begin
-    Directory := fDirPicsExp;
+    Directory := fDirExport;
     If IL_SelectDirectory('Select directory for picture export',Directory) then
       begin
-        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        fDirExport := IL_ExcludeTrailingPAthDelimiter(Directory);
         If fCurrentItem.Pictures.ExportPicture(lbPictures.ItemIndex,IL_ExcludeTrailingPathDelimiter(Directory)) then
           MessageDlg('Picture successfully exported.',mtInformation,[mbOK],0)
         else
@@ -535,10 +543,10 @@ begin
 If lbPictures.ItemIndex >= 0 then
   If Assigned(fCurrentItem.Pictures[lbPictures.ItemIndex].Thumbnail) then
     begin
-      Directory := fDirThumbsExp;
+      Directory := fDirExport;
       If IL_SelectDirectory('Select directory for thumbnail export',Directory) then
         begin
-          fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+          fDirExport := IL_ExcludeTrailingPAthDelimiter(Directory);
           If fCurrentItem.Pictures.ExportThumbnail(lbPictures.ItemIndex,IL_ExcludeTrailingPathDelimiter(Directory)) then
             MessageDlg('Picture thumbnail successfully exported.',mtInformation,[mbOK],0)
           else
@@ -557,14 +565,19 @@ var
 begin
 If lbPictures.ItemIndex >= 0 then
   begin
-    Directory := fDirPicsExp;
+    Directory := fDirExport;
     If IL_SelectDirectory('Select directory for pictures export',Directory) then
       begin
-        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        fDirExport := IL_ExcludeTrailingPAthDelimiter(Directory);
         Cntr := 0;
-        For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
-          If fCurrentItem.Pictures.ExportPicture(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
-             Inc(Cntr);
+        Screen.Cursor := crHourGlass;
+        try
+          For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
+            If fCurrentItem.Pictures.ExportPicture(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+               Inc(Cntr);
+        finally
+          Screen.Cursor := crDefault;
+        end;
         MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',
           [Cntr,fCurrentItem.Pictures.Count - Cntr]),mtInformation,[mbOK],0);
       end;
@@ -580,14 +593,19 @@ var
 begin
 If lbPictures.ItemIndex >= 0 then
   begin
-    Directory := fDirThumbsExp;
+    Directory := fDirExport;
     If IL_SelectDirectory('Select directory for thumbnails export',Directory) then
       begin
-        fDirPicsExp := IL_ExcludeTrailingPathDelimiter(Directory);
+        fDirExport := IL_ExcludeTrailingPAthDelimiter(Directory);
         Cntr := 0;
-        For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
-          If fCurrentItem.Pictures.ExportThumbnail(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
-             Inc(Cntr);
+        Screen.Cursor := crHourGlass;
+        try
+          For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
+            If fCurrentItem.Pictures.ExportThumbnail(i,IL_ExcludeTrailingPathDelimiter(Directory)) then
+               Inc(Cntr);
+        finally
+          Screen.Cursor := crDefault;
+        end;
         MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',
           [Cntr,fCurrentItem.Pictures.Count - Cntr]),mtInformation,[mbOK],0);
       end;

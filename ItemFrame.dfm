@@ -56,21 +56,21 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Wanted level (0..7):'
     end
     object lblSizeZ: TLabel
-      Left = 416
+      Left = 520
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Z [mm]:'
     end
     object lblSizeY: TLabel
-      Left = 304
+      Left = 408
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Y [mm]:'
     end
     object lblSizeX: TLabel
-      Left = 192
+      Left = 296
       Top = 352
       Width = 59
       Height = 13
@@ -151,7 +151,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblUnitWeight: TLabel
       Left = 528
-      Top = 352
+      Top = 312
       Width = 55
       Height = 13
       Caption = 'Weight [g]:'
@@ -434,8 +434,8 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 528
-      Top = 312
+      Left = 192
+      Top = 352
       Width = 75
       Height = 13
       Caption = 'Thickness ['#283'm]:'
@@ -819,35 +819,35 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seWantedLevelChange
     end
     object seSizeZ: TSpinEdit
-      Left = 416
+      Left = 520
       Top = 368
       Width = 105
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 15
+      TabOrder = 18
       Value = 0
       OnChange = seSizeZChange
     end
     object seSizeY: TSpinEdit
-      Left = 304
+      Left = 408
       Top = 368
       Width = 105
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 14
+      TabOrder = 17
       Value = 0
       OnChange = seSizeYChange
     end
     object seSizeX: TSpinEdit
-      Left = 192
+      Left = 296
       Top = 368
       Width = 105
       Height = 22
       MaxValue = 100000
       MinValue = 0
-      TabOrder = 13
+      TabOrder = 16
       Value = 0
       OnChange = seSizeXChange
     end
@@ -1226,12 +1226,12 @@ object frmItemFrame: TfrmItemFrame
     end
     object seUnitWeight: TSpinEdit
       Left = 528
-      Top = 368
+      Top = 328
       Width = 97
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
-      TabOrder = 16
+      TabOrder = 13
       Value = 0
       OnChange = seUnitWeightChange
     end
@@ -1242,16 +1242,16 @@ object frmItemFrame: TfrmItemFrame
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 12
+      TabOrder = 14
     end
     object seThickness: TSpinEdit
-      Left = 528
-      Top = 328
+      Left = 192
+      Top = 368
       Width = 97
       Height = 22
       MaxValue = 0
       MinValue = 0
-      TabOrder = 17
+      TabOrder = 15
       Value = 0
     end
     object leTextID: TLabeledEdit
@@ -1316,7 +1316,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Height = 13
       EditLabel.Caption = 'Variant tag:'
       MaxLength = 16
-      TabOrder = 18
+      TabOrder = 12
     end
     object btnPictures: TButton
       Left = 248

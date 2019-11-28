@@ -72,12 +72,12 @@ type
     fWantedLevel:           UInt32;           // 0..7
     fVariant:               String;           // color, pattern, ...
     fVariantTag:            String;           // for automation
-    fThickness:             UInt32;           // [um] - micrometers
+    fUnitWeight:            UInt32;           // [g]
     fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
+    fThickness:             UInt32;           // [um] - micrometers
     fSizeX:                 UInt32;           // length (diameter if applicable)
     fSizeY:                 UInt32;           // width (inner diameter if applicable)
     fSizeZ:                 UInt32;           // height
-    fUnitWeight:            UInt32;           // [g]
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
@@ -112,12 +112,12 @@ type
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
     procedure SetVariantTag(const Value: String); virtual;
-    procedure SetThickness(Value: UInt32); virtual;    
+    procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
+    procedure SetThickness(Value: UInt32); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
     procedure SetSizeZ(Value: UInt32); virtual;
-    procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
@@ -232,12 +232,12 @@ type
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
     property VariantTag: String read fVariantTag write SetVariantTag;
-    property Thickness: UInt32 read fThickness write SetThickness;    
+    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
+    property Thickness: UInt32 read fThickness write SetThickness;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
     property SizeZ: UInt32 read fSizeZ write SetSizeZ;
-    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
@@ -477,11 +477,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetThickness(Value: UInt32);
+procedure TILItem_Base.SetUnitWeight(Value: UInt32);
 begin
-If fThickness <> Value then
+If fUnitWeight <> Value then
   begin
-    fThickness := Value;
+    fUnitWeight := Value;
+    UpdateOverview;
+    UpdateValues;
   end;
 end;
 
@@ -492,6 +494,16 @@ begin
 If fMaterial <> Value then
   begin
     fMaterial := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetThickness(Value: UInt32);
+begin
+If fThickness <> Value then
+  begin
+    fThickness := Value;
   end;
 end;
 
@@ -528,18 +540,6 @@ If fSizeZ <> Value then
     fSizeZ := Value;
     UpdateMainList;
     UpdateSmallList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetUnitWeight(Value: UInt32);
-begin
-If fUnitWeight <> Value then
-  begin
-    fUnitWeight := Value;
-    UpdateOverview;
-    UpdateValues;
   end;
 end;
 
@@ -865,12 +865,12 @@ fNumTag := 0;
 fWantedLevel := 0;
 fVariant := '';
 fVariantTag := '';
-fThickness := 0;
+fUnitWeight := 0;
 fMaterial := ilimtUnknown;
+fThickness := 0;
 fSizeX := 0;
 fSizeY := 0;
 fSizeZ := 0;
-fUnitWeight := 0;
 // other info
 fNotes := '';
 fReviewURL := '';
@@ -1002,12 +1002,12 @@ fVariant := Source.Variant;
 UniqueString(fVariant);
 fVariantTag := Source.VariantTag;
 UniqueString(fVariantTag);
-fThickness := Source.Thickness;
+fUnitWeight := Source.UnitWeight;
 fMaterial := Source.Material;
+fThickness := Source.Thickness;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;
 fSizeZ := Source.SizeZ;
-fUnitWeight := Source.UnitWeight;
 fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;

@@ -102,18 +102,18 @@ type
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
     leVariantTag: TLabeledEdit;
+    lblUnitWeight: TLabel;
+    seUnitWeight: TSpinEdit;
+    lblMaterial: TLabel;
+    cmbMaterial: TComboBox;
     lblThickness: TLabel;
     seThickness: TSpinEdit;
-    lblMaterial: TLabel;
-    cmbMaterial: TComboBox;    
     lblSizeX: TLabel;
     seSizeX: TSpinEdit;
     lblSizeY: TLabel;
     seSizeY: TSpinEdit;
     lblSizeZ: TLabel;
     seSizeZ: TSpinEdit;
-    lblUnitWeight: TLabel;
-    seUnitWeight: TSpinEdit;
     lblNotes: TLabel;
     meNotes: TMemo;
     lblNotesEdit: TLabel;    
@@ -176,10 +176,10 @@ type
     procedure seNumTagChange(Sender: TObject);
     procedure seWantedLevelChange(Sender: TObject);
     procedure leVariantChange(Sender: TObject);
+    procedure seUnitWeightChange(Sender: TObject);
     procedure seSizeXChange(Sender: TObject);
     procedure seSizeYChange(Sender: TObject);
     procedure seSizeZChange(Sender: TObject);
-    procedure seUnitWeightChange(Sender: TObject);
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
     procedure lblNotesEditClick(Sender: TObject);
     procedure lblNotesEditMouseEnter(Sender: TObject);
@@ -794,12 +794,12 @@ case Value of
   ilisrWantedLevel:       Highlight(seWantedLevel);
   ilisrVariant:           Highlight(leVariant);
   ilisrVariantTag:        Highlight(leVariantTag);
+  ilisrUnitWeight:        Highlight(seUnitWeight);
   ilisrMaterial:          Highlight(cmbMaterial);
+  ilisrThickness:         Highlight(seThickness);
   ilisrSizeX:             Highlight(seSizeX);
   ilisrSizeY:             Highlight(seSizeY);
   ilisrSizeZ:             Highlight(seSizeZ);
-  ilisrUnitWeight:        Highlight(seUnitWeight);
-  ilisrThickness:         Highlight(seThickness);
   ilisrNotes:             Highlight(meNotes);
   ilisrReviewURL:         Highlight(leReviewURL);
   ilisrItemPicFile:       Highlight(fPicturesManager.Image(ilipkMain));
@@ -894,12 +894,12 @@ try
   seWantedLevel.Value := 0;
   leVariant.Text := '';
   leVariantTag.Text := '';
-  cmbMaterial.ItemIndex := 0; 
+  seUnitWeight.Value := 0;
+  cmbMaterial.ItemIndex := 0;
+  seThickness.Value := 0;
   seSizeX.Value := 0;
   seSizeY.Value := 0;
   seSizeZ.Value := 0;
-  seUnitWeight.Value := 0;
-  seThickness.Value := 0;
   // other info
   meNotes.Text := '';
   leReviewURL.Text := '';
@@ -968,12 +968,12 @@ If Assigned(fCurrentItem) then
       fCurrentItem.WantedLevel := seWantedLevel.Value;
       fCurrentItem.Variant := leVariant.Text;
       fCurrentItem.VariantTag := leVariantTag.Text;
+      fCurrentItem.UnitWeight := seUnitWeight.Value;
       fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
+      fCurrentItem.Thickness := seThickness.Value;
       fCurrentItem.SizeX := seSizeX.Value;
       fCurrentItem.SizeY := seSizeY.Value;
       fCurrentItem.SizeZ := seSizeZ.Value;
-      fCurrentItem.UnitWeight := seUnitWeight.Value;
-      fCurrentItem.Thickness := seThickness.Value;
       // others
       fCurrentItem.Notes := meNotes.Text;
       fCurrentItem.ReviewURL := leReviewURL.Text;
@@ -1018,12 +1018,12 @@ If Assigned(fCurrentItem) then
       seWantedLevel.Value := fCurrentItem.WantedLevel;
       leVariant.Text := fCurrentItem.Variant;
       leVariantTag.Text := fCurrentItem.VariantTag;
+      seUnitWeight.Value := fCurrentItem.UnitWeight;
       cmbMaterial.ItemIndex := Ord(fCurrentItem.Material);
+      seThickness.Value := fCurrentItem.Thickness;
       seSizeX.Value := fCurrentItem.SizeX;
       seSizeY.Value := fCurrentItem.SizeY;
       seSizeZ.Value := fCurrentItem.SizeZ;
-      seUnitWeight.Value := fCurrentItem.UnitWeight;
-      seThickness.Value := fCurrentItem.Thickness;
       // others
       meNotes.Text := fCurrentItem.Notes;
       leReviewURL.Text := fCurrentItem.ReviewURL;
@@ -1527,6 +1527,14 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.UnitWeight := seUnitWeight.Value;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.seSizeXChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
@@ -1547,14 +1555,6 @@ procedure TfrmItemFrame.seSizeZChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.SizeZ := seSizeZ.Value;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.UnitWeight := seUnitWeight.Value;
 end;
 
 //------------------------------------------------------------------------------

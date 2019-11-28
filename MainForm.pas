@@ -909,7 +909,7 @@ If lbList.Count > 0 then
         finally
           Screen.Cursor := crDefault;
         end;
-        MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',[CA,CA - CS]),mtInformation,[mbOK],0);
+        MessageDlg(IL_Format('%d pictures successfully exported, %d failed.',[CS,CA - CS]),mtInformation,[mbOK],0);
       end;
   end;
 end;
@@ -941,7 +941,7 @@ If lbList.Count > 0 then
         finally
           Screen.Cursor := crDefault;
         end;
-        MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',[CA,CA - CS]),mtInformation,[mbOK],0);
+        MessageDlg(IL_Format('%d picture thumbnails successfully exported, %d failed.',[CS,CA - CS]),mtInformation,[mbOK],0);
       end;
   end;
 end;

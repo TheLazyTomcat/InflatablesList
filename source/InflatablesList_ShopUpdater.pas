@@ -337,7 +337,7 @@ begin
 SetLength(AvailNodes,0);
 SetLength(PriceNodes,0);
 OfflineFile := fShopObject.StaticSettings.ListPath +
-  IL_IncludeTrailingPathDelimiter(IL_ExtractFileNameNoExt(fShopObject.StaticSettings.ListFile) + '_saved_pages') +
+  IL_IncludeTrailingPathDelimiter(fShopObject.StaticSettings.ListName + '_saved_pages') +
   IL_UpperCase(CRC32ToStr(WideStringCRC32(StrToUnicode(fShopObject.ItemURL))));
 If Length(fShopObject.ItemURL) > 0 then
   begin

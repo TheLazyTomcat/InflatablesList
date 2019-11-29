@@ -9,7 +9,7 @@ uses
   InflatablesList_Manager;
 
 type
-  TfShopByItems = class(TForm)
+  TfShopByItemsForm = class(TForm)
     lblItems: TLabel;
     clbItems: TCheckListBox;
     lblShops: TLabel;
@@ -40,7 +40,7 @@ type
   end;
 
 var
-  fShopByItems: TfShopByItems;
+  fShopByItemsForm: TfShopByItemsForm;
 
 implementation
 
@@ -51,7 +51,7 @@ uses
   InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item;
 
-procedure TfShopByItems.BuildTable;
+procedure TfShopByItemsForm.BuildTable;
 var
   i,j:    Integer;
   Index:  Integer;
@@ -84,7 +84,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.RecountShops;
+procedure TfShopByItemsForm.RecountShops;
 var
   i,j:        Integer;
   Index:      Integer;
@@ -136,7 +136,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.FillItems;
+procedure TfShopByItemsForm.FillItems;
 var
   i:  Integer;
 begin
@@ -155,7 +155,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.FillShops;
+procedure TfShopByItemsForm.FillShops;
 var
   i:    Integer;
   Cntr: Integer;
@@ -198,7 +198,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.UpdateSelCount;
+procedure TfShopByItemsForm.UpdateSelCount;
 var
   i,Cntr: Integer;
 begin
@@ -211,21 +211,21 @@ end;
 
 //==============================================================================
 
-procedure TfShopByItems.Initialize(ILManager: TILManager);
+procedure TfShopByItemsForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.Finalize;
+procedure TfShopByItemsForm.Finalize;
 begin
 // nothing to do
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.ShowSelection;
+procedure TfShopByItemsForm.ShowSelection;
 var
   i:  Integer;
 begin
@@ -251,7 +251,7 @@ end;
 
 //==============================================================================
 
-procedure TfShopByItems.FormCreate(Sender: TObject);
+procedure TfShopByItemsForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
@@ -262,14 +262,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.FormDestroy(Sender: TObject);
+procedure TfShopByItemsForm.FormDestroy(Sender: TObject);
 begin
 FreeAndNil(fDrawBuffer);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.clbItemsClickCheck(Sender: TObject);
+procedure TfShopByItemsForm.clbItemsClickCheck(Sender: TObject);
 begin
 RecountShops;
 FillShops;
@@ -278,7 +278,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.clbItemsDrawItem(Control: TWinControl; aIndex: Integer; Rect: TRect; State: TOwnerDrawState);
+procedure TfShopByItemsForm.clbItemsDrawItem(Control: TWinControl; aIndex: Integer; Rect: TRect; State: TOwnerDrawState);
 var
   BoundsRect: TRect;
   TempStr:    String;
@@ -359,7 +359,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfShopByItems.mniSL_UnselectAllClick(Sender: TObject);
+procedure TfShopByItemsForm.mniSL_UnselectAllClick(Sender: TObject);
 var
   i:  Integer;
 begin

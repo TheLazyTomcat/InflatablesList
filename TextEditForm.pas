@@ -61,11 +61,13 @@ end;
 
 procedure TfTextEditForm.meTextKeyPress(Sender: TObject; var Key: Char);
 begin
-If Key = ^A then
-  begin
-    meText.SelectAll;
-    Key := #0;
-  end;
+case Key of
+  ^A:   begin
+          meText.SelectAll;
+          Key := #0;
+        end;
+  #27:  Close;  // escape
+end;
 end;
 
 end.

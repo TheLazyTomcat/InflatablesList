@@ -11,7 +11,7 @@ uses
 type
   TILItem_Comp = class(TILItem_Draw)
   public
-    Function Contains(const Text: String; Value: TILItemValueTag): Boolean; overload; virtual;
+    Function Contains(const Text: String; Value: TILItemSearchResult): Boolean; overload; virtual;
     Function Contains(const Text: String): Boolean; overload; virtual;
     Function Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag; Reversed: Boolean; CaseSensitive: Boolean): Integer; virtual;
     procedure Filter(FilterSettings: TILFilterSettings); virtual;
@@ -25,55 +25,75 @@ uses
   InflatablesList_Utils,
   InflatablesList_ItemShop;
 
-Function TILItem_Comp.Contains(const Text: String; Value: TILItemValueTag): Boolean;
+Function TILItem_Comp.Contains(const Text: String; Value: TILItemSearchResult): Boolean;
 var
   SelShop:  TILItemShop;
+  i:        Integer;
+
+  Function CheckInPicture(Index: Integer; const Text: String): Boolean;
+  begin
+    If fPictures.CheckIndex(Index) then
+      Result := IL_ContainsText(fPictures[Index].PictureFile,Text)
+    else
+      Result := False;
+  end;
+
 begin
 // search only in editable values
 If fDataAccessible then
   case Value of
-    ilivtItemType:              Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
-    ilivtItemTypeSpec:          Result := IL_ContainsText(fItemTypeSpec,Text);
-    ilivtPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
-    ilivtUserID:                Result := IL_ContainsText(fUserID,Text);
-    ilivtManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
-    ilivtManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
-    ilivtTextID:                Result := IL_ContainsText(fTextID,Text);
-    ilivtID:                    Result := IL_ContainsText(IntToStr(fID),Text);
-    ilivtFlagOwned:             Result := (ilifOwned in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOwned),Text);
-    ilivtFlagWanted:            Result := (ilifWanted in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifWanted),Text);
-    ilivtFlagOrdered:           Result := (ilifOrdered in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOrdered),Text);
-    ilivtFlagBoxed:             Result := (ilifBoxed in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifBoxed),Text);
-    ilivtFlagElsewhere:         Result := (ilifElsewhere in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifElsewhere),Text);
-    ilivtFlagUntested:          Result := (ilifUntested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifUntested),Text);
-    ilivtFlagTesting:           Result := (ilifTesting in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTesting),Text);
-    ilivtFlagTested:            Result := (ilifTested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTested),Text);
-    ilivtFlagDamaged:           Result := (ilifDamaged in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDamaged),Text);
-    ilivtFlagRepaired:          Result := (ilifRepaired in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifRepaired),Text);
-    ilivtFlagPriceChange:       Result := (ilifPriceChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifPriceChange),Text);
-    ilivtFlagAvailChange:       Result := (ilifAvailChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifAvailChange),Text);
-    ilivtFlagNotAvailable:      Result := (ilifNotAvailable in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifNotAvailable),Text);
-    ilivtFlagLost:              Result := (ilifLost in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifLost),Text);
-    ilivtFlagDiscarded:         Result := (ilifDiscarded in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDiscarded),Text);
-    ilivtTextTag:               Result := IL_ContainsText(fTextTag,Text);
-    ilivtNumTag:                Result := IL_ContainsText(IntToStr(fNumTag),Text);
-    ilivtWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
-    ilivtVariant:               Result := IL_ContainsText(fVariant,Text);
-    ilivtVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
-    ilivtMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
-    ilivtSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
-    ilivtSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
-    ilivtSizeZ:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text);
-    ilivtUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
-    ilivtThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
-    ilivtNotes:                 Result := IL_ContainsText(fNotes,Text);
-    ilivtReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
-    ilivtMainPictureFile:       Result := IL_ContainsText(fItemPictureFile,Text);
-    ilivtSecondaryPictureFile:  Result := IL_ContainsText(fSecondaryPictureFile,Text);
-    ilivtPackPictureFile:       Result := IL_ContainsText(fPackagePictureFile,Text);
-    ilivtUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
-    ilivtRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
-    ilivtSelectedShop:          If ShopsSelected(SelShop) then
+    ilisrItemPicFile:           Result := CheckInPicture(fPictures.IndexOfItemPicture,Text);
+    ilisrSecondaryPicFile:      begin
+                                  Result := False;
+                                  For i := fPictures.LowIndex to fPictures.HighIndex do
+                                    If not fPictures[i].ItemPicture and not fPictures[i].PackagePicture then
+                                      If CheckInPicture(i,Text) then
+                                        begin
+                                          Result := True;
+                                          Break{For i};
+                                        end;
+                                end;
+    ilisrPackagePicFile:        Result := CheckInPicture(fPictures.IndexOfPackagePicture,Text);
+    ilisrType:                  Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
+    ilisrTypeSpec:              Result := IL_ContainsText(fItemTypeSpec,Text);
+    ilisrPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
+    ilisrUserID:                Result := IL_ContainsText(fUserID,Text);
+    ilisrManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
+    ilisrManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
+    ilisrTextID:                Result := IL_ContainsText(fTextID,Text);
+    ilisrNumID:                 Result := IL_ContainsText(IntToStr(fNumID),Text);
+    ilisrFlagOwned:             Result := (ilifOwned in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOwned),Text);
+    ilisrFlagWanted:            Result := (ilifWanted in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifWanted),Text);
+    ilisrFlagOrdered:           Result := (ilifOrdered in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOrdered),Text);
+    ilisrFlagBoxed:             Result := (ilifBoxed in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifBoxed),Text);
+    ilisrFlagElsewhere:         Result := (ilifElsewhere in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifElsewhere),Text);
+    ilisrFlagUntested:          Result := (ilifUntested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifUntested),Text);
+    ilisrFlagTesting:           Result := (ilifTesting in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTesting),Text);
+    ilisrFlagTested:            Result := (ilifTested in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifTested),Text);
+    ilisrFlagDamaged:           Result := (ilifDamaged in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDamaged),Text);
+    ilisrFlagRepaired:          Result := (ilifRepaired in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifRepaired),Text);
+    ilisrFlagPriceChange:       Result := (ilifPriceChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifPriceChange),Text);
+    ilisrFlagAvailChange:       Result := (ilifAvailChange in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifAvailChange),Text);
+    ilisrFlagNotAvailable:      Result := (ilifNotAvailable in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifNotAvailable),Text);
+    ilisrFlagLost:              Result := (ilifLost in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifLost),Text);
+    ilisrFlagDiscarded:         Result := (ilifDiscarded in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifDiscarded),Text);
+    ilisrTextTag:               Result := IL_ContainsText(fTextTag,Text);
+    ilisrNumTag:                Result := IL_ContainsText(IntToStr(fNumTag),Text);
+    ilisrWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
+    ilisrVariant:               Result := IL_ContainsText(fVariant,Text);
+    ilisrVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
+    ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
+    ilisrMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
+    ilisrThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
+    ilisrSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
+    ilisrSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
+    ilisrSizeZ:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text);
+    ilisrNotes:                 Result := IL_ContainsText(fNotes,Text);
+    ilisrReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
+    ilisrUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
+    ilisrRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
+    ilisrRatingDetails:         Result := IL_ContainsText(fRatingDetails,Text);
+    ilisrSelectedShop:          If ShopsSelected(SelShop) then
                                   Result := IL_ContainsText(SelShop.Name,Text)
                                 else
                                   Result := False;
@@ -90,48 +110,49 @@ begin
 If fDataAccessible then
   // search only in editable values
   Result :=
-    Contains(Text,ilivtItemType) or
-    Contains(Text,ilivtItemTypeSpec) or
-    Contains(Text,ilivtPieces) or
-    Contains(Text,ilivtUserID) or
-    Contains(Text,ilivtManufacturer) or
-    Contains(Text,ilivtManufacturerStr) or
-    Contains(Text,ilivtTextID) or
-    Contains(Text,ilivtID) or
-    Contains(Text,ilivtFlagOwned) or
-    Contains(Text,ilivtFlagWanted) or
-    Contains(Text,ilivtFlagOrdered) or
-    Contains(Text,ilivtFlagBoxed) or
-    Contains(Text,ilivtFlagElsewhere) or
-    Contains(Text,ilivtFlagUntested) or
-    Contains(Text,ilivtFlagTesting) or
-    Contains(Text,ilivtFlagTested) or
-    Contains(Text,ilivtFlagDamaged) or
-    Contains(Text,ilivtFlagRepaired) or
-    Contains(Text,ilivtFlagPriceChange) or
-    Contains(Text,ilivtFlagAvailChange) or
-    Contains(Text,ilivtFlagNotAvailable) or
-    Contains(Text,ilivtFlagLost) or
-    Contains(Text,ilivtFlagDiscarded) or
-    Contains(Text,ilivtTextTag) or
-    Contains(Text,ilivtNumTag) or
-    Contains(Text,ilivtWantedLevel) or
-    Contains(Text,ilivtVariant) or
-    Contains(Text,ilivtVariantTag) or
-    Contains(Text,ilivtMaterial) or
-    Contains(Text,ilivtSizeX) or
-    Contains(Text,ilivtSizeY) or
-    Contains(Text,ilivtSizeZ) or
-    Contains(Text,ilivtUnitWeight) or
-    Contains(Text,ilivtThickness) or
-    Contains(Text,ilivtNotes) or
-    Contains(Text,ilivtReviewURL) or
-    Contains(Text,ilivtMainPictureFile) or
-    Contains(Text,ilivtSecondaryPictureFile) or
-    Contains(Text,ilivtPackPictureFile) or
-    Contains(Text,ilivtUnitPriceDefault) or
-    Contains(Text,ilivtRating) or
-    Contains(Text,ilivtSelectedShop)
+    Contains(Text,ilisrItemPicFile) or
+    Contains(Text,ilisrSecondaryPicFile) or
+    Contains(Text,ilisrPackagePicFile) or
+    Contains(Text,ilisrType) or
+    Contains(Text,ilisrTypeSpec) or
+    Contains(Text,ilisrPieces) or
+    Contains(Text,ilisrUserID) or
+    Contains(Text,ilisrManufacturer) or
+    Contains(Text,ilisrManufacturerStr) or
+    Contains(Text,ilisrTextID) or
+    Contains(Text,ilisrNumID) or
+    Contains(Text,ilisrFlagOwned) or
+    Contains(Text,ilisrFlagWanted) or
+    Contains(Text,ilisrFlagOrdered) or
+    Contains(Text,ilisrFlagBoxed) or
+    Contains(Text,ilisrFlagElsewhere) or
+    Contains(Text,ilisrFlagUntested) or
+    Contains(Text,ilisrFlagTesting) or
+    Contains(Text,ilisrFlagTested) or
+    Contains(Text,ilisrFlagDamaged) or
+    Contains(Text,ilisrFlagRepaired) or
+    Contains(Text,ilisrFlagPriceChange) or
+    Contains(Text,ilisrFlagAvailChange) or
+    Contains(Text,ilisrFlagNotAvailable) or
+    Contains(Text,ilisrFlagLost) or
+    Contains(Text,ilisrFlagDiscarded) or
+    Contains(Text,ilisrTextTag) or
+    Contains(Text,ilisrNumTag) or
+    Contains(Text,ilisrWantedLevel) or
+    Contains(Text,ilisrVariant) or
+    Contains(Text,ilisrVariantTag) or
+    Contains(Text,ilisrUnitWeight) or
+    Contains(Text,ilisrMaterial) or
+    Contains(Text,ilisrThickness) or    
+    Contains(Text,ilisrSizeX) or
+    Contains(Text,ilisrSizeY) or
+    Contains(Text,ilisrSizeZ) or
+    Contains(Text,ilisrNotes) or
+    Contains(Text,ilisrReviewURL) or
+    Contains(Text,ilisrUnitPriceDefault) or
+    Contains(Text,ilisrRating) or
+    Contains(Text,ilisrRatingDetails) or
+    Contains(Text,ilisrSelectedShop)
 else
   Result := False;
 end;
@@ -142,6 +163,7 @@ Function TILItem_Comp.Compare(WithItem: TILItem_Comp; WithValue: TILItemValueTag
 var
   SelShop1: TILItemShop;
   SelShop2: TILItemShop;
+  I1,I2:    Integer;
 
   Function CompareText_Internal(const A,B: String): Integer;
   begin
@@ -160,13 +182,77 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     ilivtTimeOfAdd:         Result := IL_SortCompareDateTime(fTimeOfAddition,WithItem.TimeOfAddition);
     ilivtDescriptor:        Result := CompareText_Internal(Descriptor,WithItem.Descriptor);
 
+    // pictures  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+    ilivtMainPicFilePres:   Result := IL_SortCompareBool(fPictures.CheckIndex(fPictures.IndexOfItemPicture),
+                              WithItem.Pictures.CheckIndex(WithItem.Pictures.IndexOfItemPicture));
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                              
+    ilivtPackPicFilePres:   Result := IL_SortCompareBool(fPictures.CheckIndex(fPictures.IndexOfPackagePicture),
+                              WithItem.Pictures.CheckIndex(WithItem.Pictures.IndexOfPackagePicture));
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtCurrSecPicPres:    Result := IL_SortCompareBool(fPictures.CheckIndex(fPictures.CurrentSecondary),
+                              WithItem.Pictures.CheckIndex(WithItem.Pictures.CurrentSecondary));
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtMainPictureFile,
+    ilivtPackPictureFile,
+    ilivtCurrSecPicFile:    begin
+                              case WithValue of
+                                ilivtMainPictureFile: begin
+                                                        I1 := fPictures.IndexOfItemPicture;
+                                                        I2 := WithItem.Pictures.IndexOfItemPicture;
+                                                      end;
+                                ilivtPackPictureFile: begin
+                                                        I1 := fPictures.IndexOfPackagePicture;
+                                                        I2 := WithItem.Pictures.IndexOfPackagePicture;
+                                                      end;
+                              else
+                               {ilivtCurrSecPicFile}
+                                I1 := fPictures.CurrentSecondary;
+                                I2 := WithItem.Pictures.CurrentSecondary;
+                              end;
+                              If fPictures.CheckIndex(I1) and WithItem.Pictures.CheckIndex(I2) then
+                                Result := CompareText_Internal(fPictures[I1].PictureFile,WithItem.Pictures[I2].PictureFile)
+                              else If fPictures.CheckIndex(I1) and not WithItem.Pictures.CheckIndex(I2) then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else If not fPictures.CheckIndex(I1) and WithItem.Pictures.CheckIndex(I2) then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;
+                            end;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtMainPictureThumb,
+    ilivtPackPictureThumb,
+    ilivtCurrSecPicThumb:   begin
+                              case WithValue of
+                                ilivtMainPictureThumb:  begin
+                                                          I1 := fPictures.IndexOfItemPicture;
+                                                          I2 := WithItem.Pictures.IndexOfItemPicture;
+                                                        end;
+                                ilivtPackPictureThumb:  begin
+                                                          I1 := fPictures.IndexOfPackagePicture;
+                                                          I2 := WithItem.Pictures.IndexOfPackagePicture;
+                                                        end;
+                              else
+                               {ilivtCurrSecPicThumb}
+                                I1 := fPictures.CurrentSecondary;
+                                I2 := WithItem.Pictures.CurrentSecondary;
+                              end;
+                              If fPictures.CheckIndex(I1) and WithItem.Pictures.CheckIndex(I2) then
+                                Result := IL_SortCompareBool(Assigned(fPictures[I1].Thumbnail),Assigned(WithItem.Pictures[I2].Thumbnail))
+                              else If fPictures.CheckIndex(I1) and not WithItem.Pictures.CheckIndex(I2) then
+                                Result := IL_NegateValue(+1,Reversed)
+                              else If not fPictures.CheckIndex(I1) and WithItem.Pictures.CheckIndex(I2) then
+                                Result := IL_NegateValue(-1,Reversed)
+                              else
+                                Result := 0;    
+                            end;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtPictureCount:      Result := IL_SortCompareInt32(fPictures.Count,WithItem.Pictures.Count);
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtSecPicCount:       Result := IL_SortCompareInt32(fPictures.SecondaryCount(False),WithItem.Pictures.SecondaryCount(False));
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtSecPicThumbCount:  Result := IL_SortCompareInt32(fPictures.SecondaryCount(True),WithItem.Pictures.SecondaryCount(True));
+
     // basic specs = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-    ilivtMainPicture:       Result := IL_SortCompareBool(Assigned(fItemPicture),Assigned(WithItem.ItemPicture));
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPicture:  Result := IL_SortCompareBool(Assigned(fSecondaryPicture),Assigned(WithItem.SecondaryPicture));
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackagePicture:    Result := IL_SortCompareBool(Assigned(fPackagePicture),Assigned(WithItem.PackagePicture));
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtItemType:          If fItemType <> WithItem.ItemType then
                               begin
                                 If not(fItemType in [ilitUnknown,ilitOther]) and not(WithItem.ItemType in [ilitUnknown,ilitOther]) then
@@ -219,7 +305,7 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtTextID:            Result := CompareText_Internal(fTextID,WithItem.TextID);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtID:                Result := IL_SortCompareInt32(fID,WithItem.ID);
+    ilivtNumID:             Result := IL_SortCompareInt32(fNumID,WithItem.NumID);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtIDStr:             Result := CompareText_Internal(IDStr,WithItem.IDStr);
   
@@ -293,6 +379,24 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                             else
                               Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
+                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
+                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
+                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
+                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtMaterial:          If fMaterial <> WithItem.Material then
                               begin
                                 If not(fMaterial in [ilimtUnknown,ilimtOther]) and not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
@@ -317,6 +421,15 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               end
                             else Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
+                              Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
+                            else If (fThickness > 0) and (WithItem.Thickness <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
+                            else If (fThickness <= 0) and (WithItem.Thickness > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;                            
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtSizeX:             Result := IL_SortCompareUInt32(fSizeX,WithItem.SizeX);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtSizeY:             Result := IL_SortCompareUInt32(fSizeY,WithItem.SizeY);
@@ -331,52 +444,13 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := IL_NegateValue(-1,Reversed)
                             else
                               Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
-                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
-                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
-                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
-                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
-                              Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
-                            else If (fThickness > 0) and (WithItem.Thickness <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
-                            else If (fThickness <= 0) and (WithItem.Thickness > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-  
+
     // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     ilivtNotes:             Result := CompareText_Internal(fNotes,WithItem.Notes);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtReviewURL:         Result := CompareText_Internal(fReviewURL,WithItem.ReviewURL);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtReview:            Result := IL_SortCompareBool(Length(fReviewURL) > 0,Length(WithItem.ReviewURL) > 0);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtMainPictureFile:   Result := CompareText_Internal(fItemPictureFile,WithItem.ItemPictureFile);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtMainPicFilePres:   Result := IL_SortCompareBool(Length(fItemPictureFile) > 0,Length(WithItem.ItemPictureFile) > 0);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPictureFile:  Result := CompareText_Internal(fSecondaryPictureFile,WithItem.SecondaryPictureFile);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSecondaryPicFilePres:  Result := IL_SortCompareBool(Length(fSecondaryPictureFile) > 0,Length(WithItem.SecondaryPictureFile) > 0);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackPictureFile:   Result := CompareText_Internal(fPackagePictureFile,WithItem.PackagePictureFile);
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtPackPicFilePres:   Result := IL_SortCompareBool(Length(fPackagePictureFile) > 0,Length(WithItem.PackagePictureFile) > 0);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtUnitPriceDefault:  Result := IL_SortCompareUInt32(fUnitPriceDefault,WithItem.UnitPriceDefault);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -392,6 +466,8 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := IL_NegateValue(-1,Reversed)
                             else
                               Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtRatingDetails:     Result := CompareText_Internal(fRatingDetails,WithItem.RatingDetails);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtUnitPriceLowest:   Result := IL_SortCompareUInt32(fUnitPriceLowest,WithItem.UnitPriceLowest);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

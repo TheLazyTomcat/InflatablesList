@@ -9,7 +9,8 @@ uses
   AuxTypes, AuxClasses, MemoryBuffer,
   InflatablesList_Types,
   InflatablesList_Data,
-  InflatablesList_ItemShop;
+  InflatablesList_ItemShop,
+  InflatablesList_ItemPictures;
 
 type
   TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufOverview,iliufTitle,
@@ -53,13 +54,7 @@ type
     fUniqueID:              TGUID;
     fTimeOfAddition:        TDateTime;
     // stored pictures
-    fItemPicture:           TBitmap;  // 96 x 96 px, white background
-    fSecondaryPicture:      TBitmap;  // 96 x 96 px, white background
-    fPackagePicture:        TBitmap;  // 96 x 96 px, white background
-    // not stored pictures
-    fItemPictureSmall:      TBitmap;  // 48 x 48 px, white background
-    fSecondaryPictureSmall: TBitmap;  // 48 x 48 px, white background
-    fPackagePictureSmall:   TBitmap;  // 48 x 48 px, white background
+    fPictures:              TILItemPictures;
     // basic specs
     fItemType:              TILItemType;
     fItemTypeSpec:          String;   // closer specification of type
@@ -68,7 +63,7 @@ type
     fManufacturer:          TILItemManufacturer;
     fManufacturerStr:       String;
     fTextID:                String;
-    fID:                    Int32;
+    fNumID:                 Int32;
     // flags, tags
     fFlags:                 TILItemFlags;
     fTextTag:               String;
@@ -77,20 +72,18 @@ type
     fWantedLevel:           UInt32;           // 0..7
     fVariant:               String;           // color, pattern, ...
     fVariantTag:            String;           // for automation
+    fUnitWeight:            UInt32;           // [g]
     fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
+    fThickness:             UInt32;           // [um] - micrometers
     fSizeX:                 UInt32;           // length (diameter if applicable)
     fSizeY:                 UInt32;           // width (inner diameter if applicable)
     fSizeZ:                 UInt32;           // height
-    fUnitWeight:            UInt32;           // [g]
-    fThickness:             UInt32;           // [um] - micrometers
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
-    fItemPictureFile:       String;
-    fSecondaryPictureFile:  String;
-    fPackagePictureFile:    String;
     fUnitPriceDefault:      UInt32;
     fRating:                UInt32;           // 0..100 [%]
+    fRatingDetails:         String;
     // availability and prices (calculated from shops)
     fUnitPriceLowest:       UInt32;
     fUnitPriceHighest:      UInt32;
@@ -106,9 +99,6 @@ type
     procedure SetIndex(Value: Integer); virtual;
     procedure SetEncrypted(Value: Boolean); virtual; abstract;
     // data getters and setters
-    procedure SetItemPicture(Value: TBitmap); virtual;
-    procedure SetSecondaryPicture(Value: TBitmap); virtual;
-    procedure SetPackagePicture(Value: TBitmap); virtual;
     procedure SetItemType(Value: TILItemType); virtual;
     procedure SetItemTypeSpec(const Value: String); virtual;
     procedure SetPieces(Value: UInt32); virtual;
@@ -116,32 +106,33 @@ type
     procedure SetManufacturer(Value: TILItemManufacturer); virtual;
     procedure SetManufacturerStr(const Value: String); virtual;
     procedure SetTextID(const Value: String); virtual;
-    procedure SetID(Value: Int32); virtual;
+    procedure SetNumID(Value: Int32); virtual;
     procedure SetFlags(Value: TILItemFlags); virtual;
     procedure SetTextTag(const Value: String); virtual;
     procedure SetNumTag(Value: Int32); virtual;
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
     procedure SetVariantTag(const Value: String); virtual;
+    procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
+    procedure SetThickness(Value: UInt32); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
     procedure SetSizeZ(Value: UInt32); virtual;
-    procedure SetUnitWeight(Value: UInt32); virtual;
-    procedure SetThickness(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
-    procedure SetItemPictureFile(const Value: String); virtual;
-    procedure SetSecondaryPictureFile(const Value: String); virtual;
-    procedure SetPackagePictureFile(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
     procedure SetRating(Value: UInt32); virtual;
+    procedure SetRatingDetails(const Value: String); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
     // list methods
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
+    // handlers for pictures events
+    Function PicItemObjectRequired(Sender: TObject): TObject; virtual;
+    procedure PicPicturesChange(Sender: TObject); virtual;
     // handlers for item shop events
     procedure ShopClearSelectedHandler(Sender: TObject); virtual;
     procedure ShopUpdateOverviewHandler(Sender: TObject); virtual;
@@ -193,8 +184,7 @@ type
     procedure ShopClear; virtual;
     // data helpers
     procedure ResetTimeOfAddition; virtual;
-    procedure SwapPictures(Src,Dst: TLIItemPictureKind); virtual;
-    procedure BroadcastReqCount; virtual;    
+    procedure BroadcastReqCount; virtual;
     Function SetFlagValue(ItemFlag: TILItemFlag; NewValue: Boolean): Boolean; virtual;
     procedure GetPriceAndAvailFromShops; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
@@ -229,16 +219,14 @@ type
     // item data
     property UniqueID: TGUID read fUniqueID;
     property TimeOfAddition: TDateTime read fTimeOfAddition;
-    property ItemPicture: TBitmap read fItemPicture write SetItemPicture;
-    property SecondaryPicture: TBitmap read fSecondaryPicture write SetSecondaryPicture;
-    property PackagePicture: TBitmap read fPackagePicture write SetPackagePicture;
+    property Pictures: TILItemPictures read fPictures;
     property ItemType: TILItemType read fItemType write SetItemType;
     property ItemTypeSpec: String read fItemTypeSpec write SetItemTypeSpec;
     property Pieces: UInt32 read fPieces write SetPieces;
     property UserID: String read fUserID write SetUserID;
     property Manufacturer: TILItemManufacturer read fManufacturer write SetManufacturer;
     property ManufacturerStr: String read fManufacturerStr write SetManufacturerStr;
-    property ID: Int32 read fID write SetID;
+    property NumID: Int32 read fNumID write SetNumID;
     property TextID: String read fTextID write SetTextID;
     property Flags: TILItemFlags read fFlags write SetFlags;
     property TextTag: String read fTextTag write SetTextTag;
@@ -246,19 +234,17 @@ type
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
     property VariantTag: String read fVariantTag write SetVariantTag;
+    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
+    property Thickness: UInt32 read fThickness write SetThickness;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
     property SizeZ: UInt32 read fSizeZ write SetSizeZ;
-    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
-    property Thickness: UInt32 read fThickness write SetThickness;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
-    property ItemPictureFile: String read fItemPictureFile write SetItemPictureFile;
-    property SecondaryPictureFile: String read fSecondaryPictureFile write SetSecondaryPictureFile;
-    property PackagePictureFile: String read fPackagePictureFile write SetPackagePictureFile;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property Rating: UInt32 read fRating write SetRating;
+    property RatingDetails: String read fRatingDetails write SetRatingDetails;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
     property UnitPriceHighest: UInt32 read fUnitPriceHighest;
     property UnitPriceSelected: UInt32 read fUnitPriceSelected;
@@ -291,52 +277,6 @@ begin
 If fIndex <> Value then
   begin
     fIndex := Value;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetItemPicture(Value: TBitmap);
-begin
-If fItemPicture <> Value {a different object reference} then
-  begin
-    If Assigned(fItemPicture) then
-      FreeAndNil(fItemPicture);
-    fItemPicture := Value;
-    RenderSmallItemPicture;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdatePictures;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetSecondaryPicture(Value: TBitmap);
-begin
-If fSecondaryPicture <> Value then
-  begin
-    If Assigned(fSecondaryPicture) then
-      FreeAndNil(fSecondaryPicture);
-    fSecondaryPicture := Value;
-    RenderSmallSecondaryPicture;
-    UpdateMainList;
-    UpdatePictures;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetPackagePicture(Value: TBitmap);
-begin
-If fPackagePicture <> Value then
-  begin
-    If Assigned(fPackagePicture) then
-      FreeAndNil(fPackagePicture);
-    fPackagePicture := Value;
-    RenderSmallPackagePicture;
-    UpdateMainList;
-    UpdatePictures;
   end;
 end;
 
@@ -449,11 +389,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetID(Value: Int32);
+procedure TILItem_Base.SetNumID(Value: Int32);
 begin
-If fID <> Value then
+If fNumID <> Value then
   begin
-    fID := Value;
+    fNumID := Value;
     UpdateMainList;
     UpdateSmallList;
     UpdateTitle;
@@ -540,11 +480,33 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.SetUnitWeight(Value: UInt32);
+begin
+If fUnitWeight <> Value then
+  begin
+    fUnitWeight := Value;
+    UpdateOverview;
+    UpdateValues;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.SetMaterial(Value: TILItemMaterial);
 begin
 If fMaterial <> Value then
   begin
     fMaterial := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetThickness(Value: UInt32);
+begin
+If fThickness <> Value then
+  begin
+    fThickness := Value;
   end;
 end;
 
@@ -586,28 +548,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetUnitWeight(Value: UInt32);
-begin
-If fUnitWeight <> Value then
-  begin
-    fUnitWeight := Value;
-    UpdateOverview;
-    UpdateValues;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetThickness(Value: UInt32);
-begin
-If fThickness <> Value then
-  begin
-    fThickness := Value;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TILItem_Base.SetNotes(const Value: String);
 begin
 If not IL_SameStr(fNotes,Value) then
@@ -625,42 +565,6 @@ If not IL_SameStr(fReviewURL,Value) then
   begin
     fReviewURL := Value;
     UniqueString(fReviewURL);
-    UpdateMainList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetItemPictureFile(const Value: String);
-begin
-If not IL_SameStr(fItemPictureFile,Value) then
-  begin
-    fItemPictureFile := Value;
-    UniqueString(fItemPictureFile);
-    UpdateMainList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetSecondaryPictureFile(const Value: String);
-begin
-If not IL_SameStr(fSecondaryPictureFile,Value) then
-  begin
-    fSecondaryPictureFile := Value;
-    UniqueString(fSecondaryPictureFile);
-    UpdateMainList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetPackagePictureFile(const Value: String);
-begin
-If not IL_SameStr(fPackagePictureFile,Value) then
-  begin
-    fPackagePictureFile := Value;
-    UniqueString(fPackagePictureFile);
     UpdateMainList;
   end;
 end;
@@ -687,6 +591,17 @@ If fRating <> Value then
   begin
     fRating := Value;
     UpdateMainList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetRatingDetails(const Value: String);
+begin
+If not IL_SameStr(fRatingDetails,Value) then
+  begin
+    fRatingDetails := Value;
+    UniqueString(fRatingDetails);
   end;
 end;
 
@@ -734,6 +649,22 @@ end;
 procedure TILItem_Base.SetCount(Value: Integer);
 begin
 // do nothing
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Base.PicItemObjectRequired(Sender: TObject): TObject;
+begin
+Result := Self;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.PicPicturesChange(Sender: TObject);
+begin
+UpdateMainList;
+UpdateSmallList;
+UpdatePictures;
 end;
 
 //------------------------------------------------------------------------------
@@ -930,12 +861,8 @@ begin
 CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
-fItemPicture := nil;
-fSecondaryPicture := nil;
-fPackagePicture := nil;
-fItemPictureSmall := nil;
-fSecondaryPictureSmall := nil;
-fPackagePictureSmall := nil;
+fPictures := TILItemPictures.Create(Self);
+fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
 fPieces := 1;
@@ -943,7 +870,7 @@ fUserID := '';
 fManufacturer := ilimOthers;
 fManufacturerStr := '';
 fTextID := '';
-fID := 0;
+fNumID := 0;
 // flags
 fFlags := [];
 fTextTag := '';
@@ -952,19 +879,18 @@ fNumTag := 0;
 fWantedLevel := 0;
 fVariant := '';
 fVariantTag := '';
+fUnitWeight := 0;
 fMaterial := ilimtUnknown;
+fThickness := 0;
 fSizeX := 0;
 fSizeY := 0;
 fSizeZ := 0;
-fUnitWeight := 0;
-fThickness := 0;
 // other info
 fNotes := '';
 fReviewURL := '';
-fItemPictureFile := '';
-fPackagePictureFile := '';
 fUnitPriceDefault := 0;
 fRating := 0;
+fRatingDetails := '';
 fUnitPriceLowest := 0;
 fUnitPriceHighest := 0;
 fUnitPriceSelected := 0;
@@ -982,19 +908,8 @@ procedure TILItem_Base.FinalizeData;
 var
   i:  Integer;
 begin
-If Assigned(fItemPicture) then
-  FreeAndNil(fItemPicture);
-If Assigned(fSecondaryPicture) then
-  FreeAndNil(fSecondaryPicture);
-If Assigned(fPackagePicture) then
-  FreeAndNil(fPackagePicture);
-If Assigned(fItemPictureSmall) then
-  FreeAndNil(fItemPictureSmall);
-If Assigned(fSecondaryPictureSmall) then
-  FreeAndNil(fSecondaryPictureSmall);
-If Assigned(fPackagePictureSmall) then
-  FreeAndNil(fPackagePictureSmall);
-// remove shops  
+FreeAndNil(fPictures);
+// remove shops
 For i := LowIndex to HighIndex do
   fShops[i].Free;
 fShopCount := 0;
@@ -1015,7 +930,6 @@ fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
 fClearingSelected := False;
-//fItemPassword := '';
 fEncrypted := False;
 fDataAccessible := True;
 InitBuffer(fEncryptedData);
@@ -1060,8 +974,6 @@ var
 begin
 Create(DataProvider);
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
-//fItemPassword := Source.ItemPassword;
-//UniqueString(fItemPassword);
 fEncrypted := Source.Encrypted;
 fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then
@@ -1069,21 +981,9 @@ If fEncrypted and not fDataAccessible then
 // do not copy time of addition and UID
 If CopyPics then
   begin
-    If Assigned(Source.ItemPicture) then
-      begin
-        fItemPicture := TBitmap.Create;
-        fItemPicture.Assign(Source.ItemPicture);
-      end;
-    If Assigned(Source.SecondaryPicture) then
-      begin
-        fSecondaryPicture := TBitmap.Create;
-        fSecondaryPicture.Assign(Source.SecondaryPicture);
-      end;
-    If Assigned(Source.PackagePicture) then
-      begin
-        fPackagePicture := TBitmap.Create;
-        fPackagePicture.Assign(Source.PackagePicture);
-      end;
+    FreeAndNil(fPictures);
+    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
+    fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
     RenderSmallPictures;
     If Assigned(Source.Render) then
       begin
@@ -1107,7 +1007,7 @@ fManufacturerStr := Source.ManufacturerStr;
 UniqueString(fManufacturerStr);
 fTextID := Source.TextID;
 UniqueString(fTextID);
-fID := Source.ID;
+fNumID := Source.NumID;
 fFlags := Source.Flags;
 fTextTag := Source.TextTag;
 UniqueString(fTextTag);
@@ -1117,24 +1017,20 @@ fVariant := Source.Variant;
 UniqueString(fVariant);
 fVariantTag := Source.VariantTag;
 UniqueString(fVariantTag);
+fUnitWeight := Source.UnitWeight;
 fMaterial := Source.Material;
+fThickness := Source.Thickness;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;
 fSizeZ := Source.SizeZ;
-fUnitWeight := Source.UnitWeight;
-fThickness := Source.Thickness;
 fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;
 UniqueString(fReviewURL);
-fItemPictureFile := Source.ItemPictureFile;
-UniqueString(fItemPictureFile);
-fSecondaryPictureFile := Source.SecondaryPictureFile;
-UniqueString(fSecondaryPictureFile);
-fPackagePictureFile := Source.PackagePictureFile;
-UniqueString(fPackagePictureFile);
 fUnitPriceDefault := Source.UnitPriceDefault;
 fRating := Source.Rating;
+fRatingDetails := Source.RatingDetails;
+UniqueString(fRatingDetails);
 fUnitPriceLowest := Source.UnitPriceLowest;
 fUnitPriceHighest := Source.UnitPriceHighest;
 fUnitPriceSelected := Source.UnitPriceSelected;
@@ -1349,68 +1245,6 @@ end;
 procedure TILItem_Base.ResetTimeOfAddition;
 begin
 fTimeOfAddition := Now;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SwapPictures(Src,Dst: TLIItemPictureKind);
-type
-  PBitmap = ^TBitmap;
-var
-  SrcBmpPtr:  PBitmap;
-  DstBmpPtr:  PBitmap;
-  BmpTemp:    TBitmap;
-  SrcStrPtr:  PString;
-  DstStrPtr:  PString;
-  StrTemp:    String;
-begin
-If (Src <> Dst) and (Src <> ilipkUnknown) and (Dst <> ilipkUnknown) then
-  begin
-    case Src of
-      ilipkMain:      begin
-                        SrcBmpPtr := @fItemPicture;
-                        SrcStrPtr := @fItemPictureFile;
-                      end;
-      ilipkSecondary: begin
-                        SrcBmpPtr := @fSecondaryPicture;
-                        SrcStrPtr := @fSecondaryPictureFile;
-                      end;
-      ilipkPackage:   begin
-                        SrcBmpPtr := @fPackagePicture;
-                        SrcStrPtr := @fPackagePictureFile;
-                      end;  
-    else
-      raise Exception.CreateFmt('Invalid source picture kind (%d).',[Ord(Src)]);
-    end;
-    case Dst of
-      ilipkMain:      begin
-                        DstBmpPtr := @fItemPicture;
-                        DstStrPtr := @fItemPictureFile;
-                      end;
-      ilipkSecondary: begin
-                        DstBmpPtr := @fSecondaryPicture;
-                        DstStrPtr := @fSecondaryPictureFile;
-                      end;
-      ilipkPackage:   begin
-                        DstBmpPtr := @fPackagePicture;
-                        DstStrPtr := @fPackagePictureFile;
-                      end;
-    else
-      raise Exception.CreateFmt('Invalid destination picture kind (%d).',[Ord(Dst)]);
-    end;
-    // switch picture bitmaps
-    BmpTemp := DstBmpPtr^;
-    DstBmpPtr^ := SrcBmpPtr^;
-    SrcBmpPtr^ := BmpTemp;
-    RenderSmallPictures;
-    // switch picture files
-    StrTemp := DstStrPtr^;
-    DstStrPtr^ := SrcStrPtr^;
-    SrcStrPtr^ := StrTemp;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdatePictures;
-  end;
 end;
 
 //------------------------------------------------------------------------------

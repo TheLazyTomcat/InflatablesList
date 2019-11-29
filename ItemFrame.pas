@@ -6,32 +6,33 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, ExtCtrls, StdCtrls, Spin, Menus,
   InflatablesList_Types,
+  InflatablesList_ItemPictures,
   InflatablesList_Item,
   InflatablesList_Manager;
 
 type
   TILItemFramePicturesManagerEntry = record
+    PictureKind:  TLIItemPictureKind;
+    OldPicture:   TBitmap;    
+    Picture:      TBitmap;
     Image:        TImage;
     Background:   TControl;
-    PicKind:      TLIItemPictureKind;
-    PicAssigned:  Boolean;
   end;
 
   TILItemFramePicturesManager = class(TObject)
   private
-    fImages:        array of TILItemFramePicturesManagerEntry;
-    fPictureKinds:  TLIItemPictureKinds;
+    fILManager:     TILManager;
+    fRightAnchor:   Integer;
+    fLeft:          TControl;
+    fRight:         TControl;
+    fImages:        array[0..2] of TILItemFramePicturesManagerEntry;
+    fPictures:      TILItemPictures;
   public
-    constructor Create;
-    destructor Destroy; override;
-    Function IndexOf(Image: TImage): Integer; virtual;
-    Function Add(Image: TImage; Background: TControl): Integer; virtual;
-    procedure Clear; virtual;
+    constructor Create(ILManager: TILManager; RightAnchor: Integer; Left,Right: TControl; ImgA,ImgB,ImgC: TImage; BcgrA,BcgrB,BcgrC: TControl);
     Function Kind(Image: TImage): TLIItemPictureKind; virtual;
-    Function OtherKinds(Image: TImage): TLIItemPictureKinds; virtual;
-    procedure PictureAssignStart; virtual;
-    Function PictureAssign(Picture: TBitmap; PictureKind: TLIItemPictureKind): Integer; virtual;
-    procedure PictureAssignEnd; virtual;
+    Function Image(PictureKind: TLIItemPictureKind): TImage; virtual;
+    procedure ShowPictures(Pictures: TILItemPictures);
+    procedure UpdateSecondary; virtual;
   end;
 
 //******************************************************************************
@@ -39,44 +40,26 @@ type
 //******************************************************************************
 
 type
-  TILResizingEntry = record
-    Control:  TControl;
-    InitRect: TRect;  // initial bounding box of the control
-  end;
-
-  TILResizingGroup = array of TILResizingEntry;
-
-type
   TfrmItemFrame = class(TFrame)
     pnlMain: TPanel;
     shpItemTitleBcgr: TShape;
     imgItemLock: TImage;    
     lblItemTitle: TLabel;
-    lblItemTitleShadow: TLabel;    
+    lblItemTitleShadow: TLabel;
+    shpHighlight: TShape;
+    tmrSecondaryPics: TTimer;    
+    tmrHighlightTimer: TTimer;
     imgManufacturerLogo: TImage;
-    shpPictureABcgr: TShape;
+    imgPrevPicture: TImage;
+    imgNextPicture: TImage;
     imgPictureA: TImage;
-    shpPictureBBcgr: TShape;
     imgPictureB: TImage;
-    shpPictureCBcgr: TShape;
     imgPictureC: TImage;
+    shpPictureABcgr: TShape;
+    shpPictureBBcgr: TShape;
+    shpPictureCBcgr: TShape;
     diaPicOpenDialog: TOpenDialog;
-    diaPicExport: TSaveDialog;
-    pmnPicturesMenu: TPopupMenu;
-    mniPM_ReplacePic: TMenuItem;
-    mniPM_LoadItemPic: TMenuItem;
-    mniPM_LoadSecondaryPic: TMenuItem;
-    mniPM_LoadPackagePic: TMenuItem;
-    mniPM_ExportPic: TMenuItem;
-    N1: TMenuItem;
-    mniPM_RemovePic: TMenuItem;
-    mniPM_RemoveItemPic: TMenuItem;
-    mniPM_RemoveSecondaryPic: TMenuItem;
-    mniPM_RemovePackagePic: TMenuItem;
-    N2: TMenuItem;
-    mniPM_SwapItemPic: TMenuItem;
-    mniPM_SwapSecondaryPic: TMenuItem;
-    mniPM_SwapPackagePic: TMenuItem;    
+    diaPicExport: TSaveDialog;    
     lblUniqueID: TLabel;
     lblTimeOfAddition: TLabel;
     lblItemType: TLabel;
@@ -91,7 +74,7 @@ type
     leManufacturerString: TLabeledEdit;
     leTextID: TLabeledEdit;
     lblID: TLabel;
-    seID: TSpinEdit;
+    seNumID: TSpinEdit;
     gbFlagsTags: TGroupBox;
     cbFlagOwned: TCheckBox;
     cbFlagWanted: TCheckBox;
@@ -118,37 +101,35 @@ type
     lblWantedLevel: TLabel;
     seWantedLevel: TSpinEdit;
     leVariant: TLabeledEdit;
-    leVariantTag: TLabeledEdit;    
+    leVariantTag: TLabeledEdit;
+    lblUnitWeight: TLabel;
+    seUnitWeight: TSpinEdit;
     lblMaterial: TLabel;
-    cmbMaterial: TComboBox;    
+    cmbMaterial: TComboBox;
+    lblThickness: TLabel;
+    seThickness: TSpinEdit;
     lblSizeX: TLabel;
     seSizeX: TSpinEdit;
     lblSizeY: TLabel;
     seSizeY: TSpinEdit;
     lblSizeZ: TLabel;
     seSizeZ: TSpinEdit;
-    lblUnitWeight: TLabel;
-    seUnitWeight: TSpinEdit;
-    lblThickness: TLabel;
-    seThickness: TSpinEdit;    
     lblNotes: TLabel;
     meNotes: TMemo;
     lblNotesEdit: TLabel;    
     leReviewURL: TLabeledEdit;
     btnReviewOpen: TButton;
-    leItemPictureFile: TLabeledEdit;
-    btnBrowseItemPictureFile: TButton;
-    leSecondaryPictureFile: TLabeledEdit;
-    btnBrowseSecondaryPictureFile: TButton;
-    lePackagePictureFile: TLabeledEdit;
-    btnBrowsePackagePictureFile: TButton;
     lblUnitDefaultPrice: TLabel;
     seUnitPriceDefault: TSpinEdit;
     lblRating: TLabel;
     seRating: TSpinEdit;
-    btnUpdateShops: TButton;
+    btnRatingDetails: TButton;    
+    btnPictures: TButton;
     btnShops: TButton;
+    btnUpdateShops: TButton;
     bvlInfoSep: TBevel;
+    lblPictureCountTitle: TLabel;
+    lblPictureCount: TLabel;
     lblSelectedShopTitle: TLabel;
     lblSelectedShop: TLabel;
     lblShopCountTitle: TLabel;
@@ -167,25 +148,19 @@ type
     lblTotalPriceSelectedTitle: TLabel;
     lblTotalPriceSelected: TLabel;
     shpTotalPriceSelectedBcgr: TShape;
-    shpFiller: TShape;
-    tmrHighlightTimer: TTimer;
-    shpHighlight: TShape;
     procedure FrameResize(Sender: TObject);
     procedure lblItemTitleClick(Sender: TObject);
-    procedure imgPictureClick(Sender: TObject);
-    procedure pmnPicturesMenuPopup(Sender: TObject);
-    procedure mniPM_ReplacePicClick(Sender: TObject);
-    procedure mniPM_LoadItemPicClick(Sender: TObject);
-    procedure mniPM_LoadSecondaryPicClick(Sender: TObject);
-    procedure mniPM_LoadPackagePicClick(Sender: TObject);
-    procedure mniPM_ExportPicClick(Sender: TObject);
-    procedure mniPM_RemovePicClick(Sender: TObject);
-    procedure mniPM_RemoveItemPicClick(Sender: TObject);
-    procedure mniPM_RemoveSecondaryPicClick(Sender: TObject);
-    procedure mniPM_RemovePackagePicClick(Sender: TObject);
-    procedure mniPM_SwapItemPicClick(Sender: TObject);
-    procedure mniPM_SwapSecondaryPicClick(Sender: TObject);
-    procedure mniPM_SwapPackagePicClick(Sender: TObject);
+    procedure tmrSecondaryPicsTimer(Sender: TObject);
+    procedure tmrHighlightTimerTimer(Sender: TObject);
+    procedure imgPrevPictureMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure imgPrevPictureMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure imgNextPictureMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure imgNextPictureMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);      
+    procedure imgPictureClick(Sender: TObject); 
     procedure cmbItemTypeChange(Sender: TObject);
     procedure leItemTypeSpecificationChange(Sender: TObject);
     procedure sePiecesChange(Sender: TObject);
@@ -194,7 +169,7 @@ type
     procedure cmbManufacturerChange(Sender: TObject);
     procedure leManufacturerStringChange(Sender: TObject);
     procedure leTextIDChange(Sender: TObject);
-    procedure seIDChange(Sender: TObject);
+    procedure seNumIDChange(Sender: TObject);
     procedure CommonFlagClick(Sender: TObject);
     procedure btnFlagMacrosClick(Sender: TObject);
     procedure CommonFlagMacroClick(Sender: TObject);
@@ -202,34 +177,23 @@ type
     procedure seNumTagChange(Sender: TObject);
     procedure seWantedLevelChange(Sender: TObject);
     procedure leVariantChange(Sender: TObject);
+    procedure seUnitWeightChange(Sender: TObject);
     procedure seSizeXChange(Sender: TObject);
     procedure seSizeYChange(Sender: TObject);
     procedure seSizeZChange(Sender: TObject);
-    procedure seUnitWeightChange(Sender: TObject);
     procedure meNotesKeyPress(Sender: TObject; var Key: Char);
     procedure lblNotesEditClick(Sender: TObject);
     procedure lblNotesEditMouseEnter(Sender: TObject);
     procedure lblNotesEditMouseLeave(Sender: TObject);
     procedure leReviewURLChange(Sender: TObject);
     procedure btnReviewOpenClick(Sender: TObject);
-    procedure leItemPictureFileChange(Sender: TObject);
-    procedure btnBrowseItemPictureFileClick(Sender: TObject);
-    procedure leSecondaryPictureFileChange(Sender: TObject);
-    procedure btnBrowseSecondaryPictureFileClick(Sender: TObject);
-    procedure lePackagePictureFileChange(Sender: TObject);
-    procedure btnBrowsePackagePictureFileClick(Sender: TObject);
     procedure seUnitPriceDefaultChange(Sender: TObject);
-    procedure seRatingChange(Sender: TObject);    
-    procedure btnUpdateShopsClick(Sender: TObject);
+    procedure seRatingChange(Sender: TObject);
+    procedure btnRatingDetailsClick(Sender: TObject);
+    procedure btnPicturesClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
-    procedure tmrHighlightTimerTimer(Sender: TObject);
+    procedure btnUpdateShopsClick(Sender: TObject);
   private
-    // resizing
-    fInitialHeight:   Integer;
-    fResizeGroupA:    TILResizingGroup;
-    fResizeGroupB:    TILResizingGroup;
-    fChangeThreshold: Integer;
-    fFirstResize:     Boolean;
     // other fields
     fPicturesManager: TILItemFramePicturesManager;    
     fLastSmallPicDir: String;
@@ -239,6 +203,11 @@ type
     fCurrentItem:     TILItem;
     // searching
     fLastFoundValue:  TILItemSearchResult;
+    // picture arrows
+    fPicArrowLeft:    TBitmap;
+    fPicArrowRight:   TBitmap;
+    fPicArrowLeftD:   TBitmap;
+    fPicArrowRightD:  TBitmap;
   protected
     // item event handlers (manager)
     procedure UpdateTitle(Sender: TObject; Item: TObject);
@@ -252,15 +221,13 @@ type
     procedure FillValues;
     procedure FillSelectedShop(const SelectedShop: String);
     Function BrowsePicture(const FileStr: String; var FileName: String): Boolean;
-    // resizing
-    procedure ResizingInitialize;
-    procedure ResizingProcess;
     // searching
     procedure DisableHighlight;
     procedure Highlight(Control: TControl); overload;
     procedure HighLight(Value: TILItemSearchResult); overload;
     // initialization
     procedure BuildFlagMacrosMenu;
+    procedure PrepareArrows;
     // frame methods
     procedure FrameClear;
     procedure FrameSave;
@@ -282,11 +249,14 @@ implementation
 uses
   Themes,
   StrRect,
-  TextEditForm, ShopsForm, UpdateForm,
+  TextEditForm, ShopsForm, UpdateForm, ItemPicturesForm,
   InflatablesList_Utils,
+  InflatablesList_Data,
   InflatablesList_ItemShop;
 
 {$R *.dfm}
+
+{$R '..\resources\pic_arrows.res'}
 
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight
@@ -300,138 +270,172 @@ const
 
 //==============================================================================
 
-constructor TILItemFramePicturesManager.Create;
+constructor TILItemFramePicturesManager.Create(ILManager: TILManager; RightAnchor: Integer; Left,Right: TControl; ImgA,ImgB,ImgC: TImage; BcgrA,BcgrB,BcgrC: TControl);
 begin
 inherited Create;
-SetLength(fImages,0);
-fPictureKinds := [];
-end;
-
-//------------------------------------------------------------------------------
-
-destructor TILItemFramePicturesManager.Destroy;
-begin
-Clear;
-inherited;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItemFramePicturesManager.IndexOf(Image: TImage): Integer;
-var
-  i:  Integer;
-begin
-Result := -1;
-For i := Low(fImages) to High(fImages) do
-  If fImages[i].Image = Image then
-    begin
-      Result := i;
-      Break{For i};
-    end;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItemFramePicturesManager.Add(Image: TImage; Background: TControl): Integer;
-begin
-Result := IndexOf(Image);
-If Result < 0 then
-  begin
-    Result := Length(fImages);
-    SetLength(fImages,Length(fImages) + 1);
-    fImages[Result].Image := Image;
-    fImages[Result].Background := Background;
-    fImages[Result].PicKind := ilipkUnknown;
-    fImages[Result].PicAssigned := False;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemFramePicturesManager.Clear;
-begin
-SetLength(fImages,0);
-fPictureKinds := [];
+fILManager := ILManager;
+fRightAnchor := RightAnchor;
+fLeft := Left;
+fRight := Right;
+Fillchar(fImages,SizeOf(fImages),0);
+fImages[0].Image := ImgC;
+fImages[0].Background := BcgrC;
+fImages[1].Image := ImgB;
+fImages[1].Background := BcgrB;
+fImages[2].Image := ImgA;
+fImages[2].Background := BcgrA;
+fPictures := nil;
 end;
 
 //------------------------------------------------------------------------------
 
 Function TILItemFramePicturesManager.Kind(Image: TImage): TLIItemPictureKind;
 var
-  Index:  Integer;
-begin
-Index := IndexOf(Image);
-If Index >= 0 then
-  Result := fImages[Index].PicKind
-else
-  Result := ilipkUnknown;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItemFramePicturesManager.OtherKinds(Image: TImage): TLIItemPictureKinds;
-var
-  Index:  Integer;
-begin
-Index := IndexOf(Image);
-If Index >= 0 then
-  begin
-    Result := fPictureKinds;
-    Exclude(Result,fImages[Index].PicKind);
-  end
-else Result := [ilipkUnknown];
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemFramePicturesManager.PictureAssignStart;
-var
   i:  Integer;
 begin
+Result := ilipkUnknown;
 For i := Low(fImages) to High(fImages) do
-  begin
-    fImages[i].PicKind := ilipkUnknown;
-    fImages[i].PicAssigned := False;
-  end;
-fPictureKinds := [];
+  If fImages[i].Image = Image then
+    begin
+      Result := fImages[i].PictureKind;
+      Break{For i};
+    end;
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILItemFramePicturesManager.PictureAssign(Picture: TBitmap; PictureKind: TLIItemPictureKind): Integer;
+Function TILItemFramePicturesManager.Image(PictureKind: TLIItemPictureKind): TImage;
 var
   i:  Integer;
 begin
-Result := -1;
-If Assigned(Picture) then
-  For i := High(fImages) downto Low(fImages) do
-    If not fImages[i].PicAssigned then
+Result := nil;
+For i := Low(fImages) to High(fImages) do
+  If fImages[i].PictureKind = PictureKind then
+    begin
+      Result := fImages[i].Image;
+      Break{For i};
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemFramePicturesManager.ShowPictures(Pictures: TILItemPictures);
+const
+  SPACING = 8;
+var
+  i:              Integer;
+  TempInt:        Integer;
+  ArrowsVisible:  Boolean;
+  ArrowShift:     Integer;
+  SecCount:       Integer;
+
+  Function AssignPic(Index: Integer; PictureKind: TLIItemPictureKind): Boolean;
+  begin
+    Result := False;
+    If fPictures.CheckIndex(Index) then
       begin
-        fImages[i].Image.Picture.Assign(Picture);
-        fImages[i].Background.Visible := False;
-        fImages[i].PicKind := PictureKind;
-        fImages[i].PicAssigned := True;
-        fImages[i].Image.ShowHint := PictureKind <> ilipkUnknown;
-        fImages[i].Image.Hint := IL_ItemPictureKindToStr(PictureKind,True);
-        Include(fPictureKinds,PictureKind);
-        Result := i;
+        fImages[i].PictureKind := PictureKind;
+        fImages[i].Picture := fPictures[Index].Thumbnail;
+        Result := True;
+      end
+  end;
+
+begin
+fPictures := Pictures;
+If Assigned(fPictures) then
+  begin
+    For i := Low(fImages) to High(fImages) do
+      begin
+        fImages[i].PictureKind := ilipkUnknown;
+        fImages[i].OldPicture := fImages[i].Picture;
+        fImages[i].Picture := nil;
+      end;
+    i := Low(fImages);
+    // assign pictures
+    If AssignPic(fPictures.IndexOfPackagePicture,ilipkPackage) then Inc(i);
+    If AssignPic(fPictures.CurrentSecondary,ilipkSecondary) then Inc(i);
+    If AssignPic(fPictures.IndexOfItemPicture,ilipkMain) then Inc(i);
+    For i := Low(fImages) to High(fImages) do
+      begin
+        If not Assigned(fImages[i].Picture) and (fImages[i].PictureKind <> ilipkUnknown) then
+          begin
+            If fImages[i].PictureKind = ilipkMain then
+              fImages[i].Picture := fILManager.DataProvider.ItemDefaultPictures[TILItem(fPictures.Owner).ItemType]
+            else
+              fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
+          end;
+        If fImages[i].Picture <> fImages[i].OldPicture then
+          begin
+            fImages[i].Image.Picture.Assign(fImages[i].Picture);
+            fImages[i].Image.ShowHint := fImages[i].PictureKind <> ilipkUnknown;
+            fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
+            fImages[i].Background.Visible := not Assigned(fImages[i].Picture);
+          end;
+      end; 
+    // realign
+    TempInt := fRightAnchor;
+    ArrowsVisible := False;
+    ArrowShift := (((SPACING * 3) - fRight.Width) div 2) + fRight.Width;
+    SecCount := fPictures.SecondaryCount(False);
+    For i := Low(fImages) to High(fImages) do
+      begin
+        If (fImages[i].PictureKind = ilipkSecondary) and (SecCount > 1) then
+          begin
+            fRight.Left := TempInt - ArrowShift;
+            fImages[i].Image.Left := TempInt - fImages[i].Image.Width - SPACING * 3;
+            fLeft.Left := fImages[i].Image.Left - ArrowShift;
+            Dec(TempInt,fImages[i].Image.Width + SPACING * 6);
+            ArrowsVisible := True;
+          end
+        else
+          begin
+            fImages[i].Image.Left := TempInt - fImages[i].Image.Width;
+            Dec(TempInt,fImages[i].Image.Width + SPACING);
+          end;
+        fImages[i].Background.Left := fImages[i].Image.Left + (fImages[i].Image.Width - fImages[i].Background.Width) div 2;
+      end;
+    fLeft.Visible := ArrowsVisible;
+    fRight.Visible := ArrowsVisible;
+  end
+else
+  begin
+    TempInt := fRightAnchor;
+    For i := Low(fImages) to High(fImages) do
+      begin
+        fImages[i].PictureKind := ilipkUnknown;
+        fImages[i].Picture := nil;
+        fImages[i].Image.Picture.Assign(nil);
+        fImages[i].Image.ShowHint := False;
+        fImages[i].Image.Left := TempInt - fImages[i].Image.Width;
+        fImages[i].Background.Visible := True;        
+        fImages[i].Background.Left := fImages[i].Image.Left + (fImages[i].Image.Width - fImages[i].Background.Width) div 2;        
+        Dec(TempInt,fImages[i].Image.Width + SPACING);
+      end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemFramePicturesManager.UpdateSecondary;
+var
+  i:  Integer;
+begin
+// find where is secondary assigned
+If Assigned(fPictures) then
+  For i := Low(fImages) to High(fImages) do
+    If fImages[i].PictureKind = ilipkSecondary then
+      begin
+        If fPictures.CheckIndex(fPictures.CurrentSecondary) then
+          If fImages[i].Picture <> fPictures[fPictures.CurrentSecondary].Thumbnail then
+            begin
+              If Assigned(fPictures[fPictures.CurrentSecondary].Thumbnail) then
+                fImages[i].Picture := fPictures[fPictures.CurrentSecondary].Thumbnail
+              else
+                fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
+              fImages[i].Image.Picture.Assign(fImages[i].Picture)
+            end;
         Break{For i};
       end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemFramePicturesManager.PictureAssignEnd;
-var
-  i:  Integer;
-begin
-For i := Low(fImages) to High(fImages) do
-  If not fImages[i].PicAssigned then
-    begin
-      fImages[i].Image.Picture.Assign(nil);
-      fImages[i].Image.ShowHint := False;
-      fImages[i].Background.Visible := True;
-    end;
 end;
 
 //******************************************************************************
@@ -471,18 +475,15 @@ end;
 
 procedure TfrmItemFrame.UpdatePictures(Sender: TObject; Item: TObject);
 begin
-fPicturesManager.PictureAssignStart;
-try
-  If Assigned(fCurrentItem) and (Item = fCurrentItem) and
-    not fILManager.StaticSettings.NoPictures then
-  begin
-    fPicturesManager.PictureAssign(fCurrentItem.PackagePicture,ilipkPackage);
-    fPicturesManager.PictureAssign(fCurrentItem.SecondaryPicture,ilipkSecondary);
-    fPicturesManager.PictureAssign(fCurrentItem.ItemPicture,ilipkMain);
-  end;
-finally
-  fPicturesManager.PictureAssignEnd;
-end;
+DisableHighlight;
+If Assigned(fCurrentItem) and (Item = fCurrentItem) and not fILManager.StaticSettings.NoPictures then
+  fPicturesManager.ShowPictures(fCurrentItem.Pictures)
+else
+  fPicturesManager.ShowPictures(nil);
+If Assigned(fCurrentItem) then
+  lblPictureCount.Caption := fCurrentItem.PictureCountStr
+else
+  lblPictureCount.Caption := '-';
 end;
 
 //------------------------------------------------------------------------------
@@ -696,135 +697,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.ResizingInitialize;
-
-  procedure ResizeGroupA_Fill(Controls: array of TControl);
-  var
-    ii: Integer;
-  begin
-    SetLength(fResizeGroupA,Length(Controls));
-    For ii := Low(Controls) to High(Controls) do
-      begin
-        fResizeGroupA[ii].Control := Controls[ii];
-        fResizeGroupA[ii].InitRect := Controls[ii].BoundsRect;
-      end;
-  end;
-
-  procedure ResizeGroupB_Fill(Reference: TControl; Controls: array of TControl);
-  var
-    ii: Integer;
-  begin
-    SetLength(fResizeGroupB,Length(Controls));
-    For ii := Low(Controls) to High(Controls) do
-      begin
-        fResizeGroupB[ii].Control := Controls[ii];
-        fResizeGroupB[ii].InitRect := Rect(
-          Controls[ii].BoundsRect.Left - Reference.BoundsRect.Left,
-          Controls[ii].BoundsRect.Top - Reference.BoundsRect.Top,
-          Controls[ii].BoundsRect.Right - Reference.BoundsRect.Right,
-          Controls[ii].BoundsRect.Bottom - Reference.BoundsRect.Bottom);
-      end;
-  end;
-
-begin
-fInitialHeight := Height;
-// fill group A - coordinates are absolute
-ResizeGroupA_Fill([meNotes,lblNotesEdit,leReviewURL,btnReviewOpen,leItemPictureFile,
-  btnBrowseItemPictureFile,leSecondaryPictureFile,btnBrowseSecondaryPictureFile,
-  lePackagePictureFile,btnBrowsePackagePictureFile,lblUnitDefaultPrice]);
-// fill group B - all coordinates are referenced from lblUnitDefaultPrice object
-ResizeGroupB_Fill(lblUnitDefaultPrice,[
-  seUnitPriceDefault,lblRating,seRating,btnUpdateShops,btnShops,bvlInfoSep,
-  lblSelectedShopTitle,lblSelectedShop,lblShopCountTitle,lblShopCount,
-  lblAvailPiecesTitle,lblAvailPieces,lblUnitPriceLowestTitle,lblUnitPriceLowest,
-  lblUnitPriceSelectedTitle,lblUnitPriceSelected,shpUnitPriceSelectedBcgr,
-  lblTotalWeightTitle,lblTotalWeight,lblTotalPriceLowestTitle,lblTotalPriceLowest,
-  lblTotalPriceSelectedTitle,lblTotalPriceSelected,shpTotalPriceSelectedBcgr]);
-fChangeThreshold := fInitialHeight + 40;
-shpFiller.Width := CLientWidth;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.ResizingProcess;
-var
-  i:  Integer;
-
-  Function GetAbsoluteRect(Reference: TControl; Rect: TRect): TRect;
-  begin
-    Result.Left := Rect.Left + Reference.BoundsRect.Left;
-    Result.Top := Rect.Top + Reference.BoundsRect.Top;
-    Result.Right := Rect.Right + Reference.BoundsRect.Right;
-    Result.Bottom := Rect.Bottom + Reference.BoundsRect.Bottom;
-  end;
-
-  procedure SetControlBoundsRect(Control: TControl; BndRect: TRect);
-  begin
-    If (Control.BoundsRect.Left <> BndRect.Left) or
-      (Control.BoundsRect.Top <> BndRect.Top) or
-      (Control.BoundsRect.Right <> BndRect.Right) or
-      (Control.BoundsRect.Bottom <> BndRect.Bottom) then
-      Control.BoundsRect := BndRect;
-  end;
-
-begin
-If fFirstResize then
-  begin
-    ResizingInitialize;
-    fFirstResize := False;
-  end;
-If Height >= fChangeThreshold then
-  begin
-    // manually reposition group A...
-    // widen the notes memo to full width and calculate it heigth
-    meNotes.Width := ClientWidth;
-    meNotes.Height := 101 + (Height - fChangeThreshold);
-    lblNotesEdit.Left := ClientWidth - lblNotesEdit.Width;
-    // position and adjust size of...
-    // ...review
-    leReviewURL.Left := 0;
-    leReviewURL.Top := meNotes.BoundsRect.Bottom + 20;
-    leReviewURL.Width := ((ClientWidth - 8) div 2) - btnReviewOpen.Width;
-    btnReviewOpen.Left := leReviewURL.BoundsRect.Right;
-    btnReviewOpen.Top := leReviewURL.Top;
-    // ...item picture
-    leItemPictureFile.Left := ClientWidth - ((ClientWidth - 8) div 2);
-    leItemPictureFile.Top := meNotes.BoundsRect.Bottom + 20;
-    leItemPictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowseItemPictureFile.Width;
-    btnBrowseItemPictureFile.Left := leItemPictureFile.BoundsRect.Right;
-    btnBrowseItemPictureFile.Top := leItemPictureFile.Top;
-    // ...secondary picture
-    leSecondaryPictureFile.Left := 0;
-    leSecondaryPictureFile.Top := leReviewURL.Top + 40;
-    leSecondaryPictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowseSecondaryPictureFile.Width;
-    btnBrowseSecondaryPictureFile.Left := leSecondaryPictureFile.BoundsRect.Right;
-    btnBrowseSecondaryPictureFile.Top := leSecondaryPictureFile.Top;
-    // ...package picture
-    lePackagePictureFile.Left := ClientWidth - ((ClientWidth - 8) div 2);
-    lePackagePictureFile.Top := leItemPictureFile.Top + 40;
-    lePackagePictureFile.Width := ((ClientWidth - 8) div 2) - btnBrowsePackagePictureFile.Width;
-    btnBrowsePackagePictureFile.Left := lePackagePictureFile.BoundsRect.Right;
-    btnBrowsePackagePictureFile.Top := lePackagePictureFile.Top;
-    // reposition reference object
-    lblUnitDefaultPrice.Top := leSecondaryPictureFile.Top + 24;
-  end
-else
-  begin
-    // set group A to initial positions
-    For i := Low(fResizeGroupA) to High(fResizeGroupA) do
-      SetControlBoundsRect(fResizeGroupA[i].Control,fResizeGroupA[i].InitRect);
-  end;
-For i := Low(fResizeGroupB) to High(fResizeGroupB) do
-  SetControlBoundsRect(fResizeGroupB[i].Control,GetAbsoluteRect(lblUnitDefaultPrice,fResizeGroupB[i].InitRect));
-FillSelectedShop(lblSelectedShop.Caption);
-// show filler if necessary
-shpFiller.Top := lblUnitPriceSelectedTitle.BoundsRect.Bottom + 8;
-shpFiller.Height := ClientHeight - shpFiller.Top;
-shpFiller.Visible := shpFiller.Height >= 4;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfrmItemFrame.DisableHighlight;
 begin
 shpHighlight.Visible := False;
@@ -867,6 +739,13 @@ else If Control is TLabel then
     shpHighlight.Width := 5;
     shpHighlight.Height := Control.Height + 1;
   end
+else If Control is TImage then
+  begin
+    shpHighlight.Left := Control.Left;
+    shpHighlight.Top := Control.Top + Control.Height + 1;
+    shpHighlight.Width := Control.Width + 1;
+    shpHighlight.Height := 5;
+  end
 // special cases
 else If (Control = seNumTag) or (Control = eTextTag) then
   begin
@@ -874,6 +753,13 @@ else If (Control = seNumTag) or (Control = eTextTag) then
     shpHighlight.Top := Control.Top;
     shpHighlight.Width := 5;
     shpHighlight.Height := Control.Height + 1;
+  end
+else If Control = btnRatingDetails then
+  begin
+    shpHighlight.Left := Control.Left;
+    shpHighlight.Top := Control.Top - 6;
+    shpHighlight.Width := Control.Width;
+    shpHighlight.Height := 5;
   end
 else Exit;  // control is not valid
 shpHighlight.Parent := Control.Parent;
@@ -889,6 +775,9 @@ end;
 procedure TfrmItemFrame.HighLight(Value: TILItemSearchResult);
 begin
 case Value of
+  ilisrItemPicFile:       Highlight(fPicturesManager.Image(ilipkMain));
+  ilisrSecondaryPicFile:  Highlight(fPicturesManager.Image(ilipkSecondary));
+  ilisrPackagePicFile:    Highlight(fPicturesManager.Image(ilipkPackage));
   ilisrType:              Highlight(cmbItemType);
   ilisrTypeSpec:          Highlight(leItemTypeSpecification);
   ilisrPieces:            Highlight(sePieces);
@@ -896,7 +785,7 @@ case Value of
   ilisrManufacturer:      Highlight(cmbManufacturer);
   ilisrManufacturerStr:   Highlight(leManufacturerString);
   ilisrTextID:            Highlight(leTextID);
-  ilisrNumID:             Highlight(seID);
+  ilisrNumID:             Highlight(seNumID);
   ilisrFlagOwned:         Highlight(cbFlagOwned);
   ilisrFlagWanted:        Highlight(cbFlagWanted);
   ilisrFlagOrdered:       Highlight(cbFlagOrdered);
@@ -917,19 +806,17 @@ case Value of
   ilisrWantedLevel:       Highlight(seWantedLevel);
   ilisrVariant:           Highlight(leVariant);
   ilisrVariantTag:        Highlight(leVariantTag);
+  ilisrUnitWeight:        Highlight(seUnitWeight);
   ilisrMaterial:          Highlight(cmbMaterial);
+  ilisrThickness:         Highlight(seThickness);
   ilisrSizeX:             Highlight(seSizeX);
   ilisrSizeY:             Highlight(seSizeY);
   ilisrSizeZ:             Highlight(seSizeZ);
-  ilisrUnitWeight:        Highlight(seUnitWeight);
-  ilisrThickness:         Highlight(seThickness);
   ilisrNotes:             Highlight(meNotes);
   ilisrReviewURL:         Highlight(leReviewURL);
-  ilisrItemPicFile:       Highlight(leItemPictureFile);
-  ilisrSecondaryPicFile:  Highlight(leSecondaryPictureFile);
-  ilisrPackagePicFile:    Highlight(lePackagePictureFile);
   ilisrUnitPriceDefault:  Highlight(seUnitPriceDefault);
   ilisrRating:            Highlight(seRating);
+  ilisrRatingDetails:     Highlight(btnRatingDetails);
   ilisrSelectedShop:      Highlight(lblSelectedShop);
 else
   DisableHighlight;
@@ -960,6 +847,22 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.PrepareArrows;
+begin
+fPicArrowLeft := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_l',fPicArrowLeft);
+fPicArrowRight := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_r',fPicArrowRight);
+fPicArrowLeftD := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_l_d',fPicArrowLeftD);
+fPicArrowRightD := TBitmap.Create;
+TILDataProvider.LoadBitmapFromResource('pic_arr_r_d',fPicArrowRightD);
+imgPrevPicture.Picture.Assign(fPicArrowLeft);
+imgNextPicture.Picture.Assign(fPicArrowRight);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.FrameClear;
 begin
 fInitializing := True;
@@ -978,7 +881,7 @@ try
   cmbManufacturer.OnChange(nil);
   leManufacturerString.Text := '';
   leTextID.Text := '';
-  seID.Value := 0;
+  seNumID.Value := 0;
   // flags
   cbFlagOwned.Checked := False;
   cbFlagWanted.Checked := False;
@@ -1001,28 +904,26 @@ try
   seWantedLevel.Value := 0;
   leVariant.Text := '';
   leVariantTag.Text := '';
-  cmbMaterial.ItemIndex := 0; 
+  seUnitWeight.Value := 0;
+  cmbMaterial.ItemIndex := 0;
+  seThickness.Value := 0;
   seSizeX.Value := 0;
   seSizeY.Value := 0;
   seSizeZ.Value := 0;
-  seUnitWeight.Value := 0;
-  seThickness.Value := 0;
   // other info
   meNotes.Text := '';
   leReviewURL.Text := '';
-  leItemPictureFile.Text := '';
-  leSecondaryPictureFile.Text := '';
-  lePackagePictureFile.Text := '';
   seUnitPriceDefault.Value := 0;
   seRating.Value := 0;
   // read-only things
-  lblTotalWeight.Caption := '-';
+  lblPictureCount.Caption := '0';
   FillSelectedShop('-');
-  lblShopCount.Caption := '0';
+  lblShopCount.Caption := '0';  
+  lblAvailPieces.Caption := '0';
   lblUnitPriceLowest.Caption := '-';
   lblUnitPriceSelected.Caption := '-';
   shpUnitPriceSelectedBcgr.Visible := False;
-  lblAvailPieces.Caption := '0';
+  lblTotalWeight.Caption := '-';
   lblTotalPriceLowest.Caption := '-';
   lblTotalPriceSelected.Caption := '-';
   shpTotalPriceSelectedBcgr.Visible := False;
@@ -1054,7 +955,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.Manufacturer := TILItemManufacturer(cmbManufacturer.ItemIndex);
       fCurrentItem.ManufacturerStr := leManufacturerString.Text;
       fCurrentItem.TextID := leTextID.Text;
-      fCurrentItem.ID := seID.Value;
+      fCurrentItem.NumID := seNumID.Value;
       // tags, flags
       fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
       fCurrentItem.SetFlagValue(ilifWanted,cbFlagWanted.Checked);
@@ -1077,18 +978,15 @@ If Assigned(fCurrentItem) then
       fCurrentItem.WantedLevel := seWantedLevel.Value;
       fCurrentItem.Variant := leVariant.Text;
       fCurrentItem.VariantTag := leVariantTag.Text;
+      fCurrentItem.UnitWeight := seUnitWeight.Value;
       fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
+      fCurrentItem.Thickness := seThickness.Value;
       fCurrentItem.SizeX := seSizeX.Value;
       fCurrentItem.SizeY := seSizeY.Value;
       fCurrentItem.SizeZ := seSizeZ.Value;
-      fCurrentItem.UnitWeight := seUnitWeight.Value;
-      fCurrentItem.Thickness := seThickness.Value;
       // others
       fCurrentItem.Notes := meNotes.Text;
       fCurrentItem.ReviewURL := leReviewURL.Text;
-      fCurrentItem.ItemPictureFile := leItemPictureFile.Text;
-      fCurrentItem.SecondaryPictureFile := leSecondaryPictureFile.Text;
-      fCurrentItem.PackagePictureFile := lePackagePictureFile.Text;
       fCurrentItem.UnitPriceDefault := seUnitPriceDefault.Value;
       fCurrentItem.Rating := seRating.Value;
     finally
@@ -1121,7 +1019,7 @@ If Assigned(fCurrentItem) then
       cmbManufacturer.ItemIndex := Ord(fCurrentItem.Manufacturer);
       leManufacturerString.Text := fCurrentItem.ManufacturerStr;
       leTextID.Text := fCurrentItem.TextID;
-      seID.Value := fCurrentItem.ID;
+      seNumID.Value := fCurrentItem.NumID;
       // tags, flags
       FillFlagsFromItem;
       eTextTag.Text := fCurrentItem.TextTag;
@@ -1130,18 +1028,15 @@ If Assigned(fCurrentItem) then
       seWantedLevel.Value := fCurrentItem.WantedLevel;
       leVariant.Text := fCurrentItem.Variant;
       leVariantTag.Text := fCurrentItem.VariantTag;
+      seUnitWeight.Value := fCurrentItem.UnitWeight;
       cmbMaterial.ItemIndex := Ord(fCurrentItem.Material);
+      seThickness.Value := fCurrentItem.Thickness;
       seSizeX.Value := fCurrentItem.SizeX;
       seSizeY.Value := fCurrentItem.SizeY;
       seSizeZ.Value := fCurrentItem.SizeZ;
-      seUnitWeight.Value := fCurrentItem.UnitWeight;
-      seThickness.Value := fCurrentItem.Thickness;
       // others
       meNotes.Text := fCurrentItem.Notes;
       leReviewURL.Text := fCurrentItem.ReviewURL;
-      leItemPictureFile.Text := fCurrentItem.ItemPictureFile;
-      leSecondaryPictureFile.Text := fCurrentItem.SecondaryPictureFile;
-      lePackagePictureFile.Text := fCurrentItem.PackagePictureFile;
       seUnitPriceDefault.Value := fCurrentItem.UnitPriceDefault;
       seRating.Value := fCurrentItem.Rating;
       FillValues;
@@ -1157,11 +1052,9 @@ procedure TfrmItemFrame.Initialize(ILManager: TILManager);
 var
   i:  Integer;
 begin
-fFirstResize := True;
-fPicturesManager := TILItemFramePicturesManager.Create;
-fPicturesManager.Add(imgPictureA,shpPictureABcgr);
-fPicturesManager.Add(imgPictureB,shpPictureBBcgr);
-fPicturesManager.Add(imgPictureC,shpPictureCBcgr);
+fPicturesManager := TILItemFramePicturesManager.Create(
+  ILManager,imgPictureC.BoundsRect.Right,imgPrevPicture,imgNextPicture,
+  imgPictureA,imgPictureB,imgPictureC,shpPictureABcgr,shpPictureBBcgr,shpPictureCBcgr);
 fLastSmallPicDir := '';
 fLastPicDir := '';
 fInitializing := False;
@@ -1173,6 +1066,9 @@ fILManager.OnItemPicturesUpdate := UpdatePictures;
 fILManager.OnItemFlagsUpdate := UpdateFlags;
 fILManager.OnItemValuesUpdate := UpdateValues;
 SetItem(nil,True);
+// prepare objects
+imgPrevPicture.Tag := 0;
+imgNextPicture.Tag := 0;
 // fill drop-down lists...
 // types
 cmbItemType.Items.BeginUpdate;
@@ -1204,6 +1100,7 @@ end;
 // initialization
 DisableHighlight;
 BuildFlagMacrosMenu;
+PrepareArrows;
 end;
 
 //------------------------------------------------------------------------------
@@ -1215,6 +1112,10 @@ fILManager.OnItemPicturesUpdate := nil;
 fILManager.OnItemFlagsUpdate := nil;
 fILManager.OnItemValuesUpdate := nil;
 FreeAndNil(fPicturesManager);
+FreeAndNil(fPicArrowLeft);
+FreeAndNil(fPicArrowRight);
+FreeAndNil(fPicArrowLeftD);
+FreeAndNil(fPicArrowRightD);
 end;
 
 //------------------------------------------------------------------------------
@@ -1319,7 +1220,6 @@ end;
 procedure TfrmItemFrame.FrameResize(Sender: TObject);
 begin
 DisableHighlight;
-ResizingProcess;
 end;
 
 //------------------------------------------------------------------------------
@@ -1332,235 +1232,90 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.tmrSecondaryPicsTimer(Sender: TObject);
+begin
+If imgNextPicture.Tag <> 0 then
+  imgNextPicture.OnMouseDown(nil,mbLeft,[],0,0)
+else If imgPrevPicture.Tag <> 0 then
+  imgPrevPicture.OnMouseDown(nil,mbLeft,[],0,0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.tmrHighlightTimerTimer(Sender: TObject);
+begin
+tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
+If tmrHighlightTimer.Tag <= 0 then
+  DisableHighlight;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgPrevPictureMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgPrevPicture.Picture.Assign(fPicArrowLeftD);
+If Assigned(fCurrentItem) then
+  begin
+    fCurrentItem.Pictures.PrevSecondary;
+    fPicturesManager.UpdateSecondary;
+    imgPrevPicture.Tag := -1;
+    tmrSecondaryPics.Enabled := True;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgPrevPictureMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgPrevPicture.Picture.Assign(fPicArrowLeft);
+imgPrevPicture.Tag := 0;
+tmrSecondaryPics.Enabled := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgNextPictureMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgNextPicture.Picture.Assign(fPicArrowRightD);
+If Assigned(fCurrentItem) then
+  begin
+    fCurrentItem.Pictures.NextSecondary;
+    fPicturesManager.UpdateSecondary;
+    imgNextPicture.Tag := -1;
+    tmrSecondaryPics.Enabled := True;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.imgNextPictureMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+imgNextPicture.Picture.Assign(fPicArrowRight);
+imgNextPicture.Tag := 0;
+tmrSecondaryPics.Enabled := False;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.imgPictureClick(Sender: TObject);
 
-  procedure OpenPicture(const FileName: String);
+  procedure OpenPicture(Index: Integer);
   begin
-    If IL_FileExists(IL_PathAbsolute(fILManager.StaticSettings.ListPath,FileName)) then
-      IL_ShellOpen(Handle,IL_PathAbsolute(fILManager.StaticSettings.ListPath,FileName));
+    If fCurrentItem.Pictures.CheckIndex(Index) then
+      fCurrentItem.Pictures.OpenPictureFile(Index);
   end;
 
 begin
 If Assigned(fCurrentItem) and (Sender is TImage) then
   case fPicturesManager.Kind(TImage(Sender)) of
-    ilipkMain:      OpenPicture(fCurrentItem.ItemPictureFile);
-    ilipkSecondary: OpenPicture(fCurrentItem.SecondaryPictureFile);
-    ilipkPackage:   OpenPicture(fCurrentItem.PackagePictureFile);
+    ilipkMain:      OpenPicture(fCurrentItem.Pictures.IndexOfItemPicture);
+    ilipkSecondary: OpenPicture(fCurrentItem.Pictures.CurrentSecondary);
+    ilipkPackage:   OpenPicture(fCurrentItem.Pictures.IndexOfPackagePicture);
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.pmnPicturesMenuPopup(Sender: TObject);
-var
-  PicKind:  TLIItemPictureKind;
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  begin
-    PicKind := fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent));
-    mniPM_ReplacePic.Visible := PicKind <> ilipkUnknown;
-    mniPM_LoadItemPic.Visible := PicKind <> ilipkMain;
-    mniPM_LoadItemPic.Enabled := mniPM_LoadItemPic.Visible;
-    mniPM_LoadSecondaryPic.Visible := PicKind <> ilipkSecondary;
-    mniPM_LoadSecondaryPic.Enabled := mniPM_LoadSecondaryPic.Visible;
-    mniPM_LoadPackagePic.Visible := PicKind <> ilipkPackage;
-    mniPM_LoadPackagePic.Enabled := mniPM_LoadPackagePic.Visible;
-    mniPM_ExportPic.Visible := PicKind <> ilipkUnknown;
-    N1.Visible := True;
-    mniPM_RemovePic.Visible := PicKind <> ilipkUnknown;
-    mniPM_RemoveItemPic.Visible := (PicKind <> ilipkMain) and Assigned(fCurrentItem.ItemPicture);
-    mniPM_RemoveSecondaryPic.Visible := (PicKind <> ilipkSecondary) and Assigned(fCurrentItem.SecondaryPicture);
-    mniPM_RemovePackagePic.Visible := (PicKind <> ilipkPackage) and Assigned(fCurrentItem.PackagePicture);
-    mniPM_SwapItemPic.Visible := not(PicKind in [ilipkUnknown,ilipkMain]) and Assigned(fCurrentItem.ItemPicture);
-    mniPM_SwapSecondaryPic.Visible := not(PicKind in [ilipkUnknown,ilipkSecondary]) and Assigned(fCurrentItem.SecondaryPicture);
-    mniPM_SwapPackagePic.Visible := not(PicKind in [ilipkUnknown,ilipkPackage]) and Assigned(fCurrentItem.PackagePicture);
-    N2.Visible := mniPM_SwapItemPic.Visible or mniPM_SwapSecondaryPic.Visible or mniPM_SwapPackagePic.Visible;
-  end
-else
-  begin
-    mniPM_ReplacePic.Visible := False;
-    mniPM_LoadItemPic.Visible := True;
-    mniPM_LoadItemPic.Enabled := False;
-    mniPM_LoadSecondaryPic.Visible := True;
-    mniPM_LoadSecondaryPic.Enabled := False;
-    mniPM_LoadPackagePic.Visible := True;
-    mniPM_LoadPackagePic.Enabled := False;
-    mniPM_ExportPic.Visible := False;
-    N1.Visible := False;
-    mniPM_RemovePic.Visible := False;
-    mniPM_RemoveItemPic.Visible := False;
-    mniPM_RemoveSecondaryPic.Visible := False;
-    mniPM_RemovePackagePic.Visible := False;
-    mniPM_SwapItemPic.Visible := False;
-    mniPM_SwapSecondaryPic.Visible := False;
-    mniPM_SwapPackagePic.Visible := False;
-    N2.Visible := False;    
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_ReplacePicClick(Sender: TObject);
-var
-  TempBitmap: TBitmap;
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  begin
-    TempBitmap := nil;
-    case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-      ilipkMain:
-        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkMain),TempBitmap,fCurrentItem.ItemPicture);
-      ilipkSecondary:
-        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkSecondary),TempBitmap,fCurrentItem.SecondaryPicture);
-      ilipkPackage:
-        BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkPackage),TempBitmap,fCurrentItem.PackagePicture);
-    else
-      raise Exception.CreateFmt('Invalid picture kind (%d).',
-        [Ord(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)))]);
-    end;
-    If Assigned(TempBitmap) then
-      case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-        ilipkMain:      fCurrentItem.ItemPicture := TempBitmap;
-        ilipkSecondary: fCurrentItem.SecondaryPicture := TempBitmap;
-        ilipkPackage:   fCurrentItem.PackagePicture := TempBitmap;
-      end;
-    // do not free the bitmap, is is directly assigned to the item
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_LoadItemPicClick(Sender: TObject);
-var
-  TempBitmap: TBitmap;
-begin
-TempBitmap := nil;
-BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkMain),TempBitmap,fCurrentItem.ItemPicture);
-If Assigned(TempBitmap) then
-  fCurrentItem.ItemPicture := TempBitmap;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_LoadSecondaryPicClick(Sender: TObject);
-var
-  TempBitmap: TBitmap;
-begin
-TempBitmap := nil;
-BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkSecondary),TempBitmap,fCurrentItem.SecondaryPicture);
-If Assigned(TempBitmap) then
-  fCurrentItem.SecondaryPicture := TempBitmap;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_LoadPackagePicClick(Sender: TObject);
-var
-  TempBitmap: TBitmap;
-begin
-TempBitmap := nil;
-BrowseSmallPicture(IL_ItemPictureKindToStr(ilipkPackage),TempBitmap,fCurrentItem.PackagePicture);
-If Assigned(TempBitmap) then
-  fCurrentItem.PackagePicture := TempBitmap;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_ExportPicClick(Sender: TObject);
-
-  procedure ExportPicture(const FileStr: String; StoredBitmap: TBitmap);
-  begin
-    If Assigned(StoredBitmap) then
-      begin
-        diaPicExport.Title := IL_Format('Export %s picture',[FileStr]);
-        diaPicExport.FileName := '';
-        If diaPicExport.Execute then
-          StoredBitmap.SaveToFile(StrToRTL(diaPicExport.FileName));
-      end;
-  end;
-
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-    ilipkMain:
-      ExportPicture(IL_ItemPictureKindToStr(ilipkMain),fCurrentItem.ItemPicture);
-    ilipkSecondary:
-      ExportPicture(IL_ItemPictureKindToStr(ilipkSecondary),fCurrentItem.SecondaryPicture);
-    ilipkPackage:
-      ExportPicture(IL_ItemPictureKindToStr(ilipkPackage),fCurrentItem.PackagePicture);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_RemovePicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
-       [IL_ItemPictureKindToStr(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)))]),
-       mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    case fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)) of
-      ilipkMain:      fCurrentItem.ItemPicture := nil;
-      ilipkSecondary: fCurrentItem.SecondaryPicture := nil;
-      ilipkPackage:   fCurrentItem.PackagePicture := nil;
-    end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_RemoveItemPicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
-                [IL_ItemPictureKindToStr(ilipkMain)]),
-                mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    fCurrentItem.ItemPicture := nil;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_RemoveSecondaryPicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
-                [IL_ItemPictureKindToStr(ilipkSecondary)]),
-                mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    fCurrentItem.SecondaryPicture := nil;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_RemovePackagePicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  If MessageDlg(IL_Format('Are you sure you want to remove %s picture?',
-                [IL_ItemPictureKindToStr(ilipkPackage)]),
-                mtConfirmation,[mbYes,mbNo],0) = mrYes then
-    fCurrentItem.PackagePicture := nil;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_SwapItemPicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkMain);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_SwapSecondaryPicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkSecondary);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.mniPM_SwapPackagePicClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) and (pmnPicturesMenu.PopupComponent is TImage) then
-  fCurrentItem.SwapPictures(fPicturesManager.Kind(TImage(pmnPicturesMenu.PopupComponent)),ilipkPackage);
 end;
 
 //------------------------------------------------------------------------------
@@ -1640,10 +1395,10 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.seIDChange(Sender: TObject);
+procedure TfrmItemFrame.seNumIDChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.ID := seID.Value;
+  fCurrentItem.NumID := seNumID.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1782,6 +1537,14 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.UnitWeight := seUnitWeight.Value;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfrmItemFrame.seSizeXChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
@@ -1802,14 +1565,6 @@ procedure TfrmItemFrame.seSizeZChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.SizeZ := seSizeZ.Value;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.UnitWeight := seUnitWeight.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1871,72 +1626,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.leItemPictureFileChange(Sender: TObject);
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.ItemPictureFile := leItemPictureFile.Text;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.btnBrowseItemPictureFileClick(Sender: TObject);
-var
-  Temp: String;
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  begin
-    Temp := fCurrentItem.ItemPictureFile;
-    If BrowsePicture(IL_ItemPictureKindToStr(ilipkMain),Temp) then
-      leItemPictureFile.Text := Temp; // also sets field in current item
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.leSecondaryPictureFileChange(Sender: TObject);
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.SecondaryPictureFile := leSecondaryPictureFile.Text;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.btnBrowseSecondaryPictureFileClick(Sender: TObject);
-var
-  Temp: String;
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  begin
-    Temp := fCurrentItem.SecondaryPictureFile;
-    If BrowsePicture(IL_ItemPictureKindToStr(ilipkSecondary),Temp) then
-      leSecondaryPictureFile.Text := Temp;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.lePackagePictureFileChange(Sender: TObject);
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.PackagePictureFile := lePackagePictureFile.Text;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.btnBrowsePackagePictureFileClick(Sender: TObject);
-var
-  Temp: String;
-begin
-If not fInitializing and Assigned(fCurrentItem) then
-  begin
-    Temp := fCurrentItem.PackagePictureFile;
-    If BrowsePicture(IL_ItemPictureKindToStr(ilipkPackage),Temp) then
-      lePackagePictureFile.Text := Temp;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfrmItemFrame.seUnitPriceDefaultChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
@@ -1949,6 +1638,45 @@ procedure TfrmItemFrame.seRatingChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem)then
   fCurrentItem.Rating := seRating.Value;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnRatingDetailsClick(Sender: TObject);
+var
+  Temp: String;
+begin
+If Assigned(fCurrentItem) then
+  begin
+    Temp := fCurrentItem.RatingDetails;
+    fTextEditForm.ShowTextEditor('Edit item rating details',Temp,False);
+    fCurrentItem.RatingDetails := Temp;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnPicturesClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    fItemPicturesForm.ShowPictures(fCurrentItem);
+    If Assigned(OnFocusList) then
+      OnFocusList(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
+begin
+If Assigned(fCurrentItem) then
+  begin
+    fCurrentItem.BroadcastReqCount; // should not be needed, but to be sure
+    fShopsForm.ShowShops(fCurrentItem);
+    If Assigned(OnFocusList) then
+      OnFocusList(Self);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1978,28 +1706,6 @@ If Assigned(fCurrentItem) then
       end
     else MessageDlg('No shop to update.',mtInformation,[mbOK],0);
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.btnShopsClick(Sender: TObject);
-begin
-If Assigned(fCurrentItem) then
-  begin
-    fCurrentItem.BroadcastReqCount; // should not be needed, but to be sure
-    fShopsForm.ShowShops(fCurrentItem);
-    If Assigned(OnFocusList) then
-      OnFocusList(Self);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfrmItemFrame.tmrHighlightTimerTimer(Sender: TObject);
-begin
-tmrHighlightTimer.Tag := tmrHighlightTimer.Tag - 1;
-If tmrHighlightTimer.Tag <= 0 then
-  DisableHighlight;
 end;
 
 end.

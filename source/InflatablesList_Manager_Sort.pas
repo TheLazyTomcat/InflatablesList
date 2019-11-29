@@ -114,7 +114,7 @@ FillChar(fDefaultSortSett,SizeOf(fDefaultSortSett),0);
 fDefaultSortSett.Count := 2;
 fDefaultSortSett.Items[0].ItemValueTag := ilivtManufacturer;
 fDefaultSortSett.Items[0].Reversed := False;
-fDefaultSortSett.Items[1].ItemValueTag := ilivtID;
+fDefaultSortSett.Items[1].ItemValueTag := ilivtNumID;
 fDefaultSortSett.Items[1].Reversed := False;
 fActualSortSett := fDefaultSortSett;
 fUsedSortSett := fDefaultSortSett;

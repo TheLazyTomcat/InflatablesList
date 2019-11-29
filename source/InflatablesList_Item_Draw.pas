@@ -89,13 +89,13 @@ var
         end;
   end;
 
-  procedure DrawPictureIndication(Small,Large: Boolean; OffX,OffY: Integer);
+  procedure DrawPictureIndication(ThumbPresent: Boolean; OffX,OffY: Integer);
   const
     PIC_INDICATOR_SIZE = 8;
   begin
     with fRender,fRender.Canvas do
       begin
-        If Small then
+        If ThumbPresent then
           begin
             SetCanvas(bsSolid,$00E7E7E7,psClear);
             FillRect(Rect(
@@ -104,15 +104,12 @@ var
               Width - (OffX * PIC_INDICATOR_SIZE) - 1,
               Height - (OffY * PIC_INDICATOR_SIZE) - 2));
           end;
-        If Large then
-          begin
-            SetCanvas(bsClear,clSilver,psClear);
-            FrameRect(Rect(
-              Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
-              Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
-              Width - (OffX * PIC_INDICATOR_SIZE) - 1,
-              Height - (OffY * PIC_INDICATOR_SIZE) - 2));
-          end;
+        SetCanvas(bsClear,clSilver,psClear);
+        FrameRect(Rect(
+          Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
+          Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),
+          Width - (OffX * PIC_INDICATOR_SIZE) - 1,
+          Height - (OffY * PIC_INDICATOR_SIZE) - 2));
       end;
   end;
 
@@ -279,10 +276,14 @@ with fRender,fRender.Canvas do
           end;
     
         // main picture
-        If Assigned(fItemPicture) and not fStaticSettings.NoPictures then
-          Draw(Width - 103,5,fItemPicture)
-        else
-          Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
+          begin
+            If Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail) then
+              Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
+            else
+              Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+          end
+        else Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
     
         // worst result indication
         If (fShopCount > 0) and (ilifWanted in fFlags) then
@@ -292,9 +293,13 @@ with fRender,fRender.Canvas do
           end;
     
         // picture presence indication
-        DrawPictureIndication(Assigned(fItemPicture),Length(fItemPictureFile) > 0,0,0);
-        DrawPictureIndication(Assigned(fSecondaryPicture),Length(fSecondaryPictureFile) > 0,0,1);
-        DrawPictureIndication(Assigned(fPackagePicture),Length(fPackagePictureFile) > 0,1,0);
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+          DrawPictureIndication(Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail),0,0);
+        TempInt := fPictures.SecondaryCount(False);
+        If TempInt > 0 then
+          DrawPictureIndication(fPictures.SecondaryCount(True) = TempInt,0,1);
+        If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+          DrawPictureIndication(Assigned(fPictures[fPictures.IndexOfPackagePicture].Thumbnail),1,0);
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
@@ -388,10 +393,14 @@ with fRenderSmall,fRenderSmall.Canvas do
           TextOut(Width - 64 - TextWidth(TempStr),35,TempStr);
     
         // picture
-        If Assigned(fItemPictureSmall) and not fStaticSettings.NoPictures then
-          Draw(Width - 54,2,fItemPictureSmall)
-        else
-          Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);      
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
+          begin
+            If Assigned(fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall) then
+              Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall)
+            else
+              Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+          end
+        else Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
       end
     else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       begin
@@ -433,21 +442,21 @@ end;
 
 procedure TILItem_Draw.RenderSmallItemPicture;
 begin
-RenderSmallPicture(fItemPicture,fItemPictureSmall);
+//RenderSmallPicture(fItemPicture,fItemPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallSecondaryPicture;
 begin
-RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
+//RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILItem_Draw.RenderSmallPackagePicture;
 begin
-RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
+//RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
 end;
 
 //------------------------------------------------------------------------------

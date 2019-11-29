@@ -1,4 +1,4 @@
-object fShopByItems: TfShopByItems
+object fShopByItemsForm: TfShopByItemsForm
   Left = 421
   Top = 158
   BorderStyle = bsDialog

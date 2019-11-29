@@ -1,4 +1,4 @@
-unit InflatablesList_Item_IO;
+unit InflatablesList_ItemPictures_IO;
 
 {$INCLUDE '.\InflatablesList_defs.inc'}
 
@@ -7,25 +7,26 @@ interface
 uses
   Classes, Graphics,
   AuxTypes,
-  InflatablesList_Item_Search;
+  InflatablesList_ItemPictures_Base;
 
 const
-  IL_ITEM_SIGNATURE = UInt32($4D455449);  // ITEM
+  IL_ITEMPICTURES_SIGNATURE = UInt32($43495049);  // IPIC
 
-  IL_ITEM_STREAMSTRUCTURE_00000008 = UInt32($00000008);
-  IL_ITEM_STREAMSTRUCTURE_00000009 = UInt32($00000009);
+  IL_ITEMPICTURES_STREAMSTRUCTURE_00000000 = UInt32($00000000);
 
-  IL_ITEM_STREAMSTRUCTURE_SAVE = IL_ITEM_STREAMSTRUCTURE_00000009;
-
-  IL_ITEM_DECRYPT_CHECK = UInt64($53444E454D455449);  // ITEMENDS
+  IL_ITEMPICTURES_STREAMSTRUCTURE_SAVE = IL_ITEMPICTURES_STREAMSTRUCTURE_00000000;
 
 type
-  TILItem_IO = class(TILItem_Search)
+  TILItemPictures_IO = class(TILItemPictures_Base)
   protected
     fFNSaveToStream:    procedure(Stream: TStream) of object;
     fFNLoadFromStream:  procedure(Stream: TStream) of object;
-    fFNSavePicture:     procedure(Stream: TStream; Pic: TBitmap) of object;
-    fFNLoadPicture:     procedure(Stream: TStream; out Pic: TBitmap) of object;
+    fFNSaveEntries:     procedure(Stream: TStream) of object;
+    fFNLoadEntries:     procedure(Stream: TStream) of object;
+    fFNSaveEntry:       procedure(Stream: TStream; Entry: TILItemPicturesEntry) of object;
+    fFNLoadEntry:       procedure(Stream: TStream; out Entry: TILItemPicturesEntry) of object;
+    fFNSaveThumbnail:   procedure(Stream: TStream; Thumbnail: TBitmap) of object;
+    fFNLoadThumbnail:   procedure(Stream: TStream; out Thumbnail: TBitmap) of object;
     procedure InitSaveFunctions(Struct: UInt32); virtual; abstract;
     procedure InitLoadFunctions(Struct: UInt32); virtual; abstract;
     procedure Save(Stream: TStream; Struct: UInt32); virtual;
@@ -34,7 +35,7 @@ type
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
-    procedure LoadFromFile(const FileName: String); virtual;  
+    procedure LoadFromFile(const FileName: String); virtual;
   end;
 
 implementation
@@ -43,7 +44,7 @@ uses
   SysUtils,
   BinaryStreaming, StrRect;
 
-procedure TILItem_IO.Save(Stream: TStream; Struct: UInt32);
+procedure TILItemPictures_IO.Save(Stream: TStream; Struct: UInt32);
 begin
 InitSaveFunctions(Struct);
 fFNSaveToStream(Stream);
@@ -51,42 +52,36 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.Load(Stream: TStream; Struct: UInt32);
+procedure TILItemPictures_IO.Load(Stream: TStream; Struct: UInt32);
 begin
-fEncryptedData.Data := PtrInt(Struct);
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
-RenderSmallPictures;
+fCurrentSecondary := -1;
+NextSecondary;
 end;
 
 //==============================================================================
 
-procedure TILItem_IO.SaveToStream(Stream: TStream);
-var
-  SelectedStruct: UInt32;
+procedure TILItemPictures_IO.SaveToStream(Stream: TStream);
 begin
-Stream_WriteUInt32(Stream,IL_ITEM_SIGNATURE);
-If fEncrypted and not fDataAccessible then
-  SelectedStruct := UInt32(fEncryptedData.Data)
-else
-  SelectedStruct := IL_ITEM_STREAMSTRUCTURE_SAVE;
-Stream_WriteUInt32(Stream,SelectedStruct);  
-Save(Stream,SelectedStruct);
+Stream_WriteUInt32(Stream,IL_ITEMPICTURES_SIGNATURE);
+Stream_WriteUInt32(Stream,IL_ITEMPICTURES_STREAMSTRUCTURE_SAVE);
+Save(Stream,IL_ITEMPICTURES_STREAMSTRUCTURE_SAVE);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.LoadFromStream(Stream: TStream);
+procedure TILItemPictures_IO.LoadFromStream(Stream: TStream);
 begin
-If Stream_ReadUInt32(Stream) = IL_ITEM_SIGNATURE then
+If Stream_ReadUInt32(Stream) = IL_ITEMPICTURES_SIGNATURE then
   Load(Stream,Stream_ReadUInt32(Stream))
 else
-  raise Exception.Create('TILItem_IO.LoadFromStream: Invalid stream.');
+  raise Exception.Create('TILItemPictures_IO.LoadFromStream: Invalid stream.');
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.SaveToFile(const FileName: String);
+procedure TILItemPictures_IO.SaveToFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin
@@ -101,7 +96,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_IO.LoadFromFile(const FileName: String);
+procedure TILItemPictures_IO.LoadFromFile(const FileName: String);
 var
   FileStream: TMemoryStream;
 begin

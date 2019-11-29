@@ -25,12 +25,12 @@ object fShopsForm: TfShopsForm
     Caption = 'Shops:'
   end
   object lblLegend: TLabel
-    Left = 796
+    Left = 723
     Top = 8
-    Width = 117
+    Width = 190
     Height = 13
     Alignment = taRightJustify
-    Caption = '* selected   ^ untracked'
+    Caption = '* selected   ^ untracked   ! worst result'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clGrayText
     Font.Height = -11

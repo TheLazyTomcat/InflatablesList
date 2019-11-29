@@ -28,6 +28,7 @@ uses
 Function TILItem_Search.SearchField(const SearchSettings: TILAdvSearchSettings; Field: TILAdvItemSearchResult): Boolean;
 var
   SelShop:  TILItemShop;
+  i:        Integer;
 
   Function GetFlagsString: String;
   var
@@ -51,6 +52,27 @@ case Field of
   ilaisrTimeOfAdd:            Result := SearchSettings.CompareFunc(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',fTimeOfAddition),False,False,False);
   ilaisrDescriptor:           Result := SearchSettings.CompareFunc(Descriptor,True,False,True);
   ilaisrTitleStr:             Result := SearchSettings.CompareFunc(TitleStr,True,False,True);
+  ilaisrPictures:             begin
+                                Result := False;
+                                For i := fPictures.LowIndex to fPictures.HighIndex do
+                                  If SearchSettings.CompareFunc(fPictures[i].PictureFile,True,False,False) then
+                                    begin
+                                      Result := True;
+                                      Break{For i};
+                                    end;
+                              end;
+  ilaisrMainPictureFile:      If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.IndexOfItemPicture].PictureFile,True,False,False)
+                              else
+                                Result := False;
+  ilaisrPackagePictureFile:   If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.IndexOfPackagePicture].PictureFile,True,False,False)
+                              else
+                                Result := False;
+  ilaisrCurrSecPictureFile:   If fPictures.CheckIndex(fPictures.CurrentSecondary) then
+                                Result := SearchSettings.CompareFunc(fPictures[fPictures.CurrentSecondary].PictureFile,True,False,False)
+                              else
+                                Result := False;
   ilaisrType:                 Result := SearchSettings.CompareFunc(fDataProvider.GetItemTypeString(fItemType),False,True,False);
   ilaisrTypeSpec:             Result := SearchSettings.CompareFunc(fItemTypeSpec,True,True,False);
   ilaisrTypeStr:              Result := SearchSettings.CompareFunc(TypeStr,True,False,True);
@@ -60,7 +82,7 @@ case Field of
   ilaisrManufacturerStr:      Result := SearchSettings.CompareFunc(fManufacturerStr,True,True,False);
   ilaisrManufacturerTag:      Result := SearchSettings.CompareFunc(fDataProvider.ItemManufacturers[fManufacturer].Tag ,True,False,False);
   ilaisrTextID:               Result := SearchSettings.CompareFunc(fTextID,True,True,False);
-  ilaisrNumID:                Result := SearchSettings.CompareFunc(IntToStr(fID),False,True,False);
+  ilaisrNumID:                Result := SearchSettings.CompareFunc(IntToStr(fNumID),False,True,False);
   ilaisrIDStr:                Result := SearchSettings.CompareFunc(IDStr,True,False,False);
   ilaisrFlags:                Result := SearchSettings.CompareFunc(GetFlagsString,False,True,True);
   ilaisrFlagOwned:            Result := (ilifOwned in fFlags) and SearchSettings.CompareFunc(fDataProvider.GetItemFlagString(ilifOwned),False,True,False);
@@ -83,23 +105,21 @@ case Field of
   ilaisrWantedLevel:          Result := SearchSettings.CompareFunc(IntToStr(fWantedLevel),False,True,False);
   ilaisrVariant:              Result := SearchSettings.CompareFunc(fVariant,True,True,False);
   ilaisrVariantTag:           Result := SearchSettings.CompareFunc(fVariantTag,True,True,False);
+  ilaisrUnitWeight:           Result := SearchSettings.CompareFunc(IntToStr(fUnitWeight),False,True,False,'g');
+  ilaisrTotalWeight:          Result := SearchSettings.CompareFunc(IntToStr(TotalWeight),False,False,True,'g');
+  ilaisrTotalWeightStr:       Result := SearchSettings.CompareFunc(TotalWeightStr,True,False,True);
   ilaisrMaterial:             Result := SearchSettings.CompareFunc(fDataProvider.GetItemMaterialString(fMaterial),False,True,False);
+  ilaisrThickness:            Result := SearchSettings.CompareFunc(IntToStr(fThickness),False,True,False,'um');
   ilaisrSizeX:                Result := SearchSettings.CompareFunc(IntToStr(fSizeX),False,True,False,'mm');
   ilaisrSizeY:                Result := SearchSettings.CompareFunc(IntToStr(fSizeY),False,True,False,'mm');
   ilaisrSizeZ:                Result := SearchSettings.CompareFunc(IntToStr(fSizeZ),False,True,False,'mm');
   ilaisrTotalSize:            Result := SearchSettings.CompareFunc(IntToStr(TotalSize),False,False,True,'mm^3');
   ilaisrSizeStr:              Result := SearchSettings.CompareFunc(SizeStr,False,False,True);
-  ilaisrUnitWeight:           Result := SearchSettings.CompareFunc(IntToStr(fUnitWeight),False,True,False,'g');
-  ilaisrTotalWeight:          Result := SearchSettings.CompareFunc(IntToStr(TotalWeight),False,False,True,'g');
-  ilaisrTotalWeightStr:       Result := SearchSettings.CompareFunc(TotalWeightStr,True,False,True);
-  ilaisrThickness:            Result := SearchSettings.CompareFunc(IntToStr(fThickness),False,True,False,'um');
   ilaisrNotes:                Result := SearchSettings.CompareFunc(fNotes,True,True,False);
   ilaisrReviewURL:            Result := SearchSettings.CompareFunc(fReviewURL,True,True,False);
-  ilaisrMainPictureFile:      Result := SearchSettings.CompareFunc(fItemPictureFile,True,True,False);
-  ilaisrSecondaryPictureFile: Result := SearchSettings.CompareFunc(fSecondaryPictureFile,True,True,False);
-  ilaisrPackagePictureFile:   Result := SearchSettings.CompareFunc(fPackagePictureFile,True,True,False);
   ilaisrUnitPriceDefault:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceDefault),False,True,False,'Kè');
   ilaisrRating:               Result := SearchSettings.CompareFunc(IntToStr(fRating),False,True,False,'%');
+  ilaisrRatingDetails:        Result := SearchSettings.CompareFunc(fRatingDetails,True,True,False);
   ilaisrUnitPrice:            Result := SearchSettings.CompareFunc(IntToStr(UnitPrice),False,False,True,'Kè');
   ilaisrUnitPriceLowest:      Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceLowest),False,False,True,'Kè');
   ilaisrTotalPriceLowest:     Result := SearchSettings.CompareFunc(IntToStr(TotalPriceLowest),False,False,True,'Kè');
@@ -137,7 +157,7 @@ If fDataAccessible then
     i := IL_WrapSearchResult(Pred(From));
     while i <> From do
       begin
-        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+        If Contains(Text,i) then
           begin
             Result := i;
             Break{while...};
@@ -159,7 +179,7 @@ If fDataAccessible then
     i := IL_WrapSearchResult(Succ(From));
     while i <> From do
       begin
-        If Contains(Text,IL_ItemSearchResultToValueTag(i)) then
+        If Contains(Text,i) then
           begin
             Result := i;
             Break{while...};

@@ -185,7 +185,7 @@ Stream_WriteString(Stream,fUserID);
 Stream_WriteInt32(Stream,IL_ItemManufacturerToNum(fManufacturer));
 Stream_WriteString(Stream,fManufacturerStr);
 Stream_WriteString(Stream,fTextID);
-Stream_WriteInt32(Stream,fID);
+Stream_WriteInt32(Stream,fNumID);
 // flags
 Stream_WriteUInt32(Stream,IL_EncodeItemFlags(fFlags));
 Stream_WriteString(Stream,fTextTag);
@@ -268,7 +268,7 @@ try
   fManufacturer := IL_NumToItemManufacturer(Stream_ReadInt32(Stream));
   fManufacturerStr := Stream_ReadString(Stream);
   fTextID := Stream_ReadString(Stream);
-  fID := Stream_ReadInt32(Stream);
+  fNumID := Stream_ReadInt32(Stream);
   // flags
   fFlags := IL_DecodeItemFlags(Stream_ReadUInt32(Stream));
   fTextTag := Stream_ReadString(Stream);

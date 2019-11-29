@@ -166,7 +166,7 @@ const
     'Material type','Wall thickness','Size X (length, diameter, ...)',
     'Size Y (width, inner diameter, ...)','Size Z (height, thickness, ...)',
     'Total size (X * Y * Z)','Notes','ReviewURL','Review (is present)','Default unit price',
-    'Rating','Unit price lowest','Total price lowest','Unit price selected',
+    'Rating','RatingDetails','Unit price lowest','Total price lowest','Unit price selected',
     'Total price selected','Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
@@ -189,8 +189,31 @@ const
     'First integer','First integer, tagged','Negative tag is count',
     'First number','First number tagged');
 
+(*
+ilaisrListIndex_,ilaisrUniqueID,ilaisrTimeOfAdd,
+    ilaisrDescriptor,ilaisrTitleStr,ilaisrPictures,ilaisrMainPictureFile,
+    ilaisrCurrSecPictureFile,ilaisrPackagePictureFile,ilaisrType,ilaisrTypeSpec,
+    ilaisrTypeStr,ilaisrPieces,ilaisrUserID,ilaisrManufacturer,
+    ilaisrManufacturerStr,ilaisrManufacturerTag,ilaisrTextID,ilaisrNumID,
+    ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,ilaisrFlagOrdered,
+    ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,ilaisrFlagTesting,
+    ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,ilaisrFlagPriceChange,
+    ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
+    ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
+    ilaisrVariant,ilaisrVariantTag,ilaisrUnitWeight,ilaisrTotalWeight,
+    ilaisrTotalWeightStr,ilaisrMaterial,ilaisrThickness,ilaisrSizeX,ilaisrSizeY,
+    ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrNotes,ilaisrReviewURL,
+    ilaisrUnitPriceDefault,ilaisrRating,ilaisrRatingDetails,ilaisrUnitPrice,
+    ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,
+    ilaisrTotalPriceHighest,ilaisrUnitPriceSel,ilaisrTotalPriceSel,
+    ilaisrTotalPrice,ilaisrAvailableLowest,ilaisrAvailableHighest,
+    ilaisrAvailableSel,ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
+    ilaisrUsefulShopRatio,ilaisrSelectedShop,ilaisrWorstUpdateResult
+*)
+
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
-    'List index','Unique ID','Time of addition','Item descriptor','Title',
+    'List index','Unique ID','Time of addition','Item descriptor','Title','Pictures',
+    'Main picture file','Package picture file','Current secondary picture file',
     'Type','Type specification','Type string','Pieces','User ID','Manufacturer',
     'Manufacturer string','Manufaturer tag','Text ID','Numerical ID','ID string',
     'Flags','Flag - Owned','Flag - Wanted','Flag - Ordered','Flag - Boxed',
@@ -198,15 +221,13 @@ const
     'Flag - Damaged','Flag - Rrepaired','Flag  - Price change',
     'Flag - Availability change','Flag - Not available','Flag - Lost',
     'Flag - Discarded','Textual tag','Numerical tag','Wanted level','Variant',
-    'Variant tag','Material','Size X','Size Y','Size Z','Total size',
-    'Size string','Unit weight','Total weight','Total weight string',
-    'Thickness','Notes','Review URL','Pictures','Main picture file',
-    'Package picture file','Current secondary picture file','Unit price default',
-    'Rating','Unit price','Unit price lowest','Total price lowest',
-    'Unit price highest','Total price highest','Unit price selected',
-    'Total price selected','Total price','Available lowest','Available highest',
-    'Available selected','Shop count','Shop count string','Useful shop count',
-    'Useful shop ratio','Selected shop','Worst update result');
+    'Variant tag','Unit weight','Total weight','Total weight string',
+    'Material','Thickness','Size X','Size Y','Size Z','Total size','Size string',
+    'Notes','Review URL','Unit price default','Rating','Rating details','Unit price',
+    'Unit price lowest','Total price lowest','Unit price highest','Total price highest',
+    'Unit price selected','Total price selected','Total price','Available lowest',
+    'Available highest','Available selected','Shop count','Shop count string',
+    'Useful shop count','Useful shop ratio','Selected shop','Worst update result');
 
   IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
     'List index','Selected','Untracked','Alternative download method','Name',

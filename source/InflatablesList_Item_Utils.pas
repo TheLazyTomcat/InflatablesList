@@ -118,8 +118,8 @@ Function TILItem_Utils.IDStr: String;
 begin
 If Length(fTextID) <= 0 then
   begin
-    If fID <> 0 then
-      Result := IntToStr(fID)
+    If fNumID <> 0 then
+      Result := IntToStr(fNumID)
     else
       Result := '';
   end

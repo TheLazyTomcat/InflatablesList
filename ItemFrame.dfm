@@ -105,7 +105,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Numerical ID:'
     end
     object lblUnitDefaultPrice: TLabel
-      Left = 376
+      Left = 272
       Top = 512
       Width = 87
       Height = 13
@@ -461,7 +461,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblRating: TLabel
-      Left = 504
+      Left = 392
       Top = 512
       Width = 97
       Height = 13
@@ -851,7 +851,7 @@ object frmItemFrame: TfrmItemFrame
       Value = 0
       OnChange = seSizeXChange
     end
-    object seID: TSpinEdit
+    object seNumID: TSpinEdit
       Left = 520
       Top = 208
       Width = 105
@@ -860,12 +860,12 @@ object frmItemFrame: TfrmItemFrame
       MinValue = 0
       TabOrder = 8
       Value = 0
-      OnChange = seIDChange
+      OnChange = seNumIDChange
     end
     object seUnitPriceDefault: TSpinEdit
-      Left = 376
+      Left = 272
       Top = 528
-      Width = 121
+      Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
       MaxValue = 268435455
@@ -1169,23 +1169,23 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbItemTypeChange
     end
     object btnUpdateShops: TButton
-      Left = 504
+      Left = 512
       Top = 560
-      Width = 121
+      Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Update shops...'
-      TabOrder = 26
+      TabOrder = 27
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
-      Left = 376
+      Left = 392
       Top = 560
-      Width = 121
+      Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Shops...'
-      TabOrder = 25
+      TabOrder = 26
       OnClick = btnShopsClick
     end
     object sePieces: TSpinEdit
@@ -1202,7 +1202,7 @@ object frmItemFrame: TfrmItemFrame
     object leReviewURL: TLabeledEdit
       Left = 0
       Top = 528
-      Width = 344
+      Width = 240
       Height = 21
       Anchors = [akLeft, akBottom]
       EditLabel.Width = 61
@@ -1212,7 +1212,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
-      Left = 344
+      Left = 240
       Top = 528
       Width = 25
       Height = 21
@@ -1266,9 +1266,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = leTextIDChange
     end
     object seRating: TSpinEdit
-      Left = 504
+      Left = 392
       Top = 528
-      Width = 121
+      Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
       MaxLength = 3
@@ -1319,14 +1319,24 @@ object frmItemFrame: TfrmItemFrame
       TabOrder = 12
     end
     object btnPictures: TButton
-      Left = 248
+      Left = 272
       Top = 560
-      Width = 121
+      Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Pictures...'
-      TabOrder = 24
+      TabOrder = 25
       OnClick = btnPicturesClick
+    end
+    object btnRatingDetails: TButton
+      Left = 512
+      Top = 526
+      Width = 113
+      Height = 25
+      Anchors = [akLeft, akBottom]
+      Caption = 'Rating details...'
+      TabOrder = 24
+      OnClick = btnRatingDetailsClick
     end
   end
   object diaPicOpenDialog: TOpenDialog

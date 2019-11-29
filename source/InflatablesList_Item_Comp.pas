@@ -42,6 +42,18 @@ begin
 // search only in editable values
 If fDataAccessible then
   case Value of
+    ilisrItemPicFile:           Result := CheckInPicture(fPictures.IndexOfItemPicture,Text);
+    ilisrSecondaryPicFile:      begin
+                                  Result := False;
+                                  For i := fPictures.LowIndex to fPictures.HighIndex do
+                                    If not fPictures[i].ItemPicture and not fPictures[i].PackagePicture then
+                                      If CheckInPicture(i,Text) then
+                                        begin
+                                          Result := True;
+                                          Break{For i};
+                                        end;
+                                end;
+    ilisrPackagePicFile:        Result := CheckInPicture(fPictures.IndexOfPackagePicture,Text);
     ilisrType:                  Result := IL_ContainsText(fDataProvider.GetItemTypeString(fItemType),Text);
     ilisrTypeSpec:              Result := IL_ContainsText(fItemTypeSpec,Text);
     ilisrPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
@@ -49,7 +61,7 @@ If fDataAccessible then
     ilisrManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
     ilisrManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
     ilisrTextID:                Result := IL_ContainsText(fTextID,Text);
-    ilisrNumID:                 Result := IL_ContainsText(IntToStr(fID),Text);
+    ilisrNumID:                 Result := IL_ContainsText(IntToStr(fNumID),Text);
     ilisrFlagOwned:             Result := (ilifOwned in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOwned),Text);
     ilisrFlagWanted:            Result := (ilifWanted in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifWanted),Text);
     ilisrFlagOrdered:           Result := (ilifOrdered in fFlags) and IL_ContainsText(fDataProvider.GetItemFlagString(ilifOrdered),Text);
@@ -70,28 +82,17 @@ If fDataAccessible then
     ilisrWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
     ilisrVariant:               Result := IL_ContainsText(fVariant,Text);
     ilisrVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
+    ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
     ilisrMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
+    ilisrThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
     ilisrSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
     ilisrSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
     ilisrSizeZ:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text);
-    ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
-    ilisrThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
     ilisrNotes:                 Result := IL_ContainsText(fNotes,Text);
     ilisrReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
-    ilisrItemPicFile:           Result := CheckInPicture(fPictures.IndexOfItemPicture,Text);
-    ilisrSecondaryPicFile:      begin
-                                  Result := False;
-                                  For i := fPictures.LowIndex to fPictures.HighIndex do
-                                    If not fPictures[i].ItemPicture and not fPictures[i].PackagePicture then
-                                      If CheckInPicture(i,Text) then
-                                        begin
-                                          Result := True;
-                                          Break{For i};
-                                        end;
-                                end;
-    ilisrPackagePicFile:        Result := CheckInPicture(fPictures.IndexOfPackagePicture,Text);
     ilisrUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
     ilisrRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
+    ilisrRatingDetails:         Result := IL_ContainsText(fRatingDetails,Text);
     ilisrSelectedShop:          If ShopsSelected(SelShop) then
                                   Result := IL_ContainsText(SelShop.Name,Text)
                                 else
@@ -109,6 +110,9 @@ begin
 If fDataAccessible then
   // search only in editable values
   Result :=
+    Contains(Text,ilisrItemPicFile) or
+    Contains(Text,ilisrSecondaryPicFile) or
+    Contains(Text,ilisrPackagePicFile) or
     Contains(Text,ilisrType) or
     Contains(Text,ilisrTypeSpec) or
     Contains(Text,ilisrPieces) or
@@ -137,19 +141,17 @@ If fDataAccessible then
     Contains(Text,ilisrWantedLevel) or
     Contains(Text,ilisrVariant) or
     Contains(Text,ilisrVariantTag) or
+    Contains(Text,ilisrUnitWeight) or
     Contains(Text,ilisrMaterial) or
+    Contains(Text,ilisrThickness) or    
     Contains(Text,ilisrSizeX) or
     Contains(Text,ilisrSizeY) or
     Contains(Text,ilisrSizeZ) or
-    Contains(Text,ilisrUnitWeight) or
-    Contains(Text,ilisrThickness) or
     Contains(Text,ilisrNotes) or
     Contains(Text,ilisrReviewURL) or
-    Contains(Text,ilisrItemPicFile) or
-    Contains(Text,ilisrSecondaryPicFile) or
-    Contains(Text,ilisrPackagePicFile) or
     Contains(Text,ilisrUnitPriceDefault) or
     Contains(Text,ilisrRating) or
+    Contains(Text,ilisrRatingDetails) or
     Contains(Text,ilisrSelectedShop)
 else
   Result := False;
@@ -303,7 +305,7 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtTextID:            Result := CompareText_Internal(fTextID,WithItem.TextID);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtID:                Result := IL_SortCompareInt32(fID,WithItem.ID);
+    ilivtNumID:             Result := IL_SortCompareInt32(fNumID,WithItem.NumID);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtIDStr:             Result := CompareText_Internal(IDStr,WithItem.IDStr);
   
@@ -377,6 +379,24 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                             else
                               Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
+                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
+                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
+                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
+                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtMaterial:          If fMaterial <> WithItem.Material then
                               begin
                                 If not(fMaterial in [ilimtUnknown,ilimtOther]) and not(WithItem.Material in [ilimtUnknown,ilimtOther]) then
@@ -401,6 +421,15 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               end
                             else Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
+                              Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
+                            else If (fThickness > 0) and (WithItem.Thickness <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
+                            else If (fThickness <= 0) and (WithItem.Thickness > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;                            
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtSizeX:             Result := IL_SortCompareUInt32(fSizeX,WithItem.SizeX);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtSizeY:             Result := IL_SortCompareUInt32(fSizeY,WithItem.SizeY);
@@ -415,34 +444,7 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := IL_NegateValue(-1,Reversed)
                             else
                               Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
-                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
-                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
-                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
-                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
-                              Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
-                            else If (fThickness > 0) and (WithItem.Thickness <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 thickness to the end
-                            else If (fThickness <= 0) and (WithItem.Thickness > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-  
+
     // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     ilivtNotes:             Result := CompareText_Internal(fNotes,WithItem.Notes);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -464,6 +466,8 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := IL_NegateValue(-1,Reversed)
                             else
                               Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtRatingDetails:     Result := CompareText_Internal(fRatingDetails,WithItem.RatingDetails);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtUnitPriceLowest:   Result := IL_SortCompareUInt32(fUnitPriceLowest,WithItem.UnitPriceLowest);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

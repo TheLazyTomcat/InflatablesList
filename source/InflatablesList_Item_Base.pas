@@ -63,7 +63,7 @@ type
     fManufacturer:          TILItemManufacturer;
     fManufacturerStr:       String;
     fTextID:                String;
-    fID:                    Int32;
+    fNumID:                 Int32;
     // flags, tags
     fFlags:                 TILItemFlags;
     fTextTag:               String;
@@ -83,6 +83,7 @@ type
     fReviewURL:             String;
     fUnitPriceDefault:      UInt32;
     fRating:                UInt32;           // 0..100 [%]
+    fRatingDetails:         String;
     // availability and prices (calculated from shops)
     fUnitPriceLowest:       UInt32;
     fUnitPriceHighest:      UInt32;
@@ -105,7 +106,7 @@ type
     procedure SetManufacturer(Value: TILItemManufacturer); virtual;
     procedure SetManufacturerStr(const Value: String); virtual;
     procedure SetTextID(const Value: String); virtual;
-    procedure SetID(Value: Int32); virtual;
+    procedure SetNumID(Value: Int32); virtual;
     procedure SetFlags(Value: TILItemFlags); virtual;
     procedure SetTextTag(const Value: String); virtual;
     procedure SetNumTag(Value: Int32); virtual;
@@ -122,6 +123,7 @@ type
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
     procedure SetRating(Value: UInt32); virtual;
+    procedure SetRatingDetails(const Value: String); virtual;
     Function GetShop(Index: Integer): TILItemShop; virtual;
     // list methods
     Function GetCapacity: Integer; override;
@@ -224,7 +226,7 @@ type
     property UserID: String read fUserID write SetUserID;
     property Manufacturer: TILItemManufacturer read fManufacturer write SetManufacturer;
     property ManufacturerStr: String read fManufacturerStr write SetManufacturerStr;
-    property ID: Int32 read fID write SetID;
+    property NumID: Int32 read fNumID write SetNumID;
     property TextID: String read fTextID write SetTextID;
     property Flags: TILItemFlags read fFlags write SetFlags;
     property TextTag: String read fTextTag write SetTextTag;
@@ -242,6 +244,7 @@ type
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
     property Rating: UInt32 read fRating write SetRating;
+    property RatingDetails: String read fRatingDetails write SetRatingDetails;
     property UnitPriceLowest: UInt32 read fUnitPriceLowest;
     property UnitPriceHighest: UInt32 read fUnitPriceHighest;
     property UnitPriceSelected: UInt32 read fUnitPriceSelected;
@@ -386,11 +389,11 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetID(Value: Int32);
+procedure TILItem_Base.SetNumID(Value: Int32);
 begin
-If fID <> Value then
+If fNumID <> Value then
   begin
-    fID := Value;
+    fNumID := Value;
     UpdateMainList;
     UpdateSmallList;
     UpdateTitle;
@@ -588,6 +591,17 @@ If fRating <> Value then
   begin
     fRating := Value;
     UpdateMainList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetRatingDetails(const Value: String);
+begin
+If not IL_SameStr(fRatingDetails,Value) then
+  begin
+    fRatingDetails := Value;
+    UniqueString(fRatingDetails);
   end;
 end;
 
@@ -856,7 +870,7 @@ fUserID := '';
 fManufacturer := ilimOthers;
 fManufacturerStr := '';
 fTextID := '';
-fID := 0;
+fNumID := 0;
 // flags
 fFlags := [];
 fTextTag := '';
@@ -876,6 +890,7 @@ fNotes := '';
 fReviewURL := '';
 fUnitPriceDefault := 0;
 fRating := 0;
+fRatingDetails := '';
 fUnitPriceLowest := 0;
 fUnitPriceHighest := 0;
 fUnitPriceSelected := 0;
@@ -992,7 +1007,7 @@ fManufacturerStr := Source.ManufacturerStr;
 UniqueString(fManufacturerStr);
 fTextID := Source.TextID;
 UniqueString(fTextID);
-fID := Source.ID;
+fNumID := Source.NumID;
 fFlags := Source.Flags;
 fTextTag := Source.TextTag;
 UniqueString(fTextTag);
@@ -1014,6 +1029,8 @@ fReviewURL := Source.ReviewURL;
 UniqueString(fReviewURL);
 fUnitPriceDefault := Source.UnitPriceDefault;
 fRating := Source.Rating;
+fRatingDetails := Source.RatingDetails;
+UniqueString(fRatingDetails);
 fUnitPriceLowest := Source.UnitPriceLowest;
 fUnitPriceHighest := Source.UnitPriceHighest;
 fUnitPriceSelected := Source.UnitPriceSelected;

@@ -74,7 +74,7 @@ type
     leManufacturerString: TLabeledEdit;
     leTextID: TLabeledEdit;
     lblID: TLabel;
-    seID: TSpinEdit;
+    seNumID: TSpinEdit;
     gbFlagsTags: TGroupBox;
     cbFlagOwned: TCheckBox;
     cbFlagWanted: TCheckBox;
@@ -123,6 +123,7 @@ type
     seUnitPriceDefault: TSpinEdit;
     lblRating: TLabel;
     seRating: TSpinEdit;
+    btnRatingDetails: TButton;    
     btnPictures: TButton;
     btnShops: TButton;
     btnUpdateShops: TButton;
@@ -168,7 +169,7 @@ type
     procedure cmbManufacturerChange(Sender: TObject);
     procedure leManufacturerStringChange(Sender: TObject);
     procedure leTextIDChange(Sender: TObject);
-    procedure seIDChange(Sender: TObject);
+    procedure seNumIDChange(Sender: TObject);
     procedure CommonFlagClick(Sender: TObject);
     procedure btnFlagMacrosClick(Sender: TObject);
     procedure CommonFlagMacroClick(Sender: TObject);
@@ -188,6 +189,7 @@ type
     procedure btnReviewOpenClick(Sender: TObject);
     procedure seUnitPriceDefaultChange(Sender: TObject);
     procedure seRatingChange(Sender: TObject);
+    procedure btnRatingDetailsClick(Sender: TObject);
     procedure btnPicturesClick(Sender: TObject);
     procedure btnShopsClick(Sender: TObject);
     procedure btnUpdateShopsClick(Sender: TObject);
@@ -752,6 +754,13 @@ else If (Control = seNumTag) or (Control = eTextTag) then
     shpHighlight.Width := 5;
     shpHighlight.Height := Control.Height + 1;
   end
+else If Control = btnRatingDetails then
+  begin
+    shpHighlight.Left := Control.Left;
+    shpHighlight.Top := Control.Top - 6;
+    shpHighlight.Width := Control.Width;
+    shpHighlight.Height := 5;
+  end
 else Exit;  // control is not valid
 shpHighlight.Parent := Control.Parent;
 shpHighlight.Visible := True;
@@ -766,6 +775,9 @@ end;
 procedure TfrmItemFrame.HighLight(Value: TILItemSearchResult);
 begin
 case Value of
+  ilisrItemPicFile:       Highlight(fPicturesManager.Image(ilipkMain));
+  ilisrSecondaryPicFile:  Highlight(fPicturesManager.Image(ilipkSecondary));
+  ilisrPackagePicFile:    Highlight(fPicturesManager.Image(ilipkPackage));
   ilisrType:              Highlight(cmbItemType);
   ilisrTypeSpec:          Highlight(leItemTypeSpecification);
   ilisrPieces:            Highlight(sePieces);
@@ -773,7 +785,7 @@ case Value of
   ilisrManufacturer:      Highlight(cmbManufacturer);
   ilisrManufacturerStr:   Highlight(leManufacturerString);
   ilisrTextID:            Highlight(leTextID);
-  ilisrNumID:             Highlight(seID);
+  ilisrNumID:             Highlight(seNumID);
   ilisrFlagOwned:         Highlight(cbFlagOwned);
   ilisrFlagWanted:        Highlight(cbFlagWanted);
   ilisrFlagOrdered:       Highlight(cbFlagOrdered);
@@ -802,11 +814,9 @@ case Value of
   ilisrSizeZ:             Highlight(seSizeZ);
   ilisrNotes:             Highlight(meNotes);
   ilisrReviewURL:         Highlight(leReviewURL);
-  ilisrItemPicFile:       Highlight(fPicturesManager.Image(ilipkMain));
-  ilisrSecondaryPicFile:  Highlight(fPicturesManager.Image(ilipkSecondary));
-  ilisrPackagePicFile:    Highlight(fPicturesManager.Image(ilipkPackage));
   ilisrUnitPriceDefault:  Highlight(seUnitPriceDefault);
   ilisrRating:            Highlight(seRating);
+  ilisrRatingDetails:     Highlight(btnRatingDetails);
   ilisrSelectedShop:      Highlight(lblSelectedShop);
 else
   DisableHighlight;
@@ -871,7 +881,7 @@ try
   cmbManufacturer.OnChange(nil);
   leManufacturerString.Text := '';
   leTextID.Text := '';
-  seID.Value := 0;
+  seNumID.Value := 0;
   // flags
   cbFlagOwned.Checked := False;
   cbFlagWanted.Checked := False;
@@ -945,7 +955,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.Manufacturer := TILItemManufacturer(cmbManufacturer.ItemIndex);
       fCurrentItem.ManufacturerStr := leManufacturerString.Text;
       fCurrentItem.TextID := leTextID.Text;
-      fCurrentItem.ID := seID.Value;
+      fCurrentItem.NumID := seNumID.Value;
       // tags, flags
       fCurrentItem.SetFlagValue(ilifOwned,cbFlagOwned.Checked);
       fCurrentItem.SetFlagValue(ilifWanted,cbFlagWanted.Checked);
@@ -1009,7 +1019,7 @@ If Assigned(fCurrentItem) then
       cmbManufacturer.ItemIndex := Ord(fCurrentItem.Manufacturer);
       leManufacturerString.Text := fCurrentItem.ManufacturerStr;
       leTextID.Text := fCurrentItem.TextID;
-      seID.Value := fCurrentItem.ID;
+      seNumID.Value := fCurrentItem.NumID;
       // tags, flags
       FillFlagsFromItem;
       eTextTag.Text := fCurrentItem.TextTag;
@@ -1385,10 +1395,10 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.seIDChange(Sender: TObject);
+procedure TfrmItemFrame.seNumIDChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
-  fCurrentItem.ID := seID.Value;
+  fCurrentItem.NumID := seNumID.Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1628,6 +1638,20 @@ procedure TfrmItemFrame.seRatingChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem)then
   fCurrentItem.Rating := seRating.Value;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.btnRatingDetailsClick(Sender: TObject);
+var
+  Temp: String;
+begin
+If Assigned(fCurrentItem) then
+  begin
+    Temp := fCurrentItem.RatingDetails;
+    fTextEditForm.ShowTextEditor('Edit item rating details',Temp,False);
+    fCurrentItem.RatingDetails := Temp;
+  end;
 end;
 
 //------------------------------------------------------------------------------

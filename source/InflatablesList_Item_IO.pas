@@ -56,7 +56,6 @@ begin
 fEncryptedData.Data := PtrInt(Struct);
 InitLoadFunctions(Struct);
 fFNLoadFromStream(Stream);
-RenderSmallPictures;
 end;
 
 //==============================================================================

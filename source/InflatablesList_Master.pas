@@ -43,6 +43,7 @@ uses
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm,
   BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,
   PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
+  ItemShopTableForm,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
@@ -99,6 +100,7 @@ Application.CreateForm(TfSaveForm, fSaveForm);
 Application.CreateForm(TfAdvancedSearchForm, fAdvancedSearchForm);
 Application.CreateForm(TfShopByItemsForm,fShopByItemsForm);
 Application.CreateForm(TfItemPicturesForm,fItemPicturesForm);
+Application.CreateForm(TfItemShopTableForm,fItemShopTableForm);
 // do not automatically create prompt form
 //Application.CreateForm(TfPromptForm, fPromptForm);
 end;

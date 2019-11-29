@@ -20,10 +20,6 @@ type
     fSmallStrip:  Integer;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
-    class procedure RenderSmallPicture(LargePicture: TBitmap; var SmallPicture: TBitmap); virtual;
-    procedure RenderSmallItemPicture; override;
-    procedure RenderSmallSecondaryPicture; override;
-    procedure RenderSmallPackagePicture; override;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
     procedure Initialize; override;
@@ -416,47 +412,6 @@ with fRenderSmall,fRenderSmall.Canvas do
         TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;      
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-class procedure TILItem_Draw.RenderSmallPicture(LargePicture: TBitmap; var SmallPicture: TBitmap);
-begin
-If Assigned(LargePicture) then
-  begin
-    If not Assigned(SmallPicture) then
-      begin
-        SmallPicture := TBitmap.Create;
-        SmallPicture.PixelFormat := pf24bit;
-        SmallPicture.Width := 48;
-        SmallPicture.Height := 48;
-      end;
-    IL_PicShrink(LargePicture,SmallPicture,2);
-  end
-else
-  If Assigned(SmallPicture) then
-    FreeAndNil(SmallPicture);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Draw.RenderSmallItemPicture;
-begin
-//RenderSmallPicture(fItemPicture,fItemPictureSmall);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Draw.RenderSmallSecondaryPicture;
-begin
-//RenderSmallPicture(fSecondaryPicture,fSecondaryPictureSmall);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Draw.RenderSmallPackagePicture;
-begin
-//RenderSmallPicture(fPackagePicture,fPackagePictureSmall);
 end;
 
 //------------------------------------------------------------------------------

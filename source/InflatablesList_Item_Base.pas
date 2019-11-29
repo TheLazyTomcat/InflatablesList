@@ -153,11 +153,6 @@ type
     Function RequestItemsPassword(out Password: String): Boolean; virtual;
     // macro callers
     procedure UpdateShops; virtual; // when list shop is added or deleted
-    // small pictures rendering
-    procedure RenderSmallItemPicture; virtual; abstract;
-    procedure RenderSmallSecondaryPicture; virtual; abstract;
-    procedure RenderSmallPackagePicture; virtual; abstract;
-    procedure RenderSmallPictures; virtual;
     // other protected methods
     procedure InitializeData; virtual;
     procedure FinalizeData; virtual;
@@ -847,15 +842,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.RenderSmallPictures;
-begin
-RenderSmallItemPicture;
-RenderSmallSecondaryPicture;
-RenderSmallPackagePicture;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TILItem_Base.InitializeData;
 begin
 CreateGUID(fUniqueID);
@@ -984,7 +970,6 @@ If CopyPics then
     FreeAndNil(fPictures);
     fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
     fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
-    RenderSmallPictures;
     If Assigned(Source.Render) then
       begin
         fRender.Assign(Source.Render);

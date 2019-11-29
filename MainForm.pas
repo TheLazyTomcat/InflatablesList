@@ -82,7 +82,7 @@ type
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
     mniMMT_Selection: TMenuItem;
-    mniMMT_ItemsShopsTable: TMenuItem;
+    mniMMT_ItemShopTable: TMenuItem;
     mniMMT_ShopByItems: TMenuItem;    
     mniMMT_Specials: TMenuItem;
     N11: TMenuItem;
@@ -177,7 +177,7 @@ type
     // ---
     procedure mniMM_ToolsClick(Sender: TObject);
     procedure mniMMT_SelectionClick(Sender: TObject);
-    procedure mniMMT_ItemsShopsTableClick(Sender: TObject);
+    procedure mniMMT_ItemShopTableClick(Sender: TObject);
     procedure mniMMT_ShopByItemsClick(Sender: TObject);
     procedure mniMMT_SpecialsClick(Sender: TObject);
     procedure mniMMT_ExportAllPicsClick(Sender: TObject);
@@ -251,7 +251,7 @@ uses
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
-  AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
+  AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm, ItemShopTableForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -542,6 +542,7 @@ fSaveForm.Initialize(fIlManager);
 fAdvancedSearchForm.Initialize(fIlManager);
 fShopByItemsForm.Initialize(fIlManager);
 fItemPicturesForm.Initialize(fIlManager);
+fItemShopTableForm.Initialize(fILManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -568,6 +569,7 @@ fSaveForm.Finalize;
 fAdvancedSearchForm.Finalize;
 fShopByItemsForm.Finalize;
 fItemPicturesForm.Finalize;
+fItemShopTableForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -1739,10 +1741,10 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.mniMMT_ItemsShopsTableClick(Sender: TObject);
+procedure TfMainForm.mniMMT_ItemShopTableClick(Sender: TObject);
 begin
 frmItemFrame.Save;
-//...
+fItemShopTableForm.ShowTable;
 frmItemFrame.Load;
 lbList.SetFocus;
 end;
@@ -1785,12 +1787,13 @@ If lbList.Count > 0 then
         Screen.Cursor := crHourGlass;
         try
           For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-            For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
-              begin
-                Inc(CA);
-                If fILManager[i].Pictures.ExportPicture(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
-                  Inc(CS);
-              end;
+            If fILManager[i].DataAccessible then
+              For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+                begin
+                  Inc(CA);
+                  If fILManager[i].Pictures.ExportPicture(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                    Inc(CS);
+                end;
         finally
           Screen.Cursor := crDefault;
         end;
@@ -1817,12 +1820,13 @@ If lbList.Count > 0 then
         Screen.Cursor := crHourGlass;
         try
           For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
-            For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
-              begin
-                Inc(CA);
-                If fILManager[i].Pictures.ExportThumbnail(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
-                  Inc(CS);
-              end;
+            If fILManager[i].DataAccessible then
+              For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+                begin
+                  Inc(CA);
+                  If fILManager[i].Pictures.ExportThumbnail(j,IL_ExcludeTrailingPathDelimiter(Directory)) then
+                    Inc(CS);
+                end;
         finally
           Screen.Cursor := crDefault;
         end;

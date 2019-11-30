@@ -795,7 +795,10 @@ end;
 
 procedure TfMainForm.mniMM_ListClick(Sender: TObject);
 begin
-mniMML_AddCopy.Enabled := lbList.ItemIndex >= 0;
+If lbList.ItemIndex >= 0 then
+  mniMML_AddCopy.Enabled := fILManager[lbList.ItemIndex].DataAccessible
+else
+  mniMML_AddCopy.Enabled := False;
 mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
 mniMML_Clear.Enabled := lbList.Count > 0;
 mniMML_GoToItemNum.Enabled := lbList.Count > 0;
@@ -822,14 +825,15 @@ var
   Index:  Integer;
 begin
 If lbList.ItemIndex >= 0 then
-  begin
-    frmItemFrame.Save;  // save unsaved data for copying
-    Index := lbList.ItemIndex;
-    lbList.Items.Add(IntToStr(lbList.Count));
-    lbList.ItemIndex := fILManager.ItemAddCopy(Index);
-    fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
-    lbList.OnClick(nil);
-  end;
+  If fILManager[lbList.ItemIndex].DataAccessible then
+    begin
+      frmItemFrame.Save;  // save unsaved data for copying
+      Index := lbList.ItemIndex;
+      lbList.Items.Add(IntToStr(lbList.Count));
+      lbList.ItemIndex := fILManager.ItemAddCopy(Index);
+      fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+      lbList.OnClick(nil);
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -857,6 +861,10 @@ If lbList.ItemIndex >= 0 then
         end
       else lbList.ItemIndex := -1;
       lbList.OnClick(nil);
+      // move list if last item was removed and there is an empty place
+      If ((lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight)) > lbList.Count) and
+        (lbList.Count >= (lbList.ClientHeight div lbList.ItemHeight)) then
+        lbList.TopIndex := lbList.Count - (lbList.ClientHeight div lbList.ItemHeight);
     end;
 end;
 
@@ -973,9 +981,18 @@ end;
 
 procedure TfMainForm.mniMM_ItemClick(Sender: TObject);
 begin
-mniMMI_ItemShops.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemPictures.Enabled := lbList.ItemIndex >= 0;
-mniMMI_ItemExport.Enabled := lbList.ItemIndex >= 0;
+If lbList.ItemIndex >= 0 then
+  begin
+    mniMMI_ItemShops.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+    mniMMI_ItemPictures.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+    mniMMI_ItemExport.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+  end
+else
+  begin
+    mniMMI_ItemShops.Enabled := False;
+    mniMMI_ItemPictures.Enabled := False;
+    mniMMI_ItemExport.Enabled := False;
+  end;
 mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
 mniMMI_Encrypted.Enabled := lbList.ItemIndex >= 0;
 If lbList.ItemIndex >= 0 then
@@ -1001,12 +1018,13 @@ end;
 
 procedure TfMainForm.mniMMI_ItemPicturesClick(Sender: TObject);
 begin
-frmItemFrame.Save;
 If lbList.ItemIndex >= 0 then
-  begin
-    fItemPicturesForm.ShowPictures(fILManager[lbList.ItemIndex]);
-    lbList.SetFocus;
-  end;
+  If fILManager[lbList.ItemIndex].DataAccessible then
+    begin
+      frmItemFrame.Save;
+      fItemPicturesForm.ShowPictures(fILManager[lbList.ItemIndex]);
+      lbList.SetFocus;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1014,13 +1032,14 @@ end;
 
 procedure TfMainForm.mniMMI_ItemShopsClick(Sender: TObject);
 begin
-frmItemFrame.Save;
 If lbList.ItemIndex >= 0 then
-  begin
-    fILManager[lbList.ItemIndex].BroadcastReqCount;
-    fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
-    lbList.SetFocus;
-  end;
+  If fILManager[lbList.ItemIndex].DataAccessible then
+    begin
+      frmItemFrame.Save;
+      fILManager[lbList.ItemIndex].BroadcastReqCount;
+      fShopsForm.ShowShops(fILManager[lbList.ItemIndex]);
+      lbList.SetFocus;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1035,9 +1054,7 @@ If lbList.ItemIndex >= 0 then
           frmItemFrame.Save;
           fILManager.ItemsExport(diaItemsExport.FileName,[lbList.ItemIndex]);
         end;
-    end
-  else MessageDlg('This item is encrypted and data are not accessible.' + sLineBreak +
-         'You have to decrypt the item before exporting it.',mtInformation,[mbOK],0);
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1564,20 +1581,21 @@ var
   i:    Integer;
 begin
 If lbList.ItemIndex >= 0 then
-  begin
-    fILManager[lbList.ItemIndex].BroadcastReqCount;  
-    // create update list
-    SetLength(List,fILManager[lbList.ItemIndex].ShopCount);
-    For i := fILManager[lbList.ItemIndex].ShopLowIndex to fILManager[lbList.ItemIndex].ShopHighIndex do
-      begin
-        List[i].Item := fILManager[lbList.ItemIndex];
-        List[i].ItemTitle := IL_Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
-        List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
-        List[i].Done := False;
-      end;
-    mniMMU_UpdateCommon(List);
-    lbList.SetFocus;
-  end;
+  If fILManager[lbList.ItemIndex].DataAccessible then
+    begin
+      fILManager[lbList.ItemIndex].BroadcastReqCount;
+      // create update list
+      SetLength(List,fILManager[lbList.ItemIndex].ShopCount);
+      For i := fILManager[lbList.ItemIndex].ShopLowIndex to fILManager[lbList.ItemIndex].ShopHighIndex do
+        begin
+          List[i].Item := fILManager[lbList.ItemIndex];
+          List[i].ItemTitle := IL_Format('[#%d] %s',[lbList.ItemIndex + 1,fILManager[lbList.ItemIndex].TitleStr]);
+          List[i].ItemShop := fILManager[lbList.ItemIndex].Shops[i];
+          List[i].Done := False;
+        end;
+      mniMMU_UpdateCommon(List);
+      lbList.SetFocus;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1691,16 +1709,17 @@ var
   i:  Integer;
 begin
 If lbList.ItemIndex >= 0 then
-  begin
-    Screen.Cursor := crHourGlass;
-    try
-      For i := fILManager[lbList.ItemIndex].ShopLowIndex to
-               fILManager[lbList.ItemIndex].ShopHighIndex do
-        fILManager[lbList.ItemIndex][i].UpdateAvailAndPriceHistory;
-    finally
-      Screen.Cursor := crDefault;
+ If fILManager[lbList.ItemIndex].DataAccessible then
+    begin
+      Screen.Cursor := crHourGlass;
+      try
+        For i := fILManager[lbList.ItemIndex].ShopLowIndex to
+                 fILManager[lbList.ItemIndex].ShopHighIndex do
+          fILManager[lbList.ItemIndex][i].UpdateAvailAndPriceHistory;
+      finally
+        Screen.Cursor := crDefault;
+      end;
     end;
-  end;
 end;
 
 //------------------------------------------------------------------------------

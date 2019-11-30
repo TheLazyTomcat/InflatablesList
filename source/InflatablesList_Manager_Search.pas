@@ -129,11 +129,12 @@ fCurrentSearchSettings.ParsTemplResolve := Search_ParsingTemplateResolve;
 ResCntr := 0;
 SetLength(SearchResults,fCount);
 For i := ItemLowIndex to ItemHighIndex do
-  If fList[i].FindAll(fCurrentSearchSettings,TempRes) then
-    begin
-      SearchResults[ResCntr] := TempRes;
-      Inc(ResCntr);
-    end;
+  If fList[i].DataAccessible then
+    If fList[i].FindAll(fCurrentSearchSettings,TempRes) then
+      begin
+        SearchResults[ResCntr] := TempRes;
+        Inc(ResCntr);
+      end;
 SetLength(SearchResults,ResCntr);
 end;
 

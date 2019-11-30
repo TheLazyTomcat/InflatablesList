@@ -11,7 +11,7 @@ uses
   InflatablesList_Manager_IO_00000009;
 
 {
-  fFNSaveTo(LodFrom)Stream functions as a redirector, it saves(loads) data that
+  fFNSaveTo(LoadFrom)Stream functions is a redirector, it saves(loads) data that
   are considered to not to be part of the list and then calls plain save(load)
   or processed save(load) according to certain criteria.
 

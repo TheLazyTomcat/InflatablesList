@@ -189,28 +189,6 @@ const
     'First integer','First integer, tagged','Negative tag is count',
     'First number','First number tagged');
 
-(*
-ilaisrListIndex_,ilaisrUniqueID,ilaisrTimeOfAdd,
-    ilaisrDescriptor,ilaisrTitleStr,ilaisrPictures,ilaisrMainPictureFile,
-    ilaisrCurrSecPictureFile,ilaisrPackagePictureFile,ilaisrType,ilaisrTypeSpec,
-    ilaisrTypeStr,ilaisrPieces,ilaisrUserID,ilaisrManufacturer,
-    ilaisrManufacturerStr,ilaisrManufacturerTag,ilaisrTextID,ilaisrNumID,
-    ilaisrIDStr,ilaisrFlags,ilaisrFlagOwned,ilaisrFlagWanted,ilaisrFlagOrdered,
-    ilaisrFlagBoxed,ilaisrFlagElsewhere,ilaisrFlagUntested,ilaisrFlagTesting,
-    ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,ilaisrFlagPriceChange,
-    ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
-    ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
-    ilaisrVariant,ilaisrVariantTag,ilaisrUnitWeight,ilaisrTotalWeight,
-    ilaisrTotalWeightStr,ilaisrMaterial,ilaisrThickness,ilaisrSizeX,ilaisrSizeY,
-    ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrNotes,ilaisrReviewURL,
-    ilaisrUnitPriceDefault,ilaisrRating,ilaisrRatingDetails,ilaisrUnitPrice,
-    ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,
-    ilaisrTotalPriceHighest,ilaisrUnitPriceSel,ilaisrTotalPriceSel,
-    ilaisrTotalPrice,ilaisrAvailableLowest,ilaisrAvailableHighest,
-    ilaisrAvailableSel,ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
-    ilaisrUsefulShopRatio,ilaisrSelectedShop,ilaisrWorstUpdateResult
-*)
-
   IL_DATA_ADVSEARCHRESULT_ITEM_STRS: array[TILAdvItemSearchResult] of String = (
     'List index','Unique ID','Time of addition','Item descriptor','Title','Pictures',
     'Main picture file','Package picture file','Current secondary picture file',

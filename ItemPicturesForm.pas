@@ -503,12 +503,7 @@ If lbPictures.Count > 0 then
   If MessageDlg('Are you sure you want to remove all pictures?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
       lbPictures.ItemIndex := -1;
-      Screen.Cursor := crHourGlass;
-      try
-        fCurrentItem.Pictures.Clear;  // files get deleted here
-      finally
-        Screen.Cursor := crDefault;
-      end;
+      fCurrentItem.Pictures.Clear;
       lbPictures.Items.Clear;
       lbPictures.OnClick(nil);
     end;

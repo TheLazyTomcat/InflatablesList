@@ -733,11 +733,12 @@ var
 begin
 Result := -1;
 For i := ItemLowIndex to ItemHighIndex do
-  If IsEqualGUID(ItemUniqueID,fList[i].UniqueID) then
-    begin
-      Result := i;
-      Break{For i};
-    end;
+  If fList[i].DataAccessible then
+    If IsEqualGUID(ItemUniqueID,fList[i].UniqueID) then
+      begin
+        Result := i;
+        Break{For i};
+      end;
 end;
 
 //------------------------------------------------------------------------------
@@ -773,27 +774,31 @@ Function TILManager_Base.ItemAddCopy(SrcIndex: Integer): Integer;
 begin
 If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
   begin
-    Grow;
-    Result := fCount;
-    fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
-    fList[Result].Index := Result;
-    fList[Result].StaticSettings := fStaticSettings;
-    fList[Result].AssignInternalEvents(
-      ShopUpdateShopListItemHandler,
-      ShopUpdateValuesHandler,
-      ShopUpdateAvailHistoryHandler,
-      ShopUpdatePriceHistoryHandler,
-      ItemUpdateMainListHandler,
-      ItemUpdateSmallListHandler,
-      ItemUpdateOverviewHandler,
-      ItemUpdateTitleHandler,
-      ItemUpdatePicturesHandler,
-      ItemUpdateFlagsHandler,
-      ItemUpdateValuesHandler,
-      ItemUpdateShopListHandler,
-      ItemPasswordRequestHandler);
-    Inc(fCount);
-    UpdateList;
+    If fList[SrcIndex].DataAccessible then
+      begin
+        Grow;
+        Result := fCount;
+        fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
+        fList[Result].Index := Result;
+        fList[Result].StaticSettings := fStaticSettings;
+        fList[Result].AssignInternalEvents(
+          ShopUpdateShopListItemHandler,
+          ShopUpdateValuesHandler,
+          ShopUpdateAvailHistoryHandler,
+          ShopUpdatePriceHistoryHandler,
+          ItemUpdateMainListHandler,
+          ItemUpdateSmallListHandler,
+          ItemUpdateOverviewHandler,
+          ItemUpdateTitleHandler,
+          ItemUpdatePicturesHandler,
+          ItemUpdateFlagsHandler,
+          ItemUpdateValuesHandler,
+          ItemUpdateShopListHandler,
+          ItemPasswordRequestHandler);
+        Inc(fCount);
+        UpdateList;
+      end
+    else raise Exception.Create('TILManager_Base.ItemAddCopy: Cannot create copy of encrypted item.');
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;
@@ -966,7 +971,8 @@ var
 begin
 Result := 0;
 For i := ItemLowIndex to ItemhighIndex do
-  Inc(Result,fList[i].Pictures.Count);
+  If fList[i].DataAccessible then
+    Inc(Result,fList[i].Pictures.Count);
 end;
 
 //------------------------------------------------------------------------------
@@ -1054,9 +1060,10 @@ Taken := TBitVector.Create(10000);
 try
   Taken[0] := True; // ID 0 is not allowed
   For i := ItemLowIndex to ItemHighIndex do
-    If TryStrToInt(fList[i].UserID,Temp) then
-      If (Temp > 0) and (Temp < Taken.Count) then
-        Taken[Temp] := True;
+    If fList[i].DataAccessible then
+      If TryStrToInt(fList[i].UserID,Temp) then
+        If (Temp > 0) and (Temp < Taken.Count) then
+          Taken[Temp] := True;
   // find first unassigned id
   i := Taken.FirstClean;
   If i > 0 then

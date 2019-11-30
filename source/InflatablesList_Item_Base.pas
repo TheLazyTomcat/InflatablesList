@@ -131,7 +131,6 @@ type
     Function GetCount: Integer; override;
     procedure SetCount(Value: Integer); override;
     // handlers for pictures events
-    Function PicItemObjectRequired(Sender: TObject): TObject; virtual;
     procedure PicPicturesChange(Sender: TObject); virtual;
     // handlers for item shop events
     procedure ShopClearSelectedHandler(Sender: TObject); virtual;
@@ -648,13 +647,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILItem_Base.PicItemObjectRequired(Sender: TObject): TObject;
-begin
-Result := Self;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TILItem_Base.PicPicturesChange(Sender: TObject);
 begin
 UpdateMainList;
@@ -848,7 +840,7 @@ CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
 fPictures := TILItemPictures.Create(Self);
-fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
+fPictures.AssignInternalEvents(PicPicturesChange);
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
 fPieces := 1;
@@ -967,9 +959,6 @@ If fEncrypted and not fDataAccessible then
 // do not copy time of addition and UID
 If CopyPics then
   begin
-    FreeAndNil(fPictures);
-    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
-    fPictures.AssignInternalEvents(PicItemObjectRequired,PicPicturesChange);
     If Assigned(Source.Render) then
       begin
         fRender.Assign(Source.Render);
@@ -1022,6 +1011,17 @@ fUnitPriceSelected := Source.UnitPriceSelected;
 fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
 fAvailableSelected := Source.AvailableSelected;
+// deffered pictue copy
+If CopyPics then
+  begin
+  {
+    must be called here because the copy process needs item descriptor, and that
+    need some of the data fields to be filled
+  }
+    FreeAndNil(fPictures);
+    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
+    fPictures.AssignInternalEvents(PicPicturesChange);
+  end;
 // copy shops
 SetLength(fShops,Source.ShopCount);
 fShopCount := Source.ShopCount;

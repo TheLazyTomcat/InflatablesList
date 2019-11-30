@@ -11,7 +11,7 @@ uses
 
 type
   TILItemPicturesEntry = record
-    PictureFile:    String;
+    PictureFile:    String;   // only file name, not full path
     PictureSize:    UInt64;
     PictureWidth:   Int32;
     PictureHeight:  Int32;

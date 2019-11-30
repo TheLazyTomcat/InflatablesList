@@ -516,9 +516,9 @@ object fMainForm: TfMainForm
         Caption = 'Export all thumbnails...'
         OnClick = mniMMT_ExportAllThumbsClick
       end
-      object mniMMT_DeleteNotAutoPics: TMenuItem
-        Caption = 'Delete not automated pictures'
-        OnClick = mniMMT_DeleteNotAutoPicsClick
+      object mniMMT_CleanUpPicAutoFolder: TMenuItem
+        Caption = 'Clean-up picture automation folder'
+        OnClick = mniMMT_CleanUpPicAutoFolderClick
       end
     end
     object mniMM_Help: TMenuItem

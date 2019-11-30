@@ -88,7 +88,7 @@ type
     N11: TMenuItem;
     mniMMT_ExportAllPics: TMenuItem;
     mniMMT_ExportAllThumbs: TMenuItem;
-    mniMMT_DeleteNotAutoPics: TMenuItem;
+    mniMMT_CleanUpPicAutoFolder: TMenuItem;
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
@@ -183,7 +183,7 @@ type
     procedure mniMMT_SpecialsClick(Sender: TObject);
     procedure mniMMT_ExportAllPicsClick(Sender: TObject);
     procedure mniMMT_ExportAllThumbsClick(Sender: TObject);
-    procedure mniMMT_DeleteNotAutoPicsClick(Sender: TObject);     
+    procedure mniMMT_CleanUpPicAutoFolderClick(Sender: TObject);
     // ---
     procedure mniMM_HelpClick(Sender: TObject);
     procedure mniMMH_ResMarkLegendClick(Sender: TObject);
@@ -249,7 +249,7 @@ var
 implementation
 
 uses
-  CommCtrl,
+  CommCtrl, Math,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
   SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
@@ -1858,6 +1858,67 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfMainForm.mniMMT_CleanUpPicAutoFolderClick(Sender: TObject);
+var
+  Files:    TStringList;
+  i,j:      Integer;
+  Index:    Integer;
+  TempStr:  String;
+begin
+If fILManager.EncryptedItemCount(False) <= 0 then
+  begin
+    Files := TStringList.Create;
+    try
+      Screen.Cursor := crHourGlass;
+      try
+        // enumerate files in automation pictures folder
+        IL_EnumFiles(fILManager.StaticSettings.PicturesPath,Files);
+        // remove files from enumeration that are listed
+        For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+          If fILManager[i].DataAccessible then
+            For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+              begin
+                Index := Files.IndexOf(fILManager[i].Pictures[j].PictureFile);
+                If Index >= 0 then
+                  Files.Delete(Index);
+              end;
+      finally
+        Screen.Cursor := crDefault;
+      end;
+      // deletion....
+      If Files.Count > 0 then
+        begin
+          TempStr := '';
+          For i := 0 to Min(Pred(Files.Count),10) do
+            TempStr := TempStr + '    ' + Files[i] + sLineBreak;
+          If Files.Count > 10 then
+            TempStr := TempStr + IL_Format('    ...and %d more files',[Files.Count - 10]) + sLineBreak;
+          // promt for continuation
+          If MessageDlg(IL_MultiLineText(['This function will delete all files (not only pictures) within the picture automation folder that are not listed in picture list of any item.',
+            '','Following files will be deleted:','',TempStr,'Current picture automation folder: "' + IL_ExcludeTrailingPathDelimiter(fILManager.StaticSettings.PicturesPath) + '"','',
+            'Are you sure you want to continue?']),mtWarning,[mbYes,mbNo],0) = mrYes then
+            begin
+              Screen.Cursor := crHourGlass;
+              try
+                // delete what is left
+                For i := 0 to Pred(Files.Count) do
+                  IL_DeleteFile(fILManager.StaticSettings.PicturesPath + Files[i]);
+              finally
+                Screen.Cursor := crDefault;
+              end;
+            end;
+        end
+      else MessageDlg('There is no file for deletion.',mtInformation,[mbOK],0);
+    finally
+      Files.Free;
+    end;
+  end
+else MessageDlg('Some of the items are encrypted and their data, including picture lists, are not accessible.' + sLineBreak +
+       'You have to decrypt all items before you will be able to preceed with deletion.',mtInformation,[mbOK],0);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfMainForm.mniMM_HelpClick(Sender: TObject);
 begin
 // nothing to do
@@ -2130,31 +2191,6 @@ If Button = mbLeft then
       IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniMMH_About.OnClick(nil);
     end;
   end;
-end;
-
-procedure TfMainForm.mniMMT_DeleteNotAutoPicsClick(Sender: TObject);
-var
-  i,j:  Integer;
-begin
-{$message 'implement'}
-If fILManager.EncryptedItemCount(False) <= 0 then
-  begin
-    If MessageDlg('',mtWarning,[mbYes,mbNo],0) = mrYes then
-      begin
-        Screen.Cursor := crHourGlass;
-        try
-          // enumerate files in automation pictures folder
-
-          // remove files from enumeration that are listed
-
-          // delete what is left
-        finally
-          Screen.Cursor := crDefault;
-        end;
-      end;
-  end
-else MessageDlg('Some of the items are encrypted and their data, including picture lists, are not accessible.' + sLineBreak +
-       'You have to decrypt all items before you will be able to preceed with deletion.',mtInformation,[mbOK],0);
 end;
 
 end.

@@ -5,7 +5,7 @@ unit InflatablesList_Utils;
 interface
 
 uses
-  Windows, SysUtils, Graphics,
+  Windows, SysUtils, Graphics, Classes,
   AuxTypes, AuxClasses,
   InflatablesList_Types;
 
@@ -25,6 +25,8 @@ Function IL_Format(const FormatStr: String; Args: array of const; const FormatSe
 Function IL_Format(const FormatStr: String; Args: array of const): String; overload;
 
 Function IL_StringOfChar(Ch: Char; Count: Integer): String;
+
+Function IL_MultiLineText(const Strs: array of String): String;
 
 Function IL_UpperCase(const Str: String): String;
 Function IL_LowerCase(const Str: String): String;
@@ -76,6 +78,9 @@ Function IL_DeleteFile(const FileName: String): Boolean;
 
 procedure IL_CopyFile(const Source,Destination: String);
 procedure IL_MoveFile(const Source,Destination: String);
+
+// non-recursive enumeration of files within give folder
+procedure IL_EnumFiles(const BaseFolder: String; List: TStrings);
 
 //==============================================================================
 //- event handler assignment checking ------------------------------------------
@@ -181,6 +186,22 @@ end;
 Function IL_StringOfChar(Ch: Char; Count: Integer): String;
 begin
 Result := StringOfChar(Ch,Count);
+end;
+ 
+//------------------------------------------------------------------------------
+
+Function IL_MultiLineText(const Strs: array of String): String;
+var
+  i:  Integer;
+begin
+with TStringList.Create do
+try
+  For i := Low(Strs) to High(Strs) do
+    Add(Strs[i]);
+  Result := Text;
+finally
+  Free;
+end;
 end;
 
 //------------------------------------------------------------------------------
@@ -483,6 +504,58 @@ procedure IL_MoveFile(const Source,Destination: String);
 begin
 MoveFileEx(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),
   MOVEFILE_COPY_ALLOWED or MOVEFILE_REPLACE_EXISTING or MOVEFILE_WRITE_THROUGH);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_EnumFiles(const BaseFolder: String; List: TStrings);
+var
+  FoldersList:  TStringList;
+  CurrentLevel: TStringList;
+  i:            Integer;
+
+  procedure ListFolder(const Folder: String; Files,Folders: TStrings);
+  var
+    SearchRec:  TSearchRec;
+  begin
+    If FindFirst(IL_IncludeTrailingPathDelimiter(Folder) + '*.*',faAnyFile,SearchRec) = 0 then
+    begin
+      repeat
+        If (SearchRec.Attr and faDirectory)	<> 0 then
+          begin
+            If (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+              Folders.Add(IL_IncludeTrailingPathDelimiter(Folder) + SearchRec.Name)
+          end
+        else
+          begin
+          {$WARN SYMBOL_PLATFORM OFF}
+            If (SearchRec.Attr and faHidden) = 0 then
+          {$WARN SYMBOL_PLATFORM ON}
+              Files.Add(SearchRec.Name); // add only file names, not full paths
+          end;
+      until FindNext(SearchRec) <> 0;
+      FindClose(SearchRec);
+    end;
+  end;
+
+begin
+FoldersList := TStringList.Create;
+try
+  CurrentLevel := TStringList.Create;
+  try
+    FoldersList.Add(IL_IncludeTrailingPathDelimiter(BaseFolder));
+    repeat
+      CurrentLevel.Assign(FoldersList);
+      FoldersList.Clear;
+      For i := 0 to Pred(CurrentLevel.Count) do
+        ListFolder(CurrentLevel[i],List,FoldersList);
+    until FoldersList.Count <= 0;
+  finally
+    CurrentLevel.Free;
+  end;
+finally
+  FoldersList.Free;
+end;
 end;
 
 

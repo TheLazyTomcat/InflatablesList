@@ -494,6 +494,12 @@ try
         end;
     end;
   fStaticSettings.ListName := IL_ExtractFileNameNoExt(fStaticSettings.ListFile);
+  fStaticSettings.PicturesPath := IL_IncludeTrailingPathDelimiter(
+    fStaticSettings.ListPath + fStaticSettings.ListName + '_pics');
+  fStaticSettings.BackupPath := IL_IncludeTrailingPathDelimiter(
+    fStaticSettings.ListPath + fStaticSettings.ListName + '_backup');
+  fStaticSettings.SavedPagesPath := IL_IncludeTrailingPathDelimiter(
+    fStaticSettings.ListPath + fStaticSettings.ListName + '_saved_pages');
 finally
   CMDLineParser.Free;
 end;
@@ -513,7 +519,8 @@ begin
 fTransient := False;
 InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;
-fBackupManager := TILBackupManager.Create(fStaticSettings.ListFile);
+fBackupManager := TILBackupManager.Create;
+fBackupManager.StaticSettings := fStaticSettings;
 fBackupManager.LoadBackups;
 fSorting := False;
 fUpdateCounter := 0;
@@ -780,7 +787,6 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
         Result := fCount;
         fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
         fList[Result].Index := Result;
-        fList[Result].StaticSettings := fStaticSettings;
         fList[Result].AssignInternalEvents(
           ShopUpdateShopListItemHandler,
           ShopUpdateValuesHandler,

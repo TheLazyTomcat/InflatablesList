@@ -6,7 +6,8 @@ interface
 
 uses
   Graphics,
-  AuxTypes, AuxClasses, CRC32;
+  AuxTypes, AuxClasses, CRC32,
+  InflatablesList_Types;
 
 type
   TILItemPicturesEntry = record
@@ -35,17 +36,19 @@ type
 
   TILItemPictures_Base = class(TCustomListObject)
   protected
+    // internals
+    fStaticSettings:      TILStaticManagerSettings;
     fOwner:               TObject;  // should be TILItem, but it would cause circular reference
     fUpdateCounter:       Integer;
     fUpdated:             Boolean;
     fInitializing:        Boolean;
+    // data
     fPictures:            array of TILItemPicturesEntry;
     fCount:               Integer;
     fCurrentSecondary:    Integer;
-    fDeferrInitDone:      Boolean;
-    fAutomationFolder:    String;
     fOnPicturesChange:    TNotifyEvent;
     // getters, setters
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     Function GetEntry(Index: Integer): TILItemPicturesEntry;
     // list methods
     Function GetCapacity: Integer; override;
@@ -57,7 +60,6 @@ type
     // other methods
     procedure Initialize; virtual;
     procedure Finalize; virtual;
-    procedure DeferredInitialize; virtual;
     class procedure FreeEntry(var Entry: TILItemPicturesEntry; KeepFile: Boolean = False); virtual;
     class procedure GenerateSmallThumbnails(var Entry: TILItemPicturesEntry); virtual;
   public
@@ -90,11 +92,10 @@ type
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     procedure AssignInternalEvents(OnPicturesChange: TNotifyEvent); virtual;
-    procedure PrepareForCopying; virtual;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property Owner: TObject read fOwner;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
     property CurrentSecondary: Integer read fCurrentSecondary;
-    property AutomationFolder: String read fAutomationFolder;
   end;
 
 implementation
@@ -104,6 +105,13 @@ uses
   WinFileInfo, StrRect,
   InflatablesList_Utils,
   InflatablesList_Item;
+
+procedure TILItemPictures_Base.SetStaticSettings(Value: TILStaticManagerSettings);
+begin
+fStaticSettings := IL_ThreadSafeCopy(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILItemPictures_Base.GetEntry(Index: Integer): TILItemPicturesEntry;
 begin
@@ -168,8 +176,6 @@ fInitializing := False;
 SetLength(fPictures,0);
 fCount := 0;
 fCurrentSecondary := -1;
-fDeferrInitDone := False;
-fAutomationFolder := '';
 end;
 
 //------------------------------------------------------------------------------
@@ -177,19 +183,6 @@ end;
 procedure TILItemPictures_Base.Finalize;
 begin
 Clear(True);
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemPictures_Base.DeferredInitialize;
-begin
-If not fDeferrInitDone then
-  begin
-    fAutomationFolder :=
-      IL_IncludeTrailingPathDelimiter(TILItem(Owner).StaticSettings.ListPath +
-        TILItem(Owner).StaticSettings.ListName + '_pics');
-    fDeferrInitDone := True;
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -260,12 +253,9 @@ var
   Info:     TILPictureAutomationInfo;
 begin
 Create(Owner);
-Source.PrepareForCopying;
-fDeferrInitDone := True;
-fAutomationFolder := Source.AutomationFolder;
-UniqueString(fAutomationFolder);
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 For i := Source.LowIndex to Source.HighIndex do
-  If AutomatePictureFile(Source.AutomationFolder + Source[i].PictureFile,Info) then
+  If AutomatePictureFile(Source.StaticSettings.PicturesPath + Source[i].PictureFile,Info) then
     begin
       Index := Add(Info);
       If CheckIndex(Index) then
@@ -503,7 +493,6 @@ Function TILItemPictures_Base.AutomatePictureFile(const FileName: String; out Au
 var
   Temp: TGUID;
 begin
-DeferredInitialize;
 If IL_FileExists(FileName) then
   begin
     FillChar(AutomationInfo,SizeOf(TILPictureAutomationInfo),0);
@@ -535,7 +524,7 @@ If IL_FileExists(FileName) then
       TILItem(Owner).Descriptor,
       IL_UpperCase(CRC32ToStr(AutomationInfo.CRC32)),
       IL_LowerCase(IL_ExtractFileExt(FileName))]);
-    AutomationInfo.FilePath := fAutomationFolder + AutomationInfo.FileName;
+    AutomationInfo.FilePath := fStaticSettings.PicturesPath + AutomationInfo.FileName;
     If not CheckIndex(IndexOf(AutomationInfo.FileName)) then
       begin
         // now copy the file into automation folder
@@ -555,11 +544,9 @@ end;
 procedure TILItemPictures_Base.OpenPictureFile(Index: Integer);
 begin
 If CheckIndex(Index) then
-  begin
-    DeferredInitialize;
-    IL_ShellOpen(0,fAutomationFolder + fPictures[Index].PictureFile);
-  end
-else raise Exception.CreateFmt('TILItemPictures_Base.OpenPictureFile: Index (%d) out of bounds.',[Index]);
+  IL_ShellOpen(0,fStaticSettings.PicturesPath + fPictures[Index].PictureFile)
+else
+  raise Exception.CreateFmt('TILItemPictures_Base.OpenPictureFile: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------
@@ -676,10 +663,9 @@ begin
 Result := False;
 If CheckIndex(Index) then
   begin
-    DeferredInitialize;
-    If IL_FileExists(fAutomationFolder + fPictures[Index].PictureFile) then
+    If IL_FileExists(fStaticSettings.PicturesPath + fPictures[Index].PictureFile) then
       begin
-        IL_CopyFile(fAutomationFolder + fPictures[Index].PictureFile,
+        IL_CopyFile(fStaticSettings.PicturesPath + fPictures[Index].PictureFile,
           IL_IncludeTrailingPathDelimiter(IntoDirectory) + fPictures[Index].PictureFile);
         Result := True;
       end;
@@ -694,7 +680,6 @@ begin
 Result := False;
 If CheckIndex(Index) then
   begin
-    DeferredInitialize;
     If Assigned(fPictures[Index].Thumbnail) then
       begin
         fPictures[Index].Thumbnail.SaveToFile(
@@ -710,13 +695,6 @@ end;
 procedure TILItemPictures_Base.AssignInternalEvents(OnPicturesChange: TNotifyEvent);
 begin
 fOnPicturesChange := OnPicturesChange;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItemPictures_Base.PrepareForCopying;
-begin
-DeferredInitialize;
 end;
 
 end.

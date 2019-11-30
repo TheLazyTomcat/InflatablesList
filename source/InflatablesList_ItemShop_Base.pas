@@ -465,7 +465,6 @@ fNotes := Source.Notes;
 UniqueString(fNotes);
 // parsing stuff
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
-fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := Source.LastUpdateRes;
 fLastUpdateMsg := Source.LastUpdateMsg;
@@ -653,7 +652,6 @@ begin
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
-fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.RequiredCount := fRequiredCount;
 For i := 0 to Pred(fParsingSettings.VariableCount) do
   fParsingSettings.Variables[i] := Variables.Vars[i];

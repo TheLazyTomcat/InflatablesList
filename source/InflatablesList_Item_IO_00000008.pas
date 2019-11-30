@@ -207,19 +207,19 @@ Stream_WriteString(Stream,fReviewURL);
 If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
   Stream_WriteString(Stream,
     IL_PathRelative(fStaticSettings.ListPath,
-      fPictures.AutomationFolder + fPictures[fPictures.IndexOfItemPicture].PictureFile))
+      fPictures.StaticSettings.PicturesPath + fPictures[fPictures.IndexOfItemPicture].PictureFile))
 else
   Stream_WriteString(Stream,'');
 If fPictures.CheckIndex(fPictures.CurrentSecondary) then
   Stream_WriteString(Stream,
     IL_PathRelative(fStaticSettings.ListPath,
-      fPictures.AutomationFolder + fPictures[fPictures.CurrentSecondary].PictureFile))
+      fPictures.StaticSettings.PicturesPath + fPictures[fPictures.CurrentSecondary].PictureFile))
 else
   Stream_WriteString(Stream,'');
 If fPictures.CheckIndex(fPictures.IndexOfPackagePicture) then
   Stream_WriteString(Stream,
     IL_PathRelative(fStaticSettings.ListPath,
-      fPictures.AutomationFolder + fPictures[fPictures.IndexOfPackagePicture].PictureFile))
+      fPictures.StaticSettings.PicturesPath + fPictures[fPictures.IndexOfPackagePicture].PictureFile))
 else
   Stream_WriteString(Stream,'');
 Stream_WriteUInt32(Stream,fUnitPriceDefault);

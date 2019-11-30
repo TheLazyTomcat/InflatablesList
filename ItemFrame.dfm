@@ -1339,17 +1339,6 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnRatingDetailsClick
     end
   end
-  object diaPicOpenDialog: TOpenDialog
-    Filter = 'BMP image files|*.bmp|All files|*.*'
-    Top = 96
-  end
-  object diaPicExport: TSaveDialog
-    DefaultExt = 'BMP'
-    Filter = 'BMP image files|*.bmp|All files|*.*'
-    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 32
-    Top = 96
-  end
   object tmrHighlightTimer: TTimer
     Interval = 250
     OnTimer = tmrHighlightTimerTimer

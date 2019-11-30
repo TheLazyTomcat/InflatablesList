@@ -172,7 +172,6 @@ fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
 fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
-fParsingSettings.StaticSettings := fStaticSettings;
 fParsingSettings.TemplateReference := fName;  // reference self
 end;
 

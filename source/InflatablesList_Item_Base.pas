@@ -260,6 +260,7 @@ var
   i:  Integer;
 begin
 fStaticSettings := IL_ThreadSafeCopy(Value);
+fPictures.StaticSettings := fStaticSettings;
 For i := ShopLowIndex to ShopHighIndex do
   fShops[i].StaticSettings := fStaticSettings;
 end;
@@ -840,6 +841,7 @@ CreateGUID(fUniqueID);
 fTimeOfAddition := Now;
 // basic specs
 fPictures := TILItemPictures.Create(Self);
+fPictures.StaticSettings := fStaticSettings;
 fPictures.AssignInternalEvents(PicPicturesChange);
 fItemType := ilitUnknown;
 fItemTypeSpec := '';
@@ -1028,7 +1030,6 @@ fShopCount := Source.ShopCount;
 For i := Low(fShops) to High(fShops) do
   begin
     fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
-    fShops[i].StaticSettings := fStaticSettings;
     fShops[i].RequiredCount := fPieces;
     fShops[i].AssignInternalEvents(
       ShopClearSelectedHandler,

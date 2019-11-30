@@ -71,7 +71,7 @@ var
   end;
 
 begin
-leBackupFolder.Text := fILManager.BackupManager.StoragePath;
+leBackupFolder.Text := fILManager.BackupManager.StaticSettings.BackupPath;
 lvBackups.Items.BeginUpdate;
 try
   // adjust count
@@ -154,7 +154,7 @@ end;
 
 procedure TfBackupsForm.btnOpenBckFolderClick(Sender: TObject);
 begin
-IL_ShellOpen(Handle,fILManager.BackupManager.StoragePath);
+IL_ShellOpen(Handle,fILManager.BackupManager.StaticSettings.BackupPath);
 end;
 
 //------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ procedure TfBackupsForm.pmnBackupsPopup(Sender: TObject);
 begin
 mniBU_Delete.Enabled := lvBackups.ItemIndex >= 0;
 mniBU_Restore.Enabled := lvBackups.ItemIndex >= 0;
-mniBU_Backup.Enabled := IL_FileExists(fILManager.BackupManager.ListFile);
+mniBU_Backup.Enabled := IL_FileExists(fILManager.BackupManager.StaticSettings.ListFile);
 end;
 
 //------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ If lvBackups.ItemIndex >= 0 then
       [fILManager.BackupManager[lvBackups.ItemIndex].FileName]),
       mtConfirmation,[mbOk,mbCancel],0) = mrOK then
     begin
-      If IL_FileExists(fILManager.BackupManager.ListFile) then
+      If IL_FileExists(fILManager.BackupManager.StaticSettings.ListFile) then
         DoBackup := MessageDlg('Backup current list before restoring?',mtConfirmation,[mbYes,mbNo],0) = mrYes
       else
         DoBackup := False;
@@ -211,7 +211,7 @@ end;
 
 procedure TfBackupsForm.mniBU_BackupClick(Sender: TObject);
 begin
-If IL_FileExists(fILManager.BackupManager.ListFile) then
+If IL_FileExists(fILManager.BackupManager.StaticSettings.ListFile) then
   If MessageDlg('Are you sure you want to perform backup right now?',mtConfirmation,[mbOk,mbCancel],0) = mrOK then
     begin
       fILManager.BackupManager.Backup;

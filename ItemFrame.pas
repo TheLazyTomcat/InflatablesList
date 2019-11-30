@@ -57,9 +57,7 @@ type
     imgPictureC: TImage;
     shpPictureABcgr: TShape;
     shpPictureBBcgr: TShape;
-    shpPictureCBcgr: TShape;
-    diaPicOpenDialog: TOpenDialog;
-    diaPicExport: TSaveDialog;    
+    shpPictureCBcgr: TShape;    
     lblUniqueID: TLabel;
     lblTimeOfAddition: TLabel;
     lblItemType: TLabel;
@@ -196,8 +194,6 @@ type
   private
     // other fields
     fPicturesManager: TILItemFramePicturesManager;    
-    fLastSmallPicDir: String;
-    fLastPicDir:      String;
     fInitializing:    Boolean;
     fILManager:       TILManager;
     fCurrentItem:     TILItem;
@@ -216,11 +212,9 @@ type
     procedure UpdateValues(Sender: TObject; Item: TObject);
     // helper methods
     procedure ReplaceManufacturerLogo;
-    procedure BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
     procedure FillFlagsFromItem;
     procedure FillValues;
     procedure FillSelectedShop(const SelectedShop: String);
-    Function BrowsePicture(const FileStr: String; var FileName: String): Boolean;
     // searching
     procedure DisableHighlight;
     procedure Highlight(Control: TControl); overload;
@@ -529,32 +523,6 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfrmItemFrame.BrowseSmallPicture(const FileStr: String; out Bitmap: TBitmap; StoredBitmap: TBitmap);
-begin
-diaPicOpenDialog.Title := IL_Format('Select %s picture',[FileStr]);
-diaPicOpenDialog.Filter := 'BMP image files|*.bmp|All files|*.*';
-diaPicOpenDialog.FileName := '';
-diaPicOpenDialog.InitialDir := fLastSmallPicDir;
-If diaPicOpenDialog.Execute then
-  try
-    fLastSmallPicDir := IL_ExtractFileDir(diaPicOpenDialog.FileName);
-    Bitmap := TBitmap.Create;
-    Bitmap.LoadFromFile(StrToRTL(diaPicOpenDialog.FileName));
-    If Assigned(StoredBitmap) then
-      begin
-        If MessageDlg(IL_Format('Replace current %s picture?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) <> mrYes then
-          FreeAndNil(Bitmap);
-      end;
-  except
-    // supress error
-    If Assigned(Bitmap) then
-      FreeAndNil(Bitmap);
-    MessageDlg('Error while loading the file.',mtError,[mbOK],0);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
 procedure TfrmItemFrame.FillFlagsFromItem;
 begin
 If fInitializing and Assigned(fCurrentItem) then
@@ -669,30 +637,6 @@ If lblSelectedShop.Canvas.TextWidth(SelectedShop) <=
 else
   lblSelectedShop.Left := lblSelectedShopTitle.BoundsRect.Right + 8;
 lblSelectedShop.Caption := SelectedShop;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TfrmItemFrame.BrowsePicture(const FileStr: String; var FileName: String): Boolean;
-begin
-Result := False;
-diaPicOpenDialog.Title := IL_Format('Select %s picture file',[FileStr]);
-diaPicOpenDialog.Filter := 'JPEG image files|*.jpg|All files|*.*';
-diaPicOpenDialog.FileName := '';
-diaPicOpenDialog.InitialDir := fLastPicDir;
-If diaPicOpenDialog.Execute then
-  begin
-    fLastPicDir := IL_ExtractFileDir(diaPicOpenDialog.FileName);
-    Result := True;
-    If Length(FileName) > 0 then
-      begin
-        If MessageDlg(IL_Format('Replace current %s picture file?',[FileStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
-          FileName := IL_PathRelative(fILManager.StaticSettings.ListPath,diaPicOpenDialog.FileName)
-        else
-          Result := False;
-      end
-    else FileName := IL_PathRelative(fILManager.StaticSettings.ListPath,diaPicOpenDialog.FileName);
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1055,8 +999,6 @@ begin
 fPicturesManager := TILItemFramePicturesManager.Create(
   ILManager,imgPictureC.BoundsRect.Right,imgPrevPicture,imgNextPicture,
   imgPictureA,imgPictureB,imgPictureC,shpPictureABcgr,shpPictureBBcgr,shpPictureCBcgr);
-fLastSmallPicDir := '';
-fLastPicDir := '';
 fInitializing := False;
 fCurrentItem := nil;
 fLastFoundValue := ilisrNone;

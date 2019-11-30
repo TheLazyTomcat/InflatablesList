@@ -161,7 +161,7 @@ const
     'ID string','Owned (flag)','Wanted (flag)','Ordered (flag)','Boxed (flag)',
     'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)','Damaged (flag)',
     'Repaired (flag)','Price change (flag)','Availability change (flag)','Not available (flag)',
-    'Lost (flag)','Discarded (flag)','Textual tag','Numerical tag','Wanted level (flagged)',
+    'Lost (flag)','Discarded (flag)','Textual tag','Numerical tag','Wanted level (flagged - wanted)',
     'Variant (color, pattern, type, ...)','Variant tag','Weight','Total weight',
     'Material type','Wall thickness','Size X (length, diameter, ...)',
     'Size Y (width, inner diameter, ...)','Size Z (height, thickness, ...)',

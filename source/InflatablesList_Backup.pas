@@ -5,13 +5,13 @@ unit InflatablesList_Backup;
 interface
 
 uses
-  AuxTypes;
+  AuxTypes,
+  InflatablesList_Types;
 
 const
   IL_BACKUP_DEFAULT_MAX_DEPTH      = 25;
   IL_BACKUP_DEFAULT_MANGERFILENAME = 'backups.ini';
-  
-  IL_BACKUP_DIR_SUFFIX  = '_backup';
+
   IL_BACKUP_TEMP_SUFFIX = '.tmp';
 
 type
@@ -25,24 +25,24 @@ type
   end;
 
   TILBackupManager = class(TObject)
-  private
-    fListFile:      String;   // full path
-    fStoragePath:   String;
-    fMaxDepth:      Integer;
-    fUtilFileName:  String;   // only file name, not full path
-    fBackups:       array of TILBackupEntry;
+  protected
+    fStaticSettings:  TILStaticManagerSettings;
+    fMaxDepth:        Integer;
+    fUtilFileName:    String;   // only file name, not full path
+    fBackups:         array of TILBackupEntry;
     // getters, setters
+    procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
     procedure SetMaxDepth(Value: Integer);
     procedure SetUtilFileName(const Value: String);
     Function GetBackupCount: Integer;
     Function GetBackup(Index: Integer): TILBackupEntry;
-  protected
+    // other methods
     procedure Initialize; virtual;
     procedure Finalize; virtual;
     procedure AddToBeginning(Entry: TILBackupEntry); virtual;
     procedure AddToEnd(Entry: TILBackupEntry); virtual;
   public
-    constructor Create(const ListFile: String);
+    constructor Create;
     constructor CreateAsCopy(Source: TILBackupManager);
     destructor Destroy; override;
     procedure Delete(Index: Integer); virtual;
@@ -50,8 +50,7 @@ type
     procedure SaveBackups; virtual;
     procedure Backup; virtual;
     procedure Restore(Index: Integer; BackupFirst: Boolean = True); virtual;
-    property ListFile: String read fListFile;
-    property StoragePath: String read fStoragePath;
+    property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property MaxDepth: Integer read fMaxDepth write SetMaxDepth;
     property UtilFileName: String read fUtilFileName write SetUtilFileName;
     property BackupCount: Integer read GetBackupCount;
@@ -65,7 +64,6 @@ implementation
 uses
   SysUtils, IniFiles,
   StrRect, FloatHex, WinFileInfo,
-  InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_Manager;
 
@@ -76,6 +74,13 @@ UniqueString(Result.FileName);
 end;
 
 //==============================================================================
+
+procedure TILBackupManager.SetStaticSettings(Value: TILStaticManagerSettings);
+begin
+fStaticSettings := IL_ThreadSafeCopy(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILBackupManager.SetMaxDepth(Value: Integer);
 begin
@@ -108,7 +113,7 @@ else
   raise Exception.CreateFmt('TILBackupManager.GetBackup: Index (%d) out of bounds.',[Index]);
 end;
 
-//==============================================================================
+//------------------------------------------------------------------------------
 
 procedure TILBackupManager.Initialize;
 begin
@@ -146,14 +151,9 @@ end;
 
 //==============================================================================
 
-constructor TILBackupManager.Create(const ListFile: String);
+constructor TILBackupManager.Create;
 begin
 inherited Create;
-fListFile := ListFile;
-UniqueString(fListFile);
-fStoragePath := IL_ExtractFilePath(ListFile) +
-  IL_IncludeTrailingPathDelimiter(IL_ExtractFileNameNoExt(ListFile) + IL_BACKUP_DIR_SUFFIX);
-UniqueString(fStoragePath);
 Initialize;
 end;
 
@@ -163,7 +163,8 @@ constructor TILBackupManager.CreateAsCopy(Source: TILBackupManager);
 var
   i:  Integer;
 begin
-Create(Source.ListFile);
+Create;
+fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 fMaxDepth := Source.MaxDepth;
 fUtilFileName := Source.UtilFileName;
 UniqueString(fUtilFileName);
@@ -189,7 +190,7 @@ begin
 If (Index >= Low(fBackups)) and (Index <= High(fBackups)) then
   begin
     // delete the backup file
-    IL_DeleteFile(fStoragePath + fBackups[Index].FileName);
+    IL_DeleteFile(fStaticSettings.BackupPath + fBackups[Index].FileName);
     // remove entry
     For i := Index to Pred(High(fBackups)) do
       fBackups[i] := fBackups[i + 1];
@@ -207,9 +208,9 @@ var
   Temp: TILBackupEntry;
 begin
 SetLength(fBackups,0);
-If IL_FileExists(fStoragePath + fUtilFileName) then
+If IL_FileExists(fStaticSettings.BackupPath + fUtilFileName) then
   begin
-    Ini := TIniFile.Create(StrToRTL(fStoragePath + fUtilFileName));
+    Ini := TIniFile.Create(StrToRTL(fStaticSettings.BackupPath + fUtilFileName));
     try
       For i := 0 to Pred(Ini.ReadInteger('Backups','Count',0)) do
         If Ini.ValueExists('Backups',IL_Format('Backup[%d].FileName',[i])) then
@@ -220,7 +221,7 @@ If IL_FileExists(fStoragePath + fUtilFileName) then
             Temp.BackupTime := TDateTime(HexToDouble(Ini.ReadString('Backups',IL_Format('Backup[%d].BackupTime',[i]),'0')));
             Temp.Size := UInt64(StrToInt64Def(Ini.ReadString('Backups',IL_Format('Backup[%d].Size',[i]),'0'),0));
             Temp.Flags := UInt32(StrToIntDef('$' + Ini.ReadString('Backups',IL_Format('Backup[%d].Flags',[i]),'0'),0));
-            If IL_FileExists(StrToRTL(fStoragePath + Temp.FileName)) then
+            If IL_FileExists(StrToRTL(fStaticSettings.BackupPath + Temp.FileName)) then
               AddToEnd(Temp);
           end;
     finally
@@ -238,14 +239,14 @@ var
 begin
 // traverse list of backup files and delete all above depth limit
 For i := fMaxDepth to High(fBackups) do
-  If IL_FileExists(fStoragePath + fBackups[i].FileName) then
-    IL_DeleteFile(fStoragePath + fBackups[i].FileName);
+  If IL_FileExists(fStaticSettings.BackupPath + fBackups[i].FileName) then
+    IL_DeleteFile(fStaticSettings.BackupPath + fBackups[i].FileName);
 // truncate the list
 If Length(fBackups) > fMaxDepth then
   SetLength(fBackups,fMaxDepth);
 // save the list
-IL_CreateDirectoryPathForFile(fStoragePath + fUtilFileName);
-Ini := TIniFile.Create(StrToRTL(fStoragePath + fUtilFileName));
+IL_CreateDirectoryPathForFile(fStaticSettings.BackupPath + fUtilFileName);
+Ini := TIniFile.Create(StrToRTL(fStaticSettings.BackupPath + fUtilFileName));
 try
   Ini.WriteInteger('Backups','Count',Length(fBackups));
   For i := Low(fBackups) to High(fBackups) do
@@ -270,14 +271,14 @@ var
   Temp:     TILBackupEntry;
   Preload:  TILPreloadInfo;
 begin
-If IL_FileExists(fListFile) then
+If IL_FileExists(fStaticSettings.ListFile) then
   begin
     // fill entry
     Time := Now;
     Temp.FileName := IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time) + '.inl';
     with TILManager.CreateTransient do
     try
-      Preload := PreloadFile(fListFile);
+      Preload := PreloadFile(fStaticSettings.ListFile);
       If ilprfExtInfo in Preload.ResultFlags then
         begin
           Temp.SaveTime := Preload.Time;
@@ -294,17 +295,17 @@ If IL_FileExists(fListFile) then
       Free;
     end;
     Temp.BackupTime := Time;
-    with TWinFileInfo.Create(fListFile,WFI_LS_LoadSize) do
+    with TWinFileInfo.Create(fStaticSettings.ListFile,WFI_LS_LoadSize) do
     try
       Temp.Size := Size;
     finally
       Free;
     end;
     // do file copy
-    IL_CreateDirectoryPath(fStoragePath);
-    If IL_FileExists(fStoragePath + Temp.FileName) then
-      IL_DeleteFile(fStoragePath + Temp.FileName);  // to be sure
-    IL_CopyFile(fListFile,fStoragePath + Temp.FileName);
+    IL_CreateDirectoryPath(fStaticSettings.BackupPath);
+    If IL_FileExists(fStaticSettings.BackupPath + Temp.FileName) then
+      IL_DeleteFile(fStaticSettings.BackupPath + Temp.FileName);  // to be sure
+    IL_CopyFile(fStaticSettings.ListFile,fStaticSettings.BackupPath + Temp.FileName);
     // add entry
     AddToBeginning(Temp);
     // save new list of backups (also deletes old backups)
@@ -329,17 +330,17 @@ If (Index >= Low(fBackups)) and (Index <= High(fBackups)) then
             - delete list file
             - move copy of restored file (rename it in the process)
         }
-        TempFileName := fStoragePath + fBackups[Index].FileName + IL_BACKUP_TEMP_SUFFIX;
-        IL_CopyFile(fStoragePath + fBackups[Index].FileName,TempFileName);
+        TempFileName := fStaticSettings.BackupPath + fBackups[Index].FileName + IL_BACKUP_TEMP_SUFFIX;
+        IL_CopyFile(fStaticSettings.BackupPath + fBackups[Index].FileName,TempFileName);
         Backup;
-        IL_DeleteFile(fListFile);
-        IL_MoveFile(TempFileName,fListFile);
+        IL_DeleteFile(fStaticSettings.ListFile);
+        IL_MoveFile(TempFileName,fStaticSettings.ListFile);
       end
     else
       begin
         // no backup will be performed, delete list file and restore selected backup
-        IL_DeleteFile(fListFile);
-        IL_CopyFile(fStoragePath + fBackups[Index].FileName,fListFile);
+        IL_DeleteFile(fStaticSettings.ListFile);
+        IL_CopyFile(fStaticSettings.BackupPath + fBackups[Index].FileName,fStaticSettings.ListFile);
       end;
   end
 else raise Exception.CreateFmt('TILBackupManager.Restore: Index (%d) out of bounds.',[Index]);

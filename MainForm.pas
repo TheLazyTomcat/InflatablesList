@@ -87,7 +87,8 @@ type
     mniMMT_Specials: TMenuItem;
     N11: TMenuItem;
     mniMMT_ExportAllPics: TMenuItem;
-    mniMMT_ExportAllThumbs: TMenuItem;       
+    mniMMT_ExportAllThumbs: TMenuItem;
+    mniMMT_DeleteNotAutoPics: TMenuItem;
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
@@ -181,7 +182,8 @@ type
     procedure mniMMT_ShopByItemsClick(Sender: TObject);
     procedure mniMMT_SpecialsClick(Sender: TObject);
     procedure mniMMT_ExportAllPicsClick(Sender: TObject);
-    procedure mniMMT_ExportAllThumbsClick(Sender: TObject);    
+    procedure mniMMT_ExportAllThumbsClick(Sender: TObject);
+    procedure mniMMT_DeleteNotAutoPicsClick(Sender: TObject);     
     // ---
     procedure mniMM_HelpClick(Sender: TObject);
     procedure mniMMH_ResMarkLegendClick(Sender: TObject);
@@ -2128,6 +2130,31 @@ If Button = mbLeft then
       IL_STATUSBAR_PANEL_IDX_COPYRIGHT:    mniMMH_About.OnClick(nil);
     end;
   end;
+end;
+
+procedure TfMainForm.mniMMT_DeleteNotAutoPicsClick(Sender: TObject);
+var
+  i,j:  Integer;
+begin
+{$message 'implement'}
+If fILManager.EncryptedItemCount(False) <= 0 then
+  begin
+    If MessageDlg('',mtWarning,[mbYes,mbNo],0) = mrYes then
+      begin
+        Screen.Cursor := crHourGlass;
+        try
+          // enumerate files in automation pictures folder
+
+          // remove files from enumeration that are listed
+
+          // delete what is left
+        finally
+          Screen.Cursor := crDefault;
+        end;
+      end;
+  end
+else MessageDlg('Some of the items are encrypted and their data, including picture lists, are not accessible.' + sLineBreak +
+       'You have to decrypt all items before you will be able to preceed with deletion.',mtInformation,[mbOK],0);
 end;
 
 end.

@@ -25,6 +25,7 @@ type
     procedure Initialize; override;
   public
     constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; override;
+    {$message 'add mini render, separate reinitdrawsize for individual sizes'}
     procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
     procedure ReinitDrawSize(MainList: TListBox); overload; virtual;
     procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;

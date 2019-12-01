@@ -31,9 +31,9 @@ type
     fUpdated:               TILItemUpdatedFlags;      // transient
     fClearingSelected:      Boolean;                  // transient
     // encryption
-    fEncrypted:             Boolean;        // item will be encrypted during saving
-    fDataAccessible:        Boolean;        // unencrypted or decrypted item
-    fEncryptedData:         TMemoryBuffer;  // stores encrypted data until they are decrypted, user data stores item structure
+    fEncrypted:             Boolean;                  // item will be encrypted during saving
+    fDataAccessible:        Boolean;                  // unencrypted or decrypted item
+    fEncryptedData:         TMemoryBuffer;            // stores encrypted data until they are decrypted, user data stores item structure
     // internal events forwarded from item shops
     fOnShopListItemUpdate:  TILIndexedObjectL1Event;  // all events are transient
     fOnShopValuesUpdate:    TILObjectL1Event;
@@ -57,7 +57,7 @@ type
     fPictures:              TILItemPictures;
     // basic specs
     fItemType:              TILItemType;
-    fItemTypeSpec:          String;   // closer specification of type
+    fItemTypeSpec:          String;           // closer specification of type
     fPieces:                UInt32;
     fUserID:                String;
     fManufacturer:          TILItemManufacturer;

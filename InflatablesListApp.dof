@@ -100,7 +100,7 @@ Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=--no_updlog --load_pages
+RunParams=--no_updlog --load_pages --no_save
 HostApplication=
 Launcher=
 UseLauncher=0
@@ -124,7 +124,7 @@ CompanyName=František Milt
 FileDescription=Inflatables List application
 FileVersion=1.9.0.930
 InternalName=Inflatables List
-LegalCopyright=© 2019 - 2020 František Milt
+LegalCopyright=© 2019-2020 František Milt
 LegalTrademarks=Inflatables List
 OriginalFilename=InflatablesList.exe
 ProductName=Inflatables List

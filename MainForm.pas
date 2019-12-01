@@ -681,6 +681,7 @@ mniMMU_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 // prepare draw buffer
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(sbStatusBar.Font);
 end;
 
 //------------------------------------------------------------------------------
@@ -696,6 +697,7 @@ procedure TfMainForm.FormShow(Sender: TObject);
 begin
 // first drawing
 fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+mniMMT_ItemShopTableClick(nil); {$message 'debug - remove'}
 end;
 
 //------------------------------------------------------------------------------
@@ -1768,6 +1770,8 @@ frmItemFrame.Save;
 fItemShopTableForm.ShowTable;
 frmItemFrame.Load;
 lbList.SetFocus;
+{$message 'debug - remove'}
+//close;
 end;
 
 //------------------------------------------------------------------------------
@@ -2109,7 +2113,6 @@ If Assigned(fDrawBuffer) then
     If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
       fDrawBuffer.Height := Rect.Bottom - Rect.Top;
     BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
-    fDrawBuffer.Canvas.Font.Assign(sbStatusBar.Canvas.Font);
     // get background (it is pre-drawn by the system)
     fDrawBuffer.Canvas.CopyRect(BoundsRect,sbStatusBar.Canvas,Rect);
     // draw panels

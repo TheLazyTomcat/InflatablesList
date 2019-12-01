@@ -87,7 +87,7 @@ If CDA_Count(fSelShopList) > 0 then
       begin
         sgOverview.Cells[0,1 + i] := CDA_GetItem(fSelShopList,i);
         // ensure the name will fit
-        If (sgOverview.Canvas.TextWidth(sgOverview.Cells[0,1 + i]) + 10) > sgOverview.ColWidths[0] then
+        If (sgOverview.Canvas.TextWidth(sgOverview.Cells[0,1 + i]) + 16) > sgOverview.ColWidths[0] then
           sgOverview.ColWidths[0] := sgOverview.Canvas.TextWidth(sgOverview.Cells[0,1 + i]) + 10;
       end;
     // separator row
@@ -185,6 +185,7 @@ procedure TfOverviewForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(sgOverview.Font);
 end;
  
 //------------------------------------------------------------------------------
@@ -261,7 +262,6 @@ If (Sender is TStringGrid) and Assigned(fDrawBuffer) then
         LineTo(BoundsRect.Right - 1,BoundsRect.Bottom - 1);
         LineTo(BoundsRect.Right - 1,BoundsRect.Top - 1);
         // text
-        Font.Assign(TStringGrid(Sender).Font);
         Brush.Style := bsClear;
         If gdFixed in State then
           begin

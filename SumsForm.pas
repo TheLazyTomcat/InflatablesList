@@ -671,6 +671,7 @@ procedure TfSumsForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(sgSumsGrandTotal.Font);  // all tables has the same font
 end;
 
 //------------------------------------------------------------------------------
@@ -785,7 +786,6 @@ If (Sender is TStringGrid) and Assigned(fDrawBuffer) then
         LineTo(BoundsRect.Right - 1,BoundsRect.Bottom - 1);
         LineTo(BoundsRect.Right - 1,BoundsRect.Top - 1);
         // text
-        Font.Assign(TStringGrid(Sender).Font);
         Brush.Style := bsClear;
         If gdFixed in State then
           begin

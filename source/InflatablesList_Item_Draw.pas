@@ -18,24 +18,31 @@ type
     fSmallWidth:  Integer;
     fSmallHeight: Integer;
     fSmallStrip:  Integer;
+    fMiniWidth:   Integer;
+    fMiniHeight:  Integer;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
+    procedure ReDrawMini; virtual;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
+    procedure UpdateMiniList; override;
     procedure Initialize; override;
   public
     constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; override;
-    {$message 'add mini render, separate reinitdrawsize for individual sizes'}
-    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
-    procedure ReinitDrawSize(MainList: TListBox); overload; virtual;
-    procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
+    procedure ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont); overload; virtual;
+    procedure ReinitMainDrawSize(MainList: TListBox); overload; virtual;
+    procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
+    procedure ReinitSmallDrawSize(SmallList: TListBox); overload; virtual;
     procedure ChangeSmallStripSize(NewSize: Integer); virtual;
+    procedure ReinitMiniDrawSize(MiniWidth,MiniHeight: Integer; MiniFont: TFont); virtual;
     procedure ReDraw; virtual;
     property MainWidth: Integer read fMainWidth;
     property MainHeight: Integer read fMainHeight;
     property SmallWidth: Integer read fSmallWidth;
     property SmallHeight: Integer read fSmallHeight;
     property SmallStrip: Integer read fSmallStrip;
+    property MiniWidth: Integer read fMiniWidth;
+    property MiniHeight: Integer read fMiniHeight;
   end;
 
 implementation
@@ -406,13 +413,92 @@ with fRenderSmall,fRenderSmall.Canvas do
         Draw(fSmallStrip + 5,9,fDataProvider.ItemLockImage);
 
         // text
-        TempInt := fSmallStrip + fDataProvider.ItemLockImage.Width + 10;        
+        TempInt := fSmallStrip + fDataProvider.ItemLockImage.Width + 10;
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
         TextOut(TempInt,5,'Item is encrypted');
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
         TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
-      end;      
+      end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.ReDrawMini;
+var
+  TempStr:  String;
+  TempInt:  Integer;
+
+  procedure SetCanvas(BStyle: TBrushStyle = bsClear; BColor: TColor = clWhite;
+                      PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
+                      FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 8);
+  begin
+    fRenderMini.Canvas.Brush.Style := BStyle;
+    fRenderMini.Canvas.Brush.Color := BColor;
+    fRenderMini.Canvas.Pen.Style := PStyle;
+    fRenderMini.Canvas.Pen.Color := PColor;
+    fRenderMini.Canvas.Font.Style := FTStyle;
+    fRenderMini.Canvas.Font.Color := FTColor;
+    fRenderMini.Canvas.Font.Size := FTSize;
+  end;
+
+begin
+with fRenderMini,fRenderMini.Canvas do
+  begin
+    // background
+    SetCanvas(bsSolid,clWhite,psClear);
+    Rectangle(0,0,Width + 1,Height + 1);
+
+    If fDataAccessible then // - - - - - - - - - - - - - - - - - - - - - - - - -
+      begin
+        // title + count
+        If fPieces > 1 then
+          TempStr := IL_Format('%s (%dx)',[TitleStr,fPieces])
+        else
+          TempStr := TitleStr;
+        // add user ID if present
+        If Length(fUserID) > 0 then
+          TempStr := IL_Format('[%s] %s',[fUserID,TempStr]);
+        If ilifDiscarded in fFlags then
+          begin
+            SetCanvas(bsSolid,clBlack,psSolid,clBlack,[fsBold],clWhite);
+            Rectangle(0,0,TextWidth(TempStr) + 11,TextHeight(TempStr) + 5);
+          end
+        else SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText);
+        TextOut(3,2,TempStr);
+
+        // type + size
+        SetCanvas;
+        TempStr := SizeStr;
+        If Length(TempStr) > 0 then
+          TextOut(3,18,IL_Format('%s - %s',[TypeStr,TempStr]))
+        else
+          TextOut(3,18,TypeStr);
+
+        // picture
+        If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
+          begin
+            If Assigned(fPictures[fPictures.IndexOfItemPicture].ThumbnailMini) then
+              Draw(Width - 37,1,fPictures[fPictures.IndexOfItemPicture].ThumbnailMini)
+            else
+              Draw(Width - 37,1,fDataProvider.ItemDefaultPicturesMini[fItemType]);
+          end
+        else Draw(Width - 37,1,fDataProvider.ItemDefaultPicturesMini[fItemType]);
+      end
+    else  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      begin
+        // data are not accessible, draw placeholder
+        // lock picture
+        Draw(5,5,fDataProvider.ItemLockImage);
+
+        // text
+        TempInt := fDataProvider.ItemLockImage.Width + 10;
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[fsBold],clWindowText,8);
+        TextOut(TempInt,2,'Item is encrypted');
+        SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
+        TextOut(TempInt,17,'To access its data, you have to decrypt it first.');
+      end;
+  end;      
 end;
 
 //------------------------------------------------------------------------------
@@ -435,6 +521,15 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Draw.UpdateMiniList;
+begin
+If fUpdateCounter <= 0 then
+  ReDrawMini;
+inherited;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Draw.Initialize;
 begin
 inherited;
@@ -443,10 +538,14 @@ fMainHeight := 0;
 fSmallWidth := 0;
 fSmallHeight := 0;
 fSmallStrip := 20;
+fMiniWidth := 0;
+fMiniHeight := 0;
 fRender.Width := fMainWidth;
 fRender.Height := fMainHeight;
 fRenderSmall.Width := fSmallWidth;
 fRenderSmall.Height := fSmallHeight;
+fRenderMini.Width := fMiniWidth;
+fRenderMini.Height := fMiniHeight;
 end;
 
 //==============================================================================
@@ -461,54 +560,37 @@ If Source is TILItem_Draw then
     fSmallWidth := TILItem_Draw(Source).SmallWidth;
     fSmallHeight := TILItem_Draw(Source).SmallHeight;
     fSmallStrip := TILItem_Draw(Source).SmallStrip;
+    fMiniWidth := TILItem_Draw(Source).MiniWidth;
+    fMiniHeight := TILItem_Draw(Source).MiniHeight;
   end;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
+procedure TILItem_Draw.ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont);
 begin
-If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) then
+If (fMainWidth <> MainWidth) or (fMainHeight <> MainHeight) then
   begin
-    fMainWidth := MainList.ClientWidth;
-    fMainHeight := MainList.ItemHeight;
+    fMainWidth := MainWidth;
+    fMainHeight := MainHeight;
     fRender.Width := fMainWidth;
     fRender.Height := fMainHeight;
-    fRender.Canvas.Font.Assign(MainList.Font);
+    fRender.Canvas.Font.Assign(MainFont);
     ReDrawMain;
     inherited UpdateMainList; // call inherited code so ReDrawMain is not called again
   end;
-If (fSmallWidth <> SmallList.ClientWidth) or (fSmallHeight <> SmallList.ItemHeight) then
-  begin
-    fSmallWidth := SmallList.ClientWidth;
-    fSmallHeight := SmallList.ItemHeight;
-    fRenderSmall.Width := fSmallWidth;
-    fRenderSmall.Height := fSmallHeight;
-    fRenderSmall.Canvas.Font.Assign(SmallList.Font);
-    ReDrawSmall;
-    inherited UpdateSmallList;
-  end;
 end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TILItem_Draw.ReinitDrawSize(MainList: TListBox);
+procedure TILItem_Draw.ReinitMainDrawSize(MainList: TListBox);
 begin
-If (fMainWidth <> MainList.ClientWidth) or (fMainHeight <> MainList.ItemHeight) then
-  begin
-    fMainWidth := MainList.ClientWidth;
-    fMainHeight := MainList.ItemHeight;
-    fRender.Width := fMainWidth;
-    fRender.Height := fMainHeight;
-    fRender.Canvas.Font.Assign(MainList.Font);
-    ReDrawMain;
-    inherited UpdateMainList;
-  end;
+ReinitMainDrawSize(MainList.ClientWidth,MainList.ItemHeight,MainList.Font);
 end;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//------------------------------------------------------------------------------
 
-procedure TILItem_Draw.ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
+procedure TILItem_Draw.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
 begin
 If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
   begin
@@ -521,6 +603,13 @@ If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
     inherited UpdateSmallList;
   end;
 end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILItem_Draw.ReinitSmallDrawSize(SmallList: TListBox);
+begin
+ReinitSmallDrawSize(SmallList.ClientWidth,SmallList.ItemHeight,SmallList.Font);
+end;    
 
 //------------------------------------------------------------------------------
 
@@ -542,12 +631,30 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Draw.ReinitMiniDrawSize(MiniWidth,MiniHeight: Integer; MiniFont: TFont);
+begin
+If (fMiniWidth <> MiniWidth) or (fMiniHeight <> MiniHeight) then
+  begin
+    fMiniWidth := MiniWidth;
+    fMiniHeight := MiniHeight;
+    fRenderMini.Width := fMiniWidth;
+    fRenderMini.Height := fMiniHeight;
+    fRenderMini.Canvas.Font.Assign(MiniFont);
+    ReDrawMini;
+    inherited UpdateMiniList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Draw.ReDraw;
 begin
 ReDrawMain;
 inherited UpdateMainList;
 ReDrawSmall;
 inherited UpdateSmallList;
+ReDrawMini;
+inherited UpdateMiniList;
 end;
 
 end.

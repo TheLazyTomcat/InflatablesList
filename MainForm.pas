@@ -311,7 +311,7 @@ begin
 If Assigned(fILManager) then
   begin
     // redraw only visible
-    fILManager.ReinitDrawSize(lbList,True);
+    fILManager.ReinitMainDrawSize(lbList,True);
     lbList.Invalidate;
     // deffer redraw of ivisible item
     Application.OnIdle := DeferredRedraw;
@@ -458,7 +458,7 @@ procedure TfMainForm.DeferredRedraw(Sender: TObject; var Done: Boolean);
 begin
 Done := True;
 Application.OnIdle := nil;  // de-assign this routine 
-fILManager.ReinitDrawSize(lbList,False);
+fILManager.ReinitMainDrawSize(lbList,False);
 lbList.Invalidate;
 end;
 
@@ -696,7 +696,10 @@ end;
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
 // first drawing
-fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+fILManager.ReinitMainDrawSize(lbList);
+fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+  IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
 mniMMT_ItemShopTableClick(nil); {$message 'debug - remove'}
 end;
 
@@ -818,7 +821,10 @@ frmItemFrame.Save;
 lbList.Items.Add(IntToStr(lbList.Count));
 lbList.ItemIndex := fILManager.ItemAddEmpty;
 // following will also redraw new item and update the list
-fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+fILManager.ReinitMainDrawSize(lbList);
+fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+  IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
 lbList.OnClick(nil);  // also calls UpdateIndexAndCount
 end;
 
@@ -835,7 +841,10 @@ If lbList.ItemIndex >= 0 then
       Index := lbList.ItemIndex;
       lbList.Items.Add(IntToStr(lbList.Count));
       lbList.ItemIndex := fILManager.ItemAddCopy(Index);
-      fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+      fILManager.ReinitMainDrawSize(lbList);
+      fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+      fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+        IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       lbList.OnClick(nil);
     end;
 end;
@@ -855,7 +864,10 @@ If lbList.ItemIndex >= 0 then
       Index := lbList.ItemIndex;
       fILManager.ItemDelete(Index);
       lbList.Items.Delete(Index);
-      fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+      fILManager.ReinitMainDrawSize(lbList);
+      fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+      fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+        IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       If lbList.Count > 0 then
         begin
           If Index < lbList.Count then
@@ -1104,7 +1116,10 @@ If diaItemsImport.Execute then
         For i := 1 to Cntr do
           lbList.Items.Add(IntToStr(lbList.Count));
         lbList.ItemIndex := Pred(lbList.Count);
-        fILManager.ReinitDrawSize(lbList,fSelectionForm.lbItems);
+        fILManager.ReinitMainDrawSize(lbList);
+        fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+        fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+          IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       end;
     lbList.OnClick(nil);
     If Cntr > 0 then
@@ -1771,7 +1786,7 @@ fItemShopTableForm.ShowTable;
 frmItemFrame.Load;
 lbList.SetFocus;
 {$message 'debug - remove'}
-//close;
+close;
 end;
 
 //------------------------------------------------------------------------------

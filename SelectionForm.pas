@@ -199,7 +199,7 @@ try
         begin
           BeginUpdate;
           try
-            ReinitDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
+            ReinitSmallDrawSize(Temp,lbItems.ItemHeight,lbItems.Font);
             ChangeSmallStripSize(-1);
           finally
             EndUpdate;

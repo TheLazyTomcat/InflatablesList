@@ -239,7 +239,7 @@ For i := 0 to Pred(clbItems.Count) do
     begin
       BeginUpdate;
       try
-        ReinitDrawSize(clbItems.ClientWidth,clbItems.ItemHeight,clbItems.Font);
+        ReinitSmallDrawSize(clbItems.ClientWidth,clbItems.ItemHeight,clbItems.Font);
         ChangeSmallStripSize(16);
       finally
         EndUpdate;

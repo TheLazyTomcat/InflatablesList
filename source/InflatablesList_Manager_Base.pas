@@ -13,7 +13,8 @@ uses
   InflatablesList_Item;
 
 type
-  TILManagerUpdatedFlag = (ilmufMainList,ilmufSmallList,ilmufOverview,ilmufSettings);
+  TILManagerUpdatedFlag = (ilmufMainList,ilmufSmallList,ilmufMiniList,
+                           ilmufOverview,ilmufSettings);
 
   TILManagerUpdatedFlags = set of TILManagerUpdatedFlag;
 
@@ -47,6 +48,7 @@ type
     // events
     fOnMainListUpdate:            TNotifyEvent;
     fOnSmallListUpdate:           TNotifyEvent;
+    fOnMiniListUpdate:            TNotifyEvent;
     fOnOverviewUpdate:            TNotifyEvent;
     fOnSettingsChange:            TNotifyEvent;
     fOnItemsPasswordRequest:      TNotifyEvent;
@@ -77,8 +79,9 @@ type
     procedure ShopUpdatePriceHistoryHandler(Sender: TObject; Shop: TObject); virtual; 
     // handlers for item events
     procedure ItemUpdateMainListHandler(Sender: TObject); virtual; 
-    procedure ItemUpdateSmallListHandler(Sender: TObject); virtual; 
-    procedure ItemUpdateOverviewHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateSmallListHandler(Sender: TObject); virtual;
+    procedure ItemUpdateMiniListHandler(Sender: TObject); virtual;
+    procedure ItemUpdateOverviewHandler(Sender: TObject); virtual;
     procedure ItemUpdateTitleHandler(Sender: TObject); virtual;
     procedure ItemUpdatePicturesHandler(Sender: TObject); virtual; 
     procedure ItemUpdateFlagsHandler(Sender: TObject); virtual; 
@@ -88,6 +91,7 @@ type
     // event callers
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
+    procedure UpdateMiniList; virtual;
     procedure UpdateOverview; virtual;
     procedure UpdateSettings; virtual;
     procedure RequestItemsPassword; virtual;
@@ -122,9 +126,12 @@ type
     procedure ItemDelete(Index: Integer); virtual;
     procedure ItemClear; virtual;
     // macro methods (broadcast to item objects)
-    procedure ReinitDrawSize(MainList: TListBox; SmallList: TListBox); overload; virtual;
-    procedure ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
-    procedure ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;    
+    procedure ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont); overload; virtual;
+    procedure ReinitMainDrawSize(MainList: TListBox); overload; virtual;
+    procedure ReinitMainDrawSize(MainList: TListBox; OnlyVisible: Boolean); overload; virtual;
+    procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
+    procedure ReinitSmallDrawSize(SmallList: TListBox); overload; virtual;
+    procedure ReinitMiniDrawSize(MiniWidth,MiniHeight: Integer; MiniFont: TFont); virtual;
     // utility methods
     Function SortingItemStr(const SortingItem: TILSortingItem): String; virtual;
     Function TotalPictureCount: Integer; virtual;
@@ -164,6 +171,7 @@ type
     // global events
     property OnMainListUpdate: TNotifyEvent read fOnMainListUpdate write fOnMainListUpdate;
     property OnSmallListUpdate: TNotifyEvent read fOnSmallListUpdate write fOnSmallListUpdate;
+    property OnMiniListUpdate: TNotifyEvent read fOnMiniListUpdate write fOnMiniListUpdate;
     property OnOverviewUpdate: TNotifyEvent read fOnOverviewUpdate write fOnOverviewUpdate;
     property OnSettingsChange: TNotifyEvent read fOnSettingsChange write fOnSettingsChange;
     property OnItemsPasswordRequest: TNotifyEvent read fOnItemsPasswordRequest write fOnItemsPasswordRequest;
@@ -342,6 +350,13 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILManager_Base.ItemUpdateMiniListHandler(Sender: TObject);
+begin
+UpdateMiniList;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILManager_Base.ItemUpdateOverviewHandler(Sender: TObject);
 begin
 UpdateOverview;
@@ -427,6 +442,15 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILManager_Base.UpdateMiniList;
+begin
+If Assigned(fOnMiniListUpdate) and (fUpdateCounter <= 0) then
+  fOnMiniListUpdate(Self);
+Include(fUpdated,ilmufMiniList);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILManager_Base.UpdateOverview;
 begin
 If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
@@ -458,7 +482,7 @@ procedure TILManager_Base.UpdateList;
 begin
 UpdateMainList;
 UpdateSmallList;
-UpdateOverview;
+UpdateMiniList;
 end;
 
 //------------------------------------------------------------------------------
@@ -696,6 +720,8 @@ If fUpdateCounter <= 0 then
       UpdateMainList;
     If ilmufSmallList in fUpdated then
       UpdateSmallList;
+    If ilmufMiniList in fUpdated then
+      UpdateMiniList;
     If ilmufOverview in fUpdated then
       UpdateOverview;
     If ilmufSettings in fUpdated then
@@ -764,6 +790,7 @@ fList[Result].AssignInternalEvents(
   ShopUpdatePriceHistoryHandler,
   ItemUpdateMainListHandler,
   ItemUpdateSmallListHandler,
+  ItemUpdateMiniListHandler,
   ItemUpdateOverviewHandler,
   ItemUpdateTitleHandler,
   ItemUpdatePicturesHandler,
@@ -773,6 +800,7 @@ fList[Result].AssignInternalEvents(
   ItemPasswordRequestHandler);
 Inc(fCount);
 UpdateList;
+UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -794,6 +822,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
           ShopUpdatePriceHistoryHandler,
           ItemUpdateMainListHandler,
           ItemUpdateSmallListHandler,
+          ItemUpdateMiniListHandler,
           ItemUpdateOverviewHandler,
           ItemUpdateTitleHandler,
           ItemUpdatePicturesHandler,
@@ -803,6 +832,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
           ItemPasswordRequestHandler);
         Inc(fCount);
         UpdateList;
+        UpdateOverview;
       end
     else raise Exception.Create('TILManager_Base.ItemAddCopy: Cannot create copy of encrypted item.');
   end
@@ -830,8 +860,7 @@ If Idx1 <> Idx2 then
         // full reindex not needed
         fList[Idx1].Index := Idx1;
         fList[Idx2].Index := Idx2;
-        UpdateMainList;
-        UpdateSmallList;
+        UpdateList;
       end;
   end;
 end;
@@ -865,8 +894,7 @@ If Src <> Dst then
       end;
     fList[Dst] := Temp;
     ReIndex;
-    UpdateMainList;
-    UpdateSmallList;
+    UpdateList;
   end;
 end;
 
@@ -885,6 +913,7 @@ If (Index >= ItemLowIndex) and (Index <= ItemHighIndex) then
     Shrink;
     ReIndex;    
     UpdateList;
+    UpdateOverview;
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemDelete: Index (%d) out of bounds.',[Index]);
 end;
@@ -900,18 +929,19 @@ For i := ItemLowIndex to ItemHighIndex do
 fCount := 0;
 Shrink;
 UpdateList;
+UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ReinitDrawSize(MainList: TListBox; SmallList: TListBox);
+procedure TILManager_Base.ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont);
 var
   i:  Integer;
 begin
 BeginUpdate;
 try
   For i := ItemLowIndex to ItemHighIndex do
-    fList[i].ReinitDrawSize(MainList,SmallList);
+    fList[i].ReinitMainDrawSize(MainWidth,MainHeight,MainFont);
 finally
   EndUpdate;
 end;
@@ -919,7 +949,22 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TILManager_Base.ReinitDrawSize(MainList: TListBox; OnlyVisible: Boolean);
+procedure TILManager_Base.ReinitMainDrawSize(MainList: TListBox);
+var
+  i:  Integer;
+begin
+BeginUpdate;
+try
+  For i := ItemLowIndex to ItemHighIndex do
+    fList[i].ReinitMainDrawSize(MainList);
+finally
+  EndUpdate;
+end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILManager_Base.ReinitMainDrawSize(MainList: TListBox; OnlyVisible: Boolean);
 var
   i:  Integer;
 begin
@@ -929,7 +974,7 @@ If OnlyVisible and CheckIndex(MainList.TopIndex) and
     BeginUpdate;
     try
       For i := MainList.TopIndex to Pred(MainList.TopIndex + MainList.ClientHeight div MainList.ItemHeight) do
-        fList[i].ReinitDrawSize(MainList);
+        fList[i].ReinitMainDrawSize(MainList);
     finally
       EndUpdate;
     end;
@@ -939,23 +984,53 @@ else
     BeginUpdate;
     try
       For i := ItemLowIndex to ItemHighIndex do
-        fList[i].ReinitDrawSize(MainList);
+        fList[i].ReinitMainDrawSize(MainList);
     finally
       EndUpdate;
     end;
   end;
 end;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//------------------------------------------------------------------------------
 
-procedure TILManager_Base.ReinitDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
+procedure TILManager_Base.ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont);
 var
   i:  Integer;
 begin
 BeginUpdate;
 try
   For i := ItemLowIndex to ItemHighIndex do
-    fList[i].ReinitDrawSize(SmallWidth,SmallHeight,SmallFont);;
+    fList[i].ReinitSmallDrawSize(SmallWidth,SmallHeight,SmallFont);
+finally
+  EndUpdate;
+end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure TILManager_Base.ReinitSmallDrawSize(SmallList: TListBox);
+var
+  i:  Integer;
+begin
+BeginUpdate;
+try
+  For i := ItemLowIndex to ItemHighIndex do
+    fList[i].ReinitSmallDrawSize(SmallList);
+finally
+  EndUpdate;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ReinitMiniDrawSize(MiniWidth,MiniHeight: Integer; MiniFont: TFont);
+var
+  i:  Integer;
+begin
+BeginUpdate;
+try
+  For i := ItemLowIndex to ItemHighIndex do
+    fList[i].ReinitMiniDrawSize(MiniWidth,MiniHeight,MiniFont);
 finally
   EndUpdate;
 end;
@@ -997,6 +1072,7 @@ For i := ItemLowIndex to ItemhighIndex do
       ShopUpdatePriceHistoryHandler,
       ItemUpdateMainListHandler,
       ItemUpdateSmallListHandler,
+      ItemUpdateMiniListHandler,
       ItemUpdateOverviewHandler,
       ItemUpdateTitleHandler,
       ItemUpdatePicturesHandler,

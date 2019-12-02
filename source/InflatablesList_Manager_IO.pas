@@ -225,6 +225,7 @@ try
                 ShopUpdatePriceHistoryHandler,
                 ItemUpdateMainListHandler,
                 ItemUpdateSmallListHandler,
+                ItemUpdateMiniListHandler,
                 ItemUpdateOverviewHandler,
                 ItemUpdateTitleHandler,
                 ItemUpdatePicturesHandler,
@@ -235,6 +236,7 @@ try
             end;
           fCount := fCount + Result;
           UpdateList;
+          UpdateOverview;
         end;
     end
   else raise Exception.Create('TILItem_IO.ItemsImport: Invalid stream.');

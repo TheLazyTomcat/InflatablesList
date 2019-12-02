@@ -110,15 +110,26 @@ Function IL_IndexWrap(Index,Low,High: Integer): Integer;
 Function IL_NegateValue(Value: Integer; Negate: Boolean): Integer; 
 
 Function IL_BoolToStr(Value: Boolean; FalseStr, TrueStr: String): String;
+Function IL_BoolToNum(Value: Boolean): Integer;
 
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
 
 Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
 
+//==============================================================================
+//- roatated text drawing ------------------------------------------------------
+
+Function IL_LogFontAssign(Src: TFont): TLogFont; // just auxiliary for following
+
+Function IL_GetRotatedTextRect(Canvas: TCanvas; const Text: String; Angle: Integer; out Rect: TRect): Boolean;
+Function IL_GetRotatedTextSize(Canvas: TCanvas; const Text: String; Angle: Integer; out Size: TSize): Boolean;
+
+Function IL_DrawRotatedText(Canvas: TCanvas; const Text: String; Angle: Integer; X,Y: Integer): Boolean;
+
 implementation
 
 uses
-  StrUtils, ShellAPI, {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON}
+  StrUtils, ShellAPI, Math, {$WARN UNIT_PLATFORM OFF}FileCtrl,{$WARN UNIT_PLATFORM ON}
   StrRect;
 
 //==============================================================================
@@ -710,6 +721,16 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function IL_BoolToNum(Value: Boolean): Integer;
+begin
+If Value then
+  Result := 1
+else
+  Result := 0;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
 begin
 If Length(Path) > 0 then
@@ -721,6 +742,139 @@ end;
 Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
 begin
 Result := SelectDirectory(Title,'',Directory);
+end;
+
+
+//==============================================================================
+//- roatated text drawing ------------------------------------------------------
+
+Function IL_LogFontAssign(Src: TFont): TLogFont;
+begin
+FillChar(Result,SizeOf(TLogFont),0);
+Result.lfHeight := Src.Height;
+If fsBold in Src.Style then
+  Result.lfWeight := FW_BOLD
+else
+  Result.lfWeight := FW_NORMAL;
+Result.lfItalic := IL_BoolToNum(fsItalic in Src.Style);
+Result.lfUnderline := IL_BoolToNum(fsUnderline in Src.Style);
+Result.lfStrikeOut := IL_BoolToNum(fsStrikeOut in Src.Style);
+Result.lfQuality := DEFAULT_QUALITY;
+Result.lfCharSet := Src.Charset;
+StrLCopy(Result.lfFaceName,PChar(Src.Name),Length(Src.Name));
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_GetRotatedTextRect(Canvas: TCanvas; const Text: String; Angle: Integer; out Rect: TRect): Boolean;
+var
+  Font:               TLogFont;
+  BackgroundMode:     Integer;
+  CurrFont,OldFont:   HFONT;
+  TextSize:           TSize;
+  // corners of the bounding box - first, text origin, is ignored, others are taken ccw
+  PointsIn,PointsOut: array[0..2] of TPoint;
+  SinAngle,CosAngle:  Double;
+  i:                  Integer;
+begin
+Result := False;
+If Assigned(Canvas) and (Length(Text) > 0) then
+  begin
+    Font := IL_LogFontAssign(Canvas.Font);
+    Font.lfEscapement := Angle * 10;
+    Font.lfOrientation := Angle * 10;
+    BackgroundMode := SetBkMode(Canvas.Handle,TRANSPARENT);
+    try
+      CurrFont := CreateFontIndirect(Font);
+      try
+        OldFont := SelectObject(Canvas.Handle,CurrFont);
+        try
+          If GetTextExtentPoint32(Canvas.Handle,PChar(Text),Length(Text),TextSize) then
+            begin
+              If (Angle mod 360) <> 0 then
+                begin
+                  PointsIn[0] := Point(0,TextSize.cy);
+                  PointsIn[1] := Point(TextSize.cx,TextSize.cy);
+                  PointsIn[2] := Point(TextSize.cx,0);
+                  SinAngle := Sin(DegToRad(Angle));
+                  CosAngle := Cos(DegToRad(Angle));
+                  For i := Low(PointsIn) to High(PointsIn) do
+                    begin
+                      PointsOut[i].X := Round(CosAngle * PointsIn[i].X + SinAngle * PointsIn[i].Y);
+                      PointsOut[i].Y := Round(-(SinAngle * PointsIn[i].X) + CosAngle * PointsIn[i].Y)
+                    end;
+                  Rect.Left := MinIntValue([0,PointsOut[0].X,PointsOut[1].X,PointsOut[2].X]);
+                  Rect.Top := MinIntValue([0,PointsOut[0].Y,PointsOut[1].Y,PointsOut[2].Y]);
+                  Rect.Right := MaxIntValue([0,PointsOut[0].X,PointsOut[1].X,PointsOut[2].X]);
+                  Rect.Bottom := MaxIntValue([0,PointsOut[0].Y,PointsOut[1].Y,PointsOut[2].Y]);
+                end
+              else
+                begin
+                  Rect.Left := 0;
+                  Rect.Top := 0;
+                  Rect.Right := TextSize.cx;
+                  Rect.Bottom := TextSize.cy;
+                end;
+              Result := True;
+            end;
+        finally
+          SelectObject(Canvas.Handle,OldFont);
+        end;
+      finally
+        DeleteObject(CurrFont);
+      end;
+    finally
+      SetBkMode(Canvas.Handle,BackgroundMode);
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_GetRotatedTextSize(Canvas: TCanvas; const Text: String; Angle: Integer; out Size: TSize): Boolean;
+var
+  TextRect: TRect;
+begin
+If IL_GetRotatedTextRect(Canvas,Text,Angle,TextRect) then
+  begin
+    Size.cx := TextRect.Right - TextRect.Left;
+    Size.cy := TextRect.Bottom - TextRect.Top;
+    Result := True;
+  end
+else Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_DrawRotatedText(Canvas: TCanvas; const Text: String; Angle: Integer; X,Y: Integer): Boolean;
+var
+  Font:             TLogFont;
+  BackgroundMode:   Integer;
+  CurrFont,OldFont: HFONT;
+begin
+Result := False;
+If Assigned(Canvas) and (Length(Text) > 0) then
+  begin
+    Font := IL_LogFontAssign(Canvas.Font);
+    Font.lfEscapement := Angle * 10;
+    Font.lfOrientation := Angle * 10;
+    BackgroundMode := SetBkMode(Canvas.Handle,TRANSPARENT);
+    try
+      CurrFont := CreateFontIndirect(Font);
+      try
+        OldFont := SelectObject(Canvas.Handle,CurrFont);
+        try
+          Result := TextOut(Canvas.Handle,X,Y,PChar(Text),Length(Text));
+        finally
+          SelectObject(Canvas.Handle,OldFont);
+        end;
+      finally
+        DeleteObject(CurrFont);
+      end;
+    finally
+      SetBkMode(Canvas.Handle,BackgroundMode);
+    end;
+  end;
 end;
 
 //==============================================================================

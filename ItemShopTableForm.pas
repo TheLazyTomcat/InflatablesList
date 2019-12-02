@@ -8,7 +8,11 @@ uses
   CountedDynArrayString,
   InflatablesList_ItemShop,  
   InflatablesList_Item,
-  InflatablesList_Manager;
+  InflatablesList_Manager, Menus, StdCtrls, ExtCtrls;
+
+const
+  IL_ITEMSHOPTABLE_ITEMCELL_WIDTH  = 300;
+  IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT = 35;
 
 type
   TILItemShopTableRow = record
@@ -20,19 +24,30 @@ type
 
   TfItemShopTableForm = class(TForm)
     dgTable: TDrawGrid;
+    cbCompactView: TCheckBox;
+    lblSelectedInfo: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure dgTableDblClick(Sender: TObject);
+    procedure dgTableSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
     procedure dgTableDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
+    procedure cbCompactViewClick(Sender: TObject);
   private
     { Private declarations }
     fDrawBuffer:  TBitmap;
     fILManager:   TILManager;
     fKnownShops:  TCountedDynArrayString;
     fTable:       TILItemShopTable;
+  protected
+    // table building
     procedure EnumShops;
     procedure BuildTable;
     procedure FillTable;
+    procedure AdjustTable;
+    // other methods
+    procedure UpdateInfo(SelCol,SelRow: Integer);
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
@@ -94,23 +109,81 @@ end;
 
 procedure TfItemShopTableForm.FillTable;
 var
-  i:        Integer;
-  MinWidth: Integer;
+  i:          Integer;
+  MinHeight:  Integer;
+  TempSize:   TSize;
 begin
 dgTable.RowCount := Length(fTable) + 1;
 If Length(fTable) > 0 then
   dgTable.ColCount := Length(fTable[0].Shops) + 1
 else
   dgTable.ColCount := 1;
-dgTable.DefaultRowHeight := 35;
-dgTable.RowHeights[0] := 20;
-// get default column width from shop names
-MinWidth := 32;
+dgTable.DefaultRowHeight := IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT;
+// get minimal height of the first line
+MinHeight := 0;
 For i := CDA_Low(fKnownShops) to CDA_High(fKnownShops) do
-  If MinWidth < (dgTable.Canvas.TextWidth(CDA_GetItem(fKnownShops,i)) + 16) then
-    MinWidth := dgTable.Canvas.TextWidth(CDA_GetItem(fKnownShops,i)) + 16;
-dgTable.DefaultColWidth := MinWidth;
-dgTable.ColWidths[0] := 300;
+  If IL_GetRotatedTextSize(dgTable.Canvas,CDA_GetItem(fKnownShops,i),90,TempSize) then
+    If MinHeight < TempSize.cy + 20 then
+      MinHeight := TempSize.cy + 20;
+If MinHeight > 50 then
+  dgTable.RowHeights[0] := MinHeight
+else
+  dgTable.RowHeights[0] := 50;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemShopTableForm.AdjustTable;
+begin
+If cbCompactView.Checked then
+  dgTable.DefaultColWidth := 25
+else
+  dgTable.DefaultColWidth := 65;
+dgTable.ColWidths[0] := IL_ITEMSHOPTABLE_ITEMCELL_WIDTH;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemShopTableForm.UpdateInfo(SelCol,SelRow: Integer);
+var
+  Shop:     TILItemShop;
+  TempStr:  String;
+begin
+If (dgTable.Row > 0) and (SelCol > 0) then
+  begin
+    If Assigned(fTable[Pred(SelRow)].Shops[Pred(SelCol)]) then
+      begin
+        Shop := fTable[Pred(SelRow)].Shops[Pred(SelCol)];
+        If Shop.Price > 0 then
+          begin
+            If (Shop.Price <= fTable[Pred(SelRow)].Item.UnitPriceLowest) and (Shop.Available <> 0) then
+              TempStr := ' (lowest price)'
+            else If (Shop.Price >= fTable[Pred(SelRow)].Item.UnitPriceHighest) and (Shop.Available <> 0) then
+              TempStr := ' (highest price)'
+            else
+              TempStr := '';
+            If Shop.Available <> 0 then
+              begin
+                If Shop.Available > 0 then
+                  lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d pcs at %d Kè%s',
+                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
+                     Shop.Name,Shop.Available,Shop.Price,TempStr])
+                else
+                  lblSelectedInfo.Caption := IL_Format('%s %sin %s: more than %d pcs at %d Kè%s',
+                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
+                     Shop.Name,Abs(Shop.Available),Shop.Price,TempStr])
+              end
+            else lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d Kè%s, not available',
+                   [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
+                    Shop.Name,Shop.Price,TempStr]);
+          end
+        else lblSelectedInfo.Caption := IL_Format('%s is not available in %s',
+               [fTable[Pred(SelRow)].Item.TitleStr,CDA_GetItem(fKnownShops,Pred(SelCol))]);
+      end
+    else lblSelectedInfo.Caption := IL_Format('%s is not available in %s',
+           [fTable[Pred(SelRow)].Item.TitleStr,CDA_GetItem(fKnownShops,Pred(SelCol))]);
+  end
+else lblSelectedInfo.Caption := '';
 end;
 
 //==============================================================================
@@ -135,6 +208,8 @@ begin
 EnumShops;
 BuildTable;
 FillTable;
+AdjustTable;
+UpdateInfo(dgTable.Col,dgTable.Row);
 ShowModal;
 end;
 
@@ -157,12 +232,36 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TfItemShopTableForm.dgTableDblClick(Sender: TObject);
+begin
+Showmessage(Format('%d %d',[dgTable.Row,dgTable.Col]));
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemShopTableForm.dgTableSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+UpdateInfo(ACol,ARow);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TfItemShopTableForm.dgTableDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
   BoundsRect: TRect;
-  TempInt:    Integer;
   TempStr:    String;
-  Index:      Integer;
+  Shop:       TILItemShop;
+  TempSize:   TSize;
+
+  procedure SetBrushColors(Brush: TBrush; TrueColor,FalseColor: TColor; Switch: Boolean);
+  begin
+    If Switch then
+      Brush.Color := TrueColor
+    else
+      Brush.Color := FalseColor;
+  end;
+
 begin
 If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
   begin
@@ -174,112 +273,130 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
     BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
     with fDrawBuffer.Canvas do
       begin
-        // background
+        Font.Style := [];
         Pen.Style := psClear;
         Brush.Style := bsSolid;
-        If (gdFixed in State) and ((ACol > 0) or (ARow = 0)) then
-          begin
-            // fixed cells
-            If (ACol = 0) and (ARow = 0) then
+
+        If gdFixed in State then
+          begin // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            If (ARow > 0) and (ACol = 0) then
               begin
-                // upper left corner
-                Brush.Color := $00F5B86B;
+                // items
+                Draw(BoundsRect.Left,BoundsRect.Top,fTable[Pred(ARow)].Item.RenderMini);
+                Pen.Color := clSilver;  // for grid lines
+              end
+            else If (ARow = 0) and (ACol > 0) then
+              begin
+                // shops
+                Brush.Color := $00E4E4E4;
                 Rectangle(BoundsRect);
+                If IL_GetRotatedTextSize(fDrawBuffer.Canvas,CDA_GetItem(fKnownShops,Pred(ACol)),90,TempSize) then
+                  IL_DrawRotatedText(fDrawBuffer.Canvas,CDA_GetItem(fKnownShops,Pred(ACol)),90,
+                    ((BoundsRect.Right - BoundsRect.Left) - TempSize.cx) div 2,
+                    ((BoundsRect.Bottom - BoundsRect.Top) - TempSize.cy) div 2 + TempSize.cy);
+                Pen.Color := clGray;
               end
             else
               begin
-                // shops
-                TempInt := (BoundsRect.Bottom - BoundsRect.Top) div 2;
-                Brush.Color := $00F0F0F0;
-                Rectangle(0,0,fDrawBuffer.Width,TempInt);
-                Brush.Color := $00E4E4E4;
-                Rectangle(0,TempInt - 1,fDrawBuffer.Width,fDrawBuffer.Height);
+                // other fixed cells (upper left corner)
+                Brush.Color := $00FFE8EA; // shade of blue
+                Rectangle(BoundsRect);
+                Pen.Color := clGray;
               end;
           end
-        else
+        else    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           begin
-            // normal cells
-            (*If IL_SameText(TStringGrid(Sender).Cells[ACol,ARow],'%') then
+            // shop cells
+            Shop := fTable[Pred(ARow)].Shops[Pred(ACol)];
+            If Assigned(Shop) then
               begin
-                If gdSelected in State then
-                  Brush.Color := $00D6D6D6
-                else
-                  Brush.Color := $00E0E0E0;
-              end
-            else*)
-              begin
-                If gdSelected in State then
-                  Brush.Color := $00D6D6D6
-                else
-                  Brush.Color := clWhite;
-              end;
-            Rectangle(BoundsRect);
-          end;
 
-        // grid lines
+                // background
+                If (Shop.Price > 0) and (Shop.Available <> 0) then
+                  begin   
+                    // valid shop
+                    If Shop.Price <= fTable[Pred(ARow)].Item.UnitPriceLowest then
+                      SetBrushColors(Brush,$0069FF62,$00CEFFCC,gdSelected in State)
+                    else If Shop.Price >= fTable[Pred(ARow)].Item.UnitPriceHighest then
+                      SetBrushColors(Brush,$003CFAFF,$00C4FEFF,gdSelected in State)
+                    else
+                      SetBrushColors(Brush,$00E6E6E6,clWhite,gdSelected in State);
+                  end
+                // invalid shop (item not available here
+                else SetBrushColors(Brush,$005EBAFF,$00B7E0FF,gdSelected in State);
+                Rectangle(BoundsRect);
+
+                // text
+                Brush.Style := bsClear;
+                If cbCompactView.Checked then
+                  begin
+                    // price rotated by 90deg and without currency symbol
+                    Font.Style := font.Style + [fsBold];
+                    If Shop.Price > 0 then
+                      TempStr := IL_Format('%d',[Shop.Price])
+                    else
+                      TempStr := '-';
+                    If IL_GetRotatedTextSize(fDrawBuffer.Canvas,TempStr,90,TempSize) then
+                      IL_DrawRotatedText(fDrawBuffer.Canvas,TempStr,90,
+                        BoundsRect.Right - TempSize.cx - 2,
+                        BoundsRect.Top + TempSize.cy + 2);
+                  end
+                else
+                  begin
+                    // price
+                    Font.Style := Font.Style + [fsBold];
+                    If Shop.Price > 0 then
+                      TempStr := IL_Format('%d Kè',[Shop.Price])
+                    else
+                      TempStr := '-';
+                    TextOut(BoundsRect.Right - TextWidth(TempStr) - 5,2,TempStr);
+
+                    // available
+                    Font.Style := font.Style - [fsBold];
+                    If Shop.Available > 0 then
+                      TempStr := IL_Format('%d pcs',[Shop.Available])
+                    else If Shop.Available < 0 then
+                      TempStr := IL_Format('%d+ pcs',[Abs(Shop.Available)])
+                    else
+                      TempStr := '';
+                    TextOut(BoundsRect.Right - TextWidth(TempStr) - 5,18,TempStr);
+                  end;
+
+                // selection mark
+                If Shop.Selected then
+                  begin
+                    Pen.Style := psClear;
+                    Brush.Style := bsSolid;
+                    Brush.Color := clBlue;
+                    Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 10,BoundsRect.Bottom);
+                  end;
+                  
+              end
+            else
+              begin
+                // shop not assigned
+                SetBrushColors(Brush,$00D6D6D6,$00F7F7F7,gdSelected in State);
+                Rectangle(BoundsRect);
+              end;
+              
+            Pen.Color := clSilver;
+          end;  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         Pen.Style := psSolid;
-        If (gdFixed in State) and ((ACol > 0) or (ARow = 0)) then
-          Pen.Color := clGray
-        else
-          Pen.Color := clSilver;
         MoveTo(BoundsRect.Left,BoundsRect.Bottom - 1);
         LineTo(BoundsRect.Right - 1,BoundsRect.Bottom - 1);
         LineTo(BoundsRect.Right - 1,BoundsRect.Top - 1);
-
-        // content
-        Brush.Style := bsClear;
-        If gdFixed in State then
-          begin
-            // header cells
-            If ARow = 0 then
-              begin
-                If ACol > 0 then
-                  begin
-                    // top row - shop names
-                    TempStr := CDA_GetItem(fKnownShops,Pred(ACol));
-                    TempInt := ((BoundsRect.Right - BoundsRect.Left) - TextWidth(TempStr)) div 2;
-                    TextOut(BoundsRect.Left + TempInt,BoundsRect.Top + 3,TempStr);
-                  end;
-              end
-            else
-              begin
-                If ACol = 0 then
-                  begin
-                    // left column - items
-                    Font.Style := Font.Style + [fsBold];
-                    TextOut(BoundsRect.Left + 5,BoundsRect.Top + 2,fTable[Pred(ARow)].Item.TitleStr);
-                    Font.Style := Font.Style - [fsBold];
-                    TempStr := fTable[Pred(ARow)].Item.SizeStr;
-                    If Length(TempStr) > 0 then
-                      TextOut(BoundsRect.Left + 5,BoundsRect.Top + 17,IL_Format('%s - %s',[fTable[Pred(ARow)].Item.TypeStr,TempStr]))
-                    else
-                      TextOut(BoundsRect.Left + 5,BoundsRect.Top + 17,fTable[Pred(ARow)].Item.TypeStr);
-                    // thumbnail
-                    Index := fTable[Pred(ARow)].Item.Pictures.IndexOfItemPicture;
-                    If fTable[Pred(ARow)].Item.Pictures.CheckIndex(Index) then
-                      begin
-                        If Assigned(fTable[Pred(ARow)].Item.Pictures[Index].ThumbnailMini) and not fILManager.StaticSettings.NoPictures then
-                          Draw(BoundsRect.Right - fILManager.DataProvider.EmptyPictureMini.Width - 5,
-                               BoundsRect.Top + 1,fTable[Pred(ARow)].Item.Pictures[Index].ThumbnailMini)
-                        else
-                          Draw(BoundsRect.Right - fILManager.DataProvider.EmptyPictureMini.Width - 5,
-                               BoundsRect.Top + 1,fILManager.DataProvider.ItemDefaultPicturesMini[fTable[Pred(ARow)].Item.ItemType]);
-                      end
-                    else Draw(BoundsRect.Right - fILManager.DataProvider.EmptyPictureMini.Width - 5,
-                              BoundsRect.Top + 1,fILManager.DataProvider.ItemDefaultPicturesMini[fTable[Pred(ARow)].Item.ItemType]);
-                  end;
-              end;
-          end
-        else
-          begin
-            // normal cells
-            
-          end;
       end;
-
     // move drawbuffer to the canvas
-    TStringGrid(Sender).Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+    TDrawGrid(Sender).Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
   end;      
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemShopTableForm.cbCompactViewClick(Sender: TObject);
+begin
+AdjustTable;
 end;
 
 end.

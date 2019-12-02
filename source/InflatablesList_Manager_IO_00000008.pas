@@ -246,6 +246,7 @@ If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
           ShopUpdatePriceHistoryHandler,
           ItemUpdateMainListHandler,
           ItemUpdateSmallListHandler,
+          ItemUpdateMiniListHandler,
           ItemUpdateOverviewHandler,
           ItemUpdateTitleHandler,
           ItemUpdatePicturesHandler,

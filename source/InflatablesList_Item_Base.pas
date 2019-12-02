@@ -13,8 +13,8 @@ uses
   InflatablesList_ItemPictures;
 
 type
-  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufOverview,iliufTitle,
-                        iliufPictures,iliufFlags,iliufValues,iliufShopList);
+  TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufMiniList,iliufOverview,
+    iliufTitle,iliufPictures,iliufFlags,iliufValues,iliufShopList);
 
   TILItemUpdatedFlags = set of TILItemUpdatedFlag;
 
@@ -26,6 +26,7 @@ type
     fIndex:                 Integer;                  // used in sorting, transient (not copied in copy constructor)
     fRender:                TBitmap;
     fRenderSmall:           TBitmap;
+    fRenderMini:            TBitmap;
     fFilteredOut:           Boolean;                  // transient
     fUpdateCounter:         Integer;                  // transient
     fUpdated:               TILItemUpdatedFlags;      // transient
@@ -42,6 +43,7 @@ type
     // internal events
     fOnMainListUpdate:      TNotifyEvent;
     fOnSmallListUpdate:     TNotifyEvent;
+    fOnMiniListUpdate:      TNotifyEvent;
     fOnOverviewUpdate:      TNotifyEvent;
     fOnTitleUpdate:         TNotifyEvent;
     fOnPicturesUpdate:      TNotifyEvent;
@@ -143,6 +145,7 @@ type
     procedure UpdateShopListItem(Index: Integer); virtual;
     procedure UpdateMainList; virtual;
     procedure UpdateSmallList; virtual;
+    procedure UpdateMiniList; virtual;
     procedure UpdateOverview; virtual;
     procedure UpdateTitle; virtual;
     procedure UpdatePictures; virtual;
@@ -151,6 +154,7 @@ type
     procedure UpdateShopList; virtual;
     Function RequestItemsPassword(out Password: String): Boolean; virtual;
     // macro callers
+    procedure UpdateList; virtual;  // updates all lists
     procedure UpdateShops; virtual; // when list shop is added or deleted
     // other protected methods
     procedure InitializeData; virtual;
@@ -191,6 +195,7 @@ type
       ShopPriceHistUpdate:  TILObjectL1Event;
       MainListUpdate,
       SmallListUpdate,
+      MiniListUpdate,
       OverviewUpdate,
       TitleUpdate,
       PicturesUpdate,
@@ -205,6 +210,7 @@ type
     property Index: Integer read fIndex write SetIndex;
     property Render: TBitmap read fRender;
     property RenderSmall: TBitmap read fRenderSmall;
+    property RenderMini: TBitmap read fRenderMini;
     property FilteredOut: Boolean read fFilteredOut;
     // encryption
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
@@ -284,6 +290,7 @@ If fItemType <> Value then
     fItemType := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -298,6 +305,7 @@ If not IL_SameStr(fItemTypeSpec,Value) then
     UniqueString(fItemTypeSpec);
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -318,6 +326,7 @@ If fPieces <> Value then
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateMainList;
       UpdateSmallList;
+      UpdateMiniList;
       UpdateOverview;
       UpdateTitle;
       UpdateValues;
@@ -338,6 +347,7 @@ If not IL_SameStr(fUserID,Value) then
     UniqueString(fUserID);
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
   end;
 end;
 
@@ -350,6 +360,7 @@ If fManufacturer <> Value then
     fManufacturer := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -364,6 +375,7 @@ If not IL_SameStr(fManufacturerStr,Value) then
     UniqueString(fManufacturerStr);
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -378,6 +390,7 @@ If not IL_SameStr(fTextID,Value) then
     UniqueString(fTextID);
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -391,6 +404,7 @@ If fNumID <> Value then
     fNumID := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
     UpdateTitle;
   end;
 end;
@@ -406,6 +420,8 @@ If fFlags <> Value then
     try
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateMainList;
+      UpdateSmallList;
+      UpdateMiniList;
       UpdateFlags;
     finally
       EndUpdate;
@@ -514,6 +530,7 @@ If fSizeX <> Value then
     fSizeX := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
   end;
 end;
 
@@ -526,6 +543,7 @@ If fSizeY <> Value then
     fSizeY := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
   end;
 end;
 
@@ -538,6 +556,7 @@ If fSizeZ <> Value then
     fSizeZ := Value;
     UpdateMainList;
     UpdateSmallList;
+    UpdateMiniList;
   end;
 end;
 
@@ -650,8 +669,7 @@ end;
 
 procedure TILItem_Base.PicPicturesChange(Sender: TObject);
 begin
-UpdateMainList;
-UpdateSmallList;
+UpdateList;
 UpdatePictures;
 end;
 
@@ -769,6 +787,15 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.UpdateMiniList;
+begin
+If Assigned(fOnMiniListUpdate) and (fUpdateCounter <= 0) then
+  fOnMiniListUpdate(Self);
+Include(fUpdated,iliufMiniList);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.UpdateOverview;
 begin
 If Assigned(fOnOverviewUpdate) and (fUpdateCounter <= 0) then
@@ -823,11 +850,21 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Base.UpdateList;
+begin
+UpdateMainList;
+UpdateSmallList;
+UpdateMiniList;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Base.UpdateShops;
 begin
 GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
 UpdateMainList;   // there can be shop count shown
-UpdateSmallList;  // well...
+UpdateSmallList;  // there is price that depends on shops
+// mini list does not contain anything shop-related
 UpdateOverview;   // -//-
 UpdateValues;     // shop count is shown there
 UpdateShopList;
@@ -906,6 +943,8 @@ fRender := TBitmap.Create;
 fRender.PixelFormat := pf24bit;
 fRenderSmall := TBitmap.Create;
 fRenderSmall.PixelFormat := pf24bit;
+fRenderMini := TBitmap.Create;
+fRenderMini.PixelFormat := pf24bit;
 fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -922,6 +961,8 @@ procedure TILItem_Base.Finalize;
 begin
 FinalizeData;
 FreeBuffer(fEncryptedData);
+If Assigned(fRenderMini) then
+  FreeAndNil(fRenderMini);
 If Assigned(fRenderSmall) then
   FreeAndNil(fRenderSmall);
 If Assigned(fRender) then
@@ -971,6 +1012,11 @@ If CopyPics then
         fRenderSmall.Assign(Source.RenderSmall);
         fRenderSmall.Canvas.Font.Assign(Source.RenderSmall.Canvas.Font);
       end;
+    If Assigned(Source.RenderMini) then
+      begin
+        fRenderMini.Assign(Source.RenderMini);
+        fRenderMini.Canvas.Font.Assign(Source.RenderMini.Canvas.Font);
+      end
   end;
 fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;
@@ -1080,6 +1126,8 @@ If fUpdateCounter <= 0 then
       UpdateMainList;
     If iliufSmallList in fUpdated then
       UpdateSmallList;
+    If iliufMiniList in fUpdated then
+      UpdateMiniList;
     If iliufOverview in fUpdated then
       UpdateOverview;
     If iliufTitle in fUpdated then
@@ -1253,7 +1301,7 @@ try
   If (ItemFlag = ilifWanted) and (Result <> NewValue) then
     FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
   If Result <> NewValue then
-    UpdateMainList;
+    UpdateList;
   UpdateFlags;  
 finally
   EndUpdate;
@@ -1325,8 +1373,7 @@ fUnitPriceLowest := LowPrice;
 fUnitPriceHighest := HighPrice;
 fAvailableLowest := LowAvail;
 fAvailableHighest := HighAvail;
-UpdateMainList;
-UpdateSmallList;
+UpdateList;
 UpdateOverview;
 UpdateValues;
 end;
@@ -1361,7 +1408,7 @@ If (ilifWanted in fFlags) and (fShopCount > 0) then
         If (fAvailableSelected <> OldAvail) then
           Include(fFlags,ilifAvailChange);
       end;
-    UpdateMainList;
+    UpdateList;
     UpdateFlags;
   end;
 end;
@@ -1383,8 +1430,8 @@ end;
 
 procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate: TILIndexedObjectL1Event;
   ShopValuesUpdate,ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
-  MainListUpdate,SmallListUpdate,OverviewUpdate,TitleUpdate,PicturesUpdate,
-  FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent;
+  MainListUpdate,SmallListUpdate,MiniListUpdate,OverviewUpdate,TitleUpdate,
+  PicturesUpdate,FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent;
   ItemsPasswordRequest: TILPasswordRequest);
 begin
 fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
@@ -1393,6 +1440,7 @@ fOnShopAvailHistoryUpd := IL_CheckHandler(ShopAvailHistUpdate);
 fOnShopPriceHistoryUpd := IL_CheckHandler(ShopPriceHistUpdate);
 fOnMainListUpdate := IL_CheckHandler(MainListUpdate);
 fOnSmallListUpdate := IL_CheckHandler(SmallListUpdate);
+fOnMiniListUpdate := IL_CheckHandler(MiniListUpdate);
 fOnOverviewUpdate := IL_CheckHandler(OverviewUpdate);
 fOnTitleUpdate := IL_CheckHandler(TitleUpdate);
 fOnPicturesUpdate := IL_CheckHandler(PicturesUpdate);
@@ -1412,6 +1460,7 @@ fOnShopAvailHistoryUpd := nil;
 fOnShopPriceHistoryUpd := nil;
 fOnMainListUpdate := nil;
 fOnSmallListUpdate := nil;
+fOnMiniListUpdate := nil;
 fOnOverviewUpdate := nil;
 fOnTitleUpdate := nil;
 fOnPicturesUpdate := nil;

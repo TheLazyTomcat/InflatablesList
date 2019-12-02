@@ -1,6 +1,6 @@
 object fItemShopTableForm: TfItemShopTableForm
-  Left = 193
-  Top = 56
+  Left = 217
+  Top = 63
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsSingle
   Caption = 'Item-shop table'
@@ -21,20 +21,39 @@ object fItemShopTableForm: TfItemShopTableForm
     656)
   PixelsPerInch = 96
   TextHeight = 13
+  object lblSelectedInfo: TLabel
+    Left = 970
+    Top = 634
+    Width = 71
+    Height = 13
+    Alignment = taRightJustify
+    Anchors = [akRight, akBottom]
+    Caption = 'lblSelectedInfo'
+  end
   object dgTable: TDrawGrid
     Left = 8
     Top = 8
     Width = 1033
-    Height = 641
+    Height = 617
     Anchors = [akLeft, akTop, akRight, akBottom]
     Color = 16316664
     ColCount = 2
-    DefaultColWidth = 300
-    DefaultRowHeight = 35
     DefaultDrawing = False
     RowCount = 2
     Options = [goThumbTracking]
     TabOrder = 0
+    OnDblClick = dgTableDblClick
     OnDrawCell = dgTableDrawCell
+    OnSelectCell = dgTableSelectCell
+  end
+  object cbCompactView: TCheckBox
+    Left = 8
+    Top = 632
+    Width = 89
+    Height = 17
+    Anchors = [akLeft, akBottom]
+    Caption = 'Compact view'
+    TabOrder = 1
+    OnClick = cbCompactViewClick
   end
 end

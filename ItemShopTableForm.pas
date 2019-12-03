@@ -4,11 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids,
+  Dialogs, Grids, StdCtrls, Menus,
   CountedDynArrayString,
   InflatablesList_ItemShop,  
   InflatablesList_Item,
-  InflatablesList_Manager, Menus, StdCtrls, ExtCtrls;
+  InflatablesList_Manager;
 
 const
   IL_ITEMSHOPTABLE_ITEMCELL_WIDTH  = 300;
@@ -233,8 +233,46 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfItemShopTableForm.dgTableDblClick(Sender: TObject);
+var
+  MousePos:   TPoint;
+  CellCoords: TPoint;
+  i,TempInt:  Integer;
+  ItemShop:   TILItemShop;
+  Dummy:      Boolean;
 begin
-Showmessage(Format('%d %d',[dgTable.Row,dgTable.Col]));
+// get which cell was clicked
+MousePos := dgTable.ScreenToClient(Mouse.CursorPos);
+CellCoords.X := -1;
+CellCoords.Y := -1;
+// get column
+TempInt := dgTable.ColWidths[0];  // fixed col
+For i := dgTable.LeftCol to Pred(dgTable.ColCount) do
+  If (MousePos.X >= TempInt) and (MousePos.X < TempInt + dgTable.ColWidths[i]) then
+    begin
+      CellCoords.X := i;
+      Break{For i};
+    end
+  else Inc(TempInt,dgTable.ColWidths[i]);
+// get row
+TempInt := dgTable.RowHeights[0];  // fixed row
+For i := dgTable.TopRow to Pred(dgTable.RowCount) do
+  If (MousePos.Y >= TempInt) and (MousePos.Y < TempInt + dgTable.RowHeights[i]) then
+    begin
+      CellCoords.Y := i;
+      Break{For i};
+    end
+  else Inc(TempInt,dgTable.RowHeights[i]);
+// do the (un)selection  
+If (CellCoords.X >= 0) and (CellCoords.Y >= 0) then
+  begin
+    ItemShop := fTable[Pred(CellCoords.Y)].Shops[Pred(CellCoords.X)];
+    If Assigned(ItemShop) then
+      ItemShop.Selected := not ItemShop.Selected;
+    Dummy := True;
+    dgTableSelectCell(nil,CellCoords.X,CellCoords.Y,Dummy);
+    dgTable.Invalidate;    
+  end
+else Beep;
 end;
 
 //------------------------------------------------------------------------------
@@ -338,7 +376,7 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
                       TempStr := '-';
                     If IL_GetRotatedTextSize(fDrawBuffer.Canvas,TempStr,90,TempSize) then
                       IL_DrawRotatedText(fDrawBuffer.Canvas,TempStr,90,
-                        BoundsRect.Right - TempSize.cx - 2,
+                        BoundsRect.Right - TempSize.cx - 1,
                         BoundsRect.Top + TempSize.cy + 2);
                   end
                 else

@@ -33,6 +33,8 @@ type
       var CanSelect: Boolean);
     procedure dgTableDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
+    procedure dgTableMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);      
     procedure cbCompactViewClick(Sender: TObject);
   private
     { Private declarations }
@@ -40,6 +42,8 @@ type
     fILManager:   TILManager;
     fKnownShops:  TCountedDynArrayString;
     fTable:       TILItemShopTable;
+    fTracking:    Boolean;
+    fTrackPoint:  TPoint;
   protected
     // table building
     procedure EnumShops;
@@ -210,6 +214,7 @@ BuildTable;
 FillTable;
 AdjustTable;
 UpdateInfo(dgTable.Col,dgTable.Row);
+fTracking := False;
 ShowModal;
 end;
 
@@ -428,6 +433,61 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
     // move drawbuffer to the canvas
     TDrawGrid(Sender).Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
   end;      
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemShopTableForm.dgTableMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+If ssRight in Shift then
+  begin
+    If fTracking then
+      begin
+        // horizontal movement
+        If Abs(fTrackPoint.X - Mouse.CursorPos.X) >= dgTable.DefaultColWidth then
+          begin
+            If (fTrackPoint.X - Mouse.CursorPos.X) > 0 then
+              begin
+                // cursor moved left
+                If dgTable.LeftCol < (dgTable.ColCount - ((dgTable.ClientWidth - dgTable.ColWidths[0]) div dgTable.DefaultColWidth)) then
+                  dgTable.LeftCol := dgTable.LeftCol + 1;
+                fTrackPoint.X := fTrackPoint.X - dgTable.DefaultColWidth;
+              end
+            else
+              begin
+                // cursor moved right
+                If dgTable.LeftCol > 1 then
+                  dgTable.LeftCol := dgTable.LeftCol - 1;
+                fTrackPoint.X := fTrackPoint.X + dgTable.DefaultColWidth;
+              end;
+          end;
+        // vertical movement
+        If Abs(fTrackPoint.Y - Mouse.CursorPos.Y) >= dgTable.DefaultRowHeight then
+          begin
+            If (fTrackPoint.Y - Mouse.CursorPos.Y) > 0 then
+              begin
+                // cursor moved up
+                If dgTable.TopRow < (dgTable.RowCount - ((dgTable.ClientHeight - dgTable.RowHeights[0]) div dgTable.DefaultRowHeight)) then
+                  dgTable.TopRow := dgTable.TopRow + 1;
+                fTrackPoint.Y := fTrackPoint.Y - dgTable.DefaultRowHeight;
+              end
+            else
+              begin
+                // cursor moved down
+                If dgTable.TopRow > 1 then
+                  dgTable.TopRow := dgTable.TopRow - 1;
+                fTrackPoint.Y := fTrackPoint.Y + dgTable.DefaultRowHeight;
+              end;
+          end;
+      end
+    else
+      begin
+        fTracking := True;
+        fTrackPoint := Mouse.CursorPos;
+      end;
+  end
+else fTracking := False;
 end;
 
 //------------------------------------------------------------------------------

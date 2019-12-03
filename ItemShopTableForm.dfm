@@ -44,6 +44,7 @@ object fItemShopTableForm: TfItemShopTableForm
     TabOrder = 0
     OnDblClick = dgTableDblClick
     OnDrawCell = dgTableDrawCell
+    OnMouseMove = dgTableMouseMove
     OnSelectCell = dgTableSelectCell
   end
   object cbCompactView: TCheckBox

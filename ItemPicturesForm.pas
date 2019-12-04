@@ -128,9 +128,9 @@ end;
 procedure TfItemPicturesForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
-fDirPics := '';
-fDirThumbs := '';
-fDirExport := '';
+fDirPics := IL_ExcludeTrailingPathDelimiter(fILManager.StaticSettings.DefaultPath);
+fDirThumbs := fDirPics;
+fDirExport := fDirPics;
 end;
 
 //------------------------------------------------------------------------------

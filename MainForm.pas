@@ -618,7 +618,7 @@ fILManager.OnSettingsChange := SettingsChange;
 fILManager.OnItemsPasswordRequest := ItemsPasswordRequest;
 fSaveOnExit := True;
 fWrongPswdMessage := '';
-fDirExport := '';
+fDirExport := IL_ExcludeTrailingPathDelimiter(fILManager.StaticSettings.DefaultPath);
 // prepare item frame
 frmItemFrame.Initialize(fILManager);
 frmItemFrame.OnShowSelectedItem := ShowSelectedItem;

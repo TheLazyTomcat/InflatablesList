@@ -700,7 +700,6 @@ fILManager.ReinitMainDrawSize(lbList);
 fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
 fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
   IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
-mniMMT_ItemShopTableClick(nil); {$message 'debug - remove'}
 end;
 
 //------------------------------------------------------------------------------
@@ -1785,8 +1784,6 @@ frmItemFrame.Save;
 fItemShopTableForm.ShowTable;
 frmItemFrame.Load;
 lbList.SetFocus;
-{$message 'debug - remove'}
-close;
 end;
 
 //------------------------------------------------------------------------------

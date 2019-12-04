@@ -5,6 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls,
+  InflatablesList_Types,
   InflatablesList_Manager;
 
 type
@@ -14,9 +15,12 @@ type
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
-    fILManager: TILManager;
+    fILManager:   TILManager;
+    fStatLabels:  array[0..Pred(Length(IL_STATIC_SETTINGS_TAGS))] of TLabel;
+    fDynLabels:   array[0..Pred(Length(IL_DYNAMIC_SETTINGS_TAGS))] of TLabel;
   protected
     procedure BuildForm;
+    procedure IndicateState;
   public
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
@@ -30,7 +34,7 @@ var
 implementation
 
 uses
-  InflatablesList_Types;
+  MainForm;
 
 {$R *.dfm}
 
@@ -89,6 +93,7 @@ For i := Low(IL_STATIC_SETTINGS_TAGS) to High(IL_STATIC_SETTINGS_TAGS) do
   begin
     // tag
     TempLabel := AddLabel(grbStaticSettings,LABELS_SPACE,TempInt,[fsBold],IL_STATIC_SETTINGS_TAGS[i]);
+    fStatLabels[i] := TempLabel;
     // command
     TempLabel := AddLabel(grbStaticSettings,TempLabel.BoundsRect.Right + LABELS_SPACE,TempInt,[],STAT_SETT_CMDS[i]);
     If (TempLabel.BoundsRect.Right + LABELS_SPACE) > grbStaticSettings.Tag then
@@ -111,6 +116,7 @@ For i := Low(IL_DYNAMIC_SETTINGS_TAGS) to High(IL_DYNAMIC_SETTINGS_TAGS) do
   begin
     // tag
     TempLabel := AddLabel(grbDynamicSettings,LABELS_SPACE,TempInt,[fsBold],IL_DYNAMIC_SETTINGS_TAGS[i]);
+    fDynLabels[i] := TempLabel;
     If (TempLabel.BoundsRect.Right + LABELS_SPACE) > grbDynamicSettings.Tag then
       grbDynamicSettings.Tag := TempLabel.BoundsRect.Right + LABELS_SPACE;
     // name
@@ -141,6 +147,37 @@ If ClientWidth < (grbDynamicSettings.BoundsRect.Right + LABELS_SPACE) then
 ClientHeight := grbDynamicSettings.BoundsRect.Bottom + LABELS_SPACE;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfSettingsLegendForm.IndicateState;
+
+  procedure InidicateOnLabel(aLabel: TLabel; State: Boolean);
+  begin
+    If State then
+      aLabel.Font.Color := clWindowText
+    else
+      aLabel.Font.Color := clGrayText;
+  end;
+
+begin
+// static settings
+InidicateOnLabel(fStatLabels[0],fILManager.StaticSettings.NoPictures);
+InidicateOnLabel(fStatLabels[1],fILManager.StaticSettings.TestCode);
+InidicateOnLabel(fStatLabels[2],fILManager.StaticSettings.SavePages);
+InidicateOnLabel(fStatLabels[3],fILManager.StaticSettings.LoadPages);
+InidicateOnLabel(fStatLabels[4],fILManager.StaticSettings.NoSave);
+InidicateOnLabel(fStatLabels[5],fILManager.StaticSettings.NoBackup);
+InidicateOnLabel(fStatLabels[6],fILManager.StaticSettings.NoUpdateAutoLog);
+InidicateOnLabel(fStatLabels[7],fILManager.StaticSettings.ListOverride);
+InidicateOnLabel(fStatLabels[8],fILManager.StaticSettings.NoParse);
+// dynamic settings
+InidicateOnLabel(fDynLabels[0],fILManager.Compressed);
+InidicateOnLabel(fDynLabels[1],fILManager.Encrypted);
+InidicateOnLabel(fDynLabels[2],fMainForm.mniMMF_SaveOnClose.Checked);
+InidicateOnLabel(fDynLabels[3],fILManager.ReversedSort);
+InidicateOnLabel(fDynLabels[4],fILManager.CaseSensitiveSort);
+end;
+
 //==============================================================================
 
 procedure TfSettingsLegendForm.Initialize(ILManager: TILManager);
@@ -159,6 +196,7 @@ end;
 
 procedure TfSettingsLegendForm.ShowLegend;
 begin
+IndicateState;
 ShowModal;
 end;
 

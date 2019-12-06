@@ -158,7 +158,7 @@ FileStream := TMemoryStream.Create;
 try
   // pre-allocate
   FileStream.Size := (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
-                     (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_PIC * 2);  // jst assumes an avrg. of 2 pics per item
+                     (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_PIC * 2);  // just assumes an avrg. of 2 pics per item
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
@@ -166,7 +166,7 @@ try
   // now write individual items in the order they are in the indices array
   For i := Low(Indices) to High(Indices) do
     begin
-      TempItem := TILItem.CreateAsCopy(fDataProvider,fList[Indices[i]],True);
+      TempItem := TILItem.CreateAsCopy(fDataProvider,fList[Indices[i]],True,False);
       try
         // copy parsing data when they are only referenced
         For j := TempItem.ShopLowIndex to TempItem.ShopHighIndex do

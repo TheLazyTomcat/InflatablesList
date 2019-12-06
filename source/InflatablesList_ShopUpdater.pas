@@ -288,7 +288,7 @@ end;
 constructor TILShopUpdater.Create(ShopObject: TILItemShop_Update);
 begin
 inherited Create;
-fShopObject := TILItemShop_Update.CreateAsCopy(ShopObject);
+fShopObject := TILItemShop_Update.CreateAsCopy(ShopObject,True);
 fDownStream := TMemoryStream.Create;
 InitializeResults;
 end;

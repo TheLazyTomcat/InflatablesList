@@ -28,7 +28,7 @@ type
     Function GetIsSimple: Boolean; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILFinderBaseClass);
+    constructor CreateAsCopy(Source: TILFinderBaseClass; UniqueCopy: Boolean);
     procedure Prepare(Variables: TILItemShopParsingVariables); virtual;
     Function AsString(Decorate: Boolean = True): String; virtual; // returns string describing the comparator
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; virtual;
@@ -61,7 +61,7 @@ type
     fResult:      Boolean;  // result of the comparison operation, not saved
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILComparatorBase);
+    constructor CreateAsCopy(Source: TILComparatorBase; UniqueCopy: Boolean);
     procedure ReInit; virtual;
     procedure SaveToStream(Stream: TStream); virtual;
     procedure LoadFromStream(Stream: TStream); virtual;
@@ -90,7 +90,7 @@ type
     procedure SetStr(const Value: String);
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILTextComparator);
+    constructor CreateAsCopy(Source: TILTextComparator; UniqueCopy: Boolean);
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Compare(const Text: String); override;
@@ -115,7 +115,7 @@ type
     procedure MarkLeading; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILTextComparatorGroup);
+    constructor CreateAsCopy(Source: TILTextComparatorGroup; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
@@ -152,7 +152,7 @@ type
     Function GetIsSimple: Boolean; override;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILAttributeComparator);
+    constructor CreateAsCopy(Source: TILAttributeComparator; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
@@ -178,7 +178,7 @@ type
     procedure MarkLeading; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILAttributeComparatorGroup);
+    constructor CreateAsCopy(Source: TILAttributeComparatorGroup; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
@@ -210,7 +210,7 @@ type
     Function GetIsSimple: Boolean; override;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILElementComparator);
+    constructor CreateAsCopy(Source: TILElementComparator; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
@@ -237,7 +237,7 @@ type
     procedure ReIndex; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILElementFinderStage);
+    constructor CreateAsCopy(Source: TILElementFinderStage; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function AsString(Decorate: Boolean = True): String; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
@@ -267,7 +267,7 @@ type
     procedure ReIndex; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILElementFinder);
+    constructor CreateAsCopy(Source: TILElementFinder; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function Search(const SearchSettings: TILAdvSearchSettings): Boolean; override;
     procedure Prepare(Variables: TILItemShopParsingVariables); override;
@@ -419,7 +419,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILFinderBaseClass.CreateAsCopy(Source: TILFinderBaseClass);
+constructor TILFinderBaseClass.CreateAsCopy(Source: TILFinderBaseClass; UniqueCopy: Boolean);
 begin
 Create;
 fVariables := IL_ThreadSafeCopy(Source.Variables);
@@ -469,9 +469,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILComparatorBase.CreateAsCopy(Source: TILComparatorBase);
+constructor TILComparatorBase.CreateAsCopy(Source: TILComparatorBase; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 fVariableIdx := Source.VariableIndex;
 fNegate := Source.Negate;
 fOperator := Source.Operator;
@@ -524,9 +524,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILTextComparator.CreateAsCopy(Source: TILTextComparator);
+constructor TILTextComparator.CreateAsCopy(Source: TILTextComparator; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 fStr := Source.Str;
 UniqueString(fStr);
 fCaseSensitive := Source.CaseSensitive;
@@ -709,17 +709,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILTextComparatorGroup.CreateAsCopy(Source: TILTextComparatorGroup);
+constructor TILTextComparatorGroup.CreateAsCopy(Source: TILTextComparatorGroup; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 SetLength(fItems,Source.Count);
 For i := Low(fItems) to High(fItems) do
   If Source.Items[i] is TILTextComparatorGroup then
-    fItems[i] := TILTextComparatorGroup.CreateAsCopy(TILTextComparatorGroup(Source.Items[i]))
+    fItems[i] := TILTextComparatorGroup.CreateAsCopy(TILTextComparatorGroup(Source.Items[i]),UniqueCopy)
   else
-    fItems[i] := TILTextComparator.CreateAsCopy(TILTextComparator(Source.Items[i]));
+    fItems[i] := TILTextComparator.CreateAsCopy(TILTextComparator(Source.Items[i]),UniqueCopy);
 MarkLeading;
 end;
 
@@ -991,12 +991,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILAttributeComparator.CreateAsCopy(Source: TILAttributeComparator);
+constructor TILAttributeComparator.CreateAsCopy(Source: TILAttributeComparator; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
-fName := TILTextComparatorGroup.CreateAsCopy(Source.Name);
+inherited CreateAsCopy(Source,UniqueCopy);
+fName := TILTextComparatorGroup.CreateAsCopy(Source.Name,UniqueCopy);
 fName.StringPrefix := 'Name: ';
-fValue := TILTextComparatorGroup.CreateAsCopy(Source.Value);
+fValue := TILTextComparatorGroup.CreateAsCopy(Source.Value,UniqueCopy);
 fValue.StringPrefix := 'Value: ';
 end;
 
@@ -1188,17 +1188,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILAttributeComparatorGroup.CreateAsCopy(Source: TILAttributeComparatorGroup);
+constructor TILAttributeComparatorGroup.CreateAsCopy(Source: TILAttributeComparatorGroup; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 SetLength(fItems,Source.Count);
 For i := Low(fItems) to High(fItems) do
   If Source.Items[i] is TILAttributeComparatorGroup then
-    fItems[i] := TILAttributeComparatorGroup.CreateAsCopy(TILAttributeComparatorGroup(Source.Items[i]))
+    fItems[i] := TILAttributeComparatorGroup.CreateAsCopy(TILAttributeComparatorGroup(Source.Items[i]),UniqueCopy)
   else
-    fItems[i] := TILAttributeComparator.CreateAsCopy(TILAttributeComparator(Source.Items[i]));
+    fItems[i] := TILAttributeComparator.CreateAsCopy(TILAttributeComparator(Source.Items[i]),UniqueCopy);
 MarkLeading;
 end;
 
@@ -1461,14 +1461,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILElementComparator.CreateAsCopy(Source: TILElementComparator);
+constructor TILElementComparator.CreateAsCopy(Source: TILElementComparator; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
-fTagName := TILTextComparatorGroup.CreateAsCopy(Source.TagName);
+inherited CreateAsCopy(Source,UniqueCopy);
+fTagName := TILTextComparatorGroup.CreateAsCopy(Source.TagName,UniqueCopy);
 fTagName.StringPrefix := 'Tag name: ';
-fAttributes := TILAttributeComparatorGroup.CreateAsCopy(Source.Attributes);
+fAttributes := TILAttributeComparatorGroup.CreateAsCopy(Source.Attributes,UniqueCopy);
 fAttributes.StringPrefix := 'Attributes: ';
-fText := TILTextComparatorGroup.CreateAsCopy(Source.Text);
+fText := TILTextComparatorGroup.CreateAsCopy(Source.Text,UniqueCopy);
 fText.StringPrefix := 'Text: ';
 fNestedText := Source.NestedText;
 fResult := Source.Result;
@@ -1643,14 +1643,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILElementFinderStage.CreateAsCopy(Source: TILElementFinderStage);
+constructor TILElementFinderStage.CreateAsCopy(Source: TILElementFinderStage; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 SetLength(fItems,Source.Count);
 For i := Low(fItems) to High(fItems) do
-  fItems[i] := TILElementComparator.CreateAsCopy(Source.Items[i]);
+  fItems[i] := TILElementComparator.CreateAsCopy(Source.Items[i],UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------
@@ -1870,14 +1870,14 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILElementFinder.CreateAsCopy(Source: TILElementFinder);
+constructor TILElementFinder.CreateAsCopy(Source: TILElementFinder; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
-inherited CreateAsCopy(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
 SetLength(fStages,Source.StageCount);
 For i := Low(fStages) to High(fStages) do
-  fStages[i] := TILElementFinderStage.CreateAsCopy(Source.Stages[i]);
+  fStages[i] := TILElementFinderStage.CreateAsCopy(Source.Stages[i],UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------

@@ -29,10 +29,10 @@ type
     Function ItemCompare(Idx1,Idx2: Integer; CaseSensitive: Boolean): Integer; virtual;
     Function ItemCompare_CaseSensitive(Idx1,Idx2: Integer): Integer; virtual;
     Function ItemCompare_CaseInsensitive(Idx1,Idx2: Integer): Integer; virtual;
-    procedure ThisCopyFrom_Sort(Source: TILManager_Base); virtual;
+    procedure ThisCopyFrom_Sort(Source: TILManager_Base; UniqueCopy: Boolean); virtual;
   public
-    constructor CreateAsCopy(Source: TILManager_Base); override;
-    procedure CopyFrom(Source: TILManager_Base); override;
+    constructor CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean); override;
+    procedure CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean); override;
     Function SortingProfileIndexOf(const Name: String): Integer; virtual;
     Function SortingProfileAdd(const Name: String): Integer; virtual;
     procedure SortingProfileRename(Index: Integer; const NewName: String); virtual;
@@ -178,7 +178,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Sort.ThisCopyFrom_Sort(Source: TILManager_Base);
+procedure TILManager_Sort.ThisCopyFrom_Sort(Source: TILManager_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -198,18 +198,18 @@ end;
 
 //==============================================================================
 
-constructor TILManager_Sort.CreateAsCopy(Source: TILManager_Base);
+constructor TILManager_Sort.CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
-ThisCopyFrom_Sort(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
+ThisCopyFrom_Sort(Source,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Sort.CopyFrom(Source: TILManager_Base);
+procedure TILManager_Sort.CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean);
 begin
-inherited CopyFrom(Source);
-ThisCopyFrom_Sort(Source);
+inherited CopyFrom(Source,UniqueCopy);
+ThisCopyFrom_Sort(Source,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------

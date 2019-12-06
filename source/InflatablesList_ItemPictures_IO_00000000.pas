@@ -142,6 +142,7 @@ If Assigned(Thumbnail) then
   end
 else Stream_WriteUInt32(Stream,0);
 end;
+
 //------------------------------------------------------------------------------
 
 procedure TILItemPictures_IO_00000000.LoadThumbnail_00000000(Stream: TStream; out Thumbnail: TBitmap);

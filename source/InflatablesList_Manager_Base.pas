@@ -104,13 +104,13 @@ type
     procedure Finalize; virtual;
     // other
     procedure ReIndex; virtual;
-    procedure ThisCopyFrom_Base(Source: TILManager_Base); virtual;
+    procedure ThisCopyFrom_Base(Source: TILManager_Base; UniqueCopy: Boolean); virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILManager_Base); virtual; // will be overriden
+    constructor CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean); virtual; // will be overriden
     constructor CreateTransient;  // nothing is initialized, use with great caution
     destructor Destroy; override;
-    procedure CopyFrom(Source: TILManager_Base); virtual;
+    procedure CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean); virtual;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
     Function LowIndex: Integer; override;
@@ -585,7 +585,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.ThisCopyFrom_Base(Source: TILManager_Base);
+procedure TILManager_Base.ThisCopyFrom_Base(Source: TILManager_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -607,7 +607,7 @@ For i := ItemLowIndex to ItemHighIndex do
 SetLength(fList,Source.ItemCount);
 fCount := Source.ItemCount;
 For i := ItemLowIndex to ItemHighIndex do
-  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True);
+  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
 // other data
 fNotes := Source.Notes;
 UniqueString(fNotes);
@@ -625,7 +625,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILManager_Base.CreateAsCopy(Source: TILManager_Base);
+constructor TILManager_Base.CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -636,7 +636,7 @@ fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
   but recreate backup manager
 }
 FreeAndNil(fBackupManager);
-fBackupManager := TILBackupManager.CreateAsCopy(Source.BackupManager);
+fBackupManager := TILBackupManager.CreateAsCopy(Source.BackupManager,UniqueCopy);
 fEncrypted := Source.Encrypted;
 fListPassword := Source.ListPassword;
 UniqueString(fListPassword);
@@ -647,7 +647,7 @@ UniqueString(fItemsPassword);
 // copy the list
 Capacity := Source.Count;
 For i := Source.LowIndex to Source.HighIndex do
-  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True);
+  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
 fCount := Source.Count;
 // other data
 fNotes := Source.Notes;
@@ -690,13 +690,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Base.CopyFrom(Source: TILManager_Base);
+procedure TILManager_Base.CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean);
 begin
 {
   copies all data and non-transient, non-object properties from the source,
   replacing existing data and values
 }
-ThisCopyFrom_Base(Source);
+ThisCopyFrom_Base(Source,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------
@@ -813,7 +813,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
       begin
         Grow;
         Result := fCount;
-        fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True);
+        fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True,True);
         fList[Result].Index := Result;
         fList[Result].AssignInternalEvents(
           ShopUpdateShopListItemHandler,

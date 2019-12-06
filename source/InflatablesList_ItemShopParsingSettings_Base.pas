@@ -44,7 +44,7 @@ type
     procedure Finalize; virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILItemShopParsingSettings_Base);
+    constructor CreateAsCopy(Source: TILItemShopParsingSettings_Base; UniqueCopy: Boolean);
     destructor Destroy; override;
     // extraction settings lists
     Function AvailExtractionSettingsAdd: Integer; virtual;
@@ -250,7 +250,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemShopParsingSettings_Base.CreateAsCopy(Source: TILItemShopParsingSettings_Base);
+constructor TILItemShopParsingSettings_Base.CreateAsCopy(Source: TILItemShopParsingSettings_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -266,11 +266,11 @@ fDisableParsErrs := Source.DisableParsingErrors;
 SetLength(fAvailExtrSetts,Source.AvailExtractionSettingsCount);
 For i := Low(fAvailExtrSetts) to High(fAvailExtrSetts) do
   fAvailExtrSetts[i] := IL_ThreadSafeCopy(Source.AvailExtractionSettings[i]);
-fAvailFinder := TILElementFinder.CreateAsCopy(Source.AvailFinder);
+fAvailFinder := TILElementFinder.CreateAsCopy(Source.AvailFinder,UniqueCopy);
 SetLength(fPriceExtrSetts,Source.PriceExtractionSettingsCount);
 For i := Low(fPriceExtrSetts) to High(fPriceExtrSetts) do
   fPriceExtrSetts[i] := IL_ThreadSafeCopy(Source.PriceExtractionSettings[i]);
-fPriceFinder := TILElementFinder.CreateAsCopy(Source.PriceFinder);
+fPriceFinder := TILElementFinder.CreateAsCopy(Source.PriceFinder,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------

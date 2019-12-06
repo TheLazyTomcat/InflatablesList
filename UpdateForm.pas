@@ -92,7 +92,7 @@ var
 begin
 inherited Create;
 fProcessingIndex := ProcessingIndex;
-fItemShop := TILItemShop.CreateAsCopy(ItemShop);
+fItemShop := TILItemShop.CreateAsCopy(ItemShop,True);
 // resolve reference and make local copy of processing settings
 Index := ILManager.ShopTemplateIndexOf(fItemShop.ParsingSettings.TemplateReference);
 If Index >= 0 then

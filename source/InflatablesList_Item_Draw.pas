@@ -28,7 +28,7 @@ type
     procedure UpdateMiniList; override;
     procedure Initialize; override;
   public
-    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; override;
+    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean); overload; override;
     procedure ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont); overload; virtual;
     procedure ReinitMainDrawSize(MainList: TListBox); overload; virtual;
     procedure ReinitSmallDrawSize(SmallWidth,SmallHeight: Integer; SmallFont: TFont); overload; virtual;
@@ -550,9 +550,9 @@ end;
 
 //==============================================================================
 
-constructor TILItem_Draw.CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean);
+constructor TILItem_Draw.CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(DataProvider,Source,CopyPics);
+inherited CreateAsCopy(DataProvider,Source,CopyPics,UniqueCopy);
 If Source is TILItem_Draw then
   begin
     fMainWidth := TILItem_Draw(Source).MainWidth;

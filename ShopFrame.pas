@@ -759,7 +759,7 @@ If Assigned(fCurrentItemShop) then
     Save;
     Screen.Cursor := crHourGlass;
     try
-      Temp := TILItemShop.CreateAsCopy(fCurrentItemShop);
+      Temp := TILItemShop.CreateAsCopy(fCurrentItemShop,True);
       try
         // resolve reference      
         Index := fILManager.ShopTemplateIndexOf(Temp.ParsingSettings.TemplateReference);

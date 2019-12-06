@@ -221,7 +221,7 @@ end;
 
 Function TILHTMLParser.GetDocument: TILHTMLDocument;
 begin
-Result := TILHTMLDocument.CreateAsCopy(nil,fRootElement)
+Result := TILHTMLDocument.CreateAsCopy(nil,fRootElement,True);
 end;
 
 end.

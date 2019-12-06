@@ -422,16 +422,20 @@ If diaOpenDialog.Execute then
             Thumbnail := TBitmap.Create;
             try
               Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
-              fCurrentItem.Pictures.BeginUpdate;
-              try
-                Index := fCurrentItem.Pictures.Add(Info);
-                fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
-              finally
-                fCurrentItem.Pictures.EndUpdate;
-              end;
-              FillList;
-              lbPictures.ItemIndex := Pred(lbPictures.Count);
-              lbPictures.OnClick(nil);  // also updates index
+              If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
+                begin
+                  fCurrentItem.Pictures.BeginUpdate;
+                  try
+                    Index := fCurrentItem.Pictures.Add(Info);
+                    fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
+                  finally
+                    fCurrentItem.Pictures.EndUpdate;
+                  end;
+                  FillList;
+                  lbPictures.ItemIndex := Pred(lbPictures.Count);
+                  lbPictures.OnClick(nil);  // also updates index
+                end
+              else MessageDlg('Invalid format of the thumbnail.',mtError,[mbOK],0);
             finally
               Thumbnail.Free;
             end;
@@ -459,8 +463,12 @@ If lbPictures.ItemIndex >= 0 then
         Thumbnail := TBitmap.Create;
         try
           Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
-          fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
-          FillList;
+          If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
+            begin
+              fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
+              FillList;
+            end
+          else MessageDlg('Invalid format of the thumbnail.',mtError,[mbOK],0);
         finally
           Thumbnail.Free;
         end;

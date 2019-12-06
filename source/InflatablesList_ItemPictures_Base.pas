@@ -64,7 +64,7 @@ type
     class procedure GenerateSmallThumbnails(var Entry: TILItemPicturesEntry); virtual;
   public
     constructor Create(Owner: TObject);
-    constructor CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base);
+    constructor CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base; UniqueCopy: Boolean);
     destructor Destroy; override;
     Function LowIndex: Integer; override;
     Function HighIndex: Integer; override;
@@ -195,6 +195,8 @@ If not KeepFile then
     Entry.PictureSize := 0;
     Entry.PictureWidth := -1;
     Entry.PictureHeight := -1;
+    Entry.ItemPicture := False;
+    Entry.PackagePicture := False;
   end;
 If Assigned(Entry.Thumbnail) then
   FreeAndnil(Entry.Thumbnail);
@@ -202,8 +204,6 @@ If Assigned(Entry.ThumbnailSmall) then
   FreeAndnil(Entry.ThumbnailSmall);
 If Assigned(Entry.ThumbnailMini) then
   FreeAndnil(Entry.ThumbnailMini);
-Entry.ItemPicture := False;
-Entry.PackagePicture := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemPictures_Base.CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base);
+constructor TILItemPictures_Base.CreateAsCopy(Owner: TObject; Source: TILItemPictures_Base; UniqueCopy: Boolean);
 var
   i,Index:  Integer;
   Info:     TILPictureAutomationInfo;
@@ -255,16 +255,32 @@ begin
 Create(Owner);
 fStaticSettings := IL_ThreadSafeCopy(Source.StaticSettings);
 For i := Source.LowIndex to Source.HighIndex do
-  If AutomatePictureFile(Source.StaticSettings.PicturesPath + Source[i].PictureFile,Info) then
+  If UniqueCopy then
     begin
-      Index := Add(Info);
+      If AutomatePictureFile(Source.StaticSettings.PicturesPath + Source[i].PictureFile,Info) then
+        begin
+          Index := Add(Info);
+          If CheckIndex(Index) then
+            begin
+              SetThumbnail(Index,Source[i].Thumbnail,True);
+              If Source[i].ItemPicture then
+                SetItemPicture(Index,True);
+              If Source[i].PackagePicture then
+                SetPackagePicture(Index,True);
+            end;
+      end;
+    end
+  else
+    begin
+      Index := Add(Source[i].PictureFile);
       If CheckIndex(Index) then
         begin
+          fPictures[Index].PictureSize := Source[i].PictureSize;
+          fPictures[Index].PictureWidth := Source[i].PictureWidth;
+          fPictures[Index].PictureHeight := Source[i].PictureHeight;
+          fPictures[Index].ItemPicture := Source[i].ItemPicture;
+          fPictures[Index].PackagePicture := Source[i].PackagePicture;
           SetThumbnail(Index,Source[i].Thumbnail,True);
-          If Source[i].ItemPicture then
-            SetItemPicture(Index,True);
-          If Source[i].PackagePicture then
-            SetPackagePicture(Index,True);
         end;
     end;
 fCurrentSecondary := Source.CurrentSecondary;
@@ -402,9 +418,9 @@ fPictures[Result].PictureFile := AutomationInfo.FileName;
 fPictures[Result].PictureSize := AutomationInfo.Size;
 fPictures[Result].PictureWidth := AutomationInfo.Width;
 fPictures[Result].PictureHeight := AutomationInfo.Height;
-Inc(fCount);
 If not CheckIndex(fCurrentSecondary) then
   fCurrentSecondary := Result;
+Inc(fCount);  
 UpdatePictures;
 end;
 
@@ -465,6 +481,9 @@ If CheckIndex(Index) then
     FreeEntry(fPictures[Index]);
     For i := Index to Pred(HighIndex) do
       fPictures[i] := fPictures[i + 1];
+    // clear item that was moved down  
+    fPictures[HighIndex].PictureFile := '';
+    FillChar(fPictures[HighIndex],SizeOf(TILItemPicturesEntry),0);
     Shrink;
     Dec(fCount);
     UpdatePictures;

@@ -79,7 +79,7 @@ type
     procedure Finalize; virtual;
   public
     constructor Create; overload;
-    constructor CreateAsCopy(Source: TILItemShop_Base); overload;
+    constructor CreateAsCopy(Source: TILItemShop_Base; UniqueCopy: Boolean); overload;
     destructor Destroy; override;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
@@ -435,7 +435,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemShop_Base.CreateAsCopy(Source: TILItemShop_Base);
+constructor TILItemShop_Base.CreateAsCopy(Source: TILItemShop_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -464,7 +464,7 @@ For i := Low(fPriceHistory) to High(fPriceHistory) do
 fNotes := Source.Notes;
 UniqueString(fNotes);
 // parsing stuff
-fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings,UniqueCopy);
 fParsingSettings.RequiredCount := fRequiredCount;
 fLastUpdateRes := Source.LastUpdateRes;
 fLastUpdateMsg := Source.LastUpdateMsg;
@@ -651,7 +651,7 @@ begin
 // no need to care for thread safety, strings are cured when assigned to new object
 Variables := fParsingSettings.VariablesRec;
 fParsingSettings.Free;
-fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source);
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source,True);
 fParsingSettings.RequiredCount := fRequiredCount;
 For i := 0 to Pred(fParsingSettings.VariableCount) do
   fParsingSettings.Variables[i] := Variables.Vars[i];

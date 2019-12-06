@@ -43,7 +43,7 @@ type
     procedure AddToEnd(Entry: TILBackupEntry); virtual;
   public
     constructor Create;
-    constructor CreateAsCopy(Source: TILBackupManager);
+    constructor CreateAsCopy(Source: TILBackupManager; UniqueCopy: Boolean);
     destructor Destroy; override;
     procedure Delete(Index: Integer); virtual;
     procedure LoadBackups; virtual;
@@ -159,7 +159,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILBackupManager.CreateAsCopy(Source: TILBackupManager);
+constructor TILBackupManager.CreateAsCopy(Source: TILBackupManager; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin

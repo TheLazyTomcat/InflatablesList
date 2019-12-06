@@ -27,7 +27,7 @@ type
     Function GetElement(Index: Integer): TILHTMLElementNode;
   public
     constructor Create(Parent: TILHTMLElementNode; const Name: TILReconvString);
-    constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
+    constructor CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode; UniqueCopy: Boolean);
     destructor Destroy; override;
     procedure Close; virtual;
     procedure TextFinalize; virtual;
@@ -117,7 +117,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILHTMLElementNode.CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode);
+constructor TILHTMLElementNode.CreateAsCopy(Parent: TILHTMLElementNode; Source: TILHTMLElementNode; UniqueCopy: Boolean);
 var
   Temp: UnicodeString;
   i:    Integer;
@@ -136,7 +136,7 @@ For i := 1 to Length(Temp) do
   CDA_Add(fTextArr,Temp[i]);
 // copy elements
 For i := 0 to Pred(Source.ElementCount) do
-  CDA_Add(fElements,TILHTMLElementNode.CreateAsCopy(Self,Source.Elements[i]));
+  CDA_Add(fElements,TILHTMLElementNode.CreateAsCopy(Self,Source.Elements[i],True));
 end;
 
 //------------------------------------------------------------------------------

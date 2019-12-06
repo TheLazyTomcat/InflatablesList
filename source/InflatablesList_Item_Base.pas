@@ -164,8 +164,8 @@ type
   public
     constructor Create(DataProvider: TILDataProvider); overload;
     constructor Create; overload;
-    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean); overload; virtual;
-    constructor CreateAsCopy(Source: TILItem_Base; CopyPics: Boolean); overload;
+    constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean); overload; virtual;
+    constructor CreateAsCopy(Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean); overload;
     destructor Destroy; override;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
@@ -989,7 +989,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItem_Base.CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean);
+constructor TILItem_Base.CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -999,7 +999,6 @@ fEncrypted := Source.Encrypted;
 fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then
   CopyBuffer(Source.EncryptedData,fEncryptedData);
-// do not copy time of addition and UID
 If CopyPics then
   begin
     If Assigned(Source.Render) then
@@ -1017,6 +1016,11 @@ If CopyPics then
         fRenderMini.Assign(Source.RenderMini);
         fRenderMini.Canvas.Font.Assign(Source.RenderMini.Canvas.Font);
       end
+  end;
+If not UniqueCopy then
+  begin
+    fUniqueID := Source.UniqueID;
+    fTimeOfAddition := Source.TimeOfAddition;
   end;
 fItemType := Source.ItemType;
 fItemTypeSpec := Source.ItemTypeSpec;
@@ -1067,7 +1071,7 @@ If CopyPics then
     need some of the data fields to be filled
   }
     FreeAndNil(fPictures);
-    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures);
+    fPictures := TILItemPictures.CreateAsCopy(Self,Source.Pictures,UniqueCopy);
     fPictures.AssignInternalEvents(PicPicturesChange);
   end;
 // copy shops
@@ -1075,7 +1079,7 @@ SetLength(fShops,Source.ShopCount);
 fShopCount := Source.ShopCount;
 For i := Low(fShops) to High(fShops) do
   begin
-    fShops[i] := TILItemShop.CreateAsCopy(Source[i]);
+    fShops[i] := TILItemShop.CreateAsCopy(Source[i],UniqueCopy);
     fShops[i].RequiredCount := fPieces;
     fShops[i].AssignInternalEvents(
       ShopClearSelectedHandler,
@@ -1089,9 +1093,9 @@ end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItem_Base.CreateAsCopy(Source: TILItem_Base; CopyPics: Boolean);
+constructor TILItem_Base.CreateAsCopy(Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean);
 begin
-CreateAsCopy(TILDataProvider.Create,Source,CopyPics);
+CreateAsCopy(TILDataProvider.Create,Source,CopyPics,UniqueCopy);
 fOwnsDataProvider := True;
 end;
 

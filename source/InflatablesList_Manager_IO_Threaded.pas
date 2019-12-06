@@ -81,7 +81,7 @@ constructor TILSavingThread.Create(ILManager: TILManager_Base; EndNotificationHa
 begin
 inherited Create(False);
 FreeOnTerminate := True;
-fLocalManager := TILManager.CreateAsCopy(ILManager);
+fLocalManager := TILManager.CreateAsCopy(ILManager,False);
 fOnEndNotify := EndNotificationHandler;
 end;
 
@@ -134,7 +134,7 @@ constructor TILLoadingThread.Create(ILManager: TILManager_Base; EndNotificationH
 begin
 inherited Create(False);
 FreeOnTerminate := True;
-fLocalManager := TILManager.CreateAsCopy(ILManager);
+fLocalManager := TILManager.CreateAsCopy(ILManager,False);
 fOnEndNotify := EndNotificationHandler;
 fOnDataCopy := DataCopyHandler;
 fResult := illrSuccess;
@@ -157,7 +157,7 @@ begin
 // sender is expected to be of type TILManager
 If Sender is TILManager then
   begin
-    CopyFrom(TILManager(Sender));
+    CopyFrom(TILManager(Sender),False);
     AssignInternalEventHandlers;
   end;
 end;

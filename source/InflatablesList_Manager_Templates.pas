@@ -18,10 +18,10 @@ type
     Function GetShopTemplate(Index: Integer): TILItemShopTemplate;
     procedure Initialize; override;
     procedure Finalize; override;
-    procedure ThisCopyFrom_Templates(Source: TILManager_Base); virtual;
+    procedure ThisCopyFrom_Templates(Source: TILManager_Base; UniqueCopy: Boolean); virtual;
   public
-    constructor CreateAsCopy(Source: TILManager_Base); override;
-    procedure CopyFrom(Source: TILManager_Base); override;
+    constructor CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean); override;
+    procedure CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean); override;
     Function ShopTemplateIndexOf(const Name: String): Integer; virtual;
     Function ShopTemplateAdd(const Name: String; Shop: TILItemShop): Integer; virtual;
     procedure ShopTemplateRename(Index: Integer; const NewName: String); virtual;
@@ -73,7 +73,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Templates.ThisCopyFrom_Templates(Source: TILManager_Base);
+procedure TILManager_Templates.ThisCopyFrom_Templates(Source: TILManager_Base; UniqueCopy: Boolean);
 var
   i:  Integer;
 begin
@@ -85,24 +85,24 @@ If Source is TILManager_Templates then
     // copy new ones
     SetLength(fShopTemplates,TILManager_Templates(Source).ShopTemplateCount);
     For i := Low(fShopTemplates) to High(fShopTemplates) do
-      fShopTemplates[i] := TILItemShopTemplate.CreateAsCopy(TILManager_Templates(Source).ShopTemplates[i]);
+      fShopTemplates[i] := TILItemShopTemplate.CreateAsCopy(TILManager_Templates(Source).ShopTemplates[i],UniqueCopy);
   end;
 end;
 
 //==============================================================================
 
-constructor TILManager_Templates.CreateAsCopy(Source: TILManager_Base);
+constructor TILManager_Templates.CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean);
 begin
-inherited CreateAsCopy(Source);
-ThisCopyFrom_Templates(Source);
+inherited CreateAsCopy(Source,UniqueCopy);
+ThisCopyFrom_Templates(Source,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_Templates.CopyFrom(Source: TILManager_Base);
+procedure TILManager_Templates.CopyFrom(Source: TILManager_Base; UniqueCopy: Boolean);
 begin
-inherited CopyFrom(Source);
-ThisCopyFrom_Templates(Source);
+inherited CopyFrom(Source,UniqueCopy);
+ThisCopyFrom_Templates(Source,UniqueCopy);
 end;
 
 //------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ Function TILManager_Templates.ShopTemplateAdd(const Name: String; Shop: TILItemS
 begin
 SetLength(fShopTemplates,Length(fShopTemplates) + 1);
 Result := High(fShopTemplates);
-fShopTemplates[Result] := TILItemShopTemplate.Create(Shop);
+fShopTemplates[Result] := TILItemShopTemplate.Create(Shop,True);
 fShopTemplates[Result].StaticSettings := fStaticSettings;
 fShopTemplates[Result].Name := Name;
 end;

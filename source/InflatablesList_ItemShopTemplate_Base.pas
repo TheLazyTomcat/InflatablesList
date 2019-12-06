@@ -34,8 +34,8 @@ type
     procedure Finalize; virtual;
   public
     constructor Create; overload;
-    constructor Create(BaseOn: TILItemShop); overload;
-    constructor CreateAsCopy(Source: TILItemShopTemplate_Base);
+    constructor Create(BaseOn: TILItemShop; UniqueCopy: Boolean); overload;
+    constructor CreateAsCopy(Source: TILItemShopTemplate_Base; UniqueCopy: Boolean);
     destructor Destroy; override;
     procedure CopyTo(Shop: TILItemShop); virtual;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
@@ -158,7 +158,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop);
+constructor TILItemShopTemplate_Base.Create(BaseOn: TILItemShop; UniqueCopy: Boolean);
 begin
 inherited Create;
 // do not call initialize
@@ -171,13 +171,13 @@ fUntracked := BaseOn.Untracked;
 fAltDownMethod := BaseOn.AltDownMethod;
 fShopURL := BaseOn.ShopURL;
 UniqueString(fShopURL);
-fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings);
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(BaseOn.ParsingSettings,UniqueCopy);
 fParsingSettings.TemplateReference := fName;  // reference self
 end;
 
 //------------------------------------------------------------------------------
 
-constructor TILItemShopTemplate_Base.CreateAsCopy(Source: TILItemShopTemplate_Base);
+constructor TILItemShopTemplate_Base.CreateAsCopy(Source: TILItemShopTemplate_Base; UniqueCopy: Boolean);
 begin
 inherited Create;
 // do not call initialize
@@ -190,7 +190,7 @@ fUntracked := Source.Untracked;
 fAltDownMethod := Source.AltDownMethod;
 fShopURL := Source.ShopURL;
 UniqueString(fShopURL);
-fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings);
+fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source.ParsingSettings,UniqueCopy);
 // do not change anything else in parsing settings, leave it as direct copy
 end;
 

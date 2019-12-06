@@ -32,7 +32,7 @@ type
     // special functions
     Function GetFlagsWord: UInt32; virtual;
     procedure SetFlagsWord(FlagsWord: UInt32); virtual;
-    procedure DecodeFlagsWord(FlagsWord: UInt32; var PreloadResult: TILPreloadResultFlags); virtual;
+    class procedure DecodeFlagsWord(FlagsWord: UInt32; var PreloadResult: TILPreloadResultFlags); virtual;
     // stream processing functions
     procedure CompressStream_ZLIB(WorkStream: TMemoryStream); virtual;
     procedure DecompressStream_ZLIB(WorkStream: TMemoryStream); virtual;
@@ -79,7 +79,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILManager_IO_0000000A.DecodeFlagsWord(FlagsWord: UInt32; var PreloadResult: TILPreloadResultFlags);
+class procedure TILManager_IO_0000000A.DecodeFlagsWord(FlagsWord: UInt32; var PreloadResult: TILPreloadResultFlags);
 begin
 If GetFlagState(FlagsWord,IL_LIST_FLAG_BITMASK_ENCRYPTED) then
   Include(PreloadResult,ilprfEncrypted);

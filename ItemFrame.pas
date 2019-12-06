@@ -362,9 +362,13 @@ If Assigned(fPictures) then
           begin
             fImages[i].Image.Picture.Assign(fImages[i].Picture);
             fImages[i].Image.ShowHint := fImages[i].PictureKind <> ilipkUnknown;
-            fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
             fImages[i].Background.Visible := not Assigned(fImages[i].Picture);
           end;
+        If (fImages[i].PictureKind = ilipkSecondary) and (fPictures.SecondaryCount(False) > 1) then
+          fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True) + IL_Format(' %d/%d',
+            [fPictures.SecondaryIndex(fPictures.CurrentSecondary) + 1,fPictures.SecondaryCount(False)])
+        else
+          fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
       end; 
     // realign
     TempInt := fRightAnchor;
@@ -420,14 +424,21 @@ If Assigned(fPictures) then
     If fImages[i].PictureKind = ilipkSecondary then
       begin
         If fPictures.CheckIndex(fPictures.CurrentSecondary) then
-          If fImages[i].Picture <> fPictures[fPictures.CurrentSecondary].Thumbnail then
-            begin
-              If Assigned(fPictures[fPictures.CurrentSecondary].Thumbnail) then
-                fImages[i].Picture := fPictures[fPictures.CurrentSecondary].Thumbnail
-              else
-                fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
-              fImages[i].Image.Picture.Assign(fImages[i].Picture)
-            end;
+          begin
+            If fImages[i].Picture <> fPictures[fPictures.CurrentSecondary].Thumbnail then
+              begin
+                If Assigned(fPictures[fPictures.CurrentSecondary].Thumbnail) then
+                  fImages[i].Picture := fPictures[fPictures.CurrentSecondary].Thumbnail
+                else
+                  fImages[i].Picture := fILManager.DataProvider.EmptyPicture;
+                fImages[i].Image.Picture.Assign(fImages[i].Picture);
+              end;
+            If fPictures.SecondaryCount(False) > 1 then
+              fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True) + IL_Format(' %d/%d',
+                [fPictures.SecondaryIndex(fPictures.CurrentSecondary) + 1,fPictures.SecondaryCount(False)])
+            else
+              fImages[i].Image.Hint := IL_ItemPictureKindToStr(fImages[i].PictureKind,True);
+          end;
         Break{For i};
       end;
 end;

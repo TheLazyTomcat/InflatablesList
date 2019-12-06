@@ -82,11 +82,13 @@ type
     procedure Delete(Index: Integer); virtual;
     procedure Clear(Destroying: Boolean = False); virtual;
     Function AutomatePictureFile(const FileName: String; out AutomationInfo: TILPictureAutomationInfo): Boolean; virtual;
+    procedure RealodPictureInfo(Index: Integer); virtual;
     procedure OpenPictureFile(Index: Integer); virtual;
     procedure SetThumbnail(Index: Integer; Thumbnail: TBitmap; CreateCopy: Boolean); virtual;
     procedure SetItemPicture(Index: Integer; Value: Boolean); virtual;
     procedure SetPackagePicture(Index: Integer; Value: Boolean); virtual;
     Function SecondaryCount(WithThumbnailOnly: Boolean): Integer; virtual;
+    Function SecondaryIndex(Index: Integer): Integer; virtual;
     Function PrevSecondary: Integer; virtual;
     Function NextSecondary: Integer; virtual;
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
@@ -560,6 +562,38 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItemPictures_Base.RealodPictureInfo(Index: Integer);
+begin
+If CheckIndex(Index) then
+  begin
+    try
+      // get size
+      with TWinFileInfo.Create(fStaticSettings.PicturesPath + fPictures[Index].PictureFile,WFI_LS_LoadSize) do
+      try
+        fPictures[Index].PictureSize := Size;
+      finally
+        Free;
+      end;
+      // try load resolution
+      with TJPEGImage.Create do
+      try
+        LoadFromFile(StrToRTL(fStaticSettings.PicturesPath + fPictures[Index].PictureFile));
+        fPictures[Index].PictureWidth := Width;
+        fPictures[Index].PictureHeight := Height;
+      finally
+        Free;
+      end;
+    except
+      fPictures[Index].PictureSize := 0;
+      fPictures[Index].PictureWidth := -1;
+      fPictures[Index].PictureHeight := -1;
+    end;
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.RealodPictureInfo: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItemPictures_Base.OpenPictureFile(Index: Integer);
 begin
 If CheckIndex(Index) then
@@ -637,6 +671,19 @@ For i := LowIndex to HighIndex do
   If (not fPictures[i].ItemPicture and not fPictures[i].PackagePicture) and
      (Assigned(fPictures[i].Thumbnail) or not WithThumbnailOnly) then
     Inc(Result); 
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.SecondaryIndex(Index: Integer): Integer;
+var
+  i:  Integer;
+begin
+Result := -1;
+If CheckIndex(Index) then
+  For i := LowIndex to Index do
+    If not fPictures[i].ItemPicture and not fPictures[i].PackagePicture then
+      Inc(Result);
 end;
 
 //------------------------------------------------------------------------------

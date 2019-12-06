@@ -71,6 +71,19 @@ object fItemPicturesForm: TfItemPicturesForm
     object N1: TMenuItem
       Caption = '-'
     end
+    object mniIP_Reload: TMenuItem
+      Caption = 'Reload picture info'
+      ShortCut = 16466
+      OnClick = mniIP_ReloadClick
+    end
+    object mniIP_ReloadAll: TMenuItem
+      Caption = 'Reload all pictures info'
+      ShortCut = 49234
+      OnClick = mniIP_ReloadAllClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object mniIP_ExportPic: TMenuItem
       Caption = 'Export picture...'
       ShortCut = 16453
@@ -88,7 +101,7 @@ object fItemPicturesForm: TfItemPicturesForm
       Caption = 'Export all thumbnails...'
       OnClick = mniIP_ExportThumbAllClick
     end
-    object N2: TMenuItem
+    object N3: TMenuItem
       Caption = '-'
     end
     object mniIP_ItemPicture: TMenuItem
@@ -101,7 +114,7 @@ object fItemPicturesForm: TfItemPicturesForm
       ShortCut = 16464
       OnClick = mniIP_PackagePictureClick
     end
-    object N3: TMenuItem
+    object N4: TMenuItem
       Caption = '-'
     end
     object mniIP_MoveUp: TMenuItem

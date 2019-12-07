@@ -22,6 +22,7 @@ type
     mniIP_Reload: TMenuItem;
     mniIP_ReloadAll: TMenuItem;
     N2: TMenuItem;
+    mniIP_ImportPics: TMenuItem;    
     mniIP_ExportPic: TMenuItem;
     mniIP_ExportThumb: TMenuItem;
     mniIP_ExportPicAll: TMenuItem;
@@ -50,7 +51,8 @@ type
     procedure mniIP_RemoveClick(Sender: TObject);
     procedure mniIP_RemoveAllClick(Sender: TObject);
     procedure mniIP_ReloadClick(Sender: TObject);
-    procedure mniIP_ReloadAllClick(Sender: TObject);    
+    procedure mniIP_ReloadAllClick(Sender: TObject);
+    procedure mniIP_ImportPicsClick(Sender: TObject);      
     procedure mniIP_ExportPicClick(Sender: TObject);
     procedure mniIP_ExportThumbClick(Sender: TObject);
     procedure mniIP_ExportPicAllClick(Sender: TObject);
@@ -86,6 +88,7 @@ implementation
 
 uses
   WinFileInfo, StrRect,
+  ItemSelectForm,
   InflatablesList_Utils,
   InflatablesList_ItemPictures_Base;
 
@@ -553,6 +556,43 @@ If lbPictures.Count > 0 then
     end;
     FillList;
     lbPictures.Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_ImportPicsClick(Sender: TObject);
+var
+  Index:  Integer;
+  Cntr:   Integer;
+begin
+Index := fItemSelectForm.ShowItemSelect('Select an item for pictures import');
+If fILManager.CheckIndex(Index) then
+  begin
+    If fCurrentItem <> fILManager[Index] then
+      begin
+        If fILManager[Index].Pictures.Count > 0 then
+          begin
+            Cntr := fCurrentItem.Pictures.ImportPictures(fILManager[Index].Pictures);
+            If Cntr > 1 then
+              MessageDlg(IL_Format('%d pictures successfully imported, %d failed.',
+                [Cntr,fILManager[Index].Pictures.Count - Cntr]),mtInformation,[mbOK],0)
+            else If Cntr > 0 then
+              MessageDlg(IL_Format('One picture successfully imported, %d failed.',
+                [fILManager[Index].Pictures.Count - Cntr]),mtInformation,[mbOK],0)
+            else
+              MessageDlg('Import completely failed.',mtInformation,[mbOK],0);
+            FillList;
+            If lbPictures.ItemIndex < 0 then
+              begin
+                lbPictures.ItemIndex := 0;
+                lbPictures.OnClick(nil);
+              end;
+          end
+        else MessageDlg('Source item does not contain any picture for import.',mtInformation,[mbOK],0);
+      end
+    else MessageDlg('Source item is the same as destination item.' + sLineBreak +
+                    'Pictures cannot be imported this way.',mtInformation,[mbOK],0);
   end;
 end;
 

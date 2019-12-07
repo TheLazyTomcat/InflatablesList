@@ -84,6 +84,11 @@ object fItemPicturesForm: TfItemPicturesForm
     object N2: TMenuItem
       Caption = '-'
     end
+    object mniIP_ImportPics: TMenuItem
+      Caption = 'Import picture list from another item...'
+      ShortCut = 16461
+      OnClick = mniIP_ImportPicsClick
+    end
     object mniIP_ExportPic: TMenuItem
       Caption = 'Export picture...'
       ShortCut = 16453

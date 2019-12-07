@@ -4,46 +4,36 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, CheckLst, Menus,
-  CountedDynArrayInteger,
+  Dialogs, StdCtrls,
   InflatablesList_Manager;
 
 type
   TfItemSelectForm = class(TForm)
-    clbItems: TCheckListBox;
     lblItems: TLabel;
-    pmItemsMenu: TPopupMenu;
-    mniIM_CheckSelected: TMenuItem;
-    mniIM_UncheckSelected: TMenuItem;
-    mniIM_InvertSelected: TMenuItem;
-    N1: TMenuItem;
-    mniIM_CheckAll: TMenuItem;
-    mniIM_UncheckAll: TMenuItem;
-    mniIM_InvertAll: TMenuItem;       
+    lbItems: TListBox;
     btnAccept: TButton;
-    btnClose: TButton;
+    btnCancel: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure clbItemsClick(Sender: TObject);
-    procedure clbItemsMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure mniIM_CheckSelectedClick(Sender: TObject);
-    procedure mniIM_UncheckSelectedClick(Sender: TObject);
-    procedure mniIM_InvertSelectedClick(Sender: TObject);
-    procedure mniIM_CheckAllClick(Sender: TObject);
-    procedure mniIM_UncheckAllClick(Sender: TObject);
-    procedure mniIM_InvertAllClick(Sender: TObject);      
+    procedure FormDestroy(Sender: TObject);    
+    procedure lbItemsClick(Sender: TObject);
+    procedure lbItemsDblClick(Sender: TObject);
+    procedure lbItemsDrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
     procedure btnAcceptClick(Sender: TObject);
-    procedure btnCloseClick(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
   private
-    fILManager: TILManager;
-    fAccepted:  Boolean;
+    { Private declarations }
+    fDrawBuffer:  TBitmap;
+    fILManager:   TILManager;
+    fAccepted:    Boolean;
   protected
+    procedure FillList;
     procedure UpdateIndex;
-    procedure SelectItem(Index: Integer);
   public
+    { Public declarations }
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
-    procedure ShowItemSelect(const Title: String; var Indices: TCountedDynArrayInteger);
+    Function ShowItemSelect(const Title: String): Integer;
   end;
 
 var
@@ -51,37 +41,43 @@ var
 
 implementation
 
-uses
-  InflatablesList_Utils;
-
 {$R *.dfm}
 
-procedure TfItemSelectForm.UpdateIndex;
+uses
+  InflatablesList_Utils,
+  InflatablesList_Item;
+
+procedure TfItemSelectForm.FillList;
+var
+  i:  Integer;
 begin
-If clbItems.SelCount <= 1 then
-  begin
-    If clbItems.Count > 0 then
-      lblItems.Caption := IL_Format('Items (%d/%d):',[clbItems.ItemIndex + 1,clbItems.Count])
-    else
-      lblItems.Caption := 'Items:';
-  end
-else lblItems.Caption := IL_Format('Items (%d/%d)(%d):',[clbItems.ItemIndex + 1,clbItems.Count,clbItems.SelCount])
+//don't forget fDataAccessible
+lbItems.Items.BeginUpdate;
+try
+  lbItems.Items.Clear;
+  For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+    If fILManager[i].DataAccessible then
+      lbItems.AddItem(fILManager[i].TitleStr,fILManager[i]);
+finally
+  lbItems.Items.EndUpdate;
+end;
+If lbItems.Count > 0 then
+  lbItems.ItemIndex := 0;
+lbItems.OnClick(nil);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemSelectForm.SelectItem(Index: Integer);
-var
-  i:  Integer;
+procedure TfItemSelectForm.UpdateIndex;
 begin
-clbItems.ItemIndex := Index;
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    clbItems.Selected[i] := i = Index;
-finally
-  clbItems.Items.EndUpdate;
-end;
+If lbItems.Count > 0 then
+  begin
+    If lbItems.ItemIndex >= 0 then
+      lblItems.Caption := IL_Format('Items (%d/%d):',[lbItems.ItemIndex + 1,lbItems.Count])    
+    else
+      lblItems.Caption := IL_Format('Items (%d):',[lbItems.Count]);
+  end
+else lblItems.Caption := 'Items:';
 end;
 
 //==============================================================================
@@ -100,175 +96,158 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemSelectForm.ShowItemSelect(const Title: String; var Indices: TCountedDynArrayInteger);
+Function TfItemSelectForm.ShowItemSelect(const Title: String): Integer;
 var
-  i:        Integer;
-  TempStr:  String;
+  i:  Integer;
 begin
-fAccepted := False;
 Caption := Title;
-// fill list
-clbItems.Items.BeginUpdate;
-try
-  clbItems.Clear;
-  For i := fIlManager.ItemLowIndex to fILManager.ItemHighIndex do
+FillList;
+fAccepted := False;
+// reinit renders
+For i := 0 to Pred(lbItems.Count) do
+  with TILItem(lbItems.Items.Objects[i]) do
     begin
-      If Length(fILManager[i].SizeStr) > 0 then
-        TempStr := IL_Format('%s (%s - %s)',[fILManager[i].TitleStr,fILManager[i].TypeStr,fILManager[i].SizeStr])
-      else
-        TempStr := IL_Format('%s (%s)',[fILManager[i].TitleStr,fILManager[i].TypeStr]);
-      // user id
-      If Length(fILManager[i].UserID) > 0 then
-        TempStr := IL_Format('[%s] %s',[fILManager[i].UserID,TempStr]);
-      // text tag
-      If Length(fILManager[i].TextTag) > 0 then
-        TempStr := TempStr + IL_Format(' {%s}',[fILManager[i].TextTag]);
-      clbItems.Items.Add(TempStr);
+      BeginUpdate;
+      try
+        ReinitSmallDrawSize(lbItems.ClientWidth,lbItems.ItemHeight,lbItems.Font);
+        ChangeSmallStripSize(-1);
+      finally
+        EndUpdate;
+      end;
     end;
-  For i := CDA_Low(Indices) to CDA_High(Indices) do
-    If (CDA_GetItem(Indices,i) >= 0) and (CDA_GetItem(Indices,i) < clbItems.Items.Count) then
-      clbItems.Checked[CDA_GetItem(Indices,i)] := True;
-finally
-  clbItems.Items.EndUpdate;
-end;
-If clbItems.Count > 0 then
-  SelectItem(0);
-clbItems.OnClick(nil);
-UpdateIndex;
 ShowModal;
-CDA_Clear(Indices);
 If fAccepted then
-  For i := 0 to Pred(clbItems.Count) do
-    If clbItems.Checked[i] then
-      CDA_Add(Indices,i);
+  Result := TILItem(lbItems.Items.Objects[lbItems.ItemIndex]).Index
+else
+  Result := -1;
 end;
 
 //==============================================================================
 
 procedure TfItemSelectForm.FormCreate(Sender: TObject);
 begin
-clbItems.MultiSelect := True; // cannot be set design-time
+fDrawBuffer := TBitmap.Create;
+fDrawBuffer.PixelFormat := pf24bit;
+fDrawBuffer.Canvas.Font.Assign(lbItems.Font);
+lbItems.DoubleBuffered := True;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemSelectForm.clbItemsClick(Sender: TObject);
+procedure TfItemSelectForm.FormDestroy(Sender: TObject);
+begin
+FreeAndNil(fDrawBuffer);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemSelectForm.lbItemsClick(Sender: TObject);
 begin
 UpdateIndex;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemSelectForm.clbItemsMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  Index:  Integer;
+procedure TfItemSelectForm.lbItemsDblClick(Sender: TObject);
 begin
-If Button = mbRight then
+UpdateIndex;
+If lbItems.ItemIndex >= 0 then
+  btnAccept.OnClick(nil);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemSelectForm.lbItemsDrawItem(Control: TWinControl;
+  Index: Integer; Rect: TRect; State: TOwnerDrawState);
+var
+  BoundsRect: TRect;
+  TempItem:   TILItem;
+  TempInt:    Integer;
+  TempStr:    String;
+begin
+If Assigned(fDrawBuffer) then
   begin
-    Index := clbItems.ItemAtPos(Point(X,Y),True);
-    If Index >= 0 then
+    // adjust draw buffer size
+    If fDrawBuffer.Width < (Rect.Right - Rect.Left) then
+      fDrawBuffer.Width := Rect.Right - Rect.Left;
+    If fDrawBuffer.Height < (Rect.Bottom - Rect.Top) then
+      fDrawBuffer.Height := Rect.Bottom - Rect.Top;
+    BoundsRect := Classes.Rect(0,0,Rect.Right - Rect.Left,Rect.Bottom - Rect.Top);
+    with fDrawBuffer.Canvas do
       begin
-        If clbItems.SelCount <= 1 then
-          SelectItem(Index);
-        clbItems.OnClick(nil);
+        TempItem := TILItem(lbItems.Items.Objects[Index]);
+
+        // content
+        Draw(BoundsRect.Left,BoundsRect.Top,TempItem.RenderSmall);
+
+        // separator line
+        Pen.Style := psSolid;
+        Pen.Color := clSilver;
+        MoveTo(BoundsRect.Left,Pred(BoundsRect.Bottom));
+        LineTo(BoundsRect.Right,Pred(BoundsRect.Bottom));
+
+        // marker
+        Pen.Style := psClear;
+        Brush.Style := bsSolid;
+        Brush.Color := $00F7F7F7;
+        Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left +
+          TempItem.SmallStrip,BoundsRect.Bottom);
+
+        // indicate pictures by glyphs
+        TempInt := fDrawBuffer.Width - 61;
+        Pen.Style := psSolid;
+        If TempItem.Pictures.SecondaryCount(False) > 0 then
+          begin
+            Dec(TempInt,14);
+            Pen.Color := $00FFAC22;
+            Brush.Style := bsSolid;            
+            Brush.Color := $00FFBF55;
+            Polygon([Point(TempInt,5),Point(TempInt,16),Point(TempInt + 11,11)]);          
+            If TempItem.Pictures.SecondaryCount(False) > 1 then
+              begin
+                Font.Size := 8;
+                Font.Style := [fsBold];
+                Brush.Style := bsClear;
+                TempStr := IL_Format('%dx',[TempItem.Pictures.SecondaryCount(False)]);
+                Dec(TempInt,TextWidth(TempStr) + 3);
+                TextOut(TempInt,4,TempStr);
+              end;
+          end;
+        If TempItem.Pictures.CheckIndex(TempItem.Pictures.IndexOfPackagePicture) then
+          begin
+            Dec(TempInt,14);
+            Pen.Color := $0000D3D9;
+            Brush.Style := bsSolid;
+            Brush.Color := $002BFAFF;
+            Rectangle(TempInt,5,TempInt + 11,16);
+          end;
+        If TempItem.Pictures.CheckIndex(TempItem.Pictures.IndexOfItemPicture) then
+          begin
+            Dec(TempInt,14);          
+            Pen.Color := $0000E700;
+            Brush.Style := bsSolid;
+            Brush.Color := clLime;
+            Ellipse(TempInt,5,TempInt + 11,16);
+          end;
+
+        // states
+        If odSelected	in State then
+          begin
+            Pen.Style := psClear;
+            Brush.Style := bsSolid;
+            Brush.Color := clLime;
+            Rectangle(BoundsRect.Left,BoundsRect.Top,BoundsRect.Left + 11,BoundsRect.Bottom);
+          end;        
       end;
+
+    // move drawbuffer to the canvas
+    lbItems.Canvas.CopyRect(Rect,fDrawBuffer.Canvas,BoundsRect);
+    // disable focus rectangle
+    If odFocused in State then
+      lbItems.Canvas.DrawFocusRect(Rect);
   end;
 end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_CheckSelectedClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    If clbItems.Selected[i] then
-      clbItems.Checked[i] := True;
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_UncheckSelectedClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    If clbItems.Selected[i] then
-      clbItems.Checked[i] := False;
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_InvertSelectedClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    If clbItems.Selected[i] then
-      clbItems.Checked[i] := not clbItems.Checked[i];
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_CheckAllClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    clbItems.Checked[i] := True;
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_UncheckAllClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    clbItems.Checked[i] := False;
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemSelectForm.mniIM_InvertAllClick(Sender: TObject);
-var
-  i:  Integer;
-begin
-clbItems.Items.BeginUpdate;
-try
-  For i := 0 to Pred(clbItems.Count) do
-    clbItems.Checked[i] := not clbItems.Checked[i];
-finally
-  clbItems.Items.EndUpdate;
-end;
-end;
-
+ 
 //------------------------------------------------------------------------------
 
 procedure TfItemSelectForm.btnAcceptClick(Sender: TObject);
@@ -276,13 +255,14 @@ begin
 fAccepted := True;
 Close;
 end;
-
+ 
 //------------------------------------------------------------------------------
 
-procedure TfItemSelectForm.btnCloseClick(Sender: TObject);
+procedure TfItemSelectForm.btnCancelClick(Sender: TObject);
 begin
 fAccepted := False;
 Close;
-end;       
+end;
+
 
 end.

@@ -607,7 +607,12 @@ For i := ItemLowIndex to ItemHighIndex do
 SetLength(fList,Source.ItemCount);
 fCount := Source.ItemCount;
 For i := ItemLowIndex to ItemHighIndex do
-  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
+  begin
+    fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
+    fList[i].Index := i;
+    fList[i].DeferredLoadProcNum := Source[i].DeferredLoadProcNum;    
+  end;
+AssignInternalEventHandlers;
 // other data
 fNotes := Source.Notes;
 UniqueString(fNotes);
@@ -646,8 +651,18 @@ fItemsPassword := Source.ItemsPassword;
 UniqueString(fItemsPassword);
 // copy the list
 Capacity := Source.Count;
+fCount := Source.Count;
 For i := Source.LowIndex to Source.HighIndex do
-  fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
+  begin
+    fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
+    fList[i].Index := i;
+    {
+      assign deffered read handler in case the item copied was
+      encrypted - there might be a need to decrypt and load it
+    }
+    fList[i].DeferredLoadProcNum := Source[i].DeferredLoadProcNum;
+  end;
+AssignInternalEventHandlers;
 fCount := Source.Count;
 // other data
 fNotes := Source.Notes;

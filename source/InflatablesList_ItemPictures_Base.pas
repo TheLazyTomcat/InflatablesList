@@ -91,6 +91,7 @@ type
     Function SecondaryIndex(Index: Integer): Integer; virtual;
     Function PrevSecondary: Integer; virtual;
     Function NextSecondary: Integer; virtual;
+    Function ImportPictures(Source: TILItemPictures_Base): Integer; virtual;
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     procedure AssignInternalEvents(OnPicturesChange: TNotifyEvent); virtual;
@@ -720,6 +721,32 @@ If SecondaryCount(False) > 0 then
   end
 else fCurrentSecondary := -1;
 Result := fCurrentSecondary;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.ImportPictures(Source: TILItemPictures_Base): Integer;
+var
+  i:      Integer;
+  Info:   TILPictureAutomationInfo;
+  Index:  Integer;
+begin
+Result := 0;
+BeginUpdate;
+try
+  For i := Source.LowIndex to Source.HighIndex do
+    If AutomatePictureFile(Source.StaticSettings.PicturesPath + Source[i].PictureFile,Info) then
+      begin
+        Index := Add(Info);
+        If CheckIndex(Index) then
+          begin
+            SetThumbnail(Index,Source[i].Thumbnail,True);
+            Inc(Result);
+          end;
+      end;
+finally
+  EndUpdate;
+end;
 end;
 
 //------------------------------------------------------------------------------

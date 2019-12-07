@@ -105,9 +105,8 @@ If RequestItemsPassword(Password) then
         begin
           fFNDeferredLoadProc(Stream);
           fDataAccessible := True;
-          UpdateOverview;          
-          UpdateMainList;
-          UpdateSmallList;
+          UpdateOverview;
+          UpdateList;
         end;
     finally
       Stream.Free;

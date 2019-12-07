@@ -1,10 +1,10 @@
 object fItemSelectForm: TfItemSelectForm
-  Left = 830
-  Top = 135
+  Left = 745
+  Top = 120
   BorderStyle = bsDialog
   Caption = 'fItemSelectForm'
-  ClientHeight = 484
-  ClientWidth = 416
+  ClientHeight = 596
+  ClientWidth = 520
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,6 +14,7 @@ object fItemSelectForm: TfItemSelectForm
   OldCreateOrder = False
   Position = poMainFormCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object lblItems: TLabel
@@ -23,64 +24,35 @@ object fItemSelectForm: TfItemSelectForm
     Height = 13
     Caption = 'Items:'
   end
-  object clbItems: TCheckListBox
+  object lbItems: TListBox
     Left = 8
     Top = 24
-    Width = 401
-    Height = 420
+    Width = 505
+    Height = 534
+    Style = lbOwnerDrawFixed
     IntegralHeight = True
-    ItemHeight = 13
-    PopupMenu = pmItemsMenu
+    ItemHeight = 53
     TabOrder = 0
-    OnClick = clbItemsClick
-    OnMouseDown = clbItemsMouseDown
+    OnClick = lbItemsClick
+    OnDblClick = lbItemsDblClick
+    OnDrawItem = lbItemsDrawItem
   end
   object btnAccept: TButton
-    Left = 240
-    Top = 452
+    Left = 344
+    Top = 564
     Width = 81
     Height = 25
     Caption = 'Accept'
     TabOrder = 1
     OnClick = btnAcceptClick
   end
-  object btnClose: TButton
-    Left = 328
-    Top = 452
+  object btnCancel: TButton
+    Left = 432
+    Top = 564
     Width = 81
     Height = 25
-    Caption = 'Close'
+    Caption = 'Cancel'
     TabOrder = 2
-    OnClick = btnCloseClick
-  end
-  object pmItemsMenu: TPopupMenu
-    Left = 384
-    object mniIM_CheckSelected: TMenuItem
-      Caption = 'Check selected'
-      OnClick = mniIM_CheckSelectedClick
-    end
-    object mniIM_UncheckSelected: TMenuItem
-      Caption = 'Uncheck selected'
-      OnClick = mniIM_UncheckSelectedClick
-    end
-    object mniIM_InvertSelected: TMenuItem
-      Caption = 'Invert selected'
-      OnClick = mniIM_InvertSelectedClick
-    end
-    object N1: TMenuItem
-      Caption = '-'
-    end
-    object mniIM_CheckAll: TMenuItem
-      Caption = 'Check all'
-      OnClick = mniIM_CheckAllClick
-    end
-    object mniIM_UncheckAll: TMenuItem
-      Caption = 'Uncheck all'
-      OnClick = mniIM_UncheckAllClick
-    end
-    object mniIM_InvertAll: TMenuItem
-      Caption = 'Invert all'
-      OnClick = mniIM_InvertAllClick
-    end
+    OnClick = btnCancelClick
   end
 end

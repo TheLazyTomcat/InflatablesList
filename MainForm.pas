@@ -251,9 +251,10 @@ implementation
 uses
   CommCtrl, Math,
   TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, ItemSelectForm, UpdResLegendForm,
+  SpecialsForm, OverviewForm, SelectionForm, ItemsSelectForm, UpdResLegendForm,
   SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
   AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm, ItemShopTableForm,
+  ItemSelectForm, 
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -533,7 +534,7 @@ fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
 fSelectionForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
-fItemSelectForm.Initialize(fIlManager);
+fItemsSelectForm.Initialize(fIlManager);
 fBackupsForm.Initialize(fILManager);
 fBackupsForm.OnRestartRequired := RestartProgram;
 fUpdResLegendForm.Initialize(fIlManager);
@@ -545,6 +546,7 @@ fAdvancedSearchForm.Initialize(fIlManager);
 fShopByItemsForm.Initialize(fIlManager);
 fItemPicturesForm.Initialize(fIlManager);
 fItemShopTableForm.Initialize(fILManager);
+fItemSelectForm.Initialize(fILManager);
 end;
 
 //------------------------------------------------------------------------------
@@ -561,7 +563,7 @@ fSpecialsForm.Finalize;
 fOverviewForm.Finalize;
 fSelectionForm.Finalize;
 fUpdateForm.Finalize;
-fItemSelectForm.Finalize;
+fItemsSelectForm.Finalize;
 fBackupsForm.Finalize;
 fUpdResLegendForm.Finalize;
 fSettingsLegendForm.Finalize;
@@ -572,6 +574,7 @@ fAdvancedSearchForm.Finalize;
 fShopByItemsForm.Finalize;
 fItemPicturesForm.Finalize;
 fItemShopTableForm.Finalize;
+fItemSelectForm.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -1084,7 +1087,7 @@ If fILManager.EncryptedItemCount(False) <= 0 then
   begin
     frmItemFrame.Save;
     CDA_Init(Indices);
-    fItemSelectForm.ShowItemSelect('Select items for export',Indices);
+    fItemsSelectForm.ShowItemsSelect('Select items for export',Indices);
     If CDA_Count(Indices) > 0 then
       If diaItemsExport.Execute then
         begin

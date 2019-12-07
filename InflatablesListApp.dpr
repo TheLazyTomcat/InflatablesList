@@ -80,7 +80,7 @@ uses
   OverviewForm in 'OverviewForm.pas' {fOverviewForm},
   SelectionForm in 'SelectionForm.pas' {fSelectionForm},
   UpdateForm in 'UpdateForm.pas' {fUpdateForm},
-  ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm},
+  ItemsSelectForm in 'ItemsSelectForm.pas' {fItemsSelectForm},
   BackupsForm in 'BackupsForm.pas' {fBackupsForm},
   UpdResLegendForm in 'UpdResLegendForm.pas' {fUpdResLegendForm},
   SettingsLegendForm in 'SettingsLegendForm.pas' {fSettingsLegendForm},
@@ -91,7 +91,8 @@ uses
   AdvancedSearchForm in 'AdvancedSearchForm.pas' {fAdvancedSearchForm},
   ShopByItemsForm in 'ShopByItemsForm.pas' {fShopByItemsForm},
   ItemPicturesForm in 'ItemPicturesForm.pas' {fItemPicturesForm},
-  ItemShopTableForm in 'ItemShopTableForm.pas' {fItemShopTableForm};
+  ItemShopTableForm in 'ItemShopTableForm.pas' {fItemShopTableForm},
+  ItemSelectForm in 'ItemSelectForm.pas' {fItemSelectForm};
 
 {$R *.res}
 

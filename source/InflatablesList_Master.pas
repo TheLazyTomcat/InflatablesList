@@ -40,10 +40,10 @@ uses
   SysUtils,
   Forms, Dialogs,
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
-  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemSelectForm,
+  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemsSelectForm,
   BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,
   PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
-  ItemShopTableForm,
+  ItemShopTableForm, ItemSelectForm,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
@@ -90,7 +90,7 @@ Application.CreateForm(TfSpecialsForm, fSpecialsForm);
 Application.CreateForm(TfOverviewForm, fOverviewForm);
 Application.CreateForm(TfSelectionForm, fSelectionForm);
 Application.CreateForm(TfUpdateForm, fUpdateForm);
-Application.CreateForm(TfItemSelectForm, fItemSelectForm);
+Application.CreateForm(TfItemsSelectForm, fItemsSelectForm);
 Application.CreateForm(TfBackupsForm, fBackupsForm);
 Application.CreateForm(TfUpdResLegendForm, fUpdResLegendForm);
 Application.CreateForm(TfSettingsLegendForm, fSettingsLegendForm);
@@ -101,6 +101,7 @@ Application.CreateForm(TfAdvancedSearchForm, fAdvancedSearchForm);
 Application.CreateForm(TfShopByItemsForm,fShopByItemsForm);
 Application.CreateForm(TfItemPicturesForm,fItemPicturesForm);
 Application.CreateForm(TfItemShopTableForm,fItemShopTableForm);
+Application.CreateForm(TfItemSelectForm,fItemSelectForm);
 // do not automatically create prompt form
 //Application.CreateForm(TfPromptForm, fPromptForm);
 end;

@@ -49,6 +49,7 @@ If Struct = IL_ITEM_STREAMSTRUCTURE_00000009 then
     fFNLoadFromStreamPlain := LoadItem_Plain_00000009;
     fFNLoadFromStreamProc := LoadItem_Processed_00000008;
     fFNDeferredLoadProc := LoadItem_Plain_00000009;
+    fDeferredLoadProcNum := Struct;
   end
 else inherited InitLoadFunctions(Struct);
 end;

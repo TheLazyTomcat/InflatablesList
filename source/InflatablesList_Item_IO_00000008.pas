@@ -10,6 +10,7 @@ uses
   InflatablesList_Item_IO;
 
 type
+
   TILItem_IO_00000008 = class(TILItem_IO)
   protected
     fFNSaveToStreamPlain:   procedure(Stream: TStream) of object;
@@ -17,6 +18,8 @@ type
     fFNSaveToStreamProc:    procedure(Stream: TStream) of object;
     fFNLoadFromStreamProc:  procedure(Stream: TStream) of object;
     fFNDeferredLoadProc:    procedure(Stream: TStream) of object;
+    fDeferredLoadProcNum:   UInt32;
+    procedure SetDeferredLoadProcNum(Value: UInt32); virtual;
     // special functions
     Function GetFlagsWord: UInt32; virtual;
     procedure SetFlagsWord(FlagsWord: UInt32); virtual;
@@ -31,6 +34,9 @@ type
     procedure LoadItem_Plain_00000008(Stream: TStream); virtual;
     procedure SaveItem_Processed_00000008(Stream: TStream); virtual;
     procedure LoadItem_Processed_00000008(Stream: TStream); virtual;
+    procedure Initialize; override;
+  public
+    property DeferredLoadProcNum: UInt32 read fDeferredLoadProcNum write SetDeferredLoadProcNum;
   end;
 
 implementation
@@ -44,6 +50,13 @@ uses
   InflatablesList_ItemPictures_Base,
   InflatablesList_ItemShop,
   InflatablesList_Manager_IO;
+
+procedure TILItem_IO_00000008.SetDeferredLoadProcNum(Value: UInt32);
+begin
+InitLoadFunctions(Value);
+end;
+
+//------------------------------------------------------------------------------
 
 Function TILItem_IO_00000008.GetFlagsWord: UInt32;
 begin
@@ -83,6 +96,7 @@ If Struct = IL_ITEM_STREAMSTRUCTURE_00000008 then
     fFNLoadFromStreamPlain := LoadItem_Plain_00000008;
     fFNLoadFromStreamProc := LoadItem_Processed_00000008;
     fFNDeferredLoadProc := LoadItem_Plain_00000008;
+    fDeferredLoadProcNum := Struct;
   end
 else raise Exception.CreateFmt('TILItem_IO_00000008.InitLoadFunctions: Invalid stream structure (%.8x).',[Struct]);
 end;
@@ -385,7 +399,7 @@ If fDataAccessible then
       If RequestItemsPassword(Password) then
         InflatablesList_Encryption.EncryptStream_AES256(TempStream,Password,IL_ITEM_DECRYPT_CHECK)
       else
-        raise Exception.Create('TILItem_IO_00000006.SaveItem_Processed_00000006: Unable to obtain password for saving, cannot continue.');
+        raise Exception.Create('TILItem_IO_00000008.SaveItem_Processed_00000006: Unable to obtain password for saving, cannot continue.');
       // save the encrypted stream
       Stream_WriteUInt64(Stream,UInt64(TempStream.Size));                       // write size of encrypted data      
       Stream_WriteBuffer(Stream,TempStream.Memory^,TMemSize(TempStream.Size));  // TempStream contains unencrypted size
@@ -416,6 +430,14 @@ begin
 fDataAccessible := False;
 ReallocBuffer(fEncryptedData,TMemSize(Stream_ReadUInt64(Stream)));
 Stream_ReadBuffer(Stream,fEncryptedData.Memory^,fEncryptedData.Size);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_IO_00000008.Initialize;
+begin
+inherited;
+fDeferredLoadProcNum := UInt32(-1);
 end;
 
 end.

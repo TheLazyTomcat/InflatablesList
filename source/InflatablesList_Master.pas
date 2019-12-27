@@ -11,7 +11,7 @@ uses
 
 const
   IL_APPLICATION_NAME  = 'Inflatables List';
-  IL_APPLICATION_MUTEX = 'il_application_start_mutex';
+  IL_APPLICATION_MUTEX = 'il_application_start_mutex_%s';
 
   IL_APPLICATION_TIMEOUT = 10000; // 10s
 
@@ -44,12 +44,16 @@ uses
   BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,
   PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
   ItemShopTableForm, ItemSelectForm,
+  CRC32,
+  InflatablesList_Utils,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
 begin
-fILManager := TILManager.Create;
-fILStartMutex := TMutex.Create(IL_APPLICATION_MUTEX);
+fILManager := TILManager.Create;  
+fILStartMutex := TMutex.Create(IL_Format(IL_APPLICATION_MUTEX,[
+  IL_LowerCase(CRC32ToStr(StringCRC32(IL_LowerCase(
+    fILManager.StaticSettings.ListPath))))]));
 end;
 
 //------------------------------------------------------------------------------

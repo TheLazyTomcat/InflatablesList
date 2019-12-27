@@ -31,24 +31,21 @@ type
     mniMML_PrevItem: TMenuItem;
     mniMML_NextItem: TMenuItem;
     N4: TMenuItem;
-    mniMML_Sums: TMenuItem;
-    mniMML_Overview: TMenuItem;
-    N5: TMenuItem;
     mniMML_Rename: TMenuItem;
     mniMML_Notes: TMenuItem;
     mniMM_Item: TMenuItem;
     mniMMI_ItemPictures: TMenuItem;
     mniMMI_ItemShops: TMenuItem;
-    N6: TMenuItem;
+    N5: TMenuItem;
     mniMMI_ItemExport: TMenuItem;
     mniMMI_ItemExportMulti: TMenuItem;
     mniMMI_ItemImport: TMenuItem;
-    N7: TMenuItem;
+    N6: TMenuItem;
     mniMMI_Encrypted: TMenuItem;
     mniMMI_Decrypt: TMenuItem;
     mniMMI_DecryptAll: TMenuItem;
     mniMMI_ChangeItemsPswd: TMenuItem;
-    N8: TMenuItem;
+    N7: TMenuItem;
     mniMMI_MoveBeginning: TMenuItem;
     mniMMI_MoveUpBy: TMenuItem;
     mniMMI_MoveUp: TMenuItem;
@@ -60,7 +57,7 @@ type
     mniMMS_FindPrev: TMenuItem;
     mniMMS_FindNext: TMenuItem;
     mniMMS_AdvSearch: TMenuItem;
-    N9: TMenuItem;
+    N8: TMenuItem;
     mniMMS_FindPrevValue: TMenuItem;
     mniMMS_FindNextValue: TMenuItem;
     mniMM_Sorting: TMenuItem;
@@ -77,10 +74,13 @@ type
     mniMMU_UpdateAll: TMenuItem;
     mniMMU_UpdateWanted: TMenuItem;
     mniMMU_UpdateSelected: TMenuItem;
-    N10: TMenuItem;
+    N9: TMenuItem;
     mniMMU_UpdateItemShopHistory: TMenuItem;
     mniMMU_UpdateShopsHistory: TMenuItem;
     mniMM_Tools: TMenuItem;
+    mniMMT_Sums: TMenuItem;
+    mniMMT_Overview: TMenuItem;
+    N10: TMenuItem;    
     mniMMT_Selection: TMenuItem;
     mniMMT_ItemShopTable: TMenuItem;
     mniMMT_ShopByItems: TMenuItem;    
@@ -129,8 +129,6 @@ type
     procedure mniMML_GoToItemNumClick(Sender: TObject);
     procedure mniMML_PrevItemClick(Sender: TObject);
     procedure mniMML_NextItemClick(Sender: TObject);
-    procedure mniMML_SumsClick(Sender: TObject);
-    procedure mniMML_OverviewClick(Sender: TObject);
     procedure mniMML_NotesClick(Sender: TObject);
     procedure mniMML_RenameClick(Sender: TObject);
     // ---
@@ -177,6 +175,8 @@ type
     procedure mniMMU_UpdateShopsHistoryClick(Sender: TObject);
     // ---
     procedure mniMM_ToolsClick(Sender: TObject);
+    procedure mniMMT_SumsClick(Sender: TObject);
+    procedure mniMMT_OverviewClick(Sender: TObject);
     procedure mniMMT_SelectionClick(Sender: TObject);
     procedure mniMMT_ItemShopTableClick(Sender: TObject);
     procedure mniMMT_ShopByItemsClick(Sender: TObject);
@@ -950,23 +950,6 @@ If (lbList.Count > 0) and (lbList.ItemIndex < Pred(lbList.Count)) then
     lbList.ItemIndex := lbList.ItemIndex + 1;
     lbList.OnClick(nil);
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniMML_SumsClick(Sender: TObject);
-begin
-frmItemFrame.Save;
-fSumsForm.ShowSums;
-lbList.SetFocus;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfMainForm.mniMML_OverviewClick(Sender: TObject);
-begin
-frmItemFrame.Save;
-fOverviewForm.ShowOverview;
 end;
 
 //------------------------------------------------------------------------------
@@ -1766,6 +1749,23 @@ procedure TfMainForm.mniMM_ToolsClick(Sender: TObject);
 begin
 mniMMT_ExportAllPics.Enabled := lbList.Count > 0;
 mniMMT_ExportAllThumbs.Enabled := lbList.Count > 0;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMT_SumsClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+fSumsForm.ShowSums;
+lbList.SetFocus;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMT_OverviewClick(Sender: TObject);
+begin
+frmItemFrame.Save;
+fOverviewForm.ShowOverview;
 end;
 
 //------------------------------------------------------------------------------

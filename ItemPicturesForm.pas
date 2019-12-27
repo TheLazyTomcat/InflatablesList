@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Menus,
   InflatablesList_Item,
-  InflatablesList_Manager;  
+  InflatablesList_Manager;
 
 type
   TfItemPicturesForm = class(TForm)
@@ -35,6 +35,8 @@ type
     mniIP_MoveDown: TMenuItem;
     diaOpenDialog: TOpenDialog;
     diaSaveDialog: TSaveDialog;
+    N5: TMenuItem;
+    mniIP_Details: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -61,6 +63,7 @@ type
     procedure mniIP_PackagePictureClick(Sender: TObject);
     procedure mniIP_MoveUpClick(Sender: TObject);
     procedure mniIP_MoveDownClick(Sender: TObject);
+    procedure mniIP_DetailsClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:     TILManager;
@@ -750,6 +753,13 @@ If (lbPictures.Count > 0) and ((lbPictures.ItemIndex >= 0) and (lbPictures.ItemI
     lbPictures.Invalidate;
     UpdateIndex;
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_DetailsClick(Sender: TObject);
+begin
+//
 end;
 
 end.

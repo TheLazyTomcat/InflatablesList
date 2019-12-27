@@ -266,19 +266,6 @@ object fMainForm: TfMainForm
       object N4: TMenuItem
         Caption = '-'
       end
-      object mniMML_Sums: TMenuItem
-        Caption = 'Sums...'
-        ShortCut = 16461
-        OnClick = mniMML_SumsClick
-      end
-      object mniMML_Overview: TMenuItem
-        Caption = 'Selected shops overview...'
-        ShortCut = 16471
-        OnClick = mniMML_OverviewClick
-      end
-      object N5: TMenuItem
-        Caption = '-'
-      end
       object mniMML_Rename: TMenuItem
         Caption = 'Change list name...'
         ShortCut = 49230
@@ -303,7 +290,7 @@ object fMainForm: TfMainForm
         ShortCut = 16452
         OnClick = mniMMI_ItemShopsClick
       end
-      object N6: TMenuItem
+      object N5: TMenuItem
         Caption = '-'
       end
       object mniMMI_ItemExport: TMenuItem
@@ -321,7 +308,7 @@ object fMainForm: TfMainForm
         ShortCut = 16457
         OnClick = mniMMI_ItemImportClick
       end
-      object N7: TMenuItem
+      object N6: TMenuItem
         Caption = '-'
       end
       object mniMMI_Encrypted: TMenuItem
@@ -343,7 +330,7 @@ object fMainForm: TfMainForm
         Caption = 'Change items encryption password...'
         OnClick = mniMMI_ChangeItemsPswdClick
       end
-      object N8: TMenuItem
+      object N7: TMenuItem
         Caption = '-'
       end
       object mniMMI_MoveBeginning: TMenuItem
@@ -394,7 +381,7 @@ object fMainForm: TfMainForm
         ShortCut = 49222
         OnClick = mniMMS_AdvSearchClick
       end
-      object N9: TMenuItem
+      object N8: TMenuItem
         Caption = '-'
       end
       object mniMMS_FindPrevValue: TMenuItem
@@ -468,7 +455,7 @@ object fMainForm: TfMainForm
         Caption = 'Update selected shops...'
         OnClick = mniMMU_UpdateSelectedClick
       end
-      object N10: TMenuItem
+      object N9: TMenuItem
         Caption = '-'
       end
       object mniMMU_UpdateItemShopHistory: TMenuItem
@@ -485,6 +472,19 @@ object fMainForm: TfMainForm
     object mniMM_Tools: TMenuItem
       Caption = 'Tools'
       OnClick = mniMM_ToolsClick
+      object mniMMT_Sums: TMenuItem
+        Caption = 'Sums...'
+        ShortCut = 16461
+        OnClick = mniMMT_SumsClick
+      end
+      object mniMMT_Overview: TMenuItem
+        Caption = 'Selected shops overview...'
+        ShortCut = 16471
+        OnClick = mniMMT_OverviewClick
+      end
+      object N10: TMenuItem
+        Caption = '-'
+      end
       object mniMMT_Selection: TMenuItem
         Caption = 'Shop selection...'
         ShortCut = 16468

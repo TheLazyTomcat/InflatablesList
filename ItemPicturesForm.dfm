@@ -1,6 +1,6 @@
 object fItemPicturesForm: TfItemPicturesForm
-  Left = 706
-  Top = 116
+  Left = 691
+  Top = 141
   BorderStyle = bsDialog
   Caption = 'fItemPicturesForm'
   ClientHeight = 560
@@ -129,6 +129,14 @@ object fItemPicturesForm: TfItemPicturesForm
     object mniIP_MoveDown: TMenuItem
       Caption = 'Move down'
       OnClick = mniIP_MoveDownClick
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object mniIP_Details: TMenuItem
+      Caption = 'Details...'
+      Enabled = False
+      OnClick = mniIP_DetailsClick
     end
   end
   object diaOpenDialog: TOpenDialog

@@ -427,7 +427,7 @@ var
   R,G,B:  Byte;
   Map:    PRGBColorSpaceProcMap;
 begin
-GetMem(Map,SizeOf(TRGBColorSpaceMap));
+GetMem(Map,SizeOf(TRGBColorSpaceProcMap));
 try
   // copy all valid entries
   FillChar(Map^,SizeOf(TRGBColorSpaceMap),0);
@@ -455,7 +455,7 @@ try
           PRGBColorSpaceMap(IncompleteMap)^[R,G,B].A := 1;
         end;
 finally
-  FreeMem(Map,SizeOf(TRGBColorSpaceMap));
+  FreeMem(Map,SizeOf(TRGBColorSpaceProcMap));
 end;
 end;
 

@@ -318,9 +318,9 @@ var
     If not fShopObject.StaticSettings.LoadPages then
       begin
         If AlternativeDownload then
-          Result := IL_WGETDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode)
+          Result := IL_WGETDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode,IL_ThreadSafeCopy(fShopObject.StaticSettings))
         else
-          Result := IL_SYNDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode);
+          Result := IL_SYNDownloadURL(fShopObject.ItemURL,fDownStream,fDownResCode,IL_ThreadSafeCopy(fShopObject.StaticSettings));
       end
     else
       begin

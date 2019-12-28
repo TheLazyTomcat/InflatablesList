@@ -28,6 +28,7 @@ type
     procedure CreateForms; virtual;
     Function LoadList: Boolean; virtual;
     procedure ThreadedLoadingEndHandler(LoadingResult: TILLoadingResult); virtual;
+    procedure RestartRequestHandler(Sender: TObject); virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -44,16 +45,15 @@ uses
   BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,
   PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
   ItemShopTableForm, ItemSelectForm,
-  CRC32,
+  StrRect,
   InflatablesList_Utils,
   InflatablesList_Encryption;
 
 procedure TILMaster.Initialize;
 begin
-fILManager := TILManager.Create;  
-fILStartMutex := TMutex.Create(IL_Format(IL_APPLICATION_MUTEX,[
-  IL_LowerCase(CRC32ToStr(StringCRC32(IL_LowerCase(
-    fILManager.StaticSettings.ListPath))))]));
+fILManager := TILManager.Create;
+fILManager.MainManager := True;
+fILStartMutex := TMutex.Create(IL_Format(IL_APPLICATION_MUTEX,[fILManager.StaticSettings.InstanceID]));
 end;
 
 //------------------------------------------------------------------------------
@@ -84,6 +84,7 @@ end;
 procedure TILMaster.CreateForms;
 begin
 Application.CreateForm(TfMainForm, fMainForm);
+fMainForm.OnRestartProgram := RestartRequestHandler;
 Application.CreateForm(TfTextEditForm, fTextEditForm);
 Application.CreateForm(TfShopsForm, fShopsForm);
 Application.CreateForm(TfParsingForm, fParsingForm);
@@ -171,6 +172,25 @@ If LoadingResult = illrSuccess then
 else
   Application.Terminate;  // Application.ShowMainForm is false already
 fSplashForm.LoadingDone(LoadingResult = illrSuccess);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILMaster.RestartRequestHandler(Sender: TObject);
+var
+  Params: String;
+  i:      Integer;
+begin
+// allowed to be called only by main form
+If Sender = fMainForm then
+  begin
+    // rebuild parameters
+    Params := '';
+    For i := 1 to ParamCount do
+      Params := Params + ' ' + RTLToStr(ParamStr(i));
+    // start the program with the same parameters
+    IL_ShellOpen(0,RTLToStr(ParamStr(0)),Params,fILManager.StaticSettings.DefaultPath);
+  end;
 end;
 
 //==============================================================================

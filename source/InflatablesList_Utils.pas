@@ -75,6 +75,7 @@ procedure IL_CreateDirectoryPathForFile(const FileName: String);
 
 Function IL_FileExists(const FileName: String): Boolean;
 Function IL_DeleteFile(const FileName: String): Boolean;
+Function IL_DeleteDir(const Dir: String): Boolean;
 
 procedure IL_CopyFile(const Source,Destination: String);
 procedure IL_MoveFile(const Source,Destination: String);
@@ -115,6 +116,8 @@ Function IL_BoolToNum(Value: Boolean): Integer;
 procedure IL_ShellOpen(WindowHandle: HWND; const Path: String; const Params: String = ''; const Directory: String = '');
 
 Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
+
+Function IL_GetTempPath: String;
 
 //==============================================================================
 //- roatated text drawing ------------------------------------------------------
@@ -504,6 +507,24 @@ end;
 
 //------------------------------------------------------------------------------
 
+Function IL_DeleteDir(const Dir: String): Boolean;
+var
+  FileOp:   TSHFileOpStruct;
+  TempStr:  String;
+begin
+TempStr := IL_ExcludeTrailingPathDelimiter(Dir) + #0;
+FillChar(FileOp,SizeOf(TSHFileOpStruct),0);
+FileOp.Wnd := 0;
+FileOp.wFunc := FO_DELETE;
+FileOp.pFrom := PChar(TempStr);
+FileOp.pTo := nil;
+FileOp.fFlags := FOF_NOCONFIRMATION or FOF_NOERRORUI or FOF_SILENT;
+FileOp.lpszProgressTitle := nil;
+Result := SHFileOperation(FileOp) = 0;
+end;
+
+//------------------------------------------------------------------------------
+
 procedure IL_CopyFile(const Source,Destination: String);
 begin
 CopyFile(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),False);
@@ -753,6 +774,15 @@ end;
 Function IL_SelectDirectory(const Title: String; var Directory: String): Boolean;
 begin
 Result := SelectDirectory(Title,'',Directory);
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_GetTempPath: String;
+begin
+Result := '';
+SetLength(Result,GetTempPath(0,nil));
+SetLength(Result,GetTempPath(Length(Result),PChar(Result)));
 end;
 
 

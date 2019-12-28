@@ -363,13 +363,15 @@ type
     NoParse:          Boolean;
     // automatically filled
     DefaultPath:      String; // initialized to program path
-    ListPath:         String; // filled with list path
+    ListPath:         String; // filled with list path (without file name)
     ListFile:         String; // file, where the list will be saved, or was loaded from
     ListName:         String; // list file without extension
+    InstanceID:       String; // string unique for the program instance (calculated from ListPath)
     // folders
     PicturesPath:     String;
     BackupPath:       String;
     SavedPagesPath:   String;
+    TempPath:         String; // path to program temporary folder
   end;
 
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings; overload;
@@ -1220,10 +1222,12 @@ end;
 Function IL_ThreadSafeCopy(const Value: TILStaticManagerSettings): TILStaticManagerSettings;
 begin
 Result := Value;
+UniqueString(Result.TempPath);
 UniqueString(Result.DefaultPath);
 UniqueString(Result.ListPath);
 UniqueString(Result.ListFile);
 UniqueString(Result.ListName);
+UniqueString(Result.InstanceID);
 UniqueString(Result.PicturesPath);
 UniqueString(Result.BackupPath);
 UniqueString(Result.SavedPagesPath);

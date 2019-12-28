@@ -1,6 +1,6 @@
 object fBackupsForm: TfBackupsForm
-  Left = 236
-  Top = 125
+  Left = 265
+  Top = 132
   BorderStyle = bsDialog
   Caption = 'Backups'
   ClientHeight = 446

@@ -106,6 +106,7 @@ type
     frmItemFrame: TfrmItemFrame;
     sbStatusBar: TStatusBar;
     shpListFiller: TShape;
+    niMMT_CleanUpBackupFolder: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -205,6 +206,7 @@ type
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure niMMT_CleanUpBackupFolderClick(Sender: TObject);
   private
     // resizing
     fInitialFormWidth:    Integer;
@@ -218,10 +220,11 @@ type
     fSaveOnExit:          Boolean;
     fWrongPswdMessage:    String;
     fDirExport:           String; // last directory for pictures export
+    fOnRestartProgram:    TNotifyEvent;
   protected
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
-    procedure BuildSortBySubmenu;    
+    procedure BuildSortBySubmenu;
     procedure FillCopyright;
     procedure FillListFileName;
     procedure FillListName;
@@ -241,6 +244,7 @@ type
     procedure Finalize;
   public
     procedure Initialize(ILManager: TILManager);
+    property OnRestartProgram: TNotifyEvent read fOnRestartProgram write fOnRestartProgram;
   end;
 
 var
@@ -258,7 +262,8 @@ uses
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
-  InflatablesList_Encryption;
+  InflatablesList_Encryption,
+  InflatablesList_Backup;
 
 {$R *.dfm}
 
@@ -441,14 +446,9 @@ end;
 //------------------------------------------------------------------------------
 
 procedure TfMainForm.RestartProgram(Sender: TObject);
-var
-  Params: String;
-  i:      Integer;
 begin
-Params := '';
-For i := 1 to ParamCount do
-  Params := Params + ' ' + ParamStr(i);
-IL_ShellOpen(0,RTLToStr(ParamStr(0)),Params,fILManager.StaticSettings.DefaultPath);
+If Assigned(fOnRestartProgram) then
+  fOnRestartProgram(Self);
 fSaveOnExit := False;
 Close;
 end;
@@ -586,7 +586,7 @@ If fSaveOnExit and mniMMF_SaveOnClose.Checked then
 If fInitialized then
   begin
     // finalize item frame
-    frmItemFrame.SetItem(nil,True);
+    frmItemFrame.SetItem(nil,False);
     frmItemFrame.OnShowSelectedItem := nil;
     frmItemFrame.OnFocusList := nil;
     frmItemFrame.Finalize;
@@ -594,7 +594,6 @@ If fInitialized then
     fILManager.OnMainListUpdate := nil;
     fILManager.OnSettingsChange := nil;
     // others
-    lbList.Items.Clear; // to be sure
     FinalizeOtherForms;
   end;
 end;
@@ -1934,6 +1933,64 @@ If fILManager.EncryptedItemCount(False) <= 0 then
   end
 else MessageDlg('Some of the items are encrypted and their data, including picture lists, are not accessible.' + sLineBreak +
        'You have to decrypt all items before you will be able to preceed with deletion.',mtInformation,[mbOK],0);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.niMMT_CleanUpBackupFolderClick(Sender: TObject);
+var
+  Files:    TStringList;
+  i:        Integer;
+  Index:    Integer;
+  TempStr:  String;
+begin
+Files := TStringList.Create;
+try
+  Screen.Cursor := crHourGlass;
+  try
+    // enumerate files in backup folder
+    IL_EnumFiles(fILManager.StaticSettings.BackupPath,Files);
+    // remove utility file from listing
+    Index := Files.IndexOf(IL_BACKUP_DEFAULT_MANGERFILENAME);
+    If Index >= 0 then
+      Files.Delete(Index);
+    // remove known backup files from listing
+    For i := Pred(fILManager.BackupManager.BackupCount) downto 0 do
+      begin
+        Index := Files.IndexOf(fILManager.BackupManager[i].FileName);
+        If Index >= 0 then
+          Files.Delete(Index);
+      end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  // delete remaining files
+  If Files.Count > 0 then
+    begin
+      TempStr := '';
+      For i := 0 to Min(Pred(Files.Count),10) do
+        TempStr := TempStr + '    ' + Files[i] + sLineBreak;
+      If Files.Count > 10 then
+        TempStr := TempStr + IL_Format('    ...and %d more files',[Files.Count - 10]) + sLineBreak;
+      // promt for continuation
+      If MessageDlg(IL_MultiLineText(['This function will delete all files within the backup folder that are not known by the backup manager.',
+        '','Following files will be deleted:','',TempStr,'Current backup folder: "' + IL_ExcludeTrailingPathDelimiter(fILManager.StaticSettings.PicturesPath) + '"','',
+        'Are you sure you want to continue?']),mtWarning,[mbYes,mbNo],0) = mrYes then
+        begin
+          Screen.Cursor := crHourGlass;
+          try
+            // delete what is left
+            For i := 0 to Pred(Files.Count) do
+              IL_DeleteFile(fILManager.StaticSettings.BackupPath + Files[i]);
+          finally
+            Screen.Cursor := crDefault;
+          end;
+        end;
+    end
+  else MessageDlg('There is no file for deletion.',mtInformation,[mbOK],0);
+finally
+  Files.Free;
+end;
 end;
 
 //------------------------------------------------------------------------------

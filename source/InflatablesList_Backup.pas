@@ -330,7 +330,7 @@ If (Index >= Low(fBackups)) and (Index <= High(fBackups)) then
             - delete list file
             - move copy of restored file (rename it in the process)
         }
-        TempFileName := fStaticSettings.BackupPath + fBackups[Index].FileName + IL_BACKUP_TEMP_SUFFIX;
+        TempFileName := fStaticSettings.TempPath + fBackups[Index].FileName + IL_BACKUP_TEMP_SUFFIX;
         IL_CopyFile(fStaticSettings.BackupPath + fBackups[Index].FileName,TempFileName);
         Backup;
         IL_DeleteFile(fStaticSettings.ListFile);

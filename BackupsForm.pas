@@ -28,6 +28,7 @@ type
     fILManager: TILManager;
   protected
     procedure FillBackupList;
+    procedure UpdateTitle;
   public
     { Public declarations }
     OnRestartRequired: TNotifyEvent;
@@ -121,6 +122,16 @@ finally
 end;
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TfBackupsForm.UpdateTitle;
+begin
+If fILManager.BackupManager.BackupCount > 0 then
+  Caption := IL_Format('Backups (%d)',[fILManager.BackupManager.BackupCount])
+else
+  Caption := 'Backups';
+end;
+
 //==============================================================================
 
 procedure TfBackupsForm.Initialize(ILManager: TILManager);
@@ -140,6 +151,7 @@ end;
 procedure TfBackupsForm.ShowBackups;
 begin
 FillBackupList;
+UpdateTitle;
 ShowModal;
 end;
 
@@ -178,6 +190,7 @@ If lvBackups.ItemIndex >= 0 then
       fILManager.BackupManager.Delete(lvBackups.ItemIndex);
       fILManager.BackupManager.SaveBackups;
       FillBackupList;
+      UpdateTitle;
     end;
 end;
 
@@ -200,6 +213,7 @@ If lvBackups.ItemIndex >= 0 then
         DoBackup := False;
       fILManager.BackupManager.Restore(lvBackups.ItemIndex,DoBackup);
       FillBackupList;
+      UpdateTitle;
       Close;
       If Assigned(OnRestartRequired) then
         OnRestartRequired(Self);
@@ -216,6 +230,7 @@ If IL_FileExists(fILManager.BackupManager.StaticSettings.ListFile) then
     begin
       fILManager.BackupManager.Backup;
       FillBackupList;
+      UpdateTitle;
     end;
 end;
 

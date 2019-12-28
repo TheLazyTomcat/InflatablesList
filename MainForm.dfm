@@ -520,6 +520,10 @@ object fMainForm: TfMainForm
         Caption = 'Clean-up picture automation folder'
         OnClick = mniMMT_CleanUpPicAutoFolderClick
       end
+      object niMMT_CleanUpBackupFolder: TMenuItem
+        Caption = 'Clean-up backup folder'
+        OnClick = niMMT_CleanUpBackupFolderClick
+      end
     end
     object mniMM_Help: TMenuItem
       Caption = 'Help'

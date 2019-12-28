@@ -5,11 +5,12 @@ unit InflatablesList_HTML_Download;
 interface
 
 uses
-  Classes;
+  Classes,
+  InflatablesList_Types;
 
-Function IL_WGETDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer): Boolean;
+Function IL_WGETDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer; StaticSettings: TILStaticManagerSettings): Boolean;
 
-Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer): Boolean;
+Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer; StaticSettings: TILStaticManagerSettings): Boolean;
 
 implementation
 
@@ -34,7 +35,7 @@ var
 
 //------------------------------------------------------------------------------
 
-procedure IL_PrepDownloadBinaries(Tag: Integer);
+procedure IL_PrepDownloadBinaries(Tag: Integer; StaticSettings: TILStaticManagerSettings);
 
   procedure ExtractResToFile(const ResName,FileName: String);
   var
@@ -43,11 +44,11 @@ procedure IL_PrepDownloadBinaries(Tag: Integer);
     ILDiskAccessSection.Enter;
     try
       // extract files to program folder
-      If not IL_FileExists(IL_ExtractFilePath(RTLToStr(ParamStr(0))) + FileName) then
+      If not IL_FileExists(StaticSettings.DefaultPath + FileName) then
         begin
           ResStream := TResourceStream.Create(hInstance,StrToRTL(ResName),PChar(10));
           try
-            ResStream.SaveToFile(StrToRTL(IL_ExtractFilePath(RTLToStr(ParamStr(0))) + FileName));
+            ResStream.SaveToFile(StrToRTL(StaticSettings.DefaultPath + FileName));
           finally
             ResStream.Free;
           end;
@@ -81,7 +82,7 @@ end;
 
 //==============================================================================
 
-Function IL_WGETDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer): Boolean;
+Function IL_WGETDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer; StaticSettings: TILStaticManagerSettings): Boolean;
 const
   BELOW_NORMAL_PRIORITY_CLASS = $00004000;
 var
@@ -96,9 +97,9 @@ begin
 Randomize;
 Result := False;
 ResultCode := -1;
-IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET);
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_WGET,StaticSettings);
 // prepare name for the temp file
-OutFileName := IL_ExtractFilePath(RTLToStr(ParamStr(0))) + CRC32ToStr(StringCRC32(URL) + TCRC32(Random($10000)));
+OutFileName := StaticSettings.TempPath + CRC32ToStr(StringCRC32(URL) + TCRC32(Random($10000)));
 // prepare command line
 {
   used wget options:
@@ -106,8 +107,7 @@ OutFileName := IL_ExtractFilePath(RTLToStr(ParamStr(0))) + CRC32ToStr(StringCRC3
     -T ...  timeout [s]
     -O ...  output file
 }
-CommandLine := IL_Format('"%s" -q -T 5 -O "%s" "%s"',[
-  IL_ExtractFilePath(RTLToStr(ParamStr(0))) + 'wget.exe',OutFileName,URL]);
+CommandLine := IL_Format('"%s" -q -T 5 -O "%s" "%s"',[StaticSettings.DefaultPath + 'wget.exe',OutFileName,URL]);
 // init security attributes
 FillChar(SecurityAttr,SizeOf(TSecurityAttributes),0);
 SecurityAttr.nLength := SizeOf(TSecurityAttributes);
@@ -144,13 +144,13 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer): Boolean;
+Function IL_SYNDownloadURL(const URL: String; Stream: TStream; out ResultCode: Integer; StaticSettings: TILStaticManagerSettings): Boolean;
 var
   HTTPClient: THTTPSend;
 begin
 Result := False;
 ResultCode := -1;
-IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_OSSL);
+IL_PrepDownloadBinaries(IL_PREP_DOWN_BINS_TAG_OSSL,StaticSettings);
 HTTPClient := THTTPSend.Create;
 try
   // user agent must be set to something sensible, otherwise some webs refuse to send anything

@@ -20,6 +20,7 @@ type
 
   TILManager_Base = class(TCustomListObject)
   protected
+    fMainManager:                 Boolean;
     fTransient:                   Boolean;
     fStaticSettings:              TILStaticManagerSettings; // not changed at runtime
     fBackupManager:               TILBackupManager;
@@ -141,6 +142,7 @@ type
     Function DecryptAllItems: Integer; virtual;
     Function GenerateUserID(out NewID: String): Boolean; virtual;
     // properties
+    property MainManager: Boolean read fMainManager write fMainManager;
     property Transient: Boolean read fTransient;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings;
     property DataProvider: TILDataProvider read fDataProvider;
@@ -181,7 +183,7 @@ implementation
 
 uses
   SysUtils,
-  SimpleCmdLineParser, StrRect, BitVector,
+  SimpleCmdLineParser, StrRect, BitVector, CRC32,
   InflatablesList_Utils,
   InflatablesList_Encryption,
   InflatablesList_ItemShop;
@@ -518,12 +520,16 @@ try
         end;
     end;
   fStaticSettings.ListName := IL_ExtractFileNameNoExt(fStaticSettings.ListFile);
+  fStaticSettings.InstanceID := IL_LowerCase(CRC32ToStr(StringCRC32(IL_LowerCase(fStaticSettings.ListPath))));
+  // paths
   fStaticSettings.PicturesPath := IL_IncludeTrailingPathDelimiter(
     fStaticSettings.ListPath + fStaticSettings.ListName + '_pics');
   fStaticSettings.BackupPath := IL_IncludeTrailingPathDelimiter(
     fStaticSettings.ListPath + fStaticSettings.ListName + '_backup');
   fStaticSettings.SavedPagesPath := IL_IncludeTrailingPathDelimiter(
     fStaticSettings.ListPath + fStaticSettings.ListName + '_saved_pages');
+  fStaticSettings.TempPath := IL_Format('%sIL_temp_%s\',[IL_GetTempPath,fStaticSettings.InstanceID]);
+  IL_CreateDirectoryPath(fStaticSettings.TempPath);
 finally
   CMDLineParser.Free;
 end;
@@ -533,13 +539,15 @@ end;
 
 procedure TILManager_Base.FinalizeStaticSettings;
 begin
-// do nothing
+If fMainManager then
+  IL_DeleteDir(fStaticSettings.TempPath);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILManager_Base.Initialize;
 begin
+fMainManager := False;
 fTransient := False;
 InitializeStaticSettings;
 fDataProvider := TILDataProvider.Create;

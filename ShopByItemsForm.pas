@@ -297,6 +297,7 @@ If Assigned(fDrawBuffer) then
       begin
         // content
         Draw(BoundsRect.Left,BoundsRect.Top,TILItem(clbItems.Items.Objects[aIndex]).RenderSmall);
+        TILItem(clbItems.Items.Objects[aIndex]).RenderSmall.Dormant;
 
         // separator line
         Pen.Style := psSolid;

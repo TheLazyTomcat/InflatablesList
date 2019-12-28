@@ -134,6 +134,7 @@ If Assigned(Thumbnail) then
     TempStream := TMemoryStream.Create;
     try
       Thumbnail.SaveToStream(TempStream);
+      Thumbnail.Dormant;
       Stream_WriteUInt32(Stream,TempStream.Size);
       Stream.CopyFrom(TempStream,0);
     finally
@@ -160,6 +161,7 @@ If Size > 0 then
       Thumbnail := TBitmap.Create;
       try
         Thumbnail.LoadFromStream(TempStream);
+        Thumbnail.Dormant;
       except
         FreeAndNil(Thumbnail);
       end;

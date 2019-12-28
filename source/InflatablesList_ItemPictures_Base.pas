@@ -202,11 +202,11 @@ If not KeepFile then
     Entry.PackagePicture := False;
   end;
 If Assigned(Entry.Thumbnail) then
-  FreeAndnil(Entry.Thumbnail);
+  FreeAndNil(Entry.Thumbnail);
 If Assigned(Entry.ThumbnailSmall) then
-  FreeAndnil(Entry.ThumbnailSmall);
+  FreeAndNil(Entry.ThumbnailSmall);
 If Assigned(Entry.ThumbnailMini) then
-  FreeAndnil(Entry.ThumbnailMini);
+  FreeAndNil(Entry.ThumbnailMini);
 end;
 
 //------------------------------------------------------------------------------
@@ -227,6 +227,10 @@ If Assigned(Entry.Thumbnail) then
     Entry.ThumbnailMini.Width := 32;
     Entry.ThumbnailMini.Height := 32;
     IL_PicShrink(Entry.Thumbnail,Entry.ThumbnailMini,3);
+    // minimize GDI handle use
+    Entry.Thumbnail.Dormant;
+    Entry.ThumbnailSmall.Dormant;
+    Entry.ThumbnailMini.Dormant;
   end
 else
   begin

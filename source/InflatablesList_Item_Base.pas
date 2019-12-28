@@ -24,9 +24,6 @@ type
     fOwnsDataProvider:      Boolean;
     fStaticSettings:        TILStaticManagerSettings;
     fIndex:                 Integer;                  // used in sorting, transient (not copied in copy constructor)
-    fRender:                TBitmap;
-    fRenderSmall:           TBitmap;
-    fRenderMini:            TBitmap;
     fFilteredOut:           Boolean;                  // transient
     fUpdateCounter:         Integer;                  // transient
     fUpdated:               TILItemUpdatedFlags;      // transient
@@ -208,9 +205,6 @@ type
     // properties
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;    
     property Index: Integer read fIndex write SetIndex;
-    property Render: TBitmap read fRender;
-    property RenderSmall: TBitmap read fRenderSmall;
-    property RenderMini: TBitmap read fRenderMini;
     property FilteredOut: Boolean read fFilteredOut;
     // encryption
     property Encrypted: Boolean read fEncrypted write SetEncrypted;
@@ -939,12 +933,6 @@ procedure TILItem_Base.Initialize;
 begin
 FillChar(fStaticSettings,SizeOf(TILStaticManagerSettings),0);
 fIndex := -1;
-fRender := TBitmap.Create;
-fRender.PixelFormat := pf24bit;
-fRenderSmall := TBitmap.Create;
-fRenderSmall.PixelFormat := pf24bit;
-fRenderMini := TBitmap.Create;
-fRenderMini.PixelFormat := pf24bit;
 fFilteredOut := False;
 fUpdateCounter := 0;
 fUpdated := [];
@@ -961,12 +949,6 @@ procedure TILItem_Base.Finalize;
 begin
 FinalizeData;
 FreeBuffer(fEncryptedData);
-If Assigned(fRenderMini) then
-  FreeAndNil(fRenderMini);
-If Assigned(fRenderSmall) then
-  FreeAndNil(fRenderSmall);
-If Assigned(fRender) then
-  FreeAndNil(fRender);
 end;
 
 //==============================================================================
@@ -999,24 +981,6 @@ fEncrypted := Source.Encrypted;
 fDataAccessible := Source.DataAccessible;
 If fEncrypted and not fDataAccessible then
   CopyBuffer(Source.EncryptedData,fEncryptedData);
-If CopyPics then
-  begin
-    If Assigned(Source.Render) then
-      begin
-        fRender.Assign(Source.Render);
-        fRender.Canvas.Font.Assign(Source.Render.Canvas.Font);
-      end;
-    If Assigned(Source.RenderSmall) then
-      begin
-        fRenderSmall.Assign(Source.RenderSmall);
-        fRenderSmall.Canvas.Font.Assign(Source.RenderSmall.Canvas.Font);
-      end;
-    If Assigned(Source.RenderMini) then
-      begin
-        fRenderMini.Assign(Source.RenderMini);
-        fRenderMini.Canvas.Font.Assign(Source.RenderMini.Canvas.Font);
-      end
-  end;
 If not UniqueCopy then
   begin
     fUniqueID := Source.UniqueID;
@@ -1063,7 +1027,7 @@ fUnitPriceSelected := Source.UnitPriceSelected;
 fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
 fAvailableSelected := Source.AvailableSelected;
-// deffered pictue copy
+// deffered picture copy
 If CopyPics then
   begin
   {

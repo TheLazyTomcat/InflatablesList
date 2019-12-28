@@ -2026,6 +2026,7 @@ If Assigned(fDrawBuffer) then
           end;
         // content
         Draw(BoundsRect.Left,BoundsRect.Top,fILManager.Items[Index].Render);
+        fILManager.Items[Index].Render.Dormant;
         // separator line
         Pen.Style := psSolid;
         Pen.Color := clSilver;

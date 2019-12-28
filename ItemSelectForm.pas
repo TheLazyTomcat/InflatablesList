@@ -179,6 +179,7 @@ If Assigned(fDrawBuffer) then
 
         // content
         Draw(BoundsRect.Left,BoundsRect.Top,TempItem.RenderSmall);
+        TempItem.RenderSmall.Dormant;
 
         // separator line
         Pen.Style := psSolid;

@@ -523,7 +523,7 @@ If not LoadBitmapFromResource('item_lock',fItemLockImage) then
   FreeAndNil(fItemLockImage);
 fItemLockIconWhite := TBitmap.Create;
 If not LoadBitmapFromResource('icon_lock_w',fItemLockIconWhite) then
-  FreeAndNil(fItemLockIconWhite);  
+  FreeAndNil(fItemLockIconWhite);
 fItemLockIconBlack := TBitmap.Create;
 If not LoadBitmapFromResource('icon_lock_b',fItemLockIconBlack) then
   FreeAndNil(fItemLockIconBlack);

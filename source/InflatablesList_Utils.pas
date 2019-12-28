@@ -642,12 +642,19 @@ type
   TRGBTripleArray = array[0..$FFFF] of TRGBTriple;
   PRGBTripleArray = ^TRGBTripleArray;
 var
+  LargeH: Boolean;
+  SmallH: Boolean;
   Y,X:    Integer;
   Lines:  array of PRGBTripleArray;
   LineR:  PRGBTripleArray;
   R,G,B:  UInt32;
   i,j:    Integer;
 begin
+LargeH := Large.HandleAllocated;
+SmallH := Small.HandleAllocated;
+// ensure GDI handle is allocated in both bitmaps
+Large.Handle;
+Small.Handle;
 SetLength(Lines,Factor);
 For Y := 0 to Pred(Large.Height div Factor) do
   begin
@@ -671,6 +678,10 @@ For Y := 0 to Pred(Large.Height div Factor) do
         LineR^[X].rgbtBlue  := Trunc(Sqrt(B / Sqr(Factor)));
       end;
   end;
+If not LargeH then
+  Large.Dormant;
+If not SmallH then
+  Small.Dormant;
 end;
 
 

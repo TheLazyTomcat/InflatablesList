@@ -13,20 +13,29 @@ uses
 type
   TILItem_Draw = class(TILItem_Utils)
   protected
+    fRender:      TBitmap;
+    fRenderSmall: TBitmap;
+    fRenderMini:  TBitmap;
     fMainWidth:   Integer;
     fMainHeight:  Integer;
+    fMainFont:    TFont;
     fSmallWidth:  Integer;
     fSmallHeight: Integer;
     fSmallStrip:  Integer;
+    fSmallFont:   TFont;
     fMiniWidth:   Integer;
     fMiniHeight:  Integer;
+    fMiniFont:    TFont;
     procedure ReDrawMain; virtual;
     procedure ReDrawSmall; virtual;
     procedure ReDrawMini; virtual;
     procedure UpdateMainList; override;
     procedure UpdateSmallList; override;
     procedure UpdateMiniList; override;
+    procedure InitializeRenders; virtual;
+    procedure FinalizeRenders; virtual;
     procedure Initialize; override;
+    procedure Finalize; override;
   public
     constructor CreateAsCopy(DataProvider: TILDataProvider; Source: TILItem_Base; CopyPics: Boolean; UniqueCopy: Boolean); overload; override;
     procedure ReinitMainDrawSize(MainWidth,MainHeight: Integer; MainFont: TFont); overload; virtual;
@@ -36,13 +45,19 @@ type
     procedure ChangeSmallStripSize(NewSize: Integer); virtual;
     procedure ReinitMiniDrawSize(MiniWidth,MiniHeight: Integer; MiniFont: TFont); virtual;
     procedure ReDraw; virtual;
+    property Render: TBitmap read fRender;
+    property RenderSmall: TBitmap read fRenderSmall;
+    property RenderMini: TBitmap read fRenderMini;
     property MainWidth: Integer read fMainWidth;
     property MainHeight: Integer read fMainHeight;
+    property MainFont: TFont read fMainFont;
     property SmallWidth: Integer read fSmallWidth;
     property SmallHeight: Integer read fSmallHeight;
     property SmallStrip: Integer read fSmallStrip;
+    property SmallFont: TFont read fSmallFont;
     property MiniWidth: Integer read fMiniWidth;
     property MiniHeight: Integer read fMiniHeight;
+    property MiniFont: TFont read fMiniFont;
   end;
 
 implementation
@@ -120,6 +135,8 @@ var
 begin
 with fRender,fRender.Canvas do
   begin
+    Font.Assign(fMainFont);
+
     // background
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
@@ -283,9 +300,11 @@ with fRender,fRender.Canvas do
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
           begin
             If Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail) then
-              Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail)
-            else
-              Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
+              begin
+                Draw(Width - 103,5,fPictures[fPictures.IndexOfItemPicture].Thumbnail);
+                fPictures[fPictures.IndexOfItemPicture].Thumbnail.Dormant;
+              end
+            else Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
           end
         else Draw(Width - 103,5,fDataProvider.ItemDefaultPictures[fItemType]);
     
@@ -319,6 +338,7 @@ with fRender,fRender.Canvas do
         TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;
   end;
+fRender.Dormant;
 end;
 
 //------------------------------------------------------------------------------
@@ -344,6 +364,8 @@ var
 begin
 with fRenderSmall,fRenderSmall.Canvas do
   begin
+    Font.Assign(fSmallFont);
+
     // background
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
@@ -400,9 +422,11 @@ with fRenderSmall,fRenderSmall.Canvas do
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
           begin
             If Assigned(fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall) then
-              Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall)
-            else
-              Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
+              begin
+                Draw(Width - 54,2,fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall);
+                fPictures[fPictures.IndexOfItemPicture].ThumbnailSmall.Dormant;
+              end
+            else Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
           end
         else Draw(Width - 54,2,fDataProvider.ItemDefaultPicturesSmall[fItemType]);
       end
@@ -420,6 +444,7 @@ with fRenderSmall,fRenderSmall.Canvas do
         TextOut(TempInt,20,'To access its data, you have to decrypt it first.');
       end;
   end;
+fRenderSmall.Dormant;
 end;
 
 //------------------------------------------------------------------------------
@@ -445,6 +470,8 @@ var
 begin
 with fRenderMini,fRenderMini.Canvas do
   begin
+    Font.Assign(fMiniFont);
+    
     // background
     SetCanvas(bsSolid,clWhite,psClear);
     Rectangle(0,0,Width + 1,Height + 1);
@@ -479,9 +506,11 @@ with fRenderMini,fRenderMini.Canvas do
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
           begin
             If Assigned(fPictures[fPictures.IndexOfItemPicture].ThumbnailMini) then
-              Draw(Width - 37,1,fPictures[fPictures.IndexOfItemPicture].ThumbnailMini)
-            else
-              Draw(Width - 37,1,fDataProvider.ItemDefaultPicturesMini[fItemType]);
+              begin
+                Draw(Width - 37,1,fPictures[fPictures.IndexOfItemPicture].ThumbnailMini);
+                fPictures[fPictures.IndexOfItemPicture].ThumbnailMini.Dormant;
+              end
+            else Draw(Width - 37,1,fDataProvider.ItemDefaultPicturesMini[fItemType]);
           end
         else Draw(Width - 37,1,fDataProvider.ItemDefaultPicturesMini[fItemType]);
       end
@@ -498,7 +527,8 @@ with fRenderMini,fRenderMini.Canvas do
         SetCanvas(bsClear,clWhite,psSolid,clBlack,[],clWindowText,8);
         TextOut(TempInt,17,'To access its data, you have to decrypt it first.');
       end;
-  end;      
+  end;
+fRenderMini.Dormant;
 end;
 
 //------------------------------------------------------------------------------
@@ -530,22 +560,61 @@ end;
 
 //------------------------------------------------------------------------------
 
+procedure TILItem_Draw.InitializeRenders;
+begin
+fRender := TBitmap.Create;
+fRender.PixelFormat := pf24bit;
+fRenderSmall := TBitmap.Create;
+fRenderSmall.PixelFormat := pf24bit;
+fRenderMini := TBitmap.Create;
+fRenderMini.PixelFormat := pf24bit;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.FinalizeRenders;
+begin
+If Assigned(fRenderMini) then
+  FreeAndNil(fRenderMini);
+If Assigned(fRenderSmall) then
+  FreeAndNil(fRenderSmall);
+If Assigned(fRender) then
+  FreeAndNil(fRender);
+end;
+
+//------------------------------------------------------------------------------
+
 procedure TILItem_Draw.Initialize;
 begin
 inherited;
+InitializeRenders;
 fMainWidth := 0;
 fMainHeight := 0;
+fMainFont := TFont.Create;
 fSmallWidth := 0;
 fSmallHeight := 0;
 fSmallStrip := 20;
+fSmallFont := TFont.Create;
 fMiniWidth := 0;
 fMiniHeight := 0;
+fMiniFont := TFont.Create;
 fRender.Width := fMainWidth;
 fRender.Height := fMainHeight;
 fRenderSmall.Width := fSmallWidth;
 fRenderSmall.Height := fSmallHeight;
 fRenderMini.Width := fMiniWidth;
 fRenderMini.Height := fMiniHeight;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Draw.Finalize;
+begin
+FreeAndNil(fSmallFont);
+FreeAndNil(fMiniFont);
+FreeAndNil(fMainFont);
+FinalizeRenders;
+inherited;
 end;
 
 //==============================================================================
@@ -555,13 +624,37 @@ begin
 inherited CreateAsCopy(DataProvider,Source,CopyPics,UniqueCopy);
 If Source is TILItem_Draw then
   begin
+    If CopyPics then
+      begin
+        If Assigned(TILItem_Draw(Source).Render) then
+          begin
+            fRender.Assign(TILItem_Draw(Source).Render);
+            fRender.Dormant;
+            fMainFont.Assign(TILItem_Draw(Source).MainFont);
+          end;
+        If Assigned(TILItem_Draw(Source).RenderSmall) then
+          begin
+            fRenderSmall.Assign(TILItem_Draw(Source).RenderSmall);
+            fRenderSmall.Dormant;
+            fSmallFont.Assign(TILItem_Draw(Source).SmallFont);
+          end;
+        If Assigned(TILItem_Draw(Source).RenderMini) then
+          begin
+            fRenderMini.Assign(TILItem_Draw(Source).RenderMini);
+            fRenderMini.Dormant;
+            fMiniFont.Assign(TILItem_Draw(Source).MiniFont);
+          end
+      end;
     fMainWidth := TILItem_Draw(Source).MainWidth;
     fMainHeight := TILItem_Draw(Source).MainHeight;
+    fMainFont.Assign(TILItem_Draw(Source).MainFont);
     fSmallWidth := TILItem_Draw(Source).SmallWidth;
     fSmallHeight := TILItem_Draw(Source).SmallHeight;
     fSmallStrip := TILItem_Draw(Source).SmallStrip;
+    fSmallFont.Assign(TILItem_Draw(Source).SmallFont);
     fMiniWidth := TILItem_Draw(Source).MiniWidth;
     fMiniHeight := TILItem_Draw(Source).MiniHeight;
+    fMiniFont.Assign(TILItem_Draw(Source).MiniFont);
   end;
 end;
 
@@ -573,9 +666,9 @@ If (fMainWidth <> MainWidth) or (fMainHeight <> MainHeight) then
   begin
     fMainWidth := MainWidth;
     fMainHeight := MainHeight;
+    fMainFont.Assign(MainFont);
     fRender.Width := fMainWidth;
     fRender.Height := fMainHeight;
-    fRender.Canvas.Font.Assign(MainFont);
     ReDrawMain;
     inherited UpdateMainList; // call inherited code so ReDrawMain is not called again
   end;
@@ -596,9 +689,9 @@ If (fSmallWidth <> SmallWidth) or (fSmallHeight <> SmallHeight) then
   begin
     fSmallWidth := SmallWidth;
     fSmallHeight := SmallHeight;
+    fSmallFont.Assign(SmallFont);
     fRenderSmall.Width := fSmallWidth;
     fRenderSmall.Height := fSmallHeight;
-    fRenderSmall.Canvas.Font.Assign(SmallFont);
     ReDrawSmall;
     inherited UpdateSmallList;
   end;
@@ -637,9 +730,9 @@ If (fMiniWidth <> MiniWidth) or (fMiniHeight <> MiniHeight) then
   begin
     fMiniWidth := MiniWidth;
     fMiniHeight := MiniHeight;
+    fMiniFont.Assign(MiniFont);
     fRenderMini.Width := fMiniWidth;
     fRenderMini.Height := fMiniHeight;
-    fRenderMini.Canvas.Font.Assign(MiniFont);
     ReDrawMini;
     inherited UpdateMiniList;
   end;

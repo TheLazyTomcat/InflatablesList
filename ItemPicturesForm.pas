@@ -295,9 +295,11 @@ If Assigned(fDrawBuffer) then
         // thumbnail
         TempInt := BoundsRect.Right - fILManager.DataProvider.EmptyPictureMini.Width - 5;
         If Assigned(fCurrentItem.Pictures[Index].ThumbnailMini) and not fILManager.StaticSettings.NoPictures then
-          Draw(TempInt,BoundsRect.Top + 1,fCurrentItem.Pictures[Index].ThumbnailMini)
-        else
-          Draw(TempInt,BoundsRect.Top + 1,fILManager.DataProvider.EmptyPictureMini);
+          begin
+            Draw(TempInt,BoundsRect.Top + 1,fCurrentItem.Pictures[Index].ThumbnailMini);
+            fCurrentItem.Pictures[Index].ThumbnailMini.Dormant;
+          end
+        else Draw(TempInt,BoundsRect.Top + 1,fILManager.DataProvider.EmptyPictureMini);
         Dec(TempInt,7);
 
         // size (bytes) and resolution

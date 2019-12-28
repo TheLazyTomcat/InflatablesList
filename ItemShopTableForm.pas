@@ -326,6 +326,7 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
               begin
                 // items
                 Draw(BoundsRect.Left,BoundsRect.Top,fTable[Pred(ARow)].Item.RenderMini);
+                fTable[Pred(ARow)].Item.RenderMini.Dormant;
                 Pen.Color := clSilver;  // for grid lines
               end
             else If (ARow = 0) and (ACol > 0) then

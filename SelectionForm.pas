@@ -468,6 +468,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
           
           // content
           Draw(BoundsRect.Left,BoundsRect.Top,TempItem.ItemObject.RenderSmall);
+          TempItem.ItemObject.RenderSmall.Dormant;
 
           // separator line
           Pen.Style := psSolid;

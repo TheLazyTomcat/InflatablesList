@@ -262,7 +262,7 @@ var
   FileStream: TMemoryStream;
 begin
 // do backup
-If not fStaticSettings.NoBackup then
+If not fStaticSettings.NoBackup and fMainManager then
   fBackupManager.Backup;
 // do saving
 FileStream := TMemoryStream.Create;

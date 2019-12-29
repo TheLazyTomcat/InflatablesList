@@ -276,7 +276,7 @@ If IL_FileExists(fStaticSettings.ListFile) then
     // fill entry
     Time := Now;
     Temp.FileName := IL_FormatDateTime('yyyy-mm-dd-hh-nn-ss-zzz',Time) + '.inl';
-    with TILManager.CreateTransient do
+    with TILManager.CreateTransient do  // for PreloadFile()
     try
       Preload := PreloadFile(fStaticSettings.ListFile);
       If ilprfExtInfo in Preload.ResultFlags then

@@ -81,6 +81,12 @@ constructor TILSavingThread.Create(ILManager: TILManager_Base; EndNotificationHa
 begin
 inherited Create(False);
 FreeOnTerminate := True;
+{
+  do backup here not in thread, changes in backup list are not propagated back
+  into main manager
+}
+If not ILManager.StaticSettings.NoBackup then
+  ILManager.BackupManager.Backup;
 fLocalManager := TILManager.CreateAsCopy(ILManager,False);
 fOnEndNotify := EndNotificationHandler;
 end;

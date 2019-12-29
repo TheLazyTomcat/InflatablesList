@@ -82,10 +82,10 @@ var
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
                       FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 10);
   begin
-    fRender.Canvas.Brush.Style := BStyle;
     fRender.Canvas.Brush.Color := BColor;
-    fRender.Canvas.Pen.Style := PStyle;
+    fRender.Canvas.Brush.Style := BStyle; // style must be set after color
     fRender.Canvas.Pen.Color := PColor;
+    fRender.Canvas.Pen.Style := PStyle;
     fRender.Canvas.Font.Style := FTStyle;
     fRender.Canvas.Font.Color := FTColor;
     fRender.Canvas.Font.Size := FTSize;
@@ -167,6 +167,18 @@ with fRender,fRender.Canvas do
             CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
                      fDataProvider.RatingGradientImage.Canvas,
                      Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
+            // rating detail indication
+            If Length(fRatingDetails) > 0 then
+              begin
+                TempStr := Font.Name;
+                try
+                  SetCanvas(bsClear,clWhite,psClear,clBlack,[],clBlue,8);
+                  Font.Name := 'Webdings';
+                  TextOut(9,91,'ù');
+                finally
+                  Font.Name := TempStr;
+                end;
+              end;
           end;
 
         // lock icon, title + count
@@ -295,7 +307,7 @@ with fRender,fRender.Canvas do
                 TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
               end;
           end;
-    
+
         // main picture
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) and not fStaticSettings.NoPictures then
           begin
@@ -352,10 +364,10 @@ var
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
                       FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 8);
   begin
-    fRenderSmall.Canvas.Brush.Style := BStyle;
     fRenderSmall.Canvas.Brush.Color := BColor;
-    fRenderSmall.Canvas.Pen.Style := PStyle;
+    fRenderSmall.Canvas.Brush.Style := BStyle;
     fRenderSmall.Canvas.Pen.Color := PColor;
+    fRenderSmall.Canvas.Pen.Style := PStyle;
     fRenderSmall.Canvas.Font.Style := FTStyle;
     fRenderSmall.Canvas.Font.Color := FTColor;
     fRenderSmall.Canvas.Font.Size := FTSize;
@@ -458,10 +470,10 @@ var
                       PStyle: TPenStyle = psSolid; PColor: TColor = clBlack;
                       FTStyle: TFontStyles = []; FTColor: TColor = clWindowText; FTSize: Integer = 8);
   begin
-    fRenderMini.Canvas.Brush.Style := BStyle;
     fRenderMini.Canvas.Brush.Color := BColor;
-    fRenderMini.Canvas.Pen.Style := PStyle;
+    fRenderMini.Canvas.Brush.Style := BStyle;
     fRenderMini.Canvas.Pen.Color := PColor;
+    fRenderMini.Canvas.Pen.Style := PStyle;    
     fRenderMini.Canvas.Font.Style := FTStyle;
     fRenderMini.Canvas.Font.Color := FTColor;
     fRenderMini.Canvas.Font.Size := FTSize;

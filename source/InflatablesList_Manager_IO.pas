@@ -222,6 +222,7 @@ try
                 ItemUpdatePicturesHandler,
                 ItemUpdateFlagsHandler,
                 ItemUpdateValuesHandler,
+                ItemUpdateOthersHandler,
                 ItemUpdateShopListHandler,
                 ItemPasswordRequestHandler);
             end;

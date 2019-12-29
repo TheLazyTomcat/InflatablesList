@@ -123,6 +123,9 @@ try
       // text tag
       If Length(fILManager[i].TextTag) > 0 then
         TempStr := TempStr + IL_Format(' {%s}',[fILManager[i].TextTag]);
+      // num tag
+      If fILManager[i].NumTag <> 0 then
+        TempStr := TempStr + IL_Format(' [%d]',[fILManager[i].NumTag]);
       clbItems.Items.Add(TempStr);
     end;
   For i := CDA_Low(Indices) to CDA_High(Indices) do

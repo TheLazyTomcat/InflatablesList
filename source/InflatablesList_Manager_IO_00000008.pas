@@ -252,6 +252,7 @@ If IL_SameStr(Stream_ReadString(Stream),'ITEMS') then
           ItemUpdatePicturesHandler,
           ItemUpdateFlagsHandler,
           ItemUpdateValuesHandler,
+          ItemUpdateOthersHandler,
           ItemUpdateShopListHandler,
           ItemPasswordRequestHandler);
       end;

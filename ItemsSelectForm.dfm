@@ -1,10 +1,10 @@
 object fItemsSelectForm: TfItemsSelectForm
-  Left = 830
-  Top = 135
+  Left = 559
+  Top = 131
   BorderStyle = bsDialog
   Caption = 'fItemsSelectForm'
   ClientHeight = 484
-  ClientWidth = 416
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,7 +26,7 @@ object fItemsSelectForm: TfItemsSelectForm
   object clbItems: TCheckListBox
     Left = 8
     Top = 24
-    Width = 401
+    Width = 465
     Height = 420
     IntegralHeight = True
     ItemHeight = 13
@@ -36,7 +36,7 @@ object fItemsSelectForm: TfItemsSelectForm
     OnMouseDown = clbItemsMouseDown
   end
   object btnAccept: TButton
-    Left = 240
+    Left = 304
     Top = 452
     Width = 81
     Height = 25
@@ -45,7 +45,7 @@ object fItemsSelectForm: TfItemsSelectForm
     OnClick = btnAcceptClick
   end
   object btnClose: TButton
-    Left = 328
+    Left = 392
     Top = 452
     Width = 81
     Height = 25
@@ -54,7 +54,7 @@ object fItemsSelectForm: TfItemsSelectForm
     OnClick = btnCloseClick
   end
   object pmItemsMenu: TPopupMenu
-    Left = 384
+    Left = 448
     object mniIM_CheckSelected: TMenuItem
       Caption = 'Check selected'
       OnClick = mniIM_CheckSelectedClick

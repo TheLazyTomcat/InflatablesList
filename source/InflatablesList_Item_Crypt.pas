@@ -54,9 +54,8 @@ If fEncrypted <> Value then
             end
           else fEncrypted := False;
         end;
-      UpdateTitle;      // to show lock icon
-      UpdateMainList;
-      UpdateSmallList;
+      UpdateOthers; // lock icon
+      UpdateList;
     finally
       EndUpdate;
     end;

@@ -806,6 +806,20 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
     end
+    object lblRatingDetails: TLabel
+      Left = 612
+      Top = 509
+      Width = 13
+      Height = 18
+      Alignment = taRightJustify
+      Caption = #357
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -13
+      Font.Name = 'Webdings'
+      Font.Style = []
+      ParentFont = False
+    end
     object seWantedLevel: TSpinEdit
       Left = 0
       Top = 328

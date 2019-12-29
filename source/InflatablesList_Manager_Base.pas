@@ -44,6 +44,7 @@ type
     fOnItemPicturesUpdate:        TILObjectL1Event;
     fOnItemFlagsUpdate:           TILObjectL1Event;
     fOnItemValuesUpdate:          TILObjectL1Event;         // reserved for item frame
+    fOnItemOthersUpdate:          TILObjectL1Event;         // -//-
     fOnItemShopListUpdate:        TILObjectL1Event;
     fOnItemShopListValuesUpdate:  TILObjectL1Event;         // reserved for shop form
     // events
@@ -86,7 +87,8 @@ type
     procedure ItemUpdateTitleHandler(Sender: TObject); virtual;
     procedure ItemUpdatePicturesHandler(Sender: TObject); virtual; 
     procedure ItemUpdateFlagsHandler(Sender: TObject); virtual; 
-    procedure ItemUpdateValuesHandler(Sender: TObject); virtual; 
+    procedure ItemUpdateValuesHandler(Sender: TObject); virtual;
+    procedure ItemUpdateOthersHandler(Sender: TObject); virtual;
     procedure ItemUpdateShopListHandler(Sender: TObject); virtual;
     Function ItemPasswordRequestHandler(Sender: TObject; out Password: String): Boolean; virtual;
     // event callers
@@ -168,6 +170,7 @@ type
     property OnItemPicturesUpdate: TILObjectL1Event read fOnItemPicturesUpdate write fOnItemPicturesUpdate;
     property OnItemFlagsUpdate: TILObjectL1Event read fOnItemFlagsUpdate write fOnItemFlagsUpdate;
     property OnItemValuesUpdate: TILObjectL1Event read fOnItemValuesUpdate write fOnItemValuesUpdate;
+    property OnItemOthersUpdate: TILObjectL1Event read fOnItemOthersUpdate write fOnItemOthersUpdate;
     property OnItemShopListUpdate: TILObjectL1Event read fOnItemShopListUpdate write fOnItemShopListUpdate;
     property OnItemShopListValuesUpdate: TILObjectL1Event read fOnItemShopListValuesUpdate write fOnItemShopListValuesUpdate;
     // global events
@@ -399,6 +402,14 @@ If Sender is TILItem then
     If Assigned(fOnItemShopListValuesUpdate) then
       fOnItemShopListValuesUpdate(Self,Sender);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILManager_Base.ItemUpdateOthersHandler(Sender: TObject);
+begin
+If Assigned(fOnItemOthersUpdate) and (Sender is TILItem) then
+  fOnItemOthersUpdate(Self,Sender);
 end;
 
 //------------------------------------------------------------------------------
@@ -819,6 +830,7 @@ fList[Result].AssignInternalEvents(
   ItemUpdatePicturesHandler,
   ItemUpdateFlagsHandler,
   ItemUpdateValuesHandler,
+  ItemUpdateOthersHandler,
   ItemUpdateShopListHandler,
   ItemPasswordRequestHandler);
 Inc(fCount);
@@ -851,6 +863,7 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
           ItemUpdatePicturesHandler,
           ItemUpdateFlagsHandler,
           ItemUpdateValuesHandler,
+          ItemUpdateOthersHandler,
           ItemUpdateShopListHandler,
           ItemPasswordRequestHandler);
         Inc(fCount);
@@ -1101,6 +1114,7 @@ For i := ItemLowIndex to ItemhighIndex do
       ItemUpdatePicturesHandler,
       ItemUpdateFlagsHandler,
       ItemUpdateValuesHandler,
+      ItemUpdateOthersHandler,
       ItemUpdateShopListHandler,
       ItemPasswordRequestHandler);
   end;

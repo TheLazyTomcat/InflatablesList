@@ -121,6 +121,7 @@ type
     seUnitPriceDefault: TSpinEdit;
     lblRating: TLabel;
     seRating: TSpinEdit;
+    lblRatingDetails: TLabel;    
     btnRatingDetails: TButton;    
     btnPictures: TButton;
     btnShops: TButton;
@@ -210,6 +211,7 @@ type
     procedure UpdatePictures(Sender: TObject; Item: TObject);
     procedure UpdateFlags(Sender: TObject; Item: TObject);
     procedure UpdateValues(Sender: TObject; Item: TObject);
+    procedure UpdateOthers(Sender: TObject; Item: TObject);
     // helper methods
     procedure ReplaceManufacturerLogo;
     procedure FillFlagsFromItem;
@@ -454,8 +456,6 @@ var
 begin
 If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   begin
-    // item lock icon
-    imgItemLock.Visible := fCurrentItem.Encrypted;
     // construct manufacturer + ID string
     ManufStr := fCurrentItem.TitleStr;
     // constructy item type string
@@ -470,7 +470,6 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   end
 else
   begin
-    imgItemLock.Visible := False;
     lblItemTitle.Caption := '';
     lblItemTitleShadow.Caption := '';
   end;
@@ -512,6 +511,23 @@ procedure TfrmItemFrame.UpdateValues(Sender: TObject; Item: TObject);
 begin
 If Assigned(fCurrentItem) and (Item = fCurrentItem) then
   FillValues;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.UpdateOthers(Sender: TObject; Item: TObject);
+begin
+If Assigned(fCurrentItem) and (Item = fCurrentItem) then
+  begin
+    // item lock icon
+    imgItemLock.Visible := fCurrentItem.Encrypted;
+    lblRatingDetails.Visible := Length(fCurrentItem.RatingDetails) > 0;
+  end
+else
+  begin
+    imgItemLock.Visible := False;
+    lblRatingDetails.Visible := False;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -713,7 +729,7 @@ else If Control = btnRatingDetails then
   begin
     shpHighlight.Left := Control.Left;
     shpHighlight.Top := Control.Top - 6;
-    shpHighlight.Width := Control.Width;
+    shpHighlight.Width := lblRatingDetails.Left - shpHighlight.Left;
     shpHighlight.Height := 5;
   end
 else Exit;  // control is not valid
@@ -870,6 +886,7 @@ try
   leReviewURL.Text := '';
   seUnitPriceDefault.Value := 0;
   seRating.Value := 0;
+  lblRatingDetails.Visible := False;
   // read-only things
   lblPictureCount.Caption := '0';
   FillSelectedShop('-');
@@ -994,6 +1011,7 @@ If Assigned(fCurrentItem) then
       leReviewURL.Text := fCurrentItem.ReviewURL;
       seUnitPriceDefault.Value := fCurrentItem.UnitPriceDefault;
       seRating.Value := fCurrentItem.Rating;
+      lblRatingDetails.Visible := Length(fCurrentItem.RatingDetails) > 0;
       FillValues;
     finally
       fInitializing := False;
@@ -1018,6 +1036,7 @@ fILManager.OnItemTitleUpdate := UpdateTitle;
 fILManager.OnItemPicturesUpdate := UpdatePictures;
 fILManager.OnItemFlagsUpdate := UpdateFlags;
 fILManager.OnItemValuesUpdate := UpdateValues;
+fILManager.OnItemOthersUpdate := UpdateOthers;
 SetItem(nil,True);
 // prepare objects
 imgPrevPicture.Tag := 0;
@@ -1064,6 +1083,7 @@ fILManager.OnItemTitleUpdate := nil;
 fILManager.OnItemPicturesUpdate := nil;
 fILManager.OnItemFlagsUpdate := nil;
 fILManager.OnItemValuesUpdate := nil;
+fILManager.OnItemOthersUpdate := nil;
 FreeAndNil(fPicturesManager);
 FreeAndNil(fPicArrowLeft);
 FreeAndNil(fPicArrowRight);

@@ -14,7 +14,7 @@ uses
 
 type
   TILItemUpdatedFlag = (iliufMainList,iliufSmallList,iliufMiniList,iliufOverview,
-    iliufTitle,iliufPictures,iliufFlags,iliufValues,iliufShopList);
+    iliufTitle,iliufPictures,iliufFlags,iliufValues,iliufOthers,iliufShopList);
 
   TILItemUpdatedFlags = set of TILItemUpdatedFlag;
 
@@ -46,6 +46,7 @@ type
     fOnPicturesUpdate:      TNotifyEvent;
     fOnFlagsUpdate:         TNotifyEvent;
     fOnValuesUpdate:        TNotifyEvent;
+    fOnOthersUpdate:        TNotifyEvent;
     fOnShopListUpdate:      TNotifyEvent;
     fOnPasswordRequest:     TILPasswordRequest;
     // item data...
@@ -148,6 +149,7 @@ type
     procedure UpdatePictures; virtual;
     procedure UpdateFlags; virtual;
     procedure UpdateValues; virtual;
+    procedure UpdateOthers; virtual;
     procedure UpdateShopList; virtual;
     Function RequestItemsPassword(out Password: String): Boolean; virtual;
     // macro callers
@@ -198,6 +200,7 @@ type
       PicturesUpdate,
       FlagsUpdate,
       ValuesUpdate,
+      OthersUpdate,
       ShopListUpdate:       TNotifyEvent;
       ItemsPasswordRequest: TILPasswordRequest); virtual;
     procedure ClearInternalEvents; virtual;
@@ -610,6 +613,8 @@ If not IL_SameStr(fRatingDetails,Value) then
   begin
     fRatingDetails := Value;
     UniqueString(fRatingDetails);
+    UpdateMainList;
+    UpdateOthers;
   end;
 end;
 
@@ -831,6 +836,15 @@ begin
 If Assigned(fOnValuesUpdate) and (fUpdateCounter <= 0) then
   fOnValuesUpdate(Self);
 Include(fUpdated,iliufValues);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.UpdateOthers;
+begin
+If Assigned(fOnOthersUpdate) and (fUpdateCounter <= 0) then
+  fOnOthersUpdate(Self);
+Include(fUpdated,iliufOthers);
 end;
 
 //------------------------------------------------------------------------------
@@ -1106,6 +1120,8 @@ If fUpdateCounter <= 0 then
       UpdateFlags;
     If iliufValues in fUpdated then
       UpdateValues;
+    If iliufOthers in fUpdated then
+      UpdateOthers;
     If iliufShopList in fUpdated then
       UpdateShopList;
     fUpdated := [];
@@ -1399,7 +1415,7 @@ end;
 procedure TILItem_Base.AssignInternalEvents(ShopListItemUpdate: TILIndexedObjectL1Event;
   ShopValuesUpdate,ShopAvailHistUpdate,ShopPriceHistUpdate: TILObjectL1Event;
   MainListUpdate,SmallListUpdate,MiniListUpdate,OverviewUpdate,TitleUpdate,
-  PicturesUpdate,FlagsUpdate,ValuesUpdate,ShopListUpdate: TNotifyEvent;
+  PicturesUpdate,FlagsUpdate,ValuesUpdate,OthersUpdate,ShopListUpdate: TNotifyEvent;
   ItemsPasswordRequest: TILPasswordRequest);
 begin
 fOnShopListItemUpdate := IL_CheckHandler(ShopListItemUpdate);
@@ -1414,6 +1430,7 @@ fOnTitleUpdate := IL_CheckHandler(TitleUpdate);
 fOnPicturesUpdate := IL_CheckHandler(PicturesUpdate);
 fOnFlagsUpdate := IL_CheckHandler(FlagsUpdate);
 fOnValuesUpdate := IL_CheckHandler(ValuesUpdate);
+fOnOthersUpdate := IL_CheckHandler(OthersUpdate);
 fOnShopListUpdate := IL_CheckHandler(ShopListUpdate);
 fOnPasswordRequest := IL_CheckHandler(ItemsPasswordRequest);
 end;

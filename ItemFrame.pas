@@ -1609,7 +1609,7 @@ end;
 
 procedure TfrmItemFrame.seRatingChange(Sender: TObject);
 begin
-If not fInitializing and Assigned(fCurrentItem)then
+If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.Rating := seRating.Value;
 end;
 

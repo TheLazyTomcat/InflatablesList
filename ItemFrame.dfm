@@ -811,7 +811,9 @@ object frmItemFrame: TfrmItemFrame
       Top = 509
       Width = 13
       Height = 18
+      Hint = 'Rating details not empty'
       Alignment = taRightJustify
+      Anchors = [akLeft, akBottom]
       Caption = #357
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlue
@@ -819,6 +821,8 @@ object frmItemFrame: TfrmItemFrame
       Font.Name = 'Webdings'
       Font.Style = []
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
     end
     object seWantedLevel: TSpinEdit
       Left = 0

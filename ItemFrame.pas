@@ -322,7 +322,6 @@ var
   i:              Integer;
   TempInt:        Integer;
   ArrowsVisible:  Boolean;
-  ArrowShift:     Integer;
   SecCount:       Integer;
 
   Function AssignPic(Index: Integer; PictureKind: TLIItemPictureKind): Boolean;
@@ -375,22 +374,21 @@ If Assigned(fPictures) then
     // realign
     TempInt := fRightAnchor;
     ArrowsVisible := False;
-    ArrowShift := (((SPACING * 3) - fRight.Width) div 2) + fRight.Width;
     SecCount := fPictures.SecondaryCount(False);
     For i := Low(fImages) to High(fImages) do
       begin
         If (fImages[i].PictureKind = ilipkSecondary) and (SecCount > 1) then
           begin
-            fRight.Left := TempInt - ArrowShift;
-            fImages[i].Image.Left := TempInt - fImages[i].Image.Width - SPACING * 3;
-            fLeft.Left := fImages[i].Image.Left - ArrowShift;
-            Dec(TempInt,fImages[i].Image.Width + SPACING * 6);
+            fRight.Left := TempInt - fRight.Width;
+            fImages[i].Image.Left := fRight.Left - fImages[i].Image.Width - SPACING;
+            fLeft.Left := fImages[i].Image.Left - fLeft.Width - SPACING;
+            TempInt := fLeft.Left - SPACING;
             ArrowsVisible := True;
           end
         else
           begin
             fImages[i].Image.Left := TempInt - fImages[i].Image.Width;
-            Dec(TempInt,fImages[i].Image.Width + SPACING);
+            TempInt := fImages[i].Image.Left - SPACING;
           end;
         fImages[i].Background.Left := fImages[i].Image.Left + (fImages[i].Image.Width - fImages[i].Background.Width) div 2;
       end;

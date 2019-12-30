@@ -270,11 +270,15 @@ begin
 If lbProfiles.ItemIndex >= 0 then
   begin
     Temp := fILManager.SortingProfiles[lbProfiles.ItemIndex];
-    If not IL_SameSortingSettings(Temp.Settings,fLocalSortSett) then
-      CanContinue := MessageDlg(IL_Format('Overwrite sorting settings in profile "%s"?',
-        [Temp.Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes
-    else
-      CanContinue := False; // do not save the same data...
+    If Temp.Settings.Count > 0 then
+      begin
+        If not IL_SameSortingSettings(Temp.Settings,fLocalSortSett) then
+          CanContinue := MessageDlg(IL_Format('Overwrite sorting settings in profile "%s"?',
+            [Temp.Name]),mtConfirmation,[mbYes,mbNo],0) = mrYes
+        else
+          CanContinue := False; // do not save the same data...
+      end
+    else CanContinue := True;   // empty profile, just save without asking
     If CanContinue then
       begin
         Temp.Settings := fLocalSortSett;

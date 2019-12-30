@@ -117,22 +117,30 @@ var
   MinHeight:  Integer;
   TempSize:   TSize;
 begin
-dgTable.RowCount := Length(fTable) + 1;
+{$message 'rework'}
+dgTable.FixedRows := 0;
+dgTable.FixedCols := 0;
+dgTable.RowCount := 0;
+dgTable.ColCount := 0;
 If Length(fTable) > 0 then
-  dgTable.ColCount := Length(fTable[0].Shops) + 1
-else
-  dgTable.ColCount := 1;
-dgTable.DefaultRowHeight := IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT;
-// get minimal height of the first line
-MinHeight := 0;
-For i := CDA_Low(fKnownShops) to CDA_High(fKnownShops) do
-  If IL_GetRotatedTextSize(dgTable.Canvas,CDA_GetItem(fKnownShops,i),90,TempSize) then
-    If MinHeight < TempSize.cy + 20 then
-      MinHeight := TempSize.cy + 20;
-If MinHeight > 50 then
-  dgTable.RowHeights[0] := MinHeight
-else
-  dgTable.RowHeights[0] := 50;
+  If Length(fTable[Low(fTable)].Shops) > 0 then
+    begin
+      dgTable.RowCount := Length(fTable) + 1;
+      dgTable.ColCount := Length(fTable[0].Shops) + 1;
+      dgTable.FixedRows := 1;
+      dgTable.FixedCols := 1;      
+      dgTable.DefaultRowHeight := IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT;
+      // get minimal height of the first line
+      MinHeight := 0;
+      For i := CDA_Low(fKnownShops) to CDA_High(fKnownShops) do
+        If IL_GetRotatedTextSize(dgTable.Canvas,CDA_GetItem(fKnownShops,i),90,TempSize) then
+          If MinHeight < TempSize.cy + 20 then
+            MinHeight := TempSize.cy + 20;
+      If MinHeight > 50 then
+        dgTable.RowHeights[0] := MinHeight
+      else
+        dgTable.RowHeights[0] := 50;
+    end;
 end;
 
 //------------------------------------------------------------------------------

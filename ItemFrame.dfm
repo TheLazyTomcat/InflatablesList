@@ -23,24 +23,6 @@ object frmItemFrame: TfrmItemFrame
     DesignSize = (
       625
       652)
-    object shpTotalPriceSelectedBcgr: TShape
-      Left = 541
-      Top = 634
-      Width = 80
-      Height = 18
-      Anchors = [akLeft, akBottom]
-      Brush.Color = clYellow
-      Pen.Style = psClear
-    end
-    object shpUnitPriceSelectedBcgr: TShape
-      Left = 325
-      Top = 634
-      Width = 80
-      Height = 18
-      Anchors = [akLeft, akBottom]
-      Brush.Color = clYellow
-      Pen.Style = psClear
-    end
     object shpItemTitleBcgr: TShape
       Left = 0
       Top = 0
@@ -106,7 +88,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblUnitDefaultPrice: TLabel
       Left = 272
-      Top = 512
+      Top = 504
       Width = 87
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -118,14 +100,6 @@ object frmItemFrame: TfrmItemFrame
       Width = 256
       Height = 96
       Center = True
-    end
-    object bvlInfoSep: TBevel
-      Left = 0
-      Top = 598
-      Width = 625
-      Height = 9
-      Anchors = [akLeft, akBottom]
-      Shape = bsTopLine
     end
     object lblPieces: TLabel
       Left = 448
@@ -155,256 +129,6 @@ object frmItemFrame: TfrmItemFrame
       Width = 55
       Height = 13
       Caption = 'Weight [g]:'
-    end
-    object lblTotalWeightTitle: TLabel
-      Left = 474
-      Top = 604
-      Width = 63
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Total weight:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblTotalWeight: TLabel
-      Left = 544
-      Top = 604
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblTotalWeight'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblTotalPriceLowestTitle: TLabel
-      Left = 449
-      Top = 620
-      Width = 88
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Total price lowest:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblTotalPriceLowest: TLabel
-      Left = 544
-      Top = 620
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblTotalPriceLowest'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblTotalPriceSelectedTitle: TLabel
-      Left = 423
-      Top = 636
-      Width = 114
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Total price selected:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblTotalPriceSelected: TLabel
-      Left = 544
-      Top = 636
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblTotalPriceSelected'
-      Color = clBtnFace
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentColor = False
-      ParentFont = False
-      Transparent = True
-    end
-    object lblUnitPriceLowestTitle: TLabel
-      Left = 239
-      Top = 620
-      Width = 83
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Unit price lowest:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblUnitPriceLowest: TLabel
-      Left = 328
-      Top = 620
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblUnitPriceLowest'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblUnitPriceSelectedTitle: TLabel
-      Left = 213
-      Top = 636
-      Width = 108
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Unit price selected:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object lblAvailPiecesTitle: TLabel
-      Left = 241
-      Top = 604
-      Width = 80
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Available pieces:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblAvailPieces: TLabel
-      Left = 328
-      Top = 604
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblAvailPieces'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblSelectedShopTitle: TLabel
-      Left = 34
-      Top = 620
-      Width = 71
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Selected shop:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblSelectedShop: TLabel
-      Left = 112
-      Top = 620
-      Width = 75
-      Height = 13
-      Anchors = [akLeft, akBottom]
-      Caption = 'lblSelectedShop'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblUnitPriceSelected: TLabel
-      Left = 328
-      Top = 636
-      Width = 73
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblUnitPriceSelected'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Transparent = True
-    end
-    object lblShopCountTitle: TLabel
-      Left = 20
-      Top = 636
-      Width = 85
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Number of shops:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblShopCount: TLabel
-      Left = 112
-      Top = 636
-      Width = 57
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblShopCount'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object lblNotesEdit: TLabel
       Left = 609
@@ -462,7 +186,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblRating: TLabel
       Left = 392
-      Top = 512
+      Top = 504
       Width = 97
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -775,40 +499,9 @@ object frmItemFrame: TfrmItemFrame
       OnMouseDown = imgPrevPictureMouseDown
       OnMouseUp = imgPrevPictureMouseUp
     end
-    object lblPictureCountTitle: TLabel
-      Left = 38
-      Top = 604
-      Width = 67
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      Caption = 'Picture count:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblPictureCount: TLabel
-      Left = 112
-      Top = 604
-      Width = 57
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akLeft, akBottom]
-      AutoSize = False
-      Caption = 'lblPictureCount'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
     object lblRatingDetails: TLabel
       Left = 612
-      Top = 509
+      Top = 501
       Width = 13
       Height = 18
       Hint = 'Rating details not empty'
@@ -882,7 +575,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object seUnitPriceDefault: TSpinEdit
       Left = 272
-      Top = 528
+      Top = 520
       Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
@@ -896,7 +589,7 @@ object frmItemFrame: TfrmItemFrame
       Left = 0
       Top = 408
       Width = 625
-      Height = 101
+      Height = 93
       Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -1188,7 +881,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnUpdateShops: TButton
       Left = 512
-      Top = 560
+      Top = 552
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -1198,7 +891,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnShops: TButton
       Left = 392
-      Top = 560
+      Top = 552
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -1219,7 +912,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object leReviewURL: TLabeledEdit
       Left = 0
-      Top = 528
+      Top = 520
       Width = 240
       Height = 21
       Anchors = [akLeft, akBottom]
@@ -1231,7 +924,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnReviewOpen: TButton
       Left = 240
-      Top = 528
+      Top = 520
       Width = 25
       Height = 21
       Hint = 'Open review URL in web browser'
@@ -1285,7 +978,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object seRating: TSpinEdit
       Left = 392
-      Top = 528
+      Top = 520
       Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
@@ -1338,7 +1031,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnPictures: TButton
       Left = 272
-      Top = 560
+      Top = 552
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -1348,13 +1041,301 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnRatingDetails: TButton
       Left = 512
-      Top = 526
+      Top = 518
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Rating details...'
       TabOrder = 24
       OnClick = btnRatingDetailsClick
+    end
+    object gbReadOnlyInfo: TGroupBox
+      Left = 0
+      Top = 580
+      Width = 625
+      Height = 70
+      Anchors = [akLeft, akBottom]
+      Caption = 'Read-only info'
+      TabOrder = 28
+      object shpTotalPriceSelectedBcgr: TShape
+        Left = 537
+        Top = 46
+        Width = 80
+        Height = 18
+        Brush.Color = clYellow
+        Pen.Style = psClear
+      end
+      object shpUnitPriceSelectedBcgr: TShape
+        Left = 317
+        Top = 46
+        Width = 80
+        Height = 18
+        Brush.Color = clYellow
+        Pen.Style = psClear
+      end
+      object lblPictureCountTitle: TLabel
+        Left = 30
+        Top = 16
+        Width = 67
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Picture count:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblPictureCount: TLabel
+        Left = 104
+        Top = 16
+        Width = 57
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblPictureCount'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblSelectedShop: TLabel
+        Left = 104
+        Top = 32
+        Width = 75
+        Height = 13
+        Caption = 'lblSelectedShop'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblSelectedShopTitle: TLabel
+        Left = 26
+        Top = 32
+        Width = 71
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Selected shop:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblShopCountTitle: TLabel
+        Left = 12
+        Top = 48
+        Width = 85
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Number of shops:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblShopCount: TLabel
+        Left = 104
+        Top = 48
+        Width = 57
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblShopCount'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblAvailPiecesTitle: TLabel
+        Left = 233
+        Top = 16
+        Width = 80
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Available pieces:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblUnitPriceLowestTitle: TLabel
+        Left = 231
+        Top = 32
+        Width = 83
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Unit price lowest:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblUnitPriceSelectedTitle: TLabel
+        Left = 205
+        Top = 48
+        Width = 108
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Unit price selected:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblAvailPieces: TLabel
+        Left = 320
+        Top = 16
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblAvailPieces'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblUnitPriceLowest: TLabel
+        Left = 320
+        Top = 32
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblUnitPriceLowest'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblUnitPriceSelected: TLabel
+        Left = 320
+        Top = 48
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblUnitPriceSelected'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = True
+      end
+      object lblTotalWeightTitle: TLabel
+        Left = 470
+        Top = 16
+        Width = 63
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Total weight:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotalWeight: TLabel
+        Left = 540
+        Top = 16
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblTotalWeight'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotalPriceLowest: TLabel
+        Left = 540
+        Top = 32
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblTotalPriceLowest'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotalPriceLowestTitle: TLabel
+        Left = 445
+        Top = 32
+        Width = 88
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Total price lowest:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblTotalPriceSelectedTitle: TLabel
+        Left = 419
+        Top = 48
+        Width = 114
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Total price selected:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTotalPriceSelected: TLabel
+        Left = 540
+        Top = 48
+        Width = 73
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'lblTotalPriceSelected'
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        Transparent = True
+      end
     end
   end
   object tmrHighlightTimer: TTimer

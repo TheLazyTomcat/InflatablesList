@@ -30,6 +30,20 @@ object fItemShopTableForm: TfItemShopTableForm
     Anchors = [akRight, akBottom]
     Caption = 'lblSelectedInfo'
   end
+  object lblNoTable: TLabel
+    Left = 8
+    Top = 8
+    Width = 1033
+    Height = 617
+    Alignment = taCenter
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    AutoSize = False
+    Caption = 
+      'Table cannot be shown, there is no item in the list and/or no va' +
+      'lid item shop.'
+    Layout = tlCenter
+    Visible = False
+  end
   object dgTable: TDrawGrid
     Left = 8
     Top = 8

@@ -24,6 +24,7 @@ type
 
   TfItemShopTableForm = class(TForm)
     dgTable: TDrawGrid;
+    lblNoTable: TLabel;    
     cbCompactView: TCheckBox;
     lblSelectedInfo: TLabel;
     procedure FormCreate(Sender: TObject);
@@ -113,34 +114,33 @@ end;
 
 procedure TfItemShopTableForm.FillTable;
 var
-  i:          Integer;
-  MinHeight:  Integer;
-  TempSize:   TSize;
+  TableVisible: Boolean;
+  i:            Integer;
+  MinHeight:    Integer;
+  TempSize:     TSize;
 begin
-{$message 'rework'}
-dgTable.FixedRows := 0;
-dgTable.FixedCols := 0;
-dgTable.RowCount := 0;
-dgTable.ColCount := 0;
 If Length(fTable) > 0 then
-  If Length(fTable[Low(fTable)].Shops) > 0 then
-    begin
-      dgTable.RowCount := Length(fTable) + 1;
-      dgTable.ColCount := Length(fTable[0].Shops) + 1;
-      dgTable.FixedRows := 1;
-      dgTable.FixedCols := 1;      
-      dgTable.DefaultRowHeight := IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT;
-      // get minimal height of the first line
-      MinHeight := 0;
-      For i := CDA_Low(fKnownShops) to CDA_High(fKnownShops) do
-        If IL_GetRotatedTextSize(dgTable.Canvas,CDA_GetItem(fKnownShops,i),90,TempSize) then
-          If MinHeight < TempSize.cy + 20 then
-            MinHeight := TempSize.cy + 20;
-      If MinHeight > 50 then
-        dgTable.RowHeights[0] := MinHeight
-      else
-        dgTable.RowHeights[0] := 50;
-    end;
+  TableVisible := Length(fTable[Low(fTable)].Shops) > 0
+else
+  TableVisible := False;
+If TableVisible then
+  begin
+    dgTable.RowCount := Length(fTable) + 1;
+    dgTable.ColCount := Length(fTable[0].Shops) + 1;
+    dgTable.DefaultRowHeight := IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT;
+    // get minimal height of the first line
+    MinHeight := 0;
+    For i := CDA_Low(fKnownShops) to CDA_High(fKnownShops) do
+      If IL_GetRotatedTextSize(dgTable.Canvas,CDA_GetItem(fKnownShops,i),90,TempSize) then
+        If MinHeight < TempSize.cy + 20 then
+          MinHeight := TempSize.cy + 20;
+    If MinHeight > 50 then
+      dgTable.RowHeights[0] := MinHeight
+    else
+      dgTable.RowHeights[0] := 50;
+  end;
+dgTable.Visible := TableVisible;
+lblNoTable.Visible := not TableVisible;
 end;
 
 //------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ var
   Shop:     TILItemShop;
   TempStr:  String;
 begin
-If (dgTable.Row > 0) and (SelCol > 0) then
+If dgTable.Visible and (SelRow > 0) and (SelCol > 0) then
   begin
     If Assigned(fTable[Pred(SelRow)].Shops[Pred(SelCol)]) then
       begin

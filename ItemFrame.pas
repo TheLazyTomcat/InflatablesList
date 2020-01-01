@@ -104,6 +104,8 @@ type
     seUnitWeight: TSpinEdit;
     lblMaterial: TLabel;
     cmbMaterial: TComboBox;
+    lblSurface: TLabel;
+    cmbSurface: TComboBox;
     lblThickness: TLabel;
     seThickness: TSpinEdit;
     lblSizeX: TLabel;
@@ -777,6 +779,7 @@ case Value of
   ilisrVariantTag:        Highlight(leVariantTag);
   ilisrUnitWeight:        Highlight(seUnitWeight);
   ilisrMaterial:          Highlight(cmbMaterial);
+  ilisrSurface:           Highlight(cmbSurface);
   ilisrThickness:         Highlight(seThickness);
   ilisrSizeX:             Highlight(seSizeX);
   ilisrSizeY:             Highlight(seSizeY);
@@ -875,6 +878,7 @@ try
   leVariantTag.Text := '';
   seUnitWeight.Value := 0;
   cmbMaterial.ItemIndex := 0;
+  cmbSurface.ItemIndex := 0;
   seThickness.Value := 0;
   seSizeX.Value := 0;
   seSizeY.Value := 0;
@@ -950,6 +954,7 @@ If Assigned(fCurrentItem) then
       fCurrentItem.VariantTag := leVariantTag.Text;
       fCurrentItem.UnitWeight := seUnitWeight.Value;
       fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
+      fCurrentItem.Surface := TILItemSurface(cmbSurface.ItemIndex);
       fCurrentItem.Thickness := seThickness.Value;
       fCurrentItem.SizeX := seSizeX.Value;
       fCurrentItem.SizeY := seSizeY.Value;
@@ -1000,6 +1005,7 @@ If Assigned(fCurrentItem) then
       leVariantTag.Text := fCurrentItem.VariantTag;
       seUnitWeight.Value := fCurrentItem.UnitWeight;
       cmbMaterial.ItemIndex := Ord(fCurrentItem.Material);
+      cmbSurface.ItemIndex := Ord(fCurrentItem.Surface);
       seThickness.Value := fCurrentItem.Thickness;
       seSizeX.Value := fCurrentItem.SizeX;
       seSizeY.Value := fCurrentItem.SizeY;
@@ -1066,6 +1072,15 @@ try
     cmbMaterial.Items.Add(fILManager.DataProvider.GetItemMaterialString(TILItemMaterial(i)));
 finally
   cmbMaterial.Items.EndUpdate;
+end;
+// surface
+cmbSurface.Items.BeginUpdate;
+try
+  cmbSurface.Items.Clear;
+  For i := Ord(Low(TILItemSurface)) to Ord(High(TILItemSurface)) do
+    cmbSurface.Items.Add(fILManager.DataProvider.GetItemSurfaceString(TILItemSurface(i)));
+finally
+  cmbSurface.Items.EndUpdate;
 end;
 // initialization
 DisableHighlight;

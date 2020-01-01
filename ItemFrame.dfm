@@ -38,21 +38,21 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Wanted level (0..7):'
     end
     object lblSizeZ: TLabel
-      Left = 520
+      Left = 544
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Z [mm]:'
     end
     object lblSizeY: TLabel
-      Left = 408
+      Left = 456
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Y [mm]:'
     end
     object lblSizeX: TLabel
-      Left = 296
+      Left = 368
       Top = 352
       Width = 59
       Height = 13
@@ -124,7 +124,7 @@ object frmItemFrame: TfrmItemFrame
       Transparent = True
     end
     object lblUnitWeight: TLabel
-      Left = 528
+      Left = 552
       Top = 312
       Width = 55
       Height = 13
@@ -158,7 +158,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 192
+      Left = 264
       Top = 352
       Width = 75
       Height = 13
@@ -517,6 +517,13 @@ object frmItemFrame: TfrmItemFrame
       ParentShowHint = False
       ShowHint = True
     end
+    object lblSurface: TLabel
+      Left = 184
+      Top = 352
+      Width = 41
+      Height = 13
+      Caption = 'Surface:'
+    end
     object seWantedLevel: TSpinEdit
       Left = 0
       Top = 328
@@ -530,9 +537,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seWantedLevelChange
     end
     object seSizeZ: TSpinEdit
-      Left = 520
+      Left = 544
       Top = 368
-      Width = 105
+      Width = 81
       Height = 22
       MaxValue = 100000
       MinValue = 0
@@ -541,9 +548,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeZChange
     end
     object seSizeY: TSpinEdit
-      Left = 408
+      Left = 456
       Top = 368
-      Width = 105
+      Width = 81
       Height = 22
       MaxValue = 100000
       MinValue = 0
@@ -552,9 +559,9 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeYChange
     end
     object seSizeX: TSpinEdit
-      Left = 296
+      Left = 368
       Top = 368
-      Width = 105
+      Width = 81
       Height = 22
       MaxValue = 100000
       MinValue = 0
@@ -616,7 +623,7 @@ object frmItemFrame: TfrmItemFrame
     object leVariant: TLabeledEdit
       Left = 128
       Top = 328
-      Width = 305
+      Width = 329
       Height = 21
       EditLabel.Width = 163
       EditLabel.Height = 13
@@ -936,9 +943,9 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
-      Left = 528
+      Left = 552
       Top = 328
-      Width = 97
+      Width = 73
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
@@ -949,14 +956,14 @@ object frmItemFrame: TfrmItemFrame
     object cmbMaterial: TComboBox
       Left = 0
       Top = 368
-      Width = 185
+      Width = 177
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 14
     end
     object seThickness: TSpinEdit
-      Left = 192
+      Left = 264
       Top = 368
       Width = 97
       Height = 22
@@ -1019,7 +1026,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnUserIDGenClick
     end
     object leVariantTag: TLabeledEdit
-      Left = 440
+      Left = 464
       Top = 328
       Width = 81
       Height = 21
@@ -1336,6 +1343,20 @@ object frmItemFrame: TfrmItemFrame
         ParentFont = False
         Transparent = True
       end
+    end
+    object cmbSurface: TComboBox
+      Left = 184
+      Top = 368
+      Width = 73
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
+      TabOrder = 29
+      Items.Strings = (
+        'unknown'
+        'glossy'
+        'matte'
+        'combined')
     end
   end
   object tmrHighlightTimer: TTimer

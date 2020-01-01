@@ -189,11 +189,11 @@ object fMainForm: TfMainForm
       Caption = 'File'
       OnClick = mniMM_FileClick
       object mniMMF_ListCompress: TMenuItem
-        Caption = 'Compress list file'
+        Caption = 'Compress list file (switch)'
         OnClick = mniMMF_ListCompressClick
       end
       object mniMMF_ListEncrypt: TMenuItem
-        Caption = 'Encrypt list file'
+        Caption = 'Encrypt list file (switch)'
         OnClick = mniMMF_ListEncryptClick
       end
       object mniMMF_ListPassword: TMenuItem
@@ -209,7 +209,7 @@ object fMainForm: TfMainForm
         Caption = '-'
       end
       object mniMMF_SaveOnClose: TMenuItem
-        Caption = 'Save on close'
+        Caption = 'Save on close (switch)'
         OnClick = mniMMF_SaveOnCloseClick
       end
       object mniMMF_Save: TMenuItem
@@ -312,7 +312,7 @@ object fMainForm: TfMainForm
         Caption = '-'
       end
       object mniMMI_Encrypted: TMenuItem
-        Caption = 'Encrypted item'
+        Caption = 'Encrypted item (switch)'
         ShortCut = 16459
         OnClick = mniMMI_EncryptedClick
       end
@@ -403,12 +403,12 @@ object fMainForm: TfMainForm
         OnClick = mniMMO_SortSettClick
       end
       object mniMMO_SortRev: TMenuItem
-        Caption = 'Reversed sort'
+        Caption = 'Reversed sort (switch)'
         ShortCut = 16466
         OnClick = mniMMO_SortRevClick
       end
       object mniMMO_SortCase: TMenuItem
-        Caption = 'Case sensitive sort'
+        Caption = 'Case sensitive sort (switch)'
         OnClick = mniMMO_SortCaseClick
       end
       object mniMMO_Sort: TMenuItem
@@ -500,12 +500,15 @@ object fMainForm: TfMainForm
         ShortCut = 16465
         OnClick = mniMMT_ShopByItemsClick
       end
+      object N11: TMenuItem
+        Caption = '-'
+      end
       object mniMMT_Specials: TMenuItem
         Caption = 'Special functions...'
         ShortCut = 16460
         OnClick = mniMMT_SpecialsClick
       end
-      object N11: TMenuItem
+      object N12: TMenuItem
         Caption = '-'
       end
       object mniMMT_ExportAllPics: TMenuItem
@@ -536,7 +539,7 @@ object fMainForm: TfMainForm
         Caption = 'Settings tag legend...'
         OnClick = mniMMH_SettingsLegendClick
       end
-      object N12: TMenuItem
+      object N13: TMenuItem
         Caption = '-'
       end
       object mniMMH_About: TMenuItem

@@ -390,7 +390,7 @@ If fDataAccessible then
     TempStream := TMemoryStream.Create;
     try
       // preallocate
-      TempStream.Size := Int64(IL_LISTFILE_PREALLOC_BYTES_ITEM + (3 * IL_LISTFILE_PREALLOC_BYTES_PIC));
+      TempStream.Size := Int64(IL_LISTFILE_PREALLOC_BYTES_ITEM + (fPictures.Count * IL_LISTFILE_PREALLOC_BYTES_THUMB));
       TempStream.Seek(0,soBeginning);
       // write plain data
       fFNSaveToStreamPlain(TempStream);

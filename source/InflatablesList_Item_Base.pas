@@ -74,6 +74,7 @@ type
     fVariantTag:            String;           // for automation
     fUnitWeight:            UInt32;           // [g]
     fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
+    fSurface:               TILItemSurface;   // glossy, matte, ... 
     fThickness:             UInt32;           // [um] - micrometers
     fSizeX:                 UInt32;           // length (diameter if applicable)
     fSizeY:                 UInt32;           // width (inner diameter if applicable)
@@ -115,6 +116,7 @@ type
     procedure SetVariantTag(const Value: String); virtual;
     procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
+    procedure SetSurface(Value: TILItemSurface); virtual;
     procedure SetThickness(Value: UInt32); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
@@ -233,6 +235,7 @@ type
     property VariantTag: String read fVariantTag write SetVariantTag;
     property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
+    property Surface: TILItemSurface read fSurface write SetSurface;
     property Thickness: UInt32 read fThickness write SetThickness;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
@@ -505,6 +508,16 @@ begin
 If fMaterial <> Value then
   begin
     fMaterial := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetSurface(Value: TILItemSurface);
+begin
+If fSurface <> Value then
+  begin
+    fSurface := Value;
   end;
 end;
 
@@ -906,6 +919,7 @@ fVariant := '';
 fVariantTag := '';
 fUnitWeight := 0;
 fMaterial := ilimtUnknown;
+fSurface := ilisfUnknown;
 fThickness := 0;
 fSizeX := 0;
 fSizeY := 0;
@@ -1023,6 +1037,7 @@ fVariantTag := Source.VariantTag;
 UniqueString(fVariantTag);
 fUnitWeight := Source.UnitWeight;
 fMaterial := Source.Material;
+fSurface := Source.Surface;
 fThickness := Source.Thickness;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;

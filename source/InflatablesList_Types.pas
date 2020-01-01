@@ -75,6 +75,8 @@ type
                      ilimtPolyurethane{PUR},ilimtFlockedPVC,ilimtLatex,
                      ilimtSilicone,ilimtGumoTex,ilimtOther);
 
+  TILItemSurface = (ilisfUnknown,ilisfGlossy,ilisfMatte,ilisfCombined);
+
 Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
 
 Function IL_ItemTypeToNum(ItemType: TILItemType): Int32;
@@ -90,6 +92,9 @@ Function IL_DecodeItemFlags(Flags: UInt32): TILItemFlags;
 
 Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
 Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
+
+Function IL_ItemSurfaceToNum(Surface: TILItemSurface): Int32;
+Function IL_NumToItemSurface(Num: Int32): TILItemSurface;
 
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
@@ -158,6 +163,15 @@ Function IL_ItemShopUpdateResultToColor(UpdateResult: TILItemShopUpdateResult): 
 //- searching ------------------------------------------------------------------
 
 type
+{
+  when adding new item to search result:
+
+    - add to enumeration
+    - add to item contains check (TILItem_Comp.Contains)
+    - add to second check method if the value is editable
+    - add to search highlight in item frame (TfrmItemFrame.HighLight)
+    - no need to add to saving or conversion (not saved)
+}
   TILItemSearchResult = (ilisrNone,ilisrItemPicFile,ilisrSecondaryPicFile,
     ilisrPackagePicFile,ilisrType,ilisrTypeSpec,ilisrPieces,ilisrUserID,
     ilisrManufacturer,ilisrManufacturerStr,ilisrTextID,ilisrNumID,
@@ -166,13 +180,21 @@ type
     ilisrFlagDamaged,ilisrFlagRepaired,ilisrFlagPriceChange,
     ilisrFlagAvailChange,ilisrFlagNotAvailable,ilisrFlagLost,ilisrFlagDiscarded,
     ilisrTextTag,ilisrNumTag,ilisrWantedLevel,ilisrVariant,ilisrVariantTag,
-    ilisrUnitWeight,ilisrMaterial,ilisrThickness,ilisrSizeX,ilisrSizeY,
-    ilisrSizeZ,ilisrNotes,ilisrReviewURL,ilisrUnitPriceDefault,ilisrRating,
-    ilisrRatingDetails,ilisrSelectedShop);
+    ilisrUnitWeight,ilisrMaterial,ilisrSurface,ilisrThickness,ilisrSizeX,
+    ilisrSizeY,ilisrSizeZ,ilisrNotes,ilisrReviewURL,ilisrUnitPriceDefault,
+    ilisrRating,ilisrRatingDetails,ilisrSelectedShop);
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
 
 type
+{
+  when adding new item to advanced search result:
+
+    - add to enumeration
+    - add to data (conversion to string)
+    - add to item search (TILItem_Search.SearchField)
+    - no need to add to saving or conversion (not saved)
+}
   TILAdvItemSearchResult = (ilaisrListIndex,ilaisrUniqueID,ilaisrTimeOfAdd,
     ilaisrDescriptor,ilaisrTitleStr,ilaisrPictures,ilaisrMainPictureFile,
     ilaisrCurrSecPictureFile,ilaisrPackagePictureFile,ilaisrType,ilaisrTypeSpec,
@@ -184,13 +206,14 @@ type
     ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
     ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
     ilaisrVariant,ilaisrVariantTag,ilaisrUnitWeight,ilaisrTotalWeight,
-    ilaisrTotalWeightStr,ilaisrMaterial,ilaisrThickness,ilaisrSizeX,ilaisrSizeY,
-    ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,ilaisrNotes,ilaisrReviewURL,
-    ilaisrUnitPriceDefault,ilaisrRating,ilaisrRatingDetails,ilaisrUnitPrice,
-    ilaisrUnitPriceLowest,ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,
-    ilaisrTotalPriceHighest,ilaisrUnitPriceSel,ilaisrTotalPriceSel,
-    ilaisrTotalPrice,ilaisrAvailableLowest,ilaisrAvailableHighest,
-    ilaisrAvailableSel,ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
+    ilaisrTotalWeightStr,ilaisrMaterial,ilaisrSurface,ilaisrThickness,
+    ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,
+    ilaisrNotes,ilaisrReviewURL,ilaisrUnitPriceDefault,ilaisrRating,
+    ilaisrRatingDetails,ilaisrUnitPrice,ilaisrUnitPriceLowest,
+    ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,
+    ilaisrUnitPriceSel,ilaisrTotalPriceSel,ilaisrTotalPrice,
+    ilaisrAvailableLowest,ilaisrAvailableHighest,ilaisrAvailableSel,
+    ilaisrShopCount,ilaisrShopCountStr,ilaisrUsefulShopCount,
     ilaisrUsefulShopRatio,ilaisrSelectedShop,ilaisrWorstUpdateResult);
 
   TILAdvItemSearchResults = set of TILAdvItemSearchResult;
@@ -242,6 +265,15 @@ Function IL_ThreadSafeCopy(const Value: TILAdvSearchSettings): TILAdvSearchSetti
 //- sorting --------------------------------------------------------------------  
 
 type
+{
+  when adding new item value tag:
+
+    - add to enumeration
+    - add to type <-> number conversion functions
+    - add to data (conversion to string)
+    - add to item comparison (TILItem_Comp.Compare)
+    - no need to add to saving (it is managed trough conversion)
+}
   TILItemValueTag = (
     ilivtNone,ilivtItemEncrypted,ilivtUniqueID,ilivtTimeOfAdd,ilivtDescriptor,
     ilivtMainPicFilePres,ilivtMainPictureFile,ilivtMainPictureThumb,
@@ -255,8 +287,8 @@ type
     ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
     ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
     ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtUnitWeight,
-    ilivtTotalWeight,ilivtMaterial,ilivtThickness,ilivtSizeX,ilivtSizeY,
-    ilivtSizeZ,ilivtTotalSize,ilivtNotes,ilivtReviewURL,ilivtReview,
+    ilivtTotalWeight,ilivtMaterial,ilivtSurface,ilivtThickness,ilivtSizeX,
+    ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtUnitPriceDefault,ilivtRating,ilivtRatingDetails,ilivtUnitPriceLowest,
     ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,
     ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,
@@ -759,6 +791,33 @@ else
 end;
 end;
 
+//------------------------------------------------------------------------------
+
+Function IL_ItemSurfaceToNum(Surface: TILItemSurface): Int32;
+begin
+case Surface of
+  ilisfGlossy:    Result := 1;
+  ilisfMatte:     Result := 2;
+  ilisfCombined:  Result := 3;
+else
+ {ilisfUnknown}
+  Result := 0;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function IL_NumToItemSurface(Num: Int32): TILItemSurface;
+begin
+case Num of
+  1:  Result := ilisfGlossy;
+  2:  Result := ilisfMatte;
+  3:  Result := ilisfCombined;
+else
+  Result := ilisfUnknown;
+end;
+end;
+
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
 
@@ -938,7 +997,7 @@ Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 begin
 {
   no, the numbers are not in the correct order  
-  MAX = 70
+  MAX = 71
 }
 case ItemValueTag of
   ilivtItemEncrypted:         Result := 63;
@@ -989,6 +1048,7 @@ case ItemValueTag of
   ilivtUnitWeight:            Result := 30;
   ilivtTotalWeight:           Result := 31;
   ilivtMaterial:              Result := 52;
+  ilivtSurface:               Result := 71;
   ilivtThickness:             Result := 53;
   ilivtSizeX:                 Result := 26;
   ilivtSizeY:                 Result := 27;
@@ -1070,6 +1130,7 @@ case Num of
   30: Result := ilivtUnitWeight;
   31: Result := ilivtTotalWeight;
   52: Result := ilivtMaterial;
+  71: Result := ilivtSurface;
   53: Result := ilivtThickness;
   26: Result := ilivtSizeX;
   27: Result := ilivtSizeY;

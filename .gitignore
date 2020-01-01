@@ -5,6 +5,7 @@ Thumbs.db
 *.dll
 !.gitkeep
 *.inl
+*.lei
 *.log
 list_backup
 *_saved_pages

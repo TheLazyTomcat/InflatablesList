@@ -84,6 +84,7 @@ If fDataAccessible then
     ilisrVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
     ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
     ilisrMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
+    ilisrSurface:               Result := IL_ContainsText(fDataProvider.GetItemSurfaceString(fSurface),Text);
     ilisrThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
     ilisrSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
     ilisrSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
@@ -143,6 +144,7 @@ If fDataAccessible then
     Contains(Text,ilisrVariantTag) or
     Contains(Text,ilisrUnitWeight) or
     Contains(Text,ilisrMaterial) or
+    Contains(Text,ilisrSurface) or
     Contains(Text,ilisrThickness) or    
     Contains(Text,ilisrSizeX) or
     Contains(Text,ilisrSizeY) or
@@ -420,6 +422,17 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                                   end;
                               end
                             else Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtSurface:           If (fSurface <> ilisfUnknown) and (WithItem.Surface <> ilisfUnknown) then
+                              Result := CompareText_Internal(
+                                fDataProvider.GetItemSurfaceString(fSurface),
+                                fDataProvider.GetItemSurfaceString(WithItem.Surface))
+                            else If (fSurface <> ilisfUnknown) and (WithItem.Surface = ilisfUnknown) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with unknown surface to the end
+                            else If (fSurface = ilisfUnknown) and (WithItem.Surface <>ilisfUnknown) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
                               Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)

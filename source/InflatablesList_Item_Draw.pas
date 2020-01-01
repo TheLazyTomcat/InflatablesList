@@ -123,7 +123,7 @@ var
               Width - (OffX * PIC_INDICATOR_SIZE) - 1,
               Height - (OffY * PIC_INDICATOR_SIZE) - 2));
           end;
-        SetCanvas(bsClear,clSilver,psClear);
+        SetCanvas(bsSolid,clSilver,psClear);
         FrameRect(Rect(
           Width - (OffX * PIC_INDICATOR_SIZE) - PIC_INDICATOR_SIZE,
           Height - (OffY * PIC_INDICATOR_SIZE) - (PIC_INDICATOR_SIZE + 1),

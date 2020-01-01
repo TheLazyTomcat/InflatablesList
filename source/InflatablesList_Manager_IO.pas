@@ -23,14 +23,14 @@ const
   IL_LISTFILE_DECRYPT_CHECK = UInt64($53444E455453494C);  // LISTENDS
 
   IL_LISTFILE_PREALLOC_BYTES_ITEM        = 2 * KiB;   // 2KiB per item data
-  IL_LISTFILE_PREALLOC_BYTES_PIC         = 27 * KiB;  // 27KiB per picture
+  IL_LISTFILE_PREALLOC_BYTES_THUMB       = 27 * KiB;  // 27KiB per picture
   IL_LISTFILE_PREALLOC_BYTES_SORT_PROF   = 512;       // 512bytes per sorting profile
   IL_LISTFILE_PREALLOC_BYTES_ISHOP_TEMPL = 3 * KiB;   // 3KiB per item shop template
 
-  IL_LISTFILE_SLOW_SIZE         = 20 * MiB;   // size of the list file where saving and loading is expected to be slow
-  IL_LISTFILE_SLOW_SIZE_ENC     = 15 * MiB;   // size of the encrypted or to be encrypted list file...
-  IL_LISTFILE_SLOW_SIZE_CMP     = 5 * MiB;    // size of the compressed list file...
-  IL_LISTFILE_SLOW_SIZE_CMPENC  = 4 * MiB;    // size of the compressed and encrypted list file...
+  IL_LISTFILE_SLOW_SIZE        = 20 * MiB;    // size of the list file where saving and loading is expected to be slow
+  IL_LISTFILE_SLOW_SIZE_ENC    = 15 * MiB;    // size of the encrypted or to be encrypted list file...
+  IL_LISTFILE_SLOW_SIZE_CMP    = 5 * MiB;     // size of the compressed list file...
+  IL_LISTFILE_SLOW_SIZE_CMPENC = 4 * MiB;     // size of the compressed and encrypted list file...
 
   IL_LISTFILE_SLOW_SIZE_UCMP    = 12 * MiB;   // size of the list file to be compressed..  
   IL_LISTFILE_SLOW_SIZE_UCMPENC = 10 * MiB;   // size of the list file to be compressed and encrypted...
@@ -121,7 +121,7 @@ Function TILManager_IO.PreallocSize: TMemSize;
 begin
 Result :=
   // some globals (notes, filter settings, ....)
-  TMemSize(1024) +
+  TMemSize(1 * KiB) +
   // sorting profiles
   TMemSize(SortingProfileCount * IL_LISTFILE_PREALLOC_BYTES_SORT_PROF) +
   // item shop templates
@@ -129,17 +129,22 @@ Result :=
   // item data
   TMemSize(fCount * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
   // item pictures
-  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_BYTES_PIC)
+  TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_BYTES_THUMB)
 end;
 
 //==============================================================================
 
 procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
 var
+  AllocSize:  TMemSize;
   i,j:        Integer;
   Index:      Integer;
   FileStream: TMemoryStream;
   TempItem:   TILItem;
+  PicCounter: UInt32;
+  PicStream:  TMemoryStream;
+  OutStream:  TFileStream;
+  CountPos:   Int64;
 begin
 // check indices
 For i := Low(Indices) to High(Indices) do
@@ -147,12 +152,19 @@ For i := Low(Indices) to High(Indices) do
     raise Exception.CreateFmt('TILManager_Base.ItemsExport: Index %d (%d) out of bounds.',[i,Indices[i]]);
 FileStream := TMemoryStream.Create;
 try
-  // pre-allocate
-  FileStream.Size := (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_ITEM) +
-                     (Length(Indices) * IL_LISTFILE_PREALLOC_BYTES_PIC * 2);  // just assumes an avrg. of 2 pics per item
+  // get preallocation size and preallocate
+  AllocSize := 0;
+  For i := Low(Indices) to High(Indices) do
+    // assume all pictures have thumbnails assigned
+    AllocSize := AllocSize + IL_LISTFILE_PREALLOC_BYTES_ITEM +
+                 (UInt32(fList[Indices[i]].Pictures.Count) *
+                   IL_LISTFILE_PREALLOC_BYTES_THUMB);
+  FileStream.Size := AllocSize;
   FileStream.Seek(0,soBeginning);
   // save signature and count
   Stream_WriteUInt32(FileStream,IL_ITEMEXPORT_SIGNATURE);
+  CountPos := FileStream.Position;
+  Stream_WriteUInt64(FileStream,0); // reserve space for data size without pictures
   Stream_WriteUInt32(FileStream,Length(Indices));
   // now write individual items in the order they are in the indices array
   For i := Low(Indices) to High(Indices) do
@@ -174,12 +186,47 @@ try
         TempItem.Free;
       end;
     end;
-  // adjust final size;  
+  // adjust final size;
   FileStream.Size := FileStream.Position;
+  // write data size without pictures
+  FileStream.Seek(CountPos,soBeginning);
+  Stream_WriteUInt64(FileStream,UInt64(FileStream.Size));
   // save to file
   FileStream.SaveToFile(StrToRTL(FileName));
 finally
   FileStream.Free;
+end;
+// open the export file as file stream and write full pictures (to limit memory use)
+PicCounter := 0;
+OutStream := TFileStream.Create(StrToRTL(FileName),fmOpenReadWrite or fmShareDenyWrite);
+try
+  OutStream.Seek(0,soEnd);
+  Stream_WriteString(OutStream,'EPCS');
+  CountPos := OutStream.Position;
+  Stream_WriteUInt32(OutStream,0);  // reserve space for counter  
+  PicStream := TMemoryStream.Create;
+  try
+    For i := Low(Indices) to High(Indices) do
+      begin
+        TempItem := fList[Indices[i]];
+        For j := TempItem.Pictures.LowIndex to TempItem.Pictures.HighIndex do
+          If IL_FileExists(fStaticSettings.PicturesPath + TempItem.Pictures[j].PictureFile) then
+            begin
+              PicStream.LoadFromFile(fStaticSettings.PicturesPath + TempItem.Pictures[j].PictureFile);
+              Stream_WriteString(OutStream,TempItem.Pictures[j].PictureFile);
+              Stream_WriteUInt64(OutStream,UInt64(PicStream.Size));
+              Stream_WriteBuffer(OutStream,PicStream.Memory^,PicStream.Size);
+              Inc(PicCounter);
+            end;
+      end;
+  finally
+    PicStream.Free;
+  end;
+  // write number of saved pictures
+  OutStream.Seek(CountPos,soBeginning);
+  Stream_WriteUInt32(OutStream,PicCounter);
+finally
+  OutStream.Free;
 end;
 end;
 

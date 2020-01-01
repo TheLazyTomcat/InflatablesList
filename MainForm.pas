@@ -83,16 +83,17 @@ type
     N10: TMenuItem;    
     mniMMT_Selection: TMenuItem;
     mniMMT_ItemShopTable: TMenuItem;
-    mniMMT_ShopByItems: TMenuItem;    
+    mniMMT_ShopByItems: TMenuItem;
+    N11: TMenuItem;    
     mniMMT_Specials: TMenuItem;
-    N11: TMenuItem;
+    N12: TMenuItem;
     mniMMT_ExportAllPics: TMenuItem;
     mniMMT_ExportAllThumbs: TMenuItem;
     mniMMT_CleanUpPicAutoFolder: TMenuItem;
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
-    N12: TMenuItem;
+    N13: TMenuItem;
     mniMMH_About: TMenuItem;
     // ---    
     diaItemsImport: TOpenDialog;

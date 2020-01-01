@@ -109,6 +109,7 @@ case Field of
   ilaisrTotalWeight:          Result := SearchSettings.CompareFunc(IntToStr(TotalWeight),False,False,True,'g');
   ilaisrTotalWeightStr:       Result := SearchSettings.CompareFunc(TotalWeightStr,True,False,True);
   ilaisrMaterial:             Result := SearchSettings.CompareFunc(fDataProvider.GetItemMaterialString(fMaterial),False,True,False);
+  ilaisrSurface:              Result := SearchSettings.CompareFunc(fDataProvider.GetItemSurfaceString(fSurface),False,True,False);
   ilaisrThickness:            Result := SearchSettings.CompareFunc(IntToStr(fThickness),False,True,False,'um');
   ilaisrSizeX:                Result := SearchSettings.CompareFunc(IntToStr(fSizeX),False,True,False,'mm');
   ilaisrSizeY:                Result := SearchSettings.CompareFunc(IntToStr(fSizeY),False,True,False,'mm');

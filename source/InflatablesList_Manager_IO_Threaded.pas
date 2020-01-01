@@ -38,23 +38,6 @@ type
     destructor Destroy; override;
   end;
 
-//------------------------------------------------------------------------------
-
-  TILLoadingThread = class(TThread)
-  private
-    fLocalManager:  TILManager;
-    fOnEndNotify:   TILLoadingDoneEvent;
-    fOnDataCopy:    TNotifyEvent;
-    fResult:        TILLoadingResult;
-  protected
-    procedure sync_NotifyEnd; virtual;
-    procedure sync_CopyData; virtual;
-    procedure Execute; override;
-  public
-    constructor Create(ILManager: TILManager_Base; EndNotificationHandler: TILLoadingDoneEvent; DataCopyHandler: TNotifyEvent);
-    destructor Destroy; override;
-  end;
-
 //==============================================================================
 
 procedure TILSavingThread.sync_NotifyEnd;
@@ -82,8 +65,8 @@ begin
 inherited Create(False);
 FreeOnTerminate := True;
 {
-  do backup here not in thread, changes in backup list are not propagated back
-  into main manager
+  do backup here not in thread on local manager, changes in backup list would
+  not be propagated back into main manager
 }
 If not ILManager.StaticSettings.NoBackup then
   ILManager.BackupManager.Backup;
@@ -101,6 +84,23 @@ end;
 
 //==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
+type
+  TILLoadingThread = class(TThread)
+  private
+    fLocalManager:  TILManager;
+    fOnEndNotify:   TILLoadingDoneEvent;
+    fOnDataCopy:    TNotifyEvent;
+    fResult:        TILLoadingResult;
+  protected
+    procedure sync_NotifyEnd; virtual;
+    procedure sync_CopyData; virtual;
+    procedure Execute; override;
+  public
+    constructor Create(ILManager: TILManager_Base; EndNotificationHandler: TILLoadingDoneEvent; DataCopyHandler: TNotifyEvent);
+    destructor Destroy; override;
+  end;
+
 //==============================================================================
 
 procedure TILLoadingThread.sync_NotifyEnd;

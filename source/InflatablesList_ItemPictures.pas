@@ -5,7 +5,7 @@ unit InflatablesList_ItemPictures;
 interface
 
 uses
-  InflatablesList_ItemPictures_IO_00000000;
+  InflatablesList_ItemPictures_IO_00000001;
 
 {
   Inheritance chain:
@@ -13,10 +13,11 @@ uses
     TILItemPictures_Base
     TILItemPictures_IO
     TILItemPictures_IO_00000000
+    TILItemPictures_IO_00000001
     TILItemPictures
 }
 type
-  TILItemPictures = class(TILItemPictures_IO_00000000);
+  TILItemPictures = class(TILItemPictures_IO_00000001);
 
 implementation
 

@@ -986,13 +986,13 @@ If lbList.ItemIndex >= 0 then
   begin
     mniMMI_ItemShops.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
     mniMMI_ItemPictures.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
-    mniMMI_ItemExport.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+    //mniMMI_ItemExport.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
   end
 else
   begin
     mniMMI_ItemShops.Enabled := False;
     mniMMI_ItemPictures.Enabled := False;
-    mniMMI_ItemExport.Enabled := False;
+    //mniMMI_ItemExport.Enabled := False;
   end;
 mniMMI_ItemExportMulti.Enabled := lbList.Count > 0;
 mniMMI_Encrypted.Enabled := lbList.ItemIndex >= 0;

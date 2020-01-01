@@ -295,16 +295,19 @@ object fMainForm: TfMainForm
       end
       object mniMMI_ItemExport: TMenuItem
         Caption = 'Export item...'
+        Enabled = False
         ShortCut = 16453
         OnClick = mniMMI_ItemExportClick
       end
       object mniMMI_ItemExportMulti: TMenuItem
         Caption = 'Export multiple items...'
+        Enabled = False
         ShortCut = 49221
         OnClick = mniMMI_ItemExportMultiClick
       end
       object mniMMI_ItemImport: TMenuItem
         Caption = 'Import items...'
+        Enabled = False
         ShortCut = 16457
         OnClick = mniMMI_ItemImportClick
       end

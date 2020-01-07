@@ -292,16 +292,29 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                             else
                               Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtManufacturer:      If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
-                              Result := CompareText_Internal(
-                                fDataProvider.ItemManufacturers[fManufacturer].Str,
-                                fDataProvider.ItemManufacturers[WithItem.Manufacturer].Str)
-                            else If (fManufacturer = ilimOthers) and (WithItem.Manufacturer <> ilimOthers) then
-                              Result := IL_NegateValue(-1,Reversed) // push other to the end
-                            else If (fManufacturer <> ilimOthers) and (WithItem.Manufacturer = ilimOthers) then
-                              Result := IL_NegateValue(+1,Reversed)
-                            else
-                              Result := 0;
+    ilivtManufacturer:      If fManufacturer <> WithItem.Manufacturer then
+                              begin
+                                If not(fManufacturer in [ilimUnknown,ilimOthers]) and not(WithItem.Manufacturer in [ilimUnknown,ilimOthers]) then
+                                  Result := CompareText_Internal(
+                                    fDataProvider.ItemManufacturers[fManufacturer].Str,
+                                    fDataProvider.ItemManufacturers[WithItem.Manufacturer].Str)
+                                // push others and unknowns to the end
+                                else If not(fManufacturer in [ilimUnknown,ilimOthers]) and (WithItem.Manufacturer in [ilimUnknown,ilimOthers]) then
+                                  Result := IL_NegateValue(+1,Reversed)
+                                else If (fManufacturer in [ilimUnknown,ilimOthers]) and not(WithItem.Manufacturer in [ilimUnknown,ilimOthers]) then
+                                  Result := IL_NegateValue(-1,Reversed)
+                                // both are either unknown or other, but differs, push unknown to the end...
+                                else
+                                  begin
+                                    If fManufacturer = ilimOthers then
+                                      Result := IL_NegateValue(+1,Reversed)
+                                    else If WithItem.Manufacturer = ilimOthers then
+                                      Result := IL_NegateValue(-1,Reversed)
+                                    else
+                                      Result := 0;  // this should not happen
+                                  end;
+                              end
+                            else Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtManufacturerStr:   Result := CompareText_Internal(fManufacturerStr,WithItem.ManufacturerStr);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

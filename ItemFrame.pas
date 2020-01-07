@@ -179,6 +179,8 @@ type
     procedure seWantedLevelChange(Sender: TObject);
     procedure leVariantChange(Sender: TObject);
     procedure seUnitWeightChange(Sender: TObject);
+    procedure cmbMaterialChange(Sender: TObject);
+    procedure cmbSurfaceChange(Sender: TObject);    
     procedure seSizeXChange(Sender: TObject);
     procedure seSizeYChange(Sender: TObject);
     procedure seSizeZChange(Sender: TObject);
@@ -1527,6 +1529,22 @@ procedure TfrmItemFrame.seUnitWeightChange(Sender: TObject);
 begin
 If not fInitializing and Assigned(fCurrentItem) then
   fCurrentItem.UnitWeight := seUnitWeight.Value;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.cmbMaterialChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.Material := TILItemMaterial(cmbMaterial.ItemIndex);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfrmItemFrame.cmbSurfaceChange(Sender: TObject);
+begin
+If not fInitializing and Assigned(fCurrentItem) then
+  fCurrentItem.Surface := TILItemSurface(cmbSurface.ItemIndex);
 end;
 
 //------------------------------------------------------------------------------

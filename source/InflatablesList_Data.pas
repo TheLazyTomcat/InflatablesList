@@ -117,16 +117,17 @@ uses
 
 const
   IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
-    'Bestway','Crivit','Intex','HappyPeople','Mondo','Polygroup','Summer Waves',
-    'Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
+    'neznámý','Bestway','Crivit','Intex','HappyPeople','Mondo','Polygroup',
+    'Summer Waves','Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
 
   IL_DATA_ITEMMANUFACTURER_TAGS: array[TILItemManufacturer] of String = (
-    'bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','os');
+    'uk','bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','os');
 
   IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
-    'man_logo_bestway','man_logo_crivit','man_logo_intex','man_logo_happypeople',
-    'man_logo_mondo','man_logo_polygroup','man_logo_summerwaves','man_logo_swimline',
-    'man_logo_vetroplus','man_logo_wehncke','man_logo_wiky','man_logo_others');
+    'man_logo_others','man_logo_bestway','man_logo_crivit','man_logo_intex',
+    'man_logo_happypeople','man_logo_mondo','man_logo_polygroup',
+    'man_logo_summerwaves','man_logo_swimline','man_logo_vetroplus',
+    'man_logo_wehncke','man_logo_wiky','man_logo_others');
 
   IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
     ('neznámý','kruh','kruh s madly','kruh speciální','míè','rider','lehátko',

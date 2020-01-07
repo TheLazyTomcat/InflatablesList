@@ -961,6 +961,7 @@ object frmItemFrame: TfrmItemFrame
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 14
+      OnChange = cmbMaterialChange
     end
     object seThickness: TSpinEdit
       Left = 264
@@ -1352,6 +1353,7 @@ object frmItemFrame: TfrmItemFrame
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 29
+      OnChange = cmbSurfaceChange
       Items.Strings = (
         'unknown'
         'glossy'

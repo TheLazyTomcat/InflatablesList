@@ -75,7 +75,7 @@ end;
 
 Function TILItem_Utils.TitleStr: String;
 begin
-If fManufacturer = ilimOthers then
+If fManufacturer in [ilimUnknown,ilimOthers] then
   begin
     If Length(fManufacturerStr) > 0 then
       Result := fManufacturerStr

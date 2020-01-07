@@ -326,7 +326,17 @@ with fRender,fRender.Canvas do
             SetCanvas(bsSolid,IL_ItemShopUpdateResultToColor(ShopsWorstUpdateResult),psClear);
             Polygon([Point(Width - 15,0),Point(Width,0),Point(Width,15)]);
           end;
-    
+
+        // indication that something is unknown
+        If (ilifOwned in fFlags) and not(ilifWanted in fFlags) then
+          If SomethingIsUnknown then
+            begin
+              SetCanvas(bsSolid,clGray,psClear);
+              Polygon([Point(Width - 15,0),Point(Width,0),Point(Width,15)]);
+              SetCanvas(bsClear,clGray,psClear,clWhite,[fsBold],clWhite,6);
+              TextOut(Width - 6,0,'?');
+            end;
+
         // picture presence indication
         If fPictures.CheckIndex(fPictures.IndexOfItemPicture) then
           DrawPictureIndication(Assigned(fPictures[fPictures.IndexOfItemPicture].Thumbnail),0,0);

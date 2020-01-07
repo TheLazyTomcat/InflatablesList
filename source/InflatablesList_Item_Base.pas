@@ -188,6 +188,7 @@ type
     procedure GetPriceAndAvailFromShops; virtual;
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     procedure GetAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
+    Function SomethingIsUnknown: Boolean; virtual;
     // other methods
     procedure AssignInternalEvents(
       ShopListItemUpdate:   TILIndexedObjectL1Event;
@@ -288,9 +289,7 @@ begin
 If fItemType <> Value then
   begin
     fItemType := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -303,9 +302,7 @@ If not IL_SameStr(fItemTypeSpec,Value) then
   begin
     fItemTypeSpec := Value;
     UniqueString(fItemTypeSpec);
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -324,9 +321,7 @@ If fPieces <> Value then
     BeginUpdate;
     try
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
-      UpdateMainList;
-      UpdateSmallList;
-      UpdateMiniList;
+      UpdateList;
       UpdateOverview;
       UpdateTitle;
       UpdateValues;
@@ -345,9 +340,7 @@ If not IL_SameStr(fUserID,Value) then
   begin
     fUserID := Value;
     UniqueString(fUserID);
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
   end;
 end;
 
@@ -358,9 +351,7 @@ begin
 If fManufacturer <> Value then
   begin
     fManufacturer := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -373,9 +364,7 @@ If not IL_SameStr(fManufacturerStr,Value) then
   begin
     fManufacturerStr := Value;
     UniqueString(fManufacturerStr);
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -388,9 +377,7 @@ If not IL_SameStr(fTextID,Value) then
   begin
     fTextID := Value;
     UniqueString(fTextID);
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -402,9 +389,7 @@ begin
 If fNumID <> Value then
   begin
     fNumID := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
     UpdateTitle;
   end;
 end;
@@ -419,9 +404,7 @@ If fFlags <> Value then
     BeginUpdate;
     try
       FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
-      UpdateMainList;
-      UpdateSmallList;
-      UpdateMiniList;
+      UpdateList;
       UpdateFlags;
     finally
       EndUpdate;
@@ -508,6 +491,7 @@ begin
 If fMaterial <> Value then
   begin
     fMaterial := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -518,6 +502,7 @@ begin
 If fSurface <> Value then
   begin
     fSurface := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -538,9 +523,7 @@ begin
 If fSizeX <> Value then
   begin
     fSizeX := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
   end;
 end;
 
@@ -551,9 +534,7 @@ begin
 If fSizeY <> Value then
   begin
     fSizeY := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
   end;
 end;
 
@@ -564,9 +545,7 @@ begin
 If fSizeZ <> Value then
   begin
     fSizeZ := Value;
-    UpdateMainList;
-    UpdateSmallList;
-    UpdateMiniList;
+    UpdateList;
   end;
 end;
 
@@ -1423,6 +1402,14 @@ try
 finally
   EndUpdate;
 end;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Base.SomethingIsUnknown: Boolean;
+begin
+Result := (fItemType = ilitUnknown) or (fManufacturer = ilimUnknown) or
+          (fMaterial = ilimtUnknown) or (fSurface = ilisfUnknown);
 end;
 
 //------------------------------------------------------------------------------

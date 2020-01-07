@@ -171,8 +171,9 @@ const
     'Material type','Surface','Wall thickness','Size X (length, diameter, ...)',
     'Size Y (width, inner diameter, ...)','Size Z (height, thickness, ...)',
     'Total size (X * Y * Z)','Notes','ReviewURL','Review (is present)','Default unit price',
-    'Rating','RatingDetails','Unit price lowest','Total price lowest','Unit price selected',
-    'Total price selected','Total price','Available pieces','Shop count','Useful shop count',
+    'Rating','RatingDetails','Some value is set to unknown (flagged - owned)',
+    'Unit price lowest','Total price lowest','Unit price selected','Total price selected',
+    'Total price','Available pieces','Shop count','Useful shop count',
     'Useful shop ratio (useful/total)','Selected shop','Worst update result');
 
   IL_DATA_SHOPUPDATERESULT_STRS: array[TILItemShopUpdateResult] of String = (

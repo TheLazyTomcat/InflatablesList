@@ -495,6 +495,15 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtRatingDetails:     Result := CompareText_Internal(fRatingDetails,WithItem.RatingDetails);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtSomethingUnknown:  If (ilifOwned in fFlags) and (ilifOwned in WithItem.Flags) then
+                              Result := IL_SortCompareBool(SomethingIsUnknown,WithItem.SomethingIsUnknown)
+                            else If not(ilifOwned in fFlags) and (ilifOwned in WithItem.Flags) then
+                              Result := IL_NegateValue(-1,Reversed) // those without the flag set goes at the end
+                            else If (ilifOwned in fFlags) and not(ilifOwned in WithItem.Flags) then
+                              Result := IL_NegateValue(+1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtUnitPriceLowest:   Result := IL_SortCompareUInt32(fUnitPriceLowest,WithItem.UnitPriceLowest);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtTotalPriceLowest:  Result := IL_SortCompareUInt32(TotalPriceLowest,WithItem.TotalPriceLowest);

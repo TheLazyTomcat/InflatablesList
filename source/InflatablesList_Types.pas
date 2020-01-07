@@ -289,10 +289,11 @@ type
     ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtUnitWeight,
     ilivtTotalWeight,ilivtMaterial,ilivtSurface,ilivtThickness,ilivtSizeX,
     ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtNotes,ilivtReviewURL,ilivtReview,
-    ilivtUnitPriceDefault,ilivtRating,ilivtRatingDetails,ilivtUnitPriceLowest,
-    ilivtTotalPriceLowest,ilivtUnitPriceSel,ilivtTotalPriceSel,ilivtTotalPrice,
-    ilivtAvailable,ilivtShopCount,ilivtUsefulShopCount,ilivtUsefulShopRatio,
-    ilivtSelectedShop,ilivtWorstUpdateResult);
+    ilivtUnitPriceDefault,ilivtRating,ilivtRatingDetails,ilivtSomethingUnknown,
+    ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
+    ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
+    ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,
+    ilivtWorstUpdateResult);
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;
@@ -999,7 +1000,7 @@ Function IL_ItemValueTagToNum(ItemValueTag: TILItemValueTag): Int32;
 begin
 {
   no, the numbers are not in the correct order  
-  MAX = 71
+  MAX = 72
 }
 case ItemValueTag of
   ilivtItemEncrypted:         Result := 63;
@@ -1062,6 +1063,7 @@ case ItemValueTag of
   ilivtUnitPriceDefault:      Result := 39;
   ilivtRating:                Result := 62;
   ilivtRatingDetails:         Result := 70;
+  ilivtSomethingUnknown:      REsult := 72;
   ilivtUnitPriceLowest:       Result := 40;
   ilivtTotalPriceLowest:      Result := 41;
   ilivtUnitPriceSel:          Result := 42;
@@ -1143,7 +1145,8 @@ case Num of
   34: Result := ilivtReview;
   39: Result := ilivtUnitPriceDefault;
   62: Result := ilivtRating;
-  70: Result := ilivtRatingDetails; 
+  70: Result := ilivtRatingDetails;
+  72: Result := ilivtSomethingUnknown;
   40: Result := ilivtUnitPriceLowest;
   41: Result := ilivtTotalPriceLowest;
   42: Result := ilivtUnitPriceSel;

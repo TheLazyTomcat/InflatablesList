@@ -69,16 +69,16 @@ type
     fTextTag:               String;
     fNumTag:                Int32;
     // extended specs
-    fWantedLevel:           UInt32;           // 0..7
-    fVariant:               String;           // color, pattern, ...
-    fVariantTag:            String;           // for automation
-    fUnitWeight:            UInt32;           // [g]
-    fMaterial:              TILItemMaterial;  // eg. pvc, silicone, ...
-    fSurface:               TILItemSurface;   // glossy, matte, ... 
-    fThickness:             UInt32;           // [um] - micrometers
-    fSizeX:                 UInt32;           // length (diameter if applicable)
-    fSizeY:                 UInt32;           // width (inner diameter if applicable)
-    fSizeZ:                 UInt32;           // height
+    fWantedLevel:           UInt32;               // 0..7
+    fVariant:               String;               // color, pattern, ...
+    fVariantTag:            String;               // for automation
+    fSurfaceFinish:         TILItemSurfaceFinish; // glossy, matte, ...
+    fMaterial:              TILItemMaterial;      // eg. pvc, silicone, ...
+    fThickness:             UInt32;               // [um] - micrometers
+    fSizeX:                 UInt32;               // length (diameter if applicable)
+    fSizeY:                 UInt32;               // width (inner diameter if applicable)
+    fSizeZ:                 UInt32;               // height
+    fUnitWeight:            UInt32;               // [g]
     // some other stuff
     fNotes:                 String;
     fReviewURL:             String;
@@ -114,13 +114,13 @@ type
     procedure SetWantedLevel(Value: UInt32); virtual;
     procedure SetVariant(const Value: String); virtual;
     procedure SetVariantTag(const Value: String); virtual;
-    procedure SetUnitWeight(Value: UInt32); virtual;
+    procedure SetSurfaceFinish(Value: TILItemSurfaceFinish); virtual;
     procedure SetMaterial(Value: TILItemMaterial); virtual;
-    procedure SetSurface(Value: TILItemSurface); virtual;
     procedure SetThickness(Value: UInt32); virtual;
     procedure SetSizeX(Value: UInt32); virtual;
     procedure SetSizeY(Value: UInt32); virtual;
     procedure SetSizeZ(Value: UInt32); virtual;
+    procedure SetUnitWeight(Value: UInt32); virtual;
     procedure SetNotes(const Value: String); virtual;
     procedure SetReviewURL(const Value: String); virtual;
     procedure SetUnitPriceDefault(Value: UInt32); virtual;
@@ -234,13 +234,13 @@ type
     property WantedLevel: UInt32 read fWantedLevel write SetWantedLevel;
     property Variant: String read fVariant write SetVariant;
     property VariantTag: String read fVariantTag write SetVariantTag;
-    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
+    property SurfaceFinish: TILItemSurfaceFinish read fSurfaceFinish write SetSurfaceFinish;
     property Material: TILItemMaterial read fMaterial write SetMaterial;
-    property Surface: TILItemSurface read fSurface write SetSurface;
     property Thickness: UInt32 read fThickness write SetThickness;
     property SizeX: UInt32 read fSizeX write SetSizeX;
     property SizeY: UInt32 read fSizeY write SetSizeY;
     property SizeZ: UInt32 read fSizeZ write SetSizeZ;
+    property UnitWeight: UInt32 read fUnitWeight write SetUnitWeight;
     property Notes: String read fNotes write SetNotes;
     property ReviewURL: String read fReviewURL write SetReviewURL;
     property UnitPriceDefault: UInt32 read fUnitPriceDefault write SetUnitPriceDefault;
@@ -474,13 +474,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TILItem_Base.SetUnitWeight(Value: UInt32);
+procedure TILItem_Base.SetSurfaceFinish(Value: TILItemSurfaceFinish);
 begin
-If fUnitWeight <> Value then
+If fSurfaceFinish <> Value then
   begin
-    fUnitWeight := Value;
-    UpdateOverview;
-    UpdateValues;
+    fSurfaceFinish := Value;
+    UpdateMainList;
   end;
 end;
 
@@ -491,17 +490,6 @@ begin
 If fMaterial <> Value then
   begin
     fMaterial := Value;
-    UpdateMainList;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TILItem_Base.SetSurface(Value: TILItemSurface);
-begin
-If fSurface <> Value then
-  begin
-    fSurface := Value;
     UpdateMainList;
   end;
 end;
@@ -546,6 +534,18 @@ If fSizeZ <> Value then
   begin
     fSizeZ := Value;
     UpdateList;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItem_Base.SetUnitWeight(Value: UInt32);
+begin
+If fUnitWeight <> Value then
+  begin
+    fUnitWeight := Value;
+    UpdateOverview;
+    UpdateValues;
   end;
 end;
 
@@ -896,13 +896,13 @@ fNumTag := 0;
 fWantedLevel := 0;
 fVariant := '';
 fVariantTag := '';
-fUnitWeight := 0;
+fSurfaceFinish := ilisfUnknown;
 fMaterial := ilimtUnknown;
-fSurface := ilisfUnknown;
 fThickness := 0;
 fSizeX := 0;
 fSizeY := 0;
 fSizeZ := 0;
+fUnitWeight := 0;
 // other info
 fNotes := '';
 fReviewURL := '';
@@ -1014,13 +1014,13 @@ fVariant := Source.Variant;
 UniqueString(fVariant);
 fVariantTag := Source.VariantTag;
 UniqueString(fVariantTag);
-fUnitWeight := Source.UnitWeight;
+fSurfaceFinish := Source.SurfaceFinish;
 fMaterial := Source.Material;
-fSurface := Source.Surface;
 fThickness := Source.Thickness;
 fSizeX := Source.SizeX;
 fSizeY := Source.SizeY;
 fSizeZ := Source.SizeZ;
+fUnitWeight := Source.UnitWeight;
 fNotes := Source.Notes;
 UniqueString(fNotes);
 fReviewURL := Source.ReviewURL;
@@ -1409,7 +1409,7 @@ end;
 Function TILItem_Base.SomethingIsUnknown: Boolean;
 begin
 Result := (fItemType = ilitUnknown) or (fManufacturer = ilimUnknown) or
-          (fMaterial = ilimtUnknown) or (fSurface = ilisfUnknown);
+          (fMaterial = ilimtUnknown) or (fSurfaceFinish = ilisfUnknown);
 end;
 
 //------------------------------------------------------------------------------

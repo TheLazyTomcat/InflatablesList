@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 7
-  Top = 9
+  Left = 9
+  Top = 21
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 707
@@ -44,15 +44,11 @@ object fMainForm: TfMainForm
     Anchors = [akTop, akRight, akBottom]
     Caption = 'Item details'
     TabOrder = 1
-    DesignSize = (
-      641
-      673)
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
       Width = 625
       Height = 652
-      Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -83,7 +79,7 @@ object fMainForm: TfMainForm
         Width = 160
       end
       item
-        Width = 480
+        Width = 450
       end
       item
         Alignment = taRightJustify

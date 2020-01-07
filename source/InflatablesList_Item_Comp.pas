@@ -82,13 +82,13 @@ If fDataAccessible then
     ilisrWantedLevel:           Result := IL_ContainsText(IntToStr(fWantedLevel),Text);
     ilisrVariant:               Result := IL_ContainsText(fVariant,Text);
     ilisrVariantTag:            Result := IL_ContainsText(fVariantTag,Text);
-    ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
+    ilisrSurfaceFinish:         Result := IL_ContainsText(fDataProvider.GetItemSurfaceFinishString(fSurfaceFinish),Text);
     ilisrMaterial:              Result := IL_ContainsText(fDataProvider.GetItemMaterialString(fMaterial),Text);
-    ilisrSurface:               Result := IL_ContainsText(fDataProvider.GetItemSurfaceString(fSurface),Text);
     ilisrThickness:             Result := IL_ContainsText(IL_Format('%dum',[fThickness]),Text);
     ilisrSizeX:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeX]),Text);
     ilisrSizeY:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeY]),Text);
     ilisrSizeZ:                 Result := IL_ContainsText(IL_Format('%dmm',[fSizeZ]),Text);
+    ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
     ilisrNotes:                 Result := IL_ContainsText(fNotes,Text);
     ilisrReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
     ilisrUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
@@ -142,13 +142,13 @@ If fDataAccessible then
     Contains(Text,ilisrWantedLevel) or
     Contains(Text,ilisrVariant) or
     Contains(Text,ilisrVariantTag) or
-    Contains(Text,ilisrUnitWeight) or
+    Contains(Text,ilisrSurfaceFinish) or
     Contains(Text,ilisrMaterial) or
-    Contains(Text,ilisrSurface) or
-    Contains(Text,ilisrThickness) or    
+    Contains(Text,ilisrThickness) or
     Contains(Text,ilisrSizeX) or
     Contains(Text,ilisrSizeY) or
     Contains(Text,ilisrSizeZ) or
+    Contains(Text,ilisrUnitWeight) or
     Contains(Text,ilisrNotes) or
     Contains(Text,ilisrReviewURL) or
     Contains(Text,ilisrUnitPriceDefault) or
@@ -394,23 +394,29 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                             else
                               Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
-                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
-                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
-                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
-                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
+    ilivtSurfaceFinish:     If fSurfaceFinish <> WithItem.SurfaceFinish then
+                              begin
+                                If not(fSurfaceFinish in [ilisfUnknown,ilisfOther]) and not(WithItem.SurfaceFinish in [ilisfUnknown,ilisfOther]) then
+                                  Result := CompareText_Internal(
+                                    fDataProvider.GetItemSurfaceFinishString(fSurfaceFinish),
+                                    fDataProvider.GetItemSurfaceFinishString(WithItem.SurfaceFinish))
+                                // push others and unknowns to the end
+                                else If not(fSurfaceFinish in [ilisfUnknown,ilisfOther]) and (WithItem.SurfaceFinish in [ilisfUnknown,ilisfOther]) then
+                                  Result := IL_NegateValue(+1,Reversed)
+                                else If (fSurfaceFinish in [ilisfUnknown,ilisfOther]) and not(WithItem.SurfaceFinish in [ilisfUnknown,ilisfOther]) then
+                                  Result := IL_NegateValue(-1,Reversed)
+                                // both are either unknown or other, but differs, push unknown to the end...
+                                else
+                                  begin
+                                    If fSurfaceFinish = ilisfOther then
+                                      Result := IL_NegateValue(+1,Reversed)
+                                    else If WithItem.SurfaceFinish = ilisfOther then
+                                      Result := IL_NegateValue(-1,Reversed)
+                                    else
+                                      Result := 0;  // this should not happen
+                                  end;
+                              end
+                            else Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtMaterial:          If fMaterial <> WithItem.Material then
                               begin
@@ -436,17 +442,6 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               end
                             else Result := 0;
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtSurface:           If (fSurface <> ilisfUnknown) and (WithItem.Surface <> ilisfUnknown) then
-                              Result := CompareText_Internal(
-                                fDataProvider.GetItemSurfaceString(fSurface),
-                                fDataProvider.GetItemSurfaceString(WithItem.Surface))
-                            else If (fSurface <> ilisfUnknown) and (WithItem.Surface = ilisfUnknown) then
-                              Result := IL_NegateValue(+1,Reversed) // push items with unknown surface to the end
-                            else If (fSurface = ilisfUnknown) and (WithItem.Surface <>ilisfUnknown) then
-                              Result := IL_NegateValue(-1,Reversed)
-                            else
-                              Result := 0;
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtThickness:         If (fThickness > 0) and (WithItem.Thickness > 0) then
                               Result := IL_SortCompareUInt32(fThickness,WithItem.Thickness)
                             else If (fThickness > 0) and (WithItem.Thickness <= 0) then
@@ -470,6 +465,24 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               Result := IL_NegateValue(-1,Reversed)
                             else
                               Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtUnitWeight:        If (fUnitWeight > 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_SortCompareUInt32(fUnitWeight,WithItem.UnitWeight)
+                            else If (fUnitWeight > 0) and (WithItem.UnitWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 weight to the end
+                            else If (fUnitWeight <= 0) and (WithItem.UnitWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ilivtTotalWeight:       If (TotalWeight > 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_SortCompareUInt32(TotalWeight,WithItem.TotalWeight)
+                            else If (TotalWeight > 0) and (WithItem.TotalWeight <= 0) then
+                              Result := IL_NegateValue(+1,Reversed) // push items with 0 total weight to the end
+                            else If (TotalWeight <= 0) and (WithItem.TotalWeight > 0) then
+                              Result := IL_NegateValue(-1,Reversed)
+                            else
+                              Result := 0;                              
 
     // others  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     ilivtNotes:             Result := CompareText_Internal(fNotes,WithItem.Notes);

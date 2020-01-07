@@ -38,21 +38,21 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Wanted level (0..7):'
     end
     object lblSizeZ: TLabel
-      Left = 544
+      Left = 464
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Z [mm]:'
     end
     object lblSizeY: TLabel
-      Left = 456
+      Left = 376
       Top = 352
       Width = 59
       Height = 13
       Caption = 'Size Y [mm]:'
     end
     object lblSizeX: TLabel
-      Left = 368
+      Left = 288
       Top = 352
       Width = 59
       Height = 13
@@ -109,12 +109,12 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Pieces:'
     end
     object lblTimeOfAddition: TLabel
-      Left = 538
+      Left = 535
       Top = 128
-      Width = 83
+      Width = 86
       Height = 13
       Alignment = taRightJustify
-      Caption = 'lblTimeOfAddition'
+      Caption = 'lblTimeOfAddition '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clGrayText
       Font.Height = -11
@@ -125,7 +125,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblUnitWeight: TLabel
       Left = 552
-      Top = 312
+      Top = 352
       Width = 55
       Height = 13
       Caption = 'Weight [g]:'
@@ -158,7 +158,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = 'Material:'
     end
     object lblThickness: TLabel
-      Left = 264
+      Left = 184
       Top = 352
       Width = 75
       Height = 13
@@ -517,12 +517,12 @@ object frmItemFrame: TfrmItemFrame
       ParentShowHint = False
       ShowHint = True
     end
-    object lblSurface: TLabel
-      Left = 184
-      Top = 352
-      Width = 41
+    object lblSurfaceFinish: TLabel
+      Left = 528
+      Top = 312
+      Width = 69
       Height = 13
-      Caption = 'Surface:'
+      Caption = 'Surface finish:'
     end
     object seWantedLevel: TSpinEdit
       Left = 0
@@ -537,7 +537,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seWantedLevelChange
     end
     object seSizeZ: TSpinEdit
-      Left = 544
+      Left = 464
       Top = 368
       Width = 81
       Height = 22
@@ -548,7 +548,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeZChange
     end
     object seSizeY: TSpinEdit
-      Left = 456
+      Left = 376
       Top = 368
       Width = 81
       Height = 22
@@ -559,7 +559,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = seSizeYChange
     end
     object seSizeX: TSpinEdit
-      Left = 368
+      Left = 288
       Top = 368
       Width = 81
       Height = 22
@@ -623,7 +623,7 @@ object frmItemFrame: TfrmItemFrame
     object leVariant: TLabeledEdit
       Left = 128
       Top = 328
-      Width = 329
+      Width = 305
       Height = 21
       EditLabel.Width = 163
       EditLabel.Height = 13
@@ -944,7 +944,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object seUnitWeight: TSpinEdit
       Left = 552
-      Top = 328
+      Top = 368
       Width = 73
       Height = 22
       MaxValue = 2147483647
@@ -964,7 +964,7 @@ object frmItemFrame: TfrmItemFrame
       OnChange = cmbMaterialChange
     end
     object seThickness: TSpinEdit
-      Left = 264
+      Left = 184
       Top = 368
       Width = 97
       Height = 22
@@ -1027,7 +1027,7 @@ object frmItemFrame: TfrmItemFrame
       OnClick = btnUserIDGenClick
     end
     object leVariantTag: TLabeledEdit
-      Left = 464
+      Left = 440
       Top = 328
       Width = 81
       Height = 21
@@ -1138,7 +1138,7 @@ object frmItemFrame: TfrmItemFrame
         ParentFont = False
       end
       object lblShopCountTitle: TLabel
-        Left = 12
+        Left = 10
         Top = 48
         Width = 85
         Height = 13
@@ -1345,15 +1345,15 @@ object frmItemFrame: TfrmItemFrame
         Transparent = True
       end
     end
-    object cmbSurface: TComboBox
-      Left = 184
-      Top = 368
-      Width = 73
+    object cmbSurfaceFinish: TComboBox
+      Left = 528
+      Top = 328
+      Width = 97
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 29
-      OnChange = cmbSurfaceChange
+      OnChange = cmbSurfaceFinishChange
       Items.Strings = (
         'unknown'
         'glossy'

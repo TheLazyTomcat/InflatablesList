@@ -68,7 +68,7 @@ type
     class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
     class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
-    class Function GetItemSurfaceString(ItemSurface: TILItemSurface): String; virtual;
+    class Function GetItemSurfaceFinishString(ItemSurfaceFinish: TILItemSurfaceFinish): String; virtual;
     class Function GetItemFlagString(ItemFlag: TILItemFlag): String; virtual;
     class Function GetItemValueTagString(ItemValueTag: TILItemValueTag): String; virtual;
     class Function GetShopUpdateResultString(UpdateResult: TILItemShopUpdateResult): String; virtual;
@@ -140,8 +140,9 @@ const
      'polyuretan (PUR)','povloèkované PVC','latex','silokon','gumotextílie',
      'ostatní');
 
-  IL_DATA_ITEMSURFACE_STRS: array[TILItemSurface] of String =
-    ('neznámý','lesklý','matný','rùzný');   
+  IL_DATA_ITEMSURFACEFINISH_STRS: array[TILItemSurfaceFinish] of String =
+    ('neznámý','lesklý','pololesklý','matný','polomatný','perleový',
+     'metalický','povloèkovaný','rùzný','jiný');
 
   IL_DATA_ITEMFLAG_STRS: array[TILItemFlag] of String = (
     'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
@@ -167,14 +168,14 @@ const
     'Elsewhere (flag)','Untested (flag)','Testing (flag)','Tested (flag)','Damaged (flag)',
     'Repaired (flag)','Price change (flag)','Availability change (flag)','Not available (flag)',
     'Lost (flag)','Discarded (flag)','Textual tag','Numerical tag','Wanted level (flagged - wanted)',
-    'Variant (color, pattern, type, ...)','Variant tag','Weight','Total weight',
-    'Material type','Surface','Wall thickness','Size X (length, diameter, ...)',
-    'Size Y (width, inner diameter, ...)','Size Z (height, thickness, ...)',
-    'Total size (X * Y * Z)','Notes','ReviewURL','Review (is present)','Default unit price',
-    'Rating','RatingDetails','Some value is set to unknown (flagged - owned)',
-    'Unit price lowest','Total price lowest','Unit price selected','Total price selected',
-    'Total price','Available pieces','Shop count','Useful shop count',
-    'Useful shop ratio (useful/total)','Selected shop','Worst update result');
+    'Variant (color, pattern, type, ...)','Variant tag','Surface finish','Material type',
+    'Wall thickness','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
+    'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
+    'Notes','ReviewURL','Review (is present)','Default unit price','Rating',
+    'RatingDetails','Some value is set to unknown (flagged - owned)','Unit price lowest',
+    'Total price lowest','Unit price selected','Total price selected','Total price',
+    'Available pieces','Shop count','Useful shop count','Useful shop ratio (useful/total)',
+    'Selected shop','Worst update result');
 
   IL_DATA_SHOPUPDATERESULT_STRS: array[TILItemShopUpdateResult] of String = (
     'Success','Mild success','Data fail','Soft fail','Hard fail',
@@ -205,14 +206,14 @@ const
     'Flag - Damaged','Flag - Rrepaired','Flag  - Price change',
     'Flag - Availability change','Flag - Not available','Flag - Lost',
     'Flag - Discarded','Textual tag','Numerical tag','Wanted level','Variant',
-    'Variant tag','Unit weight','Total weight','Total weight string',
-    'Material','Surface','Thickness','Size X','Size Y','Size Z','Total size',
-    'Size string','Notes','Review URL','Unit price default','Rating','Rating details',
-    'Unit price','Unit price lowest','Total price lowest','Unit price highest',
-    'Total price highest','Unit price selected','Total price selected','Total price',
-    'Available lowest','Available highest','Available selected','Shop count',
-    'Shop count string','Useful shop count','Useful shop ratio','Selected shop',
-    'Worst update result');
+    'Variant tag','Surface finish','Material','Thickness','Size X','Size Y',
+    'Size Z','Total size','Size string','Unit weight','Total weight',
+    'Total weight string','Notes','Review URL','Unit price default','Rating',
+    'Rating details','Unit price','Unit price lowest','Total price lowest',
+    'Unit price highest','Total price highest','Unit price selected',
+    'Total price selected','Total price','Available lowest','Available highest',
+    'Available selected','Shop count','Shop count string','Useful shop count',
+    'Useful shop ratio','Selected shop','Worst update result');
 
   IL_DATA_ADVSEARCHRESULT_SHOP_STRS: array[TILAdvShopSearchResult] of String = (
     'List index','Selected','Untracked','Alternative download method','Name',
@@ -620,12 +621,12 @@ end;
 
 //------------------------------------------------------------------------------
 
-class Function TILDataProvider.GetItemSurfaceString(ItemSurface: TILItemSurface): String;
+class Function TILDataProvider.GetItemSurfaceFinishString(ItemSurfaceFinish: TILItemSurfaceFinish): String;
 begin
-If (ItemSurface >= Low(TILItemSurface)) and (ItemSurface <= High(TILItemSurface)) then
-  Result := IL_DATA_ITEMSURFACE_STRS[ItemSurface]
+If (ItemSurfaceFinish >= Low(TILItemSurfaceFinish)) and (ItemSurfaceFinish <= High(TILItemSurfaceFinish)) then
+  Result := IL_DATA_ITEMSURFACEFINISH_STRS[ItemSurfaceFinish]
 else
-  raise Exception.CreateFmt('TILDataProvider.GetItemSurfaceString: Invalid item surface (%d).',[Ord(ItemSurface)]);
+  raise Exception.CreateFmt('TILDataProvider.GetItemSurfaceFinishString: Invalid item surface (%d).',[Ord(ItemSurfaceFinish)]);
 end;
 
 //------------------------------------------------------------------------------

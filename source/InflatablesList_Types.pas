@@ -75,7 +75,9 @@ type
                      ilimtPolyurethane{PUR},ilimtFlockedPVC,ilimtLatex,
                      ilimtSilicone,ilimtGumoTex,ilimtOther);
 
-  TILItemSurface = (ilisfUnknown,ilisfGlossy,ilisfMatte,ilisfCombined);
+  TILItemSurfaceFinish = (ilisfUnknown,ilisfGlossy,ilisfSemiGloss,ilisfMatte,
+                          ilisfSemiMatte,ilisfPearlscent,ilisfMetalic,
+                          ilisfFlocked,ilisfCombined,ilisfOther);
 
 Function IL_ItemPictureKindToStr(PictureKind: TLIItemPictureKind; FullString: Boolean = False): String;
 
@@ -93,8 +95,8 @@ Function IL_DecodeItemFlags(Flags: UInt32): TILItemFlags;
 Function IL_ItemMaterialToNum(Material: TILItemMaterial): Int32;
 Function IL_NumToItemMaterial(Num: Int32): TILItemMaterial;
 
-Function IL_ItemSurfaceToNum(Surface: TILItemSurface): Int32;
-Function IL_NumToItemSurface(Num: Int32): TILItemSurface;
+Function IL_ItemSurfaceFinishToNum(SurfaceFinish: TILItemSurfaceFinish): Int32;
+Function IL_NumToItemSurfaceFinish(Num: Int32): TILItemSurfaceFinish;
 
 //==============================================================================
 //- item shop parsing ----------------------------------------------------------
@@ -180,8 +182,8 @@ type
     ilisrFlagDamaged,ilisrFlagRepaired,ilisrFlagPriceChange,
     ilisrFlagAvailChange,ilisrFlagNotAvailable,ilisrFlagLost,ilisrFlagDiscarded,
     ilisrTextTag,ilisrNumTag,ilisrWantedLevel,ilisrVariant,ilisrVariantTag,
-    ilisrUnitWeight,ilisrMaterial,ilisrSurface,ilisrThickness,ilisrSizeX,
-    ilisrSizeY,ilisrSizeZ,ilisrNotes,ilisrReviewURL,ilisrUnitPriceDefault,
+    ilisrSurfaceFinish,ilisrMaterial,ilisrThickness,ilisrSizeX,ilisrSizeY,
+    ilisrSizeZ,ilisrUnitWeight,ilisrNotes,ilisrReviewURL,ilisrUnitPriceDefault,
     ilisrRating,ilisrRatingDetails,ilisrSelectedShop);
 
 Function IL_WrapSearchResult(Val: TILItemSearchResult): TILItemSearchResult;
@@ -205,9 +207,9 @@ type
     ilaisrFlagTested,ilaisrFlagDamaged,ilaisrFlagRepaired,ilaisrFlagPriceChange,
     ilaisrFlagAvailChange,ilaisrFlagNotAvailable,ilaisrFlagLost,
     ilaisrFlagDiscarded,ilaisrTextTag,ilaisrNumTag,ilaisrWantedLevel,
-    ilaisrVariant,ilaisrVariantTag,ilaisrUnitWeight,ilaisrTotalWeight,
-    ilaisrTotalWeightStr,ilaisrMaterial,ilaisrSurface,ilaisrThickness,
-    ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,ilaisrTotalSize,ilaisrSizeStr,
+    ilaisrVariant,ilaisrVariantTag,ilaisrSurfaceFinish,ilaisrMaterial,
+    ilaisrThickness,ilaisrSizeX,ilaisrSizeY,ilaisrSizeZ,ilaisrTotalSize,
+    ilaisrSizeStr,ilaisrUnitWeight,ilaisrTotalWeight,ilaisrTotalWeightStr,
     ilaisrNotes,ilaisrReviewURL,ilaisrUnitPriceDefault,ilaisrRating,
     ilaisrRatingDetails,ilaisrUnitPrice,ilaisrUnitPriceLowest,
     ilaisrTotalPriceLowest,ilaisrUnitPriceHighest,ilaisrTotalPriceHighest,
@@ -286,9 +288,9 @@ type
     ilivtFlagUntested,ilivtFlagTesting,ilivtFlagTested,ilivtFlagDamaged,
     ilivtFlagRepaired,ilivtFlagPriceChange,ilivtFlagAvailChange,
     ilivtFlagNotAvailable,ilivtFlagLost,ilivtFlagDiscarded,ilivtTextTag,
-    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtUnitWeight,
-    ilivtTotalWeight,ilivtMaterial,ilivtSurface,ilivtThickness,ilivtSizeX,
-    ilivtSizeY,ilivtSizeZ,ilivtTotalSize,ilivtNotes,ilivtReviewURL,ilivtReview,
+    ilivtNumTag,ilivtWantedLevel,ilivtVariant,ilivtVariantTag,ilivtSurfaceFinish,
+    ilivtMaterial,ilivtThickness,ilivtSizeX,ilivtSizeY,ilivtSizeZ,ilivtTotalSize,
+    ilivtUnitWeight,ilivtTotalWeight,ilivtNotes,ilivtReviewURL,ilivtReview,
     ilivtUnitPriceDefault,ilivtRating,ilivtRatingDetails,ilivtSomethingUnknown,
     ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
     ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
@@ -796,12 +798,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_ItemSurfaceToNum(Surface: TILItemSurface): Int32;
+Function IL_ItemSurfaceFinishToNum(SurfaceFinish: TILItemSurfaceFinish): Int32;
 begin
-case Surface of
-  ilisfGlossy:    Result := 1;
-  ilisfMatte:     Result := 2;
-  ilisfCombined:  Result := 3;
+case SurfaceFinish of
+  ilisfGlossy:      Result := 1;
+  ilisfSemiGloss:   Result := 4;
+  ilisfMatte:       Result := 2;
+  ilisfSemiMatte:   Result := 5;
+  ilisfPearlscent:  Result := 6;
+  ilisfMetalic:     Result := 7;
+  ilisfCombined:    Result := 3;
+  ilisfOther:       Result := 8;
 else
  {ilisfUnknown}
   Result := 0;
@@ -810,12 +817,17 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function IL_NumToItemSurface(Num: Int32): TILItemSurface;
+Function IL_NumToItemSurfaceFinish(Num: Int32): TILItemSurfaceFinish;
 begin
 case Num of
   1:  Result := ilisfGlossy;
+  4:  Result := ilisfSemiGloss;
   2:  Result := ilisfMatte;
+  5:  Result := ilisfSemiMatte;
   3:  Result := ilisfCombined;
+  6:  Result := ilisfPearlscent;
+  7:  Result := ilisfMetalic;
+  8:  Result := ilisfOther;
 else
   Result := ilisfUnknown;
 end;
@@ -1048,15 +1060,15 @@ case ItemValueTag of
   ilivtWantedLevel:           Result := 24;
   ilivtVariant:               Result := 25;
   ilivtVariantTag:            Result := 65;
-  ilivtUnitWeight:            Result := 30;
-  ilivtTotalWeight:           Result := 31;
+  ilivtSurfaceFinish:         Result := 71;
   ilivtMaterial:              Result := 52;
-  ilivtSurface:               Result := 71;
   ilivtThickness:             Result := 53;
   ilivtSizeX:                 Result := 26;
   ilivtSizeY:                 Result := 27;
   ilivtSizeZ:                 Result := 28;
   ilivtTotalSize:             Result := 29;
+  ilivtUnitWeight:            Result := 30;
+  ilivtTotalWeight:           Result := 31;
   ilivtNotes:                 Result := 32;
   ilivtReviewURL:             Result := 33;
   ilivtReview:                Result := 34;
@@ -1131,15 +1143,15 @@ case Num of
   24: Result := ilivtWantedLevel;
   25: Result := ilivtVariant;
   65: Result := ilivtVariantTag;
-  30: Result := ilivtUnitWeight;
-  31: Result := ilivtTotalWeight;
+  71: Result := ilivtSurfaceFinish;
   52: Result := ilivtMaterial;
-  71: Result := ilivtSurface;
   53: Result := ilivtThickness;
   26: Result := ilivtSizeX;
   27: Result := ilivtSizeY;
   28: Result := ilivtSizeZ;
   29: Result := ilivtTotalSize;
+  30: Result := ilivtUnitWeight;
+  31: Result := ilivtTotalWeight;
   32: Result := ilivtNotes;
   33: Result := ilivtReviewURL;
   34: Result := ilivtReview;

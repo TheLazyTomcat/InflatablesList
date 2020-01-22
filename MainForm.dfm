@@ -44,11 +44,15 @@ object fMainForm: TfMainForm
     Anchors = [akTop, akRight, akBottom]
     Caption = 'Item details'
     TabOrder = 1
+    DesignSize = (
+      641
+      673)
     inline frmItemFrame: TfrmItemFrame
       Left = 8
       Top = 16
       Width = 625
       Height = 652
+      Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -56,6 +60,9 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      inherited pnlMain: TPanel
+        Height = 652
+      end
     end
   end
   object sbStatusBar: TStatusBar
@@ -522,9 +529,9 @@ object fMainForm: TfMainForm
         Caption = 'Clean-up picture automation folder'
         OnClick = mniMMT_CleanUpPicAutoFolderClick
       end
-      object niMMT_CleanUpBackupFolder: TMenuItem
+      object mniMMT_CleanUpBackupFolder: TMenuItem
         Caption = 'Clean-up backup folder'
-        OnClick = niMMT_CleanUpBackupFolderClick
+        OnClick = mniMMT_CleanUpBackupFolderClick
       end
     end
     object mniMM_Help: TMenuItem

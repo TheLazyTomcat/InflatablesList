@@ -90,6 +90,7 @@ type
     mniMMT_ExportAllPics: TMenuItem;
     mniMMT_ExportAllThumbs: TMenuItem;
     mniMMT_CleanUpPicAutoFolder: TMenuItem;
+    mniMMT_CleanUpBackupFolder: TMenuItem;
     mniMM_Help: TMenuItem;
     mniMMH_ResMarkLegend: TMenuItem;
     mniMMH_SettingsLegend: TMenuItem;
@@ -105,9 +106,8 @@ type
     btnFindNext: TButton;
     gbDetails: TGroupBox;
     frmItemFrame: TfrmItemFrame;
-    sbStatusBar: TStatusBar;
     shpListFiller: TShape;
-    niMMT_CleanUpBackupFolder: TMenuItem;
+    sbStatusBar: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -186,6 +186,7 @@ type
     procedure mniMMT_ExportAllPicsClick(Sender: TObject);
     procedure mniMMT_ExportAllThumbsClick(Sender: TObject);
     procedure mniMMT_CleanUpPicAutoFolderClick(Sender: TObject);
+    procedure mniMMT_CleanUpBackupFolderClick(Sender: TObject);    
     // ---
     procedure mniMM_HelpClick(Sender: TObject);
     procedure mniMMH_ResMarkLegendClick(Sender: TObject);
@@ -207,7 +208,6 @@ type
       Panel: TStatusPanel; const Rect: TRect);
     procedure sbStatusBarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure niMMT_CleanUpBackupFolderClick(Sender: TObject);
   private
     // resizing
     fInitialFormWidth:    Integer;
@@ -1938,7 +1938,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfMainForm.niMMT_CleanUpBackupFolderClick(Sender: TObject);
+procedure TfMainForm.mniMMT_CleanUpBackupFolderClick(Sender: TObject);
 var
   Files:    TStringList;
   i:        Integer;

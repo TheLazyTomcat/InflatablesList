@@ -271,12 +271,12 @@ with fRender,fRender.Canvas do
                 TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
                 Inc(TempInt,17);
 
-                If fAvailableSelected <> 0 then
+                If IsAvailable(False) then
                   begin
-                    If fAvailableSelected < 0 then
-                      TempStr := IL_Format('more than %d pcs',[Abs(fAvailableSelected)])
+                    If _fAvailableSelected < 0 then
+                      TempStr := IL_Format('more than %d pcs',[Abs(_fAvailableSelected)])
                     else
-                      TempStr := IL_Format('%d pcs',[fAvailableSelected]);
+                      TempStr := IL_Format('%d pcs',[_fAvailableSelected]);
                     TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
                     Inc(TempInt,17);
                   end;

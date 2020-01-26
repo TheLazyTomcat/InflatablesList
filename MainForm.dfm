@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 9
-  Top = 21
+  Left = 10
+  Top = 8
   BorderStyle = bsSingle
   Caption = 'Inflatables List'
   ClientHeight = 707
@@ -70,6 +70,11 @@ object fMainForm: TfMainForm
     Top = 688
     Width = 1264
     Height = 19
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBtnText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
     Panels = <
       item
         Alignment = taCenter
@@ -92,6 +97,7 @@ object fMainForm: TfMainForm
         Alignment = taRightJustify
         Width = 50
       end>
+    UseSystemFont = False
     OnMouseDown = sbStatusBarMouseDown
     OnDrawPanel = sbStatusBarDrawPanel
   end

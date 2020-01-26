@@ -593,12 +593,12 @@ If Assigned(fCurrentItem) then
     else
       lblShopCount.Caption := '-';
     // available pieces
-    If fCurrentItem.AvailableSelected <> 0 then
+    If fCurrentItem.IsAvailable(False) then
       begin
-        If fCurrentItem.AvailableSelected < 0 then
-          lblAvailPieces.Caption := 'more than ' + IntToStr(Abs(fCurrentItem.AvailableSelected))
+        If fCurrentItem._AvailableSelected < 0 then
+          lblAvailPieces.Caption := 'more than ' + IntToStr(Abs(fCurrentItem._AvailableSelected))
         else
-          lblAvailPieces.Caption := IntToStr(fCurrentItem.AvailableSelected);
+          lblAvailPieces.Caption := IntToStr(fCurrentItem._AvailableSelected);
       end
     else lblAvailPieces.Caption := '-';
     // total weight

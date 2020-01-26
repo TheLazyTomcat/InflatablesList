@@ -91,7 +91,7 @@ type
     fUnitPriceSelected:     UInt32;
     fAvailableLowest:       Int32;            // negative value means "more than"
     fAvailableHighest:      Int32;
-    fAvailableSelected:     Int32;
+    _fAvailableSelected:     Int32;
     // shops
     fShopCount:             Integer;
     fShops:                 array of TILItemShop;
@@ -251,7 +251,7 @@ type
     property UnitPriceSelected: UInt32 read fUnitPriceSelected;
     property AvailableLowest: Int32 read fAvailableLowest;
     property AvailableHighest: Int32 read fAvailableHighest;
-    property AvailableSelected: Int32 read fAvailableSelected;
+    property _AvailableSelected: Int32 read _fAvailableSelected;
     property ShopCount: Integer read GetCount;
     property Shops[Index: Integer]: TILItemShop read GetShop; default;
   end;
@@ -320,7 +320,7 @@ If fPieces <> Value then
       fShops[i].RequiredCount := fPieces;    
     BeginUpdate;
     try
-      FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
+      FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
       UpdateList;
       UpdateOverview;
       UpdateTitle;
@@ -403,7 +403,7 @@ If fFlags <> Value then
     fFlags := Value;
     BeginUpdate;
     try
-      FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
+      FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
       UpdateList;
       UpdateFlags;
     finally
@@ -719,7 +719,7 @@ begin
 If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
   begin
     If not fClearingSelected then
-      GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);  
+      GetAndFlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
     fOnShopValuesUpdate(Self,Sender);
   end;
 end;
@@ -861,7 +861,7 @@ end;
 
 procedure TILItem_Base.UpdateShops;
 begin
-GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
+GetAndFlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
 UpdateMainList;   // there can be shop count shown
 UpdateSmallList;  // there is price that depends on shops
 // mini list does not contain anything shop-related
@@ -914,7 +914,7 @@ fUnitPriceHighest := 0;
 fUnitPriceSelected := 0;
 fAvailableLowest := 0;
 fAvailableHighest := 0;
-fAvailableSelected := 0;
+_fAvailableSelected := 0;
 // shops
 fShopCount := 0;
 SetLength(fShops,0);
@@ -1034,7 +1034,7 @@ fUnitPriceHighest := Source.UnitPriceHighest;
 fUnitPriceSelected := Source.UnitPriceSelected;
 fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
-fAvailableSelected := Source.AvailableSelected;
+_fAvailableSelected := Source._AvailableSelected;
 // deffered picture copy
 If CopyPics then
   begin
@@ -1277,7 +1277,7 @@ BeginUpdate;
 try
   Result := IL_SetItemFlagValue(fFlags,ItemFlag,NewValue);
   If (ItemFlag = ilifWanted) and (Result <> NewValue) then
-    FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
+    FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
   If Result <> NewValue then
     UpdateList;
   UpdateFlags;  
@@ -1327,7 +1327,7 @@ HighPrice := 0;
 LowAvail := 0;
 HighAvail := 0;
 fUnitPriceSelected := 0;
-fAvailableSelected := 0;
+_fAvailableSelected := 0;
 For i := ShopLowIndex to ShopHighIndex do
   begin
     If (fShops[i].Available <> 0) and (fShops[i].Price > 0) then
@@ -1344,7 +1344,7 @@ For i := ShopLowIndex to ShopHighIndex do
     If fShops[i].Selected then
       begin
         fUnitPriceSelected := fShops[i].Price;
-        fAvailableSelected := fShops[i].Available;
+        _fAvailableSelected := fShops[i].Available;
       end;
   end;
 fUnitPriceLowest := LowPrice;
@@ -1363,19 +1363,19 @@ begin
 If (ilifWanted in fFlags) and (fShopCount > 0) then
   begin
     Exclude(fFlags,ilifNotAvailable);
-    If (fAvailableSelected <> 0) and (fUnitPriceSelected > 0) then
+    If (_fAvailableSelected <> 0) and (fUnitPriceSelected > 0) then
       begin
-        If fAvailableSelected > 0 then
+        If _fAvailableSelected > 0 then
           begin
-            If UInt32(fAvailableSelected) < fPieces then
+            If UInt32(_fAvailableSelected) < fPieces then
               Include(fFlags,ilifNotAvailable);
           end
         else
           begin
-            If UInt32(Abs(fAvailableSelected) * 2) < fPieces then
+            If UInt32(Abs(_fAvailableSelected) * 2) < fPieces then
               Include(fFlags,ilifNotAvailable);
           end;
-        If fAvailableSelected <> OldAvail then
+        If _fAvailableSelected <> OldAvail then
           Include(fFlags,ilifAvailChange);
         If fUnitPriceSelected <> OldPrice then
           Include(fFlags,ilifPriceChange);
@@ -1383,7 +1383,7 @@ If (ilifWanted in fFlags) and (fShopCount > 0) then
     else
       begin
         Include(fFlags,ilifNotAvailable);
-        If (fAvailableSelected <> OldAvail) then
+        If (_fAvailableSelected <> OldAvail) then
           Include(fFlags,ilifAvailChange);
       end;
     UpdateList;

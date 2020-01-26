@@ -295,7 +295,7 @@ type
     ilivtUnitPriceLowest,ilivtTotalPriceLowest,ilivtUnitPriceSel,
     ilivtTotalPriceSel,ilivtTotalPrice,ilivtAvailable,ilivtShopCount,
     ilivtUsefulShopCount,ilivtUsefulShopRatio,ilivtSelectedShop,
-    ilivtWorstUpdateResult);
+    ilivtWorstUpdateResult);{$message 'add "Is available" - not flagged'}
 
   TILSortingItem = record
     ItemValueTag: TILItemValueTag;

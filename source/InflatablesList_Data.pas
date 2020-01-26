@@ -121,7 +121,7 @@ const
     'Summer Waves','Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
 
   IL_DATA_ITEMMANUFACTURER_TAGS: array[TILItemManufacturer] of String = (
-    'uk','bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','os');
+    'uk','bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','ot');
 
   IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
     'man_logo_others','man_logo_bestway','man_logo_crivit','man_logo_intex',
@@ -172,7 +172,7 @@ const
     'Wall thickness','Size X (length, diameter, ...)','Size Y (width, inner diameter, ...)',
     'Size Z (height, thickness, ...)','Total size (X * Y * Z)','Weight','Total weight',
     'Notes','ReviewURL','Review (is present)','Default unit price','Rating',
-    'RatingDetails','Some value is set to unknown (flagged - owned)','Unit price lowest',
+    'Rating details','Some value is set to unknown (flagged - owned)','Unit price lowest',
     'Total price lowest','Unit price selected','Total price selected','Total price',
     'Available pieces','Shop count','Useful shop count','Useful shop ratio (useful/total)',
     'Selected shop','Worst update result');

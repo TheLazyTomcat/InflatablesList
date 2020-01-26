@@ -527,23 +527,23 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtTotalPrice:        Result := IL_SortCompareUInt32(TotalPrice,WithItem.TotalPrice);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    ilivtAvailable:         If (fAvailableSelected < 0) and (WithItem.AvailableSelected < 0) then
-                              Result := IL_SortCompareInt32(Abs(fAvailableSelected),Abs(WithItem.AvailableSelected))
-                            else If (fAvailableSelected < 0) and (WithItem.AvailableSelected >= 0) then
+    ilivtAvailable:         If (_fAvailableSelected < 0) and (WithItem._AvailableSelected < 0) then
+                              Result := IL_SortCompareInt32(Abs(_fAvailableSelected),Abs(WithItem._AvailableSelected))
+                            else If (_fAvailableSelected < 0) and (WithItem._AvailableSelected >= 0) then
                               begin
-                                If Abs(fAvailableSelected) = WithItem.AvailableSelected then
+                                If Abs(_fAvailableSelected) = WithItem._AvailableSelected then
                                   Result := IL_NegateValue(-1,Reversed)
                                 else
-                                  Result := IL_SortCompareInt32(Abs(fAvailableSelected),WithItem.AvailableSelected)
+                                  Result := IL_SortCompareInt32(Abs(_fAvailableSelected),WithItem._AvailableSelected)
                               end
-                            else If (fAvailableSelected >= 0) and (WithItem.AvailableSelected < 0) then
+                            else If (_fAvailableSelected >= 0) and (WithItem._AvailableSelected < 0) then
                               begin
-                                If fAvailableSelected = Abs(WithItem.AvailableSelected) then
+                                If _fAvailableSelected = Abs(WithItem._AvailableSelected) then
                                   Result := IL_NegateValue(+1,Reversed)
                                 else
-                                  Result := IL_SortCompareInt32(fAvailableSelected,Abs(WithItem.AvailableSelected))
+                                  Result := IL_SortCompareInt32(_fAvailableSelected,Abs(WithItem._AvailableSelected))
                               end
-                            else Result := IL_SortCompareInt32(fAvailableSelected,WithItem.AvailableSelected);
+                            else Result := IL_SortCompareInt32(_fAvailableSelected,WithItem._AvailableSelected);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ilivtShopCount:         Result := IL_SortCompareUInt32(fShopCount,WithItem.ShopCount);
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

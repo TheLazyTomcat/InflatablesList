@@ -95,6 +95,7 @@ type
     // other methods
     procedure SetValues(const Msg: String; Res: TILItemShopUpdateResult; Avail: Int32; Price: UInt32);
     procedure ReplaceParsingSettings(Source: TILItemShopParsingSettings); virtual;
+    Function IsAvailableHere(HonorCount: Boolean): Boolean; virtual;
     procedure AssignInternalEvents(
       ClearSelected,
       OverviewUpdate,
@@ -655,6 +656,24 @@ fParsingSettings := TILItemShopParsingSettings.CreateAsCopy(Source,True);
 fParsingSettings.RequiredCount := fRequiredCount;
 For i := 0 to Pred(fParsingSettings.VariableCount) do
   fParsingSettings.Variables[i] := Variables.Vars[i];
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemShop_Base.IsAvailableHere(HonorCount: Boolean): Boolean;
+begin
+If fPrice > 0 then
+  begin
+    If HonorCount then
+      begin
+        If fAvailable > 0 then
+          Result := UInt32(fAvailable) >= fRequiredCount
+        else
+          Result := UInt32(Abs(fAvailable) * 2) >= fRequiredCount
+      end
+    else Result := fAvailable <> 0;
+  end
+else Result := False;
 end;
 
 //------------------------------------------------------------------------------

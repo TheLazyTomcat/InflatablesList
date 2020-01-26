@@ -332,7 +332,7 @@ var
 begin
 If Assigned(Item) then
   begin
-    OldAvail := Item.AvailableSelected;
+    OldAvail := Item._AvailableSelected;
     OldPrice := Item.UnitPriceSelected;
     OldFlags := Item.Flags;
     fCurrentItem := Item;

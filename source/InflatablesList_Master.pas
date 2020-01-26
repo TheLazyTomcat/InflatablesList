@@ -38,8 +38,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  Forms, Dialogs,
+  SysUtils, Forms, Dialogs,
   MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
   SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemsSelectForm,
   BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,

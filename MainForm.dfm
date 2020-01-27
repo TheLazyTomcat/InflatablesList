@@ -3,7 +3,7 @@ object fMainform: TfMainform
   Top = 123
   BorderStyle = bsSingle
   Caption = 'fMainform'
-  ClientHeight = 466
+  ClientHeight = 446
   ClientWidth = 862
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,12 +11,14 @@ object fMainform: TfMainform
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  Menu = MainMenu1
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 447
+    Top = 427
     Width = 862
     Height = 19
     Panels = <
@@ -42,5 +44,12 @@ object fMainform: TfMainform
   object XPManifest1: TXPManifest
     Left = 776
     Top = 32
+  end
+  object MainMenu1: TMainMenu
+    Left = 152
+    Top = 72
+    object file1: TMenuItem
+      Caption = 'file'
+    end
   end
 end

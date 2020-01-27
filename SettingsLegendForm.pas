@@ -173,7 +173,7 @@ InidicateOnLabel(fStatLabels[8],fILManager.StaticSettings.NoParse);
 // dynamic settings
 InidicateOnLabel(fDynLabels[0],fILManager.Compressed);
 InidicateOnLabel(fDynLabels[1],fILManager.Encrypted);
-InidicateOnLabel(fDynLabels[2],fMainForm.mniMMF_SaveOnClose.Checked);
+//InidicateOnLabel(fDynLabels[2],fMainForm.mniMMF_SaveOnClose.Checked);
 InidicateOnLabel(fDynLabels[3],fILManager.ReversedSort);
 InidicateOnLabel(fDynLabels[4],fILManager.CaseSensitiveSort);
 end;

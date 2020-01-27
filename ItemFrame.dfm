@@ -2,7 +2,7 @@ object frmItemFrame: TfrmItemFrame
   Left = 0
   Top = 0
   Width = 625
-  Height = 650
+  Height = 667
   Anchors = [akLeft, akTop, akBottom]
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,14 +16,14 @@ object frmItemFrame: TfrmItemFrame
     Left = 0
     Top = 0
     Width = 625
-    Height = 650
+    Height = 667
     Align = alClient
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
       625
-      650)
+      667)
     object shpItemTitleBcgr: TShape
       Left = 0
       Top = 0
@@ -89,7 +89,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblUnitDefaultPrice: TLabel
       Left = 272
-      Top = 502
+      Top = 519
       Width = 87
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -187,7 +187,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblRating: TLabel
       Left = 392
-      Top = 502
+      Top = 519
       Width = 97
       Height = 13
       Anchors = [akLeft, akBottom]
@@ -502,7 +502,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object lblRatingDetails: TLabel
       Left = 612
-      Top = 499
+      Top = 516
       Width = 13
       Height = 18
       Hint = 'Rating details not empty'
@@ -583,7 +583,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object seUnitPriceDefault: TSpinEdit
       Left = 272
-      Top = 518
+      Top = 535
       Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
@@ -597,7 +597,7 @@ object frmItemFrame: TfrmItemFrame
       Left = 0
       Top = 408
       Width = 625
-      Height = 91
+      Height = 108
       Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -889,7 +889,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnUpdateShops: TButton
       Left = 512
-      Top = 550
+      Top = 567
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -899,7 +899,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnShops: TButton
       Left = 392
-      Top = 550
+      Top = 567
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -920,7 +920,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object leReviewURL: TLabeledEdit
       Left = 0
-      Top = 518
+      Top = 535
       Width = 240
       Height = 21
       Anchors = [akLeft, akBottom]
@@ -932,7 +932,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnReviewOpen: TButton
       Left = 240
-      Top = 518
+      Top = 535
       Width = 25
       Height = 21
       Hint = 'Open review URL in web browser'
@@ -987,7 +987,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object seRating: TSpinEdit
       Left = 392
-      Top = 518
+      Top = 535
       Width = 113
       Height = 22
       Anchors = [akLeft, akBottom]
@@ -1040,7 +1040,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnPictures: TButton
       Left = 272
-      Top = 550
+      Top = 567
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -1050,7 +1050,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object btnRatingDetails: TButton
       Left = 512
-      Top = 516
+      Top = 533
       Width = 113
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -1060,7 +1060,7 @@ object frmItemFrame: TfrmItemFrame
     end
     object gbReadOnlyInfo: TGroupBox
       Left = 0
-      Top = 578
+      Top = 595
       Width = 625
       Height = 70
       Anchors = [akLeft, akBottom]

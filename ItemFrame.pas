@@ -256,7 +256,7 @@ uses
 
 {$R *.dfm}
 
-{$R '..\resources\pic_arrows.res'}
+{$R '.\resources\pic_arrows.res'}
 
 const
   IL_SEARCH_HIGHLIGHT_TIMEOUT = 12; // 3 seconds highlight

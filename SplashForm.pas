@@ -42,7 +42,7 @@ uses
 {$R *.dfm}
 
 // resource containing the splash bitmap
-{$R '..\resources\splash.res'}
+{$R '.\resources\splash.res'}
 
 procedure TfSplashForm.OnCloseTimerHandler(Sender: TObject);
 begin

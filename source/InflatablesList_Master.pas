@@ -39,11 +39,32 @@ implementation
 
 uses
   SysUtils, Forms, Dialogs,
-  MainForm, TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm,
-  SumsForm, SpecialsForm, OverviewForm, SelectionForm, UpdateForm, ItemsSelectForm,
-  BackupsForm, UpdResLegendForm, SettingsLegendForm, AboutForm, SplashForm,
-  PromptForm, SaveForm, AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm,
-  ItemShopTableForm, ItemSelectForm,
+
+  MainForm,
+  TextEditForm,
+  ShopsForm,
+  ParsingForm,
+  TemplatesForm,
+  SortForm,
+  SumsForm,
+  SpecialsForm,
+  OverviewForm,
+  SelectionForm,
+  UpdateForm,
+  ItemsSelectForm,
+  BackupsForm,
+  UpdResLegendForm,
+  SettingsLegendForm,
+  AboutForm,
+  SplashForm,
+  PromptForm,
+  SaveForm,
+  AdvancedSearchForm,
+  ShopByItemsForm,
+  ItemPicturesForm,
+  ItemShopTableForm,
+  ItemSelectForm,
+  
   StrRect,
   InflatablesList_Utils,
   InflatablesList_Encryption;
@@ -83,7 +104,7 @@ end;
 procedure TILMaster.CreateForms;
 begin
 Application.CreateForm(TfMainForm, fMainForm);
-fMainForm.OnRestartProgram := RestartRequestHandler;
+//fMainForm.OnRestartProgram := RestartRequestHandler;
 Application.CreateForm(TfTextEditForm, fTextEditForm);
 Application.CreateForm(TfShopsForm, fShopsForm);
 Application.CreateForm(TfParsingForm, fParsingForm);
@@ -117,6 +138,7 @@ var
   PreloadInfo:  TILPreloadInfo;
   Password:     String;
 begin
+(*
 Result := False;
 PreloadInfo := fILManager.PreloadFile;
 If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
@@ -152,12 +174,14 @@ If not([ilprfInvalidFile,ilprfError] <= PreloadInfo.ResultFlags) then
     end;
   end
 else MessageDlg('Invalid list file, cannot continue.',mtError,[mbOk],0);
+*)
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TILMaster.ThreadedLoadingEndHandler(LoadingResult: TILLoadingResult);
 begin
+(*
 case LoadingResult of
   illrSuccess:;
     // do nothing
@@ -171,6 +195,7 @@ If LoadingResult = illrSuccess then
 else
   Application.Terminate;  // Application.ShowMainForm is false already
 fSplashForm.LoadingDone(LoadingResult = illrSuccess);
+*)
 end;
 
 //------------------------------------------------------------------------------

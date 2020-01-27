@@ -88,7 +88,7 @@ uses
   InflatablesList_Utils,
   InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item,
-  MainForm, PromptForm;
+  MainForm, PromptForm, ItemFrame;
 
 procedure TfSelectionForm.BuildTable;
 var
@@ -616,6 +616,7 @@ procedure TfSelectionForm.mniIT_EditNumTagClick(Sender: TObject);
 var
   Temp: Integer;
 begin
+(*
 If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then
     with CDA_GetItemPtr(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex)^ do
@@ -629,6 +630,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
             lbItems.Invalidate;
           end;
       end;
+*)
 end;
 
 //------------------------------------------------------------------------------
@@ -657,6 +659,7 @@ var
   Temp: Integer;
   i:    Integer;
 begin
+(*
 Temp := 0;
 If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',Temp,
   fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
@@ -667,6 +670,7 @@ If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',Temp,
         CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
     lbItems.Invalidate;
   end;
+*)
 end;
  
 //------------------------------------------------------------------------------
@@ -694,6 +698,7 @@ var
   Temp: Integer;
   i:    Integer;
 begin
+(*
 Temp := 0;
 If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',Temp,
   fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
@@ -704,6 +709,7 @@ If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',Temp,
         CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
     lbItems.Invalidate;
   end;
+*)
 end;
  
 //------------------------------------------------------------------------------
@@ -730,6 +736,7 @@ var
   Temp: Integer;
   i:    Integer;
 begin
+(*
 Temp := 0;
 If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',Temp,
   fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
@@ -739,6 +746,7 @@ If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',Temp,
       CDA_GetItem(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,i).ItemObject.NumTag := Temp;
     lbItems.Invalidate;
   end;
+*)
 end;
 
 //------------------------------------------------------------------------------

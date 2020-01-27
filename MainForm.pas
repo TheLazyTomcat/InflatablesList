@@ -223,6 +223,7 @@ type
     fDirExport:           String; // last directory for pictures export
     fOnRestartProgram:    TNotifyEvent;
   protected
+    procedure WndProc(var Msg: TMessage); override;  // Delphi 7 VCL bug workaround
     procedure RePositionMainForm;
     procedure ReSizeMainForm;
     procedure BuildSortBySubmenu;
@@ -276,6 +277,18 @@ const
   IL_STATUSBAR_PANEL_IDX_COPYRIGHT    = 4;
 
 //==============================================================================
+
+procedure TfMainform.WndProc(var Msg: TMessage);
+begin
+If Msg.Msg = WM_DRAWITEM then
+  begin
+    If PDrawItemStruct(Msg.LParam)^.CtlID = sbStatusBar.Handle then
+      PDrawItemStruct(Msg.LParam)^.CtlType := 0;
+  end;
+inherited;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TfMainForm.RePositionMainForm;
 var

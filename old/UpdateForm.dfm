@@ -90,7 +90,7 @@ object fUpdateForm: TfUpdateForm
     MaxValue = 1024
     MinValue = 1
     TabOrder = 4
-    Value = 0
+    Value = 1
     OnChange = seNumberOfThreadsChange
   end
   object tmrUpdate: TTimer

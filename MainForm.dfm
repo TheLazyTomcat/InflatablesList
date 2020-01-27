@@ -41,6 +41,15 @@ object fMainform: TfMainform
       end>
     OnDrawPanel = StatusBar1DrawPanel
   end
+  object Button1: TButton
+    Left = 272
+    Top = 120
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 1
+    OnClick = Button1Click
+  end
   object XPManifest1: TXPManifest
     Left = 776
     Top = 32
@@ -50,6 +59,7 @@ object fMainform: TfMainform
     Top = 72
     object file1: TMenuItem
       Caption = 'file'
+      OnDrawItem = file1DrawItem
     end
   end
 end

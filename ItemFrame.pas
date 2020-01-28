@@ -249,7 +249,7 @@ implementation
 uses
   Themes,
   StrRect,
-  TextEditForm, ShopsForm, UpdateForm, ItemPicturesForm,
+  TextEditForm, ItemPicturesForm, ShopsForm, UpdateForm, 
   InflatablesList_Utils,
   InflatablesList_Data,
   InflatablesList_ItemShop;
@@ -1084,6 +1084,8 @@ finally
   cmbSurfaceFinish.Items.EndUpdate;
 end;
 // initialization
+seNumTag.MinValue := IL_ITEM_NUM_TAG_MIN;
+seNumTag.MaxValue := IL_ITEM_NUM_TAG_MAX;
 DisableHighlight;
 BuildFlagMacrosMenu;
 PrepareArrows;

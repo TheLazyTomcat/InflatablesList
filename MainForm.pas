@@ -256,11 +256,11 @@ implementation
 
 uses
   CommCtrl, Math,
-  TextEditForm, ShopsForm, ParsingForm, TemplatesForm, SortForm, SumsForm,
-  SpecialsForm, OverviewForm, SelectionForm, ItemsSelectForm, UpdResLegendForm,
-  SettingsLegendForm, AboutForm, PromptForm, BackupsForm, SplashForm, SaveForm,
-  AdvancedSearchForm, ShopByItemsForm, ItemPicturesForm, ItemShopTableForm,
-  ItemSelectForm, 
+  PromptForm, TextEditForm, SplashForm, SaveForm, BackupsForm, ItemPicturesForm,
+  ItemSelectForm, ShopsForm, ParsingForm,TemplatesForm, ItemsSelectForm,
+  AdvancedSearchForm, SortForm, SumsForm, OverviewForm, ShopSelectForm,
+  ItemShopTableForm, ShopByItemsForm, SpecialsForm, UpdResLegendForm,
+  SettingsLegendForm, AboutForm,
   WinFileInfo, BitOps, StrRect, CountedDynArrayInteger,
   InflatablesList_Types,
   InflatablesList_Utils,
@@ -546,7 +546,7 @@ fSortForm.Initialize(fILManager);
 fSumsForm.Initialize(fILManager);
 fSpecialsForm.Initialize(fILManager);
 fOverviewForm.Initialize(fILManager);
-fSelectionForm.Initialize(fIlManager);
+fShopSelectForm.Initialize(fIlManager);
 fUpdateForm.Initialize(fILManager);
 fItemsSelectForm.Initialize(fIlManager);
 fBackupsForm.Initialize(fILManager);
@@ -575,7 +575,7 @@ fSortForm.Finalize;
 fSumsForm.Finalize;
 fSpecialsForm.Finalize;
 fOverviewForm.Finalize;
-fSelectionForm.Finalize;
+fShopSelectForm.Finalize;
 fUpdateForm.Finalize;
 fItemsSelectForm.Finalize;
 fBackupsForm.Finalize;
@@ -713,7 +713,7 @@ procedure TfMainForm.FormShow(Sender: TObject);
 begin
 // first drawing
 fILManager.ReinitMainDrawSize(lbList);
-fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
 fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
   IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
 end;
@@ -837,7 +837,7 @@ lbList.Items.Add(IntToStr(lbList.Count));
 lbList.ItemIndex := fILManager.ItemAddEmpty;
 // following will also redraw new item and update the list
 fILManager.ReinitMainDrawSize(lbList);
-fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
 fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
   IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
 lbList.OnClick(nil);  // also calls UpdateIndexAndCount
@@ -857,7 +857,7 @@ If lbList.ItemIndex >= 0 then
       lbList.Items.Add(IntToStr(lbList.Count));
       lbList.ItemIndex := fILManager.ItemAddCopy(Index);
       fILManager.ReinitMainDrawSize(lbList);
-      fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+      fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
       fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
         IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       lbList.OnClick(nil);
@@ -880,7 +880,7 @@ If lbList.ItemIndex >= 0 then
       fILManager.ItemDelete(Index);
       lbList.Items.Delete(Index);
       fILManager.ReinitMainDrawSize(lbList);
-      fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+      fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
       fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
         IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       If lbList.Count > 0 then
@@ -1115,7 +1115,7 @@ If diaItemsImport.Execute then
           lbList.Items.Add(IntToStr(lbList.Count));
         lbList.ItemIndex := Pred(lbList.Count);
         fILManager.ReinitMainDrawSize(lbList);
-        fILManager.ReinitSmallDrawSize(fSelectionForm.lbItems);
+        fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
         fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
           IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
       end;
@@ -1786,7 +1786,7 @@ end;
 procedure TfMainForm.mniMMT_SelectionClick(Sender: TObject);
 begin
 frmItemFrame.Save;
-fSelectionForm.ShowSelection;
+fShopSelectForm.ShowSelection;
 // load potential changes (tags mainly)
 frmItemFrame.Load;
 lbList.SetFocus;

@@ -189,6 +189,7 @@ type
     procedure FlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     procedure GetAndFlagPriceAndAvail(OldPrice: UInt32; OldAvail: Int32); virtual;
     Function SomethingIsUnknown: Boolean; virtual;
+    Function IsAvailable(HonorCount: Boolean): Boolean; virtual;
     // other methods
     procedure AssignInternalEvents(
       ShopListItemUpdate:   TILIndexedObjectL1Event;
@@ -1363,29 +1364,16 @@ begin
 If (ilifWanted in fFlags) and (fShopCount > 0) then
   begin
     Exclude(fFlags,ilifNotAvailable);
-    If (_fAvailableSelected <> 0) and (fUnitPriceSelected > 0) then
+    If IsAvailable(False) then
       begin
-        If _fAvailableSelected > 0 then
-          begin
-            If UInt32(_fAvailableSelected) < fPieces then
-              Include(fFlags,ilifNotAvailable);
-          end
-        else
-          begin
-            If UInt32(Abs(_fAvailableSelected) * 2) < fPieces then
-              Include(fFlags,ilifNotAvailable);
-          end;
-        If _fAvailableSelected <> OldAvail then
-          Include(fFlags,ilifAvailChange);
+        If not IsAvailable(True) then
+          Include(fFlags,ilifNotAvailable);
         If fUnitPriceSelected <> OldPrice then
           Include(fFlags,ilifPriceChange);
       end
-    else
-      begin
-        Include(fFlags,ilifNotAvailable);
-        If (_fAvailableSelected <> OldAvail) then
-          Include(fFlags,ilifAvailChange);
-      end;
+    else Include(fFlags,ilifNotAvailable);
+    If _fAvailableSelected <> OldAvail then
+      Include(fFlags,ilifAvailChange); 
     UpdateList;
     UpdateFlags;
   end;
@@ -1410,6 +1398,24 @@ Function TILItem_Base.SomethingIsUnknown: Boolean;
 begin
 Result := (fItemType = ilitUnknown) or (fManufacturer = ilimUnknown) or
           (fMaterial = ilimtUnknown) or (fSurfaceFinish = ilisfUnknown);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItem_Base.IsAvailable(HonorCount: Boolean): Boolean;
+begin
+If fUnitPriceSelected > 0 then
+  begin
+    If HonorCount then
+      begin
+        If _fAvailableSelected > 0 then
+          Result := UInt32(_fAvailableSelected) >= fPieces
+        else
+          Result := UInt32(Abs(_fAvailableSelected) * 2) >= fPieces;
+      end
+    else Result := _fAvailableSelected <> 0;
+  end
+else Result := False;
 end;
 
 //------------------------------------------------------------------------------

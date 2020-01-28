@@ -117,16 +117,8 @@ implementation
 
 uses
   TextEditForm, ParsingForm, TemplatesForm,
-  InflatablesList_Utils;
-
-const
-  IL_SHOP_PREDEFNOTES: array[0..3] of String = (
-    'nelze vybrat variantu',
-    'konkrétní typ není k dispozici',
-    'dostupnost varianty je nejistá',
-    'pravdìpodonì nelze vybar variantu');
-
-//==============================================================================
+  InflatablesList_Utils,
+  InflatablesList_LocalStrings;
 
 procedure TfrmShopFrame.ValuesUpdateHandler(Sender: TObject; Item, Shop: TObject);
 begin
@@ -236,11 +228,11 @@ var
   Temp: TMenuItem;
 begin
 pmnPredefNotes.Items.Clear;
-For i := Low(IL_SHOP_PREDEFNOTES) to High(IL_SHOP_PREDEFNOTES) do
+For i := Low(IL_SHOPFRAME_PREDEFNOTES) to High(IL_SHOPFRAME_PREDEFNOTES) do
   begin
     Temp := TMenuItem.Create(Self);
     Temp.Name := IL_Format('mniPN_Item%d',[i]);
-    Temp.Caption := IL_SHOP_PREDEFNOTES[i];
+    Temp.Caption := IL_SHOPFRAME_PREDEFNOTES[i];
     Temp.Tag := i;
     Temp.OnClick := Self.mniPredefNotesClick;
     pmnPredefNotes.Items.Add(Temp);
@@ -694,9 +686,9 @@ end;
 procedure TfrmShopFrame.mniPredefNotesClick(Sender: TObject);
 begin
 If (Sender is TMenuItem) and Assigned(fCurrentItemShop) then
-  If (TMenuItem(Sender).Tag >= Low(IL_SHOP_PREDEFNOTES)) and
-     (TMenuItem(Sender).Tag <= High(IL_SHOP_PREDEFNOTES)) then
-    meNotes.Lines.Add(IL_SHOP_PREDEFNOTES[TMenuItem(Sender).Tag]);
+  If (TMenuItem(Sender).Tag >= Low(IL_SHOPFRAME_PREDEFNOTES)) and
+     (TMenuItem(Sender).Tag <= High(IL_SHOPFRAME_PREDEFNOTES)) then
+    meNotes.Lines.Add(IL_SHOPFRAME_PREDEFNOTES[TMenuItem(Sender).Tag]);
 end;
 
 //------------------------------------------------------------------------------

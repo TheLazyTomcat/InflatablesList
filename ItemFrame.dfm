@@ -911,7 +911,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 168
       Width = 65
       Height = 22
-      MaxValue = 268435455
+      MaxValue = 1000000
       MinValue = 1
       TabOrder = 2
       Value = 1

@@ -1,4 +1,4 @@
-unit SelectionForm;
+unit ShopSelectForm;
 
 interface
 
@@ -12,7 +12,7 @@ const
   IL_WM_USER_LVITEMSELECTED = WM_USER + 234;
 
 type
-  TfSelectionForm = class(TForm)
+  TfShopSelectForm = class(TForm)
     lvShops: TListView;
     lblShops: TLabel;
     lblItems: TLabel;
@@ -78,19 +78,20 @@ type
   end;
 
 var
-  fSelectionForm: TfSelectionForm;
+  fShopSelectForm: TfShopSelectForm;
 
 implementation
 
 {$R *.dfm}
 
 uses
+  InflatablesList_Types,
   InflatablesList_Utils,
   InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item,
-  MainForm, PromptForm;
+  PromptForm;
 
-procedure TfSelectionForm.BuildTable;
+procedure TfShopSelectForm.BuildTable;
 var
   i,j:    Integer;
   Index:  Integer;
@@ -114,7 +115,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
             Index := CDA_Add(fShopTable,Temp);
           end;
         Entry.ItemObject := fILManager[i];
-        Entry.Available := fILManager[i][j].Available <> 0;
+        Entry.Available := fILManager[i][j].IsAvailableHere(True);
         Entry.Selected :=  fILManager[i][j].Selected;
         Entry.Index := i;
         Entry.Price := fILManager[i][j].Price;
@@ -134,7 +135,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.FillShops;
+procedure TfShopSelectForm.FillShops;
 var
   i:  Integer;
 begin
@@ -149,7 +150,7 @@ try
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Available));
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Selected));
         If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
-          SubItems.Add(IL_Format('%d Kè',[CDA_GetItem(fShopTable,i).PriceOfSel]))
+          SubItems.Add(IL_Format('%d K',[CDA_GetItem(fShopTable,i).PriceOfSel]))
         else
           SubItems.Add('');
       end;
@@ -161,7 +162,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.FillItems;
+procedure TfShopSelectForm.FillItems;
 var
   i:        Integer;
   VScroll:  Boolean;
@@ -170,12 +171,14 @@ begin
 VScroll := lbItems.Count > (lbItems.ClientHeight div lbItems.ItemHeight);
 lbItems.Items.BeginUpdate;
 try
-  CDA_Sort(CDA_GetItemPtr(fShopTable,fCurrentShopIndex)^.Items);
   lbItems.Clear;
   If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
-    For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
-             CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
-      lbItems.Items.Add(IntToStr(i));
+    begin
+      CDA_Sort(CDA_GetItemPtr(fShopTable,fCurrentShopIndex)^.Items);    
+      For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
+               CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
+        lbItems.Items.Add(IntToStr(i));
+    end;
   // get width for drawing
   If (lbItems.Count > (lbItems.ClientHeight div lbItems.ItemHeight)) then
     begin
@@ -218,7 +221,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.FillItemShop;
+procedure TfShopSelectForm.FillItemShop;
 var
   i:        Integer;
   TempStr:  String;
@@ -262,7 +265,7 @@ try
                   SubItems[2] := '-';
                 // price
                 If ItemObject[i].Price > 0 then
-                  SubItems[3] := IL_Format('%d Kè',[ItemObject[i].Price])
+                  SubItems[3] := IL_Format('%d K',[ItemObject[i].Price])
                 else
                   SubItems[3] := '-';
               end;
@@ -284,7 +287,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.RecountAndFillSelected;
+procedure TfShopSelectForm.RecountAndFillSelected;
 var
   i,j:    Integer;
   Index:  Integer;
@@ -311,7 +314,7 @@ For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
       end;
     lvShops.Items[i].SubItems[2] := IntToStr(CDA_GetItem(fShopTable,i).Selected);
     If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
-      lvShops.Items[i].SubItems[3] := IL_Format('%d Kè',[CDA_GetItem(fShopTable,i).PriceOfSel])
+      lvShops.Items[i].SubItems[3] := IL_Format('%d K',[CDA_GetItem(fShopTable,i).PriceOfSel])
     else
       lvShops.Items[i].SubItems[3] := '';
   end;
@@ -319,7 +322,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.ListViewItemSelected(var Msg: TMessage);
+procedure TfShopSelectForm.ListViewItemSelected(var Msg: TMessage);
 begin
 If Msg.Msg = IL_WM_USER_LVITEMSELECTED then
   ListViewItemSelected;
@@ -327,7 +330,7 @@ end;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-procedure TfSelectionForm.ListViewItemSelected;
+procedure TfShopSelectForm.ListViewItemSelected;
 begin
 If lvShops.ItemIndex <> fCurrentShopIndex then
   begin
@@ -341,7 +344,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.ShopsListSelect(ItemIndex: Integer);
+procedure TfShopSelectForm.ShopsListSelect(ItemIndex: Integer);
 begin
 If (ItemIndex >= 0) and (ItemIndex < lvShops.Items.Count) then
   begin
@@ -357,7 +360,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.UpdateShopIndex;
+procedure TfShopSelectForm.UpdateShopIndex;
 begin
 If lvShops.ItemIndex < 0 then
   begin
@@ -371,7 +374,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.UpdateItemIndex;
+procedure TfShopSelectForm.UpdateItemIndex;
 begin
 If lbItems.ItemIndex < 0 then
   begin
@@ -385,21 +388,21 @@ end;
 
 //==============================================================================
 
-procedure TfSelectionForm.Initialize(ILManager: TILManager);
+procedure TfShopSelectForm.Initialize(ILManager: TILManager);
 begin
 fILManager := ILManager;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.Finalize;
+procedure TfShopSelectForm.Finalize;
 begin
 // nothing to do here
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.ShowSelection;
+procedure TfShopSelectForm.ShowSelection;
 begin
 fCurrentShopIndex := -2; // must be below -1
 BuildTable;
@@ -409,7 +412,7 @@ end;
 
 //==============================================================================
 
-procedure TfSelectionForm.FormCreate(Sender: TObject);
+procedure TfShopSelectForm.FormCreate(Sender: TObject);
 begin
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
@@ -421,21 +424,21 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.FormShow(Sender: TObject);
+procedure TfShopSelectForm.FormShow(Sender: TObject);
 begin
 lvShops.SetFocus;
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.FormDestroy(Sender: TObject);
+procedure TfShopSelectForm.FormDestroy(Sender: TObject);
 begin
 FreeAndNil(fDrawBuffer);
 end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lvShopsSelectItem(Sender: TObject;
+procedure TfShopSelectForm.lvShopsSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 begin
 //this deffers reaction to change and prevents flickering
@@ -444,7 +447,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lbItemsDrawItem(Control: TWinControl;
+procedure TfShopSelectForm.lbItemsDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
   TempStr:    String;
@@ -480,7 +483,12 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
           Pen.Style := psClear;
           Brush.Style := bsSolid;
           If TempItem.Selected then
-            Brush.Color := clBlue
+            begin
+              If TempItem.Available then
+                Brush.Color := clBlue
+              else
+                Brush.Color := $00F8BD6D;
+            end
           else If TempItem.Available then
             Brush.Color := $00D5FFD2
           else
@@ -489,7 +497,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
             TempItem.ItemObject.SmallStrip,BoundsRect.Bottom);
 
           // shop price
-          TempStr := IL_Format('%d Kè',[TempItem.Price]);
+          TempStr := IL_Format('%d K',[TempItem.Price]);
           Brush.Style := bsClear;
           Font.Style := [fsBold];
           Font.Color := clWindowText;
@@ -515,7 +523,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lbItemsClick(Sender: TObject);
+procedure TfShopSelectForm.lbItemsClick(Sender: TObject);
 begin
 UpdateItemIndex;
 FillItemShop;
@@ -523,7 +531,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lbItemsDblClick(Sender: TObject);
+procedure TfShopSelectForm.lbItemsDblClick(Sender: TObject);
 var
   LocalItemObject:  TILItem;
   ShopIndex:        Integer;
@@ -550,7 +558,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lbItemsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfShopSelectForm.lbItemsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   Index:  Integer;
 begin
@@ -567,7 +575,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.pmnItemsPopup(Sender: TObject);
+procedure TfShopSelectForm.pmnItemsPopup(Sender: TObject);
 begin
 mniIT_EditTextTag.Enabled := lbItems.ItemIndex >= 0;
 mniIT_EditNumTag.Enabled := lbItems.ItemIndex >= 0;
@@ -593,7 +601,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditTextTagClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditTextTagClick(Sender: TObject);
 var
   Temp: String;
 begin
@@ -612,7 +620,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditNumTagClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditNumTagClick(Sender: TObject);
 var
   Temp: Integer;
 begin
@@ -622,8 +630,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
       begin
         Temp := Integer(ItemObject.NumTag);
         If IL_InputQuery(IL_Format('Edit numerical tag of %s',[ItemObject.TitleStr]),
-          'Numerical tag:',Temp,fMainForm.frmItemFrame.seNumTag.MinValue,
-          fMainForm.frmItemFrame.seNumTag.MaxValue) then
+          'Numerical tag:',Temp,IL_ITEM_NUM_TAG_MIN,IL_ITEM_NUM_TAG_MAX) then
           begin
             ItemObject.NumTag := Temp;
             lbItems.Invalidate;
@@ -633,7 +640,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditTextTagSelectedClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditTextTagSelectedClick(Sender: TObject);
 var
   Temp: String;
   i:    Integer;
@@ -652,14 +659,13 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditNumTagSelectedClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditNumTagSelectedClick(Sender: TObject);
 var
   Temp: Integer;
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',Temp,
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
+If IL_InputQuery('Edit numerical tag of selected items','Numerical tag:',Temp,IL_ITEM_NUM_TAG_MIN,IL_ITEM_NUM_TAG_MAX) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -671,7 +677,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditTextTagAvailableClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditTextTagAvailableClick(Sender: TObject);
 var
   Temp: String;
   i:    Integer;
@@ -689,14 +695,13 @@ end;
   
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditNumTagAvailableClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditNumTagAvailableClick(Sender: TObject);
 var
   Temp: Integer;
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',Temp,
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
+If IL_InputQuery('Edit numerical tag of available items','Numerical tag:',Temp,IL_ITEM_NUM_TAG_MIN,IL_ITEM_NUM_TAG_MAX) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -708,7 +713,7 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditTextTagAllClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditTextTagAllClick(Sender: TObject);
 var
   Temp: String;
   i:    Integer;
@@ -725,14 +730,13 @@ end;
  
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.mniIT_EditNumTagAllClick(Sender: TObject);
+procedure TfShopSelectForm.mniIT_EditNumTagAllClick(Sender: TObject);
 var
   Temp: Integer;
   i:    Integer;
 begin
 Temp := 0;
-If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',Temp,
-  fMainForm.frmItemFrame.seNumTag.MinValue,fMainForm.frmItemFrame.seNumTag.MaxValue) then
+If IL_InputQuery('Edit numerical tag of all items','Numerical tag:',Temp,IL_ITEM_NUM_TAG_MIN,IL_ITEM_NUM_TAG_MAX) then
   begin
     For i := CDA_Low(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) to
              CDA_High(CDA_GetItem(fShopTable,fCurrentShopIndex).Items) do
@@ -743,7 +747,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfSelectionForm.lvItemShopsDblClick(Sender: TObject);
+procedure TfShopSelectForm.lvItemShopsDblClick(Sender: TObject);
 begin
 If CDA_CheckIndex(fShopTable,fCurrentShopIndex) then
   If CDA_CheckIndex(CDA_GetItem(fShopTable,fCurrentShopIndex).Items,lbItems.ItemIndex) then

@@ -97,16 +97,17 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   begin
     fTable[i].Item := fILManager.Items[i];
     SetLength(fTable[i].Shops,CDA_Count(fKnownShops));
-    // make sure the shops array contains only lin references
+    // make sure the shops array contains only nil references
     For j := Low(fTable[i].Shops) to High(fTable[i].Shops) do
       fTable[i].Shops[j] := nil;
     // fill shops by name
-    For j := fTable[i].Item.ShopLowIndex to fTable[i].Item.ShopHighIndex do
-      begin
-        Index := CDA_IndexOf(fKnownShops,fTable[i].Item[j].Name);
-        If CDA_CheckIndex(fKnownShops,Index) then
-          fTable[i].Shops[Index] := fTable[i].Item[j];
-      end;
+    If fTable[i].Item.DataAccessible then
+      For j := fTable[i].Item.ShopLowIndex to fTable[i].Item.ShopHighIndex do
+        begin
+          Index := CDA_IndexOf(fKnownShops,fTable[i].Item[j].Name);
+          If CDA_CheckIndex(fKnownShops,Index) then
+            fTable[i].Shops[Index] := fTable[i].Item[j];
+        end;
   end;
 end;
 
@@ -160,7 +161,7 @@ procedure TfItemShopTableForm.UpdateInfo(SelCol,SelRow: Integer);
 var
   Shop:     TILItemShop;
   TempStr:  String;
-begin
+begin 
 If dgTable.Visible and (SelRow > 0) and (SelCol > 0) then
   begin
     If Assigned(fTable[Pred(SelRow)].Shops[Pred(SelCol)]) then
@@ -168,26 +169,22 @@ If dgTable.Visible and (SelRow > 0) and (SelCol > 0) then
         Shop := fTable[Pred(SelRow)].Shops[Pred(SelCol)];
         If Shop.Price > 0 then
           begin
-            If (Shop.Price <= fTable[Pred(SelRow)].Item.UnitPriceLowest) and (Shop.Available <> 0) then
-              TempStr := ' (lowest price)'
-            else If (Shop.Price >= fTable[Pred(SelRow)].Item.UnitPriceHighest) and (Shop.Available <> 0) then
-              TempStr := ' (highest price)'
-            else
-              TempStr := '';
             If Shop.Available <> 0 then
               begin
-                If Shop.Available > 0 then
-                  lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d pcs at %d Kè%s',
-                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
-                     Shop.Name,Shop.Available,Shop.Price,TempStr])
+                If Shop.Price <= fTable[Pred(SelRow)].Item.UnitPriceLowest then
+                  TempStr := ' (lowest price)'
+                else If Shop.Price >= fTable[Pred(SelRow)].Item.UnitPriceHighest then
+                  TempStr := ' (highest price)'
                 else
-                  lblSelectedInfo.Caption := IL_Format('%s %sin %s: more than %d pcs at %d Kè%s',
-                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
-                     Shop.Name,Abs(Shop.Available),Shop.Price,TempStr])
+                  TempStr := '';
+                lblSelectedInfo.Caption := IL_Format('%s %sin %s: %s%d pcs at %d Kè%s%s',
+                  [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
+                   Shop.Name,IL_BoolToStr(Shop.Available < 0,'','more than '),Abs(Shop.Available),
+                   Shop.Price,TempStr,IL_BoolToStr(Shop.IsAvailableHere(True),', too few pieces','')]);
               end
-            else lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d Kè%s, not available',
+            else lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d Kè, not available',
                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
-                    Shop.Name,Shop.Price,TempStr]);
+                    Shop.Name,Shop.Price]);
           end
         else lblSelectedInfo.Caption := IL_Format('%s is not available in %s',
                [fTable[Pred(SelRow)].Item.TitleStr,CDA_GetItem(fKnownShops,Pred(SelCol))]);
@@ -364,7 +361,7 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
               begin
 
                 // background
-                If (Shop.Price > 0) and (Shop.Available <> 0) then
+                If Shop.IsAvailableHere(True) then
                   begin   
                     // valid shop
                     If Shop.Price <= fTable[Pred(ARow)].Item.UnitPriceLowest then

@@ -72,7 +72,7 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
             CDA_Init(Temp.Items);
             Index := CDA_Add(fWorkTable,Temp);
           end;
-        If (fILManager[i][j].Available <> 0) and (fILManager[i][j].Price > 0) then
+        If fILManager[i][j].IsAvailableHere(True) then
           begin
             Entry.ItemObject := fILManager[i];
             Entry.Price := fILManager[i][j].Price;  // price of this item in this shop
@@ -110,7 +110,8 @@ For i := 0 to Pred(clbItems.Count) do
             with CDA_GetItemPtr(fWorkTable,j)^ do
               begin
                 Inc(Selected);
-                Inc(PriceOfSel,CDA_GetItem(CDA_GetItem(fWorkTable,j).Items,Index).Price);
+                with CDA_GetItem(CDA_GetItem(fWorkTable,j).Items,Index) do
+                  Inc(PriceOfSel,Price * ItemObject.Pieces);
               end;
         end;
     end;

@@ -1,6 +1,6 @@
-object fSelectionForm: TfSelectionForm
-  Left = 243
-  Top = 76
+object fShopSelectForm: TfShopSelectForm
+  Left = 261
+  Top = 75
   BorderIcons = [biSystemMenu, biMaximize]
   BorderStyle = bsDialog
   Caption = 'Shop selection'

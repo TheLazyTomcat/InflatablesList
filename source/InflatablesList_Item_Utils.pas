@@ -32,7 +32,6 @@ type
     Function ShopsCountStr: String; virtual;
     Function ShopsSelected(out Shop: TILItemShop): Boolean; virtual;
     Function ShopsWorstUpdateResult: TILItemShopUpdateResult; virtual;
-    Function IsAvailable(HonorCount: Boolean): Boolean; virtual;
   end;
 
 implementation
@@ -280,24 +279,6 @@ Result := ilisurSuccess;
 For i := ShopLowIndex to ShopHighIndex do
   If fShops[i].LastUpdateRes > Result then
     Result := fShops[i].LastUpdateRes;
-end;
-
-//------------------------------------------------------------------------------
-
-Function TILItem_Utils.IsAvailable(HonorCount: Boolean): Boolean;
-begin
-If fUnitPriceSelected > 0 then
-  begin
-    If HonorCount then
-      begin
-        If _fAvailableSelected > 0 then
-          Result := UInt32(_fAvailableSelected) >= fPieces
-        else
-          Result := UInt32(Abs(_fAvailableSelected) * 2) >= fPieces;
-      end
-    else Result := _fAvailableSelected <> 0;
-  end
-else Result := False;
 end;
 
 end.

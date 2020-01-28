@@ -33,7 +33,7 @@ type
     { Public declarations }
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
-    Function ShowItemSelect(const Title: String): Integer;
+    Function ShowItemSelect(const Title: String; Selected: Integer = -1): Integer;
   end;
 
 var
@@ -96,12 +96,25 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TfItemSelectForm.ShowItemSelect(const Title: String): Integer;
+Function TfItemSelectForm.ShowItemSelect(const Title: String; Selected: Integer = -1): Integer;
 var
   i:  Integer;
 begin
 Caption := Title;
 FillList;
+If fILManager.CheckIndex(Selected) then
+  begin
+    lbItems.ItemIndex := Selected;
+    lbItems.OnClick(nil);
+    // scroll so that the item is at the top if possible
+    If lbItems.Count > (lbItems.ClientHeight div lbItems.ItemHeight) then
+      begin
+        If (lbItems.Count - Selected) < (lbItems.ClientHeight div lbItems.ItemHeight) then
+          lbItems.TopIndex := lbItems.Count - (lbItems.ClientHeight div lbItems.ItemHeight)
+        else
+          lbItems.TopIndex := Selected;
+      end;
+  end;
 fAccepted := False;
 // reinit renders
 For i := 0 to Pred(lbItems.Count) do

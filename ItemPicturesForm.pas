@@ -571,7 +571,7 @@ var
   Index:  Integer;
   Cntr:   Integer;
 begin
-Index := fItemSelectForm.ShowItemSelect('Select an item for pictures import');
+Index := fItemSelectForm.ShowItemSelect('Select an item for pictures import',fCurrentItem.Index);
 If fILManager.CheckIndex(Index) then
   begin
     If fCurrentItem <> fILManager[Index] then

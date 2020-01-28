@@ -67,6 +67,7 @@ uses
   Classes, Math,
   InflatablesList_Types,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ItemShop;
 
 procedure TILItem_Draw.ReDrawMain;
@@ -288,9 +289,9 @@ with fRender,fRender.Canvas do
         If TotalPrice > 0 then
           begin
             If fPieces > 1 then
-              TempStr := IL_Format('%d (%d) Kè',[TotalPrice,UnitPrice])
+              TempStr := IL_Format('%d (%d) %s',[TotalPrice,UnitPrice,IL_CURRENCY_SYMBOL])
             else
-              TempStr := IL_Format('%d Kè',[TotalPrice]);
+              TempStr := IL_Format('%d %s',[TotalPrice,IL_CURRENCY_SYMBOL]);
             TextOut(Width - (TextWidth(TempStr) + 122),TempInt,TempStr);
           end;
 
@@ -301,9 +302,9 @@ with fRender,fRender.Canvas do
             If (fUnitPriceSelected <> fUnitPriceLowest) and (fUnitPriceSelected > 0) and (fUnitPriceLowest > 0) then
               begin
                 If fPieces > 1 then
-                  TempStr := IL_Format('%d (%d) Kè',[TotalPriceLowest,fUnitPriceLowest])
+                  TempStr := IL_Format('%d (%d) %s',[TotalPriceLowest,fUnitPriceLowest,IL_CURRENCY_SYMBOL])
                 else
-                  TempStr := IL_Format('%d Kè',[TotalPriceLowest]);
+                  TempStr := IL_Format('%d %s',[TotalPriceLowest,IL_CURRENCY_SYMBOL]);
                 TextOut(Width - (TextWidth(TempStr) + 122),TempInt + 20,TempStr);
               end;
           end;
@@ -426,7 +427,7 @@ with fRenderSmall,fRenderSmall.Canvas do
         SetCanvas;
         If fUnitPriceLowest > 0 then
           begin
-            TempStr := IL_Format('%d Kè',[fUnitPriceLowest]);
+            TempStr := IL_Format('%d %s',[fUnitPriceLowest,IL_CURRENCY_SYMBOL]);
             TextOut(Width - 64 - TextWidth(TempStr),20,TempStr);
           end;
     

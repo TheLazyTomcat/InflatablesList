@@ -87,6 +87,7 @@ implementation
 uses
   InflatablesList_Types,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item,
   PromptForm;
@@ -150,7 +151,7 @@ try
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Available));
         SubItems.Add(IntToStr(CDA_GetItem(fShopTable,i).Selected));
         If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
-          SubItems.Add(IL_Format('%d K',[CDA_GetItem(fShopTable,i).PriceOfSel]))
+          SubItems.Add(IL_Format('%d %s',[CDA_GetItem(fShopTable,i).PriceOfSel,IL_CURRENCY_SYMBOL]))
         else
           SubItems.Add('');
       end;
@@ -265,7 +266,7 @@ try
                   SubItems[2] := '-';
                 // price
                 If ItemObject[i].Price > 0 then
-                  SubItems[3] := IL_Format('%d K',[ItemObject[i].Price])
+                  SubItems[3] := IL_Format('%d %s',[ItemObject[i].Price,IL_CURRENCY_SYMBOL])
                 else
                   SubItems[3] := '-';
               end;
@@ -314,7 +315,7 @@ For i := CDA_Low(fShopTable) to CDA_High(fShopTable) do
       end;
     lvShops.Items[i].SubItems[2] := IntToStr(CDA_GetItem(fShopTable,i).Selected);
     If CDA_GetItem(fShopTable,i).PriceOfSel > 0 then
-      lvShops.Items[i].SubItems[3] := IL_Format('%d K',[CDA_GetItem(fShopTable,i).PriceOfSel])
+      lvShops.Items[i].SubItems[3] := IL_Format('%d %s',[CDA_GetItem(fShopTable,i).PriceOfSel,IL_CURRENCY_SYMBOL])
     else
       lvShops.Items[i].SubItems[3] := '';
   end;
@@ -497,7 +498,7 @@ If CDA_CheckIndex(fShopTable,fCurrentShopIndex) and Assigned(fDrawBuffer) then
             TempItem.ItemObject.SmallStrip,BoundsRect.Bottom);
 
           // shop price
-          TempStr := IL_Format('%d K',[TempItem.Price]);
+          TempStr := IL_Format('%d %s',[TempItem.Price,IL_CURRENCY_SYMBOL]);
           Brush.Style := bsClear;
           Font.Style := [fsBold];
           Font.Color := clWindowText;

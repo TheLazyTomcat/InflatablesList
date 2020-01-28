@@ -251,6 +251,7 @@ uses
   StrRect,
   TextEditForm, ItemPicturesForm, ShopsForm, UpdateForm, 
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_Data,
   InflatablesList_ItemShop;
 
@@ -609,8 +610,8 @@ If Assigned(fCurrentItem) then
     // price lowest
     If fCurrentItem.UnitPriceLowest > 0 then
       begin
-        lblUnitPriceLowest.Caption := IL_Format('%d Kè',[fCurrentItem.UnitPriceLowest]);
-        lblTotalPriceLowest.Caption := IL_Format('%d Kè',[fCurrentItem.TotalPriceLowest]);
+        lblUnitPriceLowest.Caption := IL_Format('%d %s',[fCurrentItem.UnitPriceLowest,IL_CURRENCY_SYMBOL]);
+        lblTotalPriceLowest.Caption := IL_Format('%d %s',[fCurrentItem.TotalPriceLowest,IL_CURRENCY_SYMBOL]);
       end
     else
       begin
@@ -620,8 +621,8 @@ If Assigned(fCurrentItem) then
     // price selected
     If fCurrentItem.UnitPriceSelected > 0 then
       begin
-        lblUnitPriceSelected.Caption := IL_Format('%d Kè',[fCurrentItem.UnitPriceSelected]);
-        lblTotalPriceSelected.Caption := IL_Format('%d Kè',[fCurrentItem.TotalPriceSelected]);
+        lblUnitPriceSelected.Caption := IL_Format('%d %s',[fCurrentItem.UnitPriceSelected,IL_CURRENCY_SYMBOL]);
+        lblTotalPriceSelected.Caption := IL_Format('%d %s',[fCurrentItem.TotalPriceSelected,IL_CURRENCY_SYMBOL]);
       end
     else
       begin
@@ -1086,6 +1087,7 @@ end;
 // initialization
 seNumTag.MinValue := IL_ITEM_NUM_TAG_MIN;
 seNumTag.MaxValue := IL_ITEM_NUM_TAG_MAX;
+lblUnitDefaultPrice.Caption := IL_Format(lblUnitDefaultPrice.Caption,[IL_CURRENCY_SYMBOL]);
 DisableHighlight;
 BuildFlagMacrosMenu;
 PrepareArrows;

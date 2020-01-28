@@ -89,10 +89,10 @@ object frmItemFrame: TfrmItemFrame
     object lblUnitDefaultPrice: TLabel
       Left = 272
       Top = 502
-      Width = 87
+      Width = 92
       Height = 13
       Anchors = [akLeft, akBottom]
-      Caption = 'Default price [K'#269']:'
+      Caption = 'Default price [%s]:'
     end
     object imgManufacturerLogo: TImage
       Left = 4

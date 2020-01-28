@@ -48,6 +48,7 @@ implementation
 
 uses
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ShopSelectItemsArray,
   InflatablesList_Item;
 
@@ -190,7 +191,7 @@ For i := CDA_Low(fWorkTable) to CDA_High(fWorkTable) do
     begin
       lvShops.Items[Cntr].Caption := CDA_GetItem(fWorkTable,i).ShopName;
       If CDA_GetItem(fWorkTable,i).PriceOfSel > 0 then
-        lvShops.Items[Cntr].SubItems[0] := IL_Format('%d Kè',[CDA_GetItem(fWorkTable,i).PriceOfSel])
+        lvShops.Items[Cntr].SubItems[0] := IL_Format('%d %s',[CDA_GetItem(fWorkTable,i).PriceOfSel,IL_CURRENCY_SYMBOL])
       else
         lvShops.Items[Cntr].SubItems[0] := '';
       Inc(Cntr);
@@ -314,7 +315,7 @@ If Assigned(fDrawBuffer) then
           TILItem(clbItems.Items.Objects[aIndex]).SmallStrip,BoundsRect.Bottom);
 
         // shop price
-        TempStr := IL_Format('%d Kè',[TILItem(clbItems.Items.Objects[aIndex]).UnitPrice]);
+        TempStr := IL_Format('%d %s',[TILItem(clbItems.Items.Objects[aIndex]).UnitPrice,IL_CURRENCY_SYMBOL]);
         Brush.Style := bsClear;
         Font.Style := [fsBold];
         Font.Color := clWindowText;

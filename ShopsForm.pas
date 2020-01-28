@@ -84,7 +84,8 @@ uses
   AuxTypes,
   TemplatesForm, UpdateForm,
   InflatablesList_Types,
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_LocalStrings;
 
 {$R *.dfm}
 
@@ -132,12 +133,12 @@ If Assigned(fCurrentItem) and (Shop = fCurrentItem) then
   begin
     // show prices
     If fCurrentItem.UnitPriceLowest > 0 then
-      lePriceLowest.Text := IL_Format('%d Kè',[fCurrentItem.UnitPriceLowest])
+      lePriceLowest.Text := IL_Format('%d %s',[fCurrentItem.UnitPriceLowest,IL_CURRENCY_SYMBOL])
     else
       lePriceLowest.Text := '-';
     If fCurrentItem.UnitPriceSelected > 0 then
       begin
-        lePriceSelected.Text := IL_Format('%d Kè',[fCurrentItem.UnitPriceSelected]);
+        lePriceSelected.Text := IL_Format('%d %s',[fCurrentItem.UnitPriceSelected,IL_CURRENCY_SYMBOL]);
         If (fCurrentItem.UnitPriceSelected <> fCurrentItem.UnitPriceLowest) and (fCurrentItem.UnitPriceLowest > 0) then
           lePriceSelected.Color := clYellow
         else
@@ -175,7 +176,7 @@ If Assigned(fCurrentItem) and (Item = fCurrentItem) and  (Index >= 0) and (Index
         SubItems[2] := '-';
       // price
       If fCurrentItem.Shops[Index].Price > 0 then
-        SubItems[3] := IL_Format('%d Kè',[fCurrentItem.Shops[Index].Price])
+        SubItems[3] := IL_Format('%d %s',[fCurrentItem.Shops[Index].Price,IL_CURRENCY_SYMBOL])
       else
         SubItems[3] := '-';
     end;

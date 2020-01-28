@@ -23,6 +23,7 @@ implementation
 uses
   SysUtils,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_Data,
   InflatablesList_ItemShopParsingSettings;
 
@@ -50,7 +51,7 @@ begin
 Result := False;
 For i := 0 to Pred(PriceHistoryEntryCount) do
   If CompFunc(IL_FormatDateTime('yyyy-mm-dd hh:nn:ss',PriceHistoryEntries[i].Time),False,False,False) or
-     CompFunc(IntToStr(PriceHistoryEntries[i].Value),False,False,False,'Kè') then
+     CompFunc(IntToStr(PriceHistoryEntries[i].Value),False,False,False,IL_CURRENCY_SYMBOL) then
     begin
       Result := True;
       Break{For i};
@@ -83,7 +84,7 @@ case Field of
   ilassrShopURL:            Result := SearchSettings.CompareFunc(fShopURL,True,True,False);
   ilassrItemURL:            Result := SearchSettings.CompareFunc(fItemURL,True,True,False);
   ilassrAvailable:          Result := SearchSettings.CompareFunc(IntToStr(fAvailable),False,True,False,'pcs');
-  ilassrPrice:              Result := SearchSettings.CompareFunc(IntToStr(fPrice),False,True,False,'Kè');
+  ilassrPrice:              Result := SearchSettings.CompareFunc(IntToStr(fPrice),False,True,False,IL_CURRENCY_SYMBOL);
   ilassrNotes:              Result := SearchSettings.CompareFunc(fNotes,True,True,False);
   ilassrLastUpdResult:      Result := SearchSettings.CompareFunc(TILDataProvider.GetShopUpdateResultString(fLastUpdateRes),False,False,False);
   ilassrLastUpdMessage:     Result := SearchSettings.CompareFunc(fLastUpdateMsg,True,False,False);

@@ -23,6 +23,7 @@ uses
   SysUtils,
   AuxTypes, BitOps,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ItemShop;
 
 Function TILItem_Comp.Contains(const Text: String; Value: TILItemSearchResult): Boolean;
@@ -91,7 +92,7 @@ If fDataAccessible then
     ilisrUnitWeight:            Result := IL_ContainsText(IL_Format('%dg',[fUnitWeight]),Text);
     ilisrNotes:                 Result := IL_ContainsText(fNotes,Text);
     ilisrReviewURL:             Result := IL_ContainsText(fReviewURL,Text);
-    ilisrUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%dK',[fUnitPriceDefault]),Text);
+    ilisrUnitPriceDefault:      Result := IL_ContainsText(IL_Format('%d%s',[fUnitPriceDefault,IL_CURRENCY_SYMBOL]),Text);
     ilisrRating:                Result := IL_ContainsText(IL_Format('%d%%',[fRating]),Text);
     ilisrRatingDetails:         Result := IL_ContainsText(fRatingDetails,Text);
     ilisrSelectedShop:          If ShopsSelected(SelShop) then

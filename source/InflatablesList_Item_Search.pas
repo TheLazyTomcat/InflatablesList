@@ -23,7 +23,8 @@ implementation
 
 uses
   SysUtils,
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_LocalStrings;
 
 Function TILItem_Search.SearchField(const SearchSettings: TILAdvSearchSettings; Field: TILAdvItemSearchResult): Boolean;
 var
@@ -118,17 +119,17 @@ case Field of
   ilaisrTotalWeightStr:       Result := SearchSettings.CompareFunc(TotalWeightStr,True,False,True);
   ilaisrNotes:                Result := SearchSettings.CompareFunc(fNotes,True,True,False);
   ilaisrReviewURL:            Result := SearchSettings.CompareFunc(fReviewURL,True,True,False);
-  ilaisrUnitPriceDefault:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceDefault),False,True,False,'Kè');
+  ilaisrUnitPriceDefault:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceDefault),False,True,False,IL_CURRENCY_SYMBOL);
   ilaisrRating:               Result := SearchSettings.CompareFunc(IntToStr(fRating),False,True,False,'%');
   ilaisrRatingDetails:        Result := SearchSettings.CompareFunc(fRatingDetails,True,True,False);
-  ilaisrUnitPrice:            Result := SearchSettings.CompareFunc(IntToStr(UnitPrice),False,False,True,'Kè');
-  ilaisrUnitPriceLowest:      Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceLowest),False,False,True,'Kè');
-  ilaisrTotalPriceLowest:     Result := SearchSettings.CompareFunc(IntToStr(TotalPriceLowest),False,False,True,'Kè');
-  ilaisrUnitPriceHighest:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceHighest),False,False,True,'Kè');
-  ilaisrTotalPriceHighest:    Result := SearchSettings.CompareFunc(IntToStr(TotalPriceHighest),False,False,True,'Kè');
-  ilaisrUnitPriceSel:         Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceSelected),False,False,False,'Kè');
-  ilaisrTotalPriceSel:        Result := SearchSettings.CompareFunc(IntToStr(TotalPriceSelected),False,False,True,'Kè');
-  ilaisrTotalPrice:           Result := SearchSettings.CompareFunc(IntToStr(TotalPrice),False,False,True,'Kè');
+  ilaisrUnitPrice:            Result := SearchSettings.CompareFunc(IntToStr(UnitPrice),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrUnitPriceLowest:      Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceLowest),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrTotalPriceLowest:     Result := SearchSettings.CompareFunc(IntToStr(TotalPriceLowest),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrUnitPriceHighest:     Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceHighest),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrTotalPriceHighest:    Result := SearchSettings.CompareFunc(IntToStr(TotalPriceHighest),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrUnitPriceSel:         Result := SearchSettings.CompareFunc(IntToStr(fUnitPriceSelected),False,False,False,IL_CURRENCY_SYMBOL);
+  ilaisrTotalPriceSel:        Result := SearchSettings.CompareFunc(IntToStr(TotalPriceSelected),False,False,True,IL_CURRENCY_SYMBOL);
+  ilaisrTotalPrice:           Result := SearchSettings.CompareFunc(IntToStr(TotalPrice),False,False,True,IL_CURRENCY_SYMBOL);
   ilaisrAvailableLowest:      Result := SearchSettings.CompareFunc(IntToStr(fAvailableLowest),False,False,True,'pcs');
   ilaisrAvailableHighest:     Result := SearchSettings.CompareFunc(IntToStr(fAvailableHighest),False,False,True,'pcs');
   ilaisrAvailableSel:         Result := SearchSettings.CompareFunc(IntToStr(_fAvailableSelected),False,False,False,'pcs');

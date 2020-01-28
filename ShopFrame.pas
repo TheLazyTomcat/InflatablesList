@@ -210,7 +210,7 @@ If Assigned(fCurrentItemShop) and (Shop = fCurrentItemShop) then
           begin
             Caption := IL_FormatDateTime('yyyy-mm-dd hh:nn',fCurrentItemShop.PriceHistoryEntries[i].Time);
             If fCurrentItemShop.PriceHistoryEntries[i].Value > 0 then
-              SubItems[0] := IL_Format('%d Kè',[fCurrentItemShop.PriceHistoryEntries[i].Value])
+              SubItems[0] := IL_Format('%d %s',[fCurrentItemShop.PriceHistoryEntries[i].Value,IL_CURRENCY_SYMBOL])
             else
               SubItems[0] := '-';
           end;
@@ -430,6 +430,7 @@ fILManager := ILManager;
 fILManager.OnShopValuesUpdate := ValuesUpdateHandler;
 fILManager.OnShopAvailHistoryUpdate := AvailHistoryUpdateHandler;
 fILManager.OnShopPriceHistoryUpdate := PriceHistoryUpdateHandler;
+lblPrice.Caption := IL_Format(lblPrice.Caption,[IL_CURRENCY_SYMBOL]);
 BuildPredefNotesMenu;
 FillTemplatesList;
 end;

@@ -30,9 +30,9 @@ Function TILManager_Search.Search_Compare(const Value: String; IsText,IsEditable
   Function UnitsRectify: String;
   begin
     If (fCurrentSearchSettings.IncludeUnits) and (Length(UnitStr) > 0) then
-      Result := IL_Format('%s%s',[fCurrentSearchSettings.Text,UnitStr])
+      Result := IL_Format('%s%s',[Value,UnitStr])
     else
-      Result := fCurrentSearchSettings.Text;
+      Result := Value;
   end;
   
 begin
@@ -43,16 +43,16 @@ If (not fCurrentSearchSettings.TextsOnly or IsText) and
     If fCurrentSearchSettings.PartialMatch then
       begin
         If fCurrentSearchSettings.CaseSensitive then
-          Result := IL_ContainsStr(Value,UnitsRectify)
+          Result := IL_ContainsStr(UnitsRectify,fCurrentSearchSettings.Text)
         else
-          Result := IL_ContainsText(Value,UnitsRectify)
+          Result := IL_ContainsText(UnitsRectify,fCurrentSearchSettings.Text)
       end
     else
       begin
         If fCurrentSearchSettings.CaseSensitive then
-          Result := IL_SameStr(Value,UnitsRectify)
+          Result := IL_SameStr(UnitsRectify,fCurrentSearchSettings.Text)
         else
-          Result := IL_SameText(Value,UnitsRectify)
+          Result := IL_SameText(UnitsRectify,fCurrentSearchSettings.Text)
       end;
   end
 else Result := False;

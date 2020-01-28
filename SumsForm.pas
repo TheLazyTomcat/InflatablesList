@@ -89,6 +89,7 @@ implementation
 uses
   InflatablesList_Types,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ItemShop;
 
 procedure IL_WriteCellValueCond(Grid: TStringGrid; Col,Row: Integer; Value: Integer; const UnitStr: String; Marked: Boolean = False); overload;
@@ -315,13 +316,13 @@ IL_WriteCellValueCond(sgSumsGrandTotal,0,1,Sums.Items,'');
 IL_WriteCellValueCond(sgSumsGrandTotal,1,1,Sums.Pieces,'');
 IL_WriteCellValueCond(sgSumsGrandTotal,2,1,Sums.UnitWeigth / 1000,'kg');
 IL_WriteCellValueCond(sgSumsGrandTotal,3,1,Sums.TotalWeight / 1000,'kg');
-IL_WriteCellValueCond(sgSumsGrandTotal,4,1,Sums.UnitPriceLow,'Kè');
-IL_WriteCellValueCond(sgSumsGrandTotal,5,1,Sums.UnitPriceSel,'Kè',
+IL_WriteCellValueCond(sgSumsGrandTotal,4,1,Sums.UnitPriceLow,IL_CURRENCY_SYMBOL);
+IL_WriteCellValueCond(sgSumsGrandTotal,5,1,Sums.UnitPriceSel,IL_CURRENCY_SYMBOL,
   (Sums.UnitPriceLow <> Sums.UnitPriceSel) and (Sums.UnitPriceSel > 0));
-IL_WriteCellValueCond(sgSumsGrandTotal,6,1,Sums.TotalPriceLow,'Kè');
-IL_WriteCellValueCond(sgSumsGrandTotal,7,1,Sums.TotalPriceSel,'Kè',
+IL_WriteCellValueCond(sgSumsGrandTotal,6,1,Sums.TotalPriceLow,IL_CURRENCY_SYMBOL);
+IL_WriteCellValueCond(sgSumsGrandTotal,7,1,Sums.TotalPriceSel,IL_CURRENCY_SYMBOL,
   (Sums.TotalPriceLow <> Sums.TotalPriceSel) and (Sums.TotalPriceSel > 0));
-IL_WriteCellValueCond(sgSumsGrandTotal,8,1,Sums.TotalPrice,'Kè');
+IL_WriteCellValueCond(sgSumsGrandTotal,8,1,Sums.TotalPrice,IL_CURRENCY_SYMBOL);
 end;
 
 //------------------------------------------------------------------------------
@@ -353,13 +354,13 @@ For i := Ord(Low(Sums)) to Ord(High(Sums)) do
     IL_WriteCellValueCond(sgSumsByType,i + 1,2,Sums[TILItemType(i)].Pieces,'');
     IL_WriteCellValueCond(sgSumsByType,i + 1,3,Sums[TILItemType(i)].UnitWeigth / 1000,'kg');
     IL_WriteCellValueCond(sgSumsByType,i + 1,4,Sums[TILItemType(i)].TotalWeight / 1000,'kg');
-    IL_WriteCellValueCond(sgSumsByType,i + 1,5,Sums[TILItemType(i)].UnitPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByType,i + 1,6,Sums[TILItemType(i)].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByType,i + 1,5,Sums[TILItemType(i)].UnitPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByType,i + 1,6,Sums[TILItemType(i)].UnitPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[TILItemType(i)].UnitPriceLow <> Sums[TILItemType(i)].UnitPriceSel) and (Sums[TILItemType(i)].UnitPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByType,i + 1,7,Sums[TILItemType(i)].TotalPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByType,i + 1,8,Sums[TILItemType(i)].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByType,i + 1,7,Sums[TILItemType(i)].TotalPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByType,i + 1,8,Sums[TILItemType(i)].TotalPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[TILItemType(i)].TotalPriceLow <> Sums[TILItemType(i)].TotalPriceSel) and (Sums[TILItemType(i)].TotalPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByType,i + 1,9,Sums[TILItemType(i)].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByType,i + 1,9,Sums[TILItemType(i)].TotalPrice,IL_CURRENCY_SYMBOL);
   end;
 end;
 
@@ -392,13 +393,13 @@ For i := Ord(Low(Sums)) to Ord(High(Sums)) do
     IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,2,Sums[TILItemManufacturer(i)].Pieces,'');
     IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,3,Sums[TILItemManufacturer(i)].UnitWeigth / 1000,'kg');
     IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,4,Sums[TILItemManufacturer(i)].TotalWeight / 1000,'kg');
-    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,5,Sums[TILItemManufacturer(i)].UnitPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,6,Sums[TILItemManufacturer(i)].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,5,Sums[TILItemManufacturer(i)].UnitPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,6,Sums[TILItemManufacturer(i)].UnitPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[TILItemManufacturer(i)].UnitPriceLow <> Sums[TILItemManufacturer(i)].UnitPriceSel) and (Sums[TILItemManufacturer(i)].UnitPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,7,Sums[TILItemManufacturer(i)].TotalPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,8,Sums[TILItemManufacturer(i)].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,7,Sums[TILItemManufacturer(i)].TotalPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,8,Sums[TILItemManufacturer(i)].TotalPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[TILItemManufacturer(i)].TotalPriceLow <> Sums[TILItemManufacturer(i)].TotalPriceSel) and (Sums[TILItemManufacturer(i)].TotalPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,9,Sums[TILItemManufacturer(i)].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByManufacturer,i + 1,9,Sums[TILItemManufacturer(i)].TotalPrice,IL_CURRENCY_SYMBOL);
   end;
 end;
 
@@ -453,13 +454,13 @@ For i := Ord(Low(Sums)) to Ord(High(Sums)) do
     IL_WriteCellValueCond(sgSumsBySelShop,i + 1,2,Sums[i].Pieces,'');
     IL_WriteCellValueCond(sgSumsBySelShop,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
     IL_WriteCellValueCond(sgSumsBySelShop,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
-    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,5,Sums[i].UnitPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,6,Sums[i].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,5,Sums[i].UnitPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,6,Sums[i].UnitPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[i].UnitPriceLow <> Sums[i].UnitPriceSel) and (Sums[i].UnitPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,7,Sums[i].TotalPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,8,Sums[i].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,7,Sums[i].TotalPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,8,Sums[i].TotalPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[i].TotalPriceLow <> Sums[i].TotalPriceSel) and (Sums[i].TotalPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,9,Sums[i].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsBySelShop,i + 1,9,Sums[i].TotalPrice,IL_CURRENCY_SYMBOL);
   end;
 end;
 
@@ -513,13 +514,13 @@ For i := Ord(Low(Sums)) to Ord(High(Sums)) do
     IL_WriteCellValueCond(sgSumsByTextTag,i + 1,2,Sums[i].Pieces,'');
     IL_WriteCellValueCond(sgSumsByTextTag,i + 1,3,Sums[i].UnitWeigth / 1000,'kg');
     IL_WriteCellValueCond(sgSumsByTextTag,i + 1,4,Sums[i].TotalWeight / 1000,'kg');
-    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,5,Sums[i].UnitPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,6,Sums[i].UnitPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,5,Sums[i].UnitPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,6,Sums[i].UnitPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[i].UnitPriceLow <> Sums[i].UnitPriceSel) and (Sums[i].UnitPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,7,Sums[i].TotalPriceLow,'Kè');
-    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,8,Sums[i].TotalPriceSel,'Kè',
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,7,Sums[i].TotalPriceLow,IL_CURRENCY_SYMBOL);
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,8,Sums[i].TotalPriceSel,IL_CURRENCY_SYMBOL,
       (Sums[i].TotalPriceLow <> Sums[i].TotalPriceSel) and (Sums[i].TotalPriceSel > 0));
-    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,9,Sums[i].TotalPrice,'Kè');
+    IL_WriteCellValueCond(sgSumsByTextTag,i + 1,9,Sums[i].TotalPrice,IL_CURRENCY_SYMBOL);
   end;
 end;
 

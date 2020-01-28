@@ -68,7 +68,8 @@ implementation
 {$R *.dfm}
 
 uses
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_LocalStrings;
 
 procedure TfItemShopTableForm.EnumShops;
 var
@@ -177,14 +178,14 @@ If dgTable.Visible and (SelRow > 0) and (SelCol > 0) then
                   TempStr := ' (highest price)'
                 else
                   TempStr := '';
-                lblSelectedInfo.Caption := IL_Format('%s %sin %s: %s%d pcs at %d Kè%s%s',
+                lblSelectedInfo.Caption := IL_Format('%s %sin %s: %s%d pcs at %d %s%s%s',
                   [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
-                   Shop.Name,IL_BoolToStr(Shop.Available < 0,'','more than '),Abs(Shop.Available),
-                   Shop.Price,TempStr,IL_BoolToStr(Shop.IsAvailableHere(True),', too few pieces','')]);
+                   Shop.Name,IL_BoolToStr(Shop.Available < 0,'','more than '),Abs(Shop.Available),Shop.Price,
+                   IL_CURRENCY_SYMBOL,TempStr,IL_BoolToStr(Shop.IsAvailableHere(True),', too few pieces','')]);
               end
-            else lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d Kè, not available',
+            else lblSelectedInfo.Caption := IL_Format('%s %sin %s: %d %s, not available',
                    [fTable[Pred(SelRow)].Item.TitleStr,IL_BoolToStr(Shop.Selected,'','selected '),
-                    Shop.Name,Shop.Price]);
+                    Shop.Name,Shop.Price,IL_CURRENCY_SYMBOL]);
           end
         else lblSelectedInfo.Caption := IL_Format('%s is not available in %s',
                [fTable[Pred(SelRow)].Item.TitleStr,CDA_GetItem(fKnownShops,Pred(SelCol))]);
@@ -395,7 +396,7 @@ If (Sender is TDrawGrid) and Assigned(fDrawBuffer) then
                     // price
                     Font.Style := Font.Style + [fsBold];
                     If Shop.Price > 0 then
-                      TempStr := IL_Format('%d Kè',[Shop.Price])
+                      TempStr := IL_Format('%d %s',[Shop.Price,IL_CURRENCY_SYMBOL])
                     else
                       TempStr := '-';
                     TextOut(BoundsRect.Right - TextWidth(TempStr) - 5,2,TempStr);

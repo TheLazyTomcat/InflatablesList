@@ -45,6 +45,7 @@ implementation
 uses
   InflatablesList_Types,
   InflatablesList_Utils,
+  InflatablesList_LocalStrings,
   InflatablesList_ItemShop;
 
 procedure TfOverviewForm.OnOverviewUpdate(Sender: TObject);
@@ -142,7 +143,7 @@ For i := Low(Sums) to Pred(High(Sums)) do
     sgOverview.Cells[1,i + 1] := IntToStr(Sums[i].Items);
     sgOverview.Cells[2,i + 1] := IntToStr(Sums[i].Pieces);
     sgOverview.Cells[3,i + 1] := IL_Format('%g kg',[Sums[i].TotalWeight / 1000]);
-    sgOverview.Cells[4,i + 1] := IL_Format('%d Kè',[Sums[i].TotalPrice]);
+    sgOverview.Cells[4,i + 1] := IL_Format('%d %s',[Sums[i].TotalPrice,IL_CURRENCY_SYMBOL]);
   end;
 // last row (combined total)
 If sgOverview.RowCount > 2 then
@@ -150,7 +151,7 @@ If sgOverview.RowCount > 2 then
     sgOverview.Cells[1,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Items);
     sgOverview.Cells[2,Pred(sgOverview.RowCount)] := IntToStr(Sums[High(Sums)].Pieces);
     sgOverview.Cells[3,Pred(sgOverview.RowCount)] := IL_Format('%g kg',[Sums[High(Sums)].TotalWeight / 1000]);
-    sgOverview.Cells[4,Pred(sgOverview.RowCount)] := IL_Format('%d Kè',[Sums[High(Sums)].TotalPrice]);
+    sgOverview.Cells[4,Pred(sgOverview.RowCount)] := IL_Format('%d %s',[Sums[High(Sums)].TotalPrice,IL_CURRENCY_SYMBOL]);
   end;
 end;
 

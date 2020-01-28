@@ -29,9 +29,9 @@ object frmShopFrame: TfrmShopFrame
     object lblPrice: TLabel
       Left = 184
       Top = 120
-      Width = 49
+      Width = 54
       Height = 13
-      Caption = 'Price [K'#269']:'
+      Caption = 'Price [%s]:'
     end
     object lblAvailHistory: TLabel
       Left = 0

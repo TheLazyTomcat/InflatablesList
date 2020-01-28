@@ -6,14 +6,11 @@ object fMainForm: TfMainForm
   ClientHeight = 707
   ClientWidth = 1264
   Color = clBtnFace
-  Constraints.MinHeight = 761
-  Constraints.MinWidth = 1272
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  KeyPreview = True
   Menu = mmMainMenu
   OldCreateOrder = False
   Position = poDefault
@@ -43,6 +40,8 @@ object fMainForm: TfMainForm
     Height = 673
     Anchors = [akTop, akRight, akBottom]
     Caption = 'Item details'
+    Constraints.MinHeight = 673
+    Constraints.MinWidth = 641
     TabOrder = 1
     DesignSize = (
       641
@@ -51,7 +50,7 @@ object fMainForm: TfMainForm
       Left = 8
       Top = 16
       Width = 625
-      Height = 652
+      Height = 650
       Anchors = [akLeft, akTop, akBottom]
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -60,9 +59,6 @@ object fMainForm: TfMainForm
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      inherited pnlMain: TPanel
-        Height = 652
-      end
     end
   end
   object sbStatusBar: TStatusBar
@@ -109,6 +105,8 @@ object fMainForm: TfMainForm
     Style = lbOwnerDrawFixed
     AutoComplete = False
     Anchors = [akLeft, akTop, akRight, akBottom]
+    Constraints.MinHeight = 646
+    Constraints.MinWidth = 601
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11

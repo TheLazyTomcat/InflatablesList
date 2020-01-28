@@ -673,7 +673,6 @@ end;
 procedure TfrmItemFrame.DisableHighlight;
 begin
 shpHighlight.Visible := False;
-// ...selected shop
 fLastFoundValue := ilisrNone;
 tmrHighlightTimer.Tag := 0;
 tmrHighlightTimer.Enabled := False;

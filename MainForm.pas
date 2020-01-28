@@ -105,9 +105,9 @@ type
     btnFindPrev: TButton;
     btnFindNext: TButton;
     gbDetails: TGroupBox;
-    frmItemFrame: TfrmItemFrame;
     shpListFiller: TShape;
     sbStatusBar: TStatusBar;
+    frmItemFrame: TfrmItemFrame;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);

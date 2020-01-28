@@ -3,7 +3,6 @@ object frmItemFrame: TfrmItemFrame
   Top = 0
   Width = 625
   Height = 650
-  Anchors = [akLeft, akTop, akBottom]
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -1355,11 +1354,6 @@ object frmItemFrame: TfrmItemFrame
       ItemHeight = 13
       TabOrder = 29
       OnChange = cmbSurfaceFinishChange
-      Items.Strings = (
-        'unknown'
-        'glossy'
-        'matte'
-        'combined')
     end
   end
   object tmrHighlightTimer: TTimer

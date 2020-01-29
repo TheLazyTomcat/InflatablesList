@@ -1,10 +1,10 @@
 object fItemPicturesForm: TfItemPicturesForm
-  Left = 691
-  Top = 141
+  Left = 443
+  Top = 136
   BorderStyle = bsDialog
   Caption = 'fItemPicturesForm'
   ClientHeight = 560
-  ClientWidth = 552
+  ClientWidth = 688
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -39,6 +39,28 @@ object fItemPicturesForm: TfItemPicturesForm
     OnDblClick = lbPicturesDblClick
     OnDrawItem = lbPicturesDrawItem
     OnMouseDown = lbPicturesMouseDown
+  end
+  object gbPictureDetails: TGroupBox
+    Left = 552
+    Top = 8
+    Width = 129
+    Height = 545
+    Caption = 'Picture details'
+    TabOrder = 1
+    inline frmItemPictureFrame: TfrmItemPictureFrame
+      Left = 8
+      Top = 16
+      Width = 112
+      Height = 522
+      Constraints.MaxWidth = 112
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
   end
   object pmnPictures: TPopupMenu
     OnPopup = pmnPicturesPopup
@@ -129,14 +151,6 @@ object fItemPicturesForm: TfItemPicturesForm
     object mniIP_MoveDown: TMenuItem
       Caption = 'Move down'
       OnClick = mniIP_MoveDownClick
-    end
-    object N5: TMenuItem
-      Caption = '-'
-    end
-    object mniIP_Details: TMenuItem
-      Caption = 'Details...'
-      Enabled = False
-      OnClick = mniIP_DetailsClick
     end
   end
   object diaOpenDialog: TOpenDialog

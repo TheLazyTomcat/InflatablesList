@@ -5,6 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Menus,
+  ItemPictureFrame,
   InflatablesList_Item,
   InflatablesList_Manager;
 
@@ -35,8 +36,8 @@ type
     mniIP_MoveDown: TMenuItem;
     diaOpenDialog: TOpenDialog;
     diaSaveDialog: TSaveDialog;
-    N5: TMenuItem;
-    mniIP_Details: TMenuItem;
+    gbPictureDetails: TGroupBox;
+    frmItemPictureFrame: TfrmItemPictureFrame;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -63,7 +64,6 @@ type
     procedure mniIP_PackagePictureClick(Sender: TObject);
     procedure mniIP_MoveUpClick(Sender: TObject);
     procedure mniIP_MoveDownClick(Sender: TObject);
-    procedure mniIP_DetailsClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:     TILManager;
@@ -142,13 +142,14 @@ fILManager := ILManager;
 fDirPics := IL_ExcludeTrailingPathDelimiter(fILManager.StaticSettings.DefaultPath);
 fDirThumbs := fDirPics;
 fDirExport := fDirPics;
+frmItemPictureFrame.Initialize(ILManager);
 end;
 
 //------------------------------------------------------------------------------
 
 procedure TfItemPicturesForm.Finalize;
 begin
-// nothing to do
+frmItemPictureFrame.Finalize;
 end;
 
 //------------------------------------------------------------------------------
@@ -199,6 +200,7 @@ end;
 
 procedure TfItemPicturesForm.lbPicturesClick(Sender: TObject);
 begin
+frmItemPictureFrame.SetPicture(fCurrentItem.Pictures,lbPictures.ItemIndex,True);
 UpdateIndex;
 end;
 
@@ -650,7 +652,7 @@ var
   Directory:  String;
   i,Cntr:     Integer;
 begin
-If lbPictures.ItemIndex >= 0 then
+If lbPictures.Count > 0 then
   begin
     Directory := fDirExport;
     If IL_SelectDirectory('Select directory for pictures export',Directory) then
@@ -678,7 +680,7 @@ var
   Directory:  String;
   i,Cntr:     Integer;
 begin
-If lbPictures.ItemIndex >= 0 then
+If lbPictures.Count > 0 then
   begin
     Directory := fDirExport;
     If IL_SelectDirectory('Select directory for thumbnails export',Directory) then
@@ -755,13 +757,6 @@ If (lbPictures.Count > 0) and ((lbPictures.ItemIndex >= 0) and (lbPictures.ItemI
     lbPictures.Invalidate;
     UpdateIndex;
   end;
-end;
-
-//------------------------------------------------------------------------------
-
-procedure TfItemPicturesForm.mniIP_DetailsClick(Sender: TObject);
-begin
-//
 end;
 
 end.

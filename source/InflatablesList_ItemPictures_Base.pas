@@ -10,6 +10,8 @@ uses
   InflatablesList_Types;
 
 type
+  TILThumbnailSize = (iltsOriginal,iltsFull,iltsSmall,iltsMini);
+
   TILItemPicturesEntry = record
     PictureFile:    String;   // only file name, not full path
     PictureSize:    UInt64;
@@ -83,6 +85,7 @@ type
     procedure Clear(Destroying: Boolean = False); virtual;
     Function AutomatePictureFile(const FileName: String; out AutomationInfo: TILPictureAutomationInfo): Boolean; virtual;
     procedure RealodPictureInfo(Index: Integer); virtual;
+    procedure OpenThumbnailFile(Index: Integer; ThumbnailSize: TILThumbnailSize); virtual;
     procedure OpenPictureFile(Index: Integer); virtual;
     procedure SetThumbnail(Index: Integer; Thumbnail: TBitmap; CreateCopy: Boolean); virtual;
     procedure SetItemPicture(Index: Integer; Value: Boolean); virtual;
@@ -595,6 +598,34 @@ If CheckIndex(Index) then
     end;
   end
 else raise Exception.CreateFmt('TILItemPictures_Base.RealodPictureInfo: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.OpenThumbnailFile(Index: Integer; ThumbnailSize: TILThumbnailSize);
+var
+  TempFileName:   String;
+  SelectedBitmap: TBitmap;
+begin
+If CheckIndex(Index) then
+  begin
+    TempFileName := IL_ChangeFileExt(fStaticSettings.TempPath + fPictures[Index].PictureFile,'.bmp');
+    case ThumbnailSize of
+      iltsFull:   SelectedBitmap := fPictures[Index].Thumbnail;
+      iltsSmall:  SelectedBitmap := fPictures[Index].ThumbnailSmall;
+      iltsMini:   SelectedBitmap := fPictures[Index].ThumbnailMini;
+    else
+     {iltsOriginal}
+      SelectedBitmap := fPictures[Index].Thumbnail;
+    end;
+    If Assigned(SelectedBitmap) then
+      begin
+        SelectedBitmap.SaveToFile(TempFileName);
+        IL_ShellOpen(0,TempFileName);
+      end;
+  end
+else
+  raise Exception.CreateFmt('TILItemPictures_Base.OpenThumbnailFile: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------

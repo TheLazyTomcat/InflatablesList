@@ -1,13 +1,12 @@
+!.gitkeep
 Thumbs.db
 *.dcu
 *.~*
 *.exe
 *.dll
-!.gitkeep
 *.inl
 *.lei
 *.log
-list_backup
+*_backup
 *_saved_pages
 *_pics
-pics

@@ -244,7 +244,7 @@ begin
 For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     fILManager[i].GetAndFlagPriceAndAvail(
-      fILManager[i].UnitPriceSelected,fILManager[i]._AvailableSelected);
+      fILManager[i].UnitPriceSelected,fILManager[i].AvailableSelected);
 end;
 
 //------------------------------------------------------------------------------

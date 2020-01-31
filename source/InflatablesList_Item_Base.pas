@@ -91,7 +91,7 @@ type
     fUnitPriceSelected:     UInt32;
     fAvailableLowest:       Int32;            // negative value means "more than"
     fAvailableHighest:      Int32;
-    _fAvailableSelected:     Int32;
+    fAvailableSelected:     Int32;
     // shops
     fShopCount:             Integer;
     fShops:                 array of TILItemShop;
@@ -252,7 +252,7 @@ type
     property UnitPriceSelected: UInt32 read fUnitPriceSelected;
     property AvailableLowest: Int32 read fAvailableLowest;
     property AvailableHighest: Int32 read fAvailableHighest;
-    property _AvailableSelected: Int32 read _fAvailableSelected;
+    property AvailableSelected: Int32 read fAvailableSelected;
     property ShopCount: Integer read GetCount;
     property Shops[Index: Integer]: TILItemShop read GetShop; default;
   end;
@@ -321,7 +321,7 @@ If fPieces <> Value then
       fShops[i].RequiredCount := fPieces;    
     BeginUpdate;
     try
-      FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
+      FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateList;
       UpdateOverview;
       UpdateTitle;
@@ -404,7 +404,7 @@ If fFlags <> Value then
     fFlags := Value;
     BeginUpdate;
     try
-      FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
+      FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
       UpdateList;
       UpdateFlags;
     finally
@@ -720,7 +720,7 @@ begin
 If Assigned(fOnShopValuesUpdate) and (Sender is TILItemShop) then
   begin
     If not fClearingSelected then
-      GetAndFlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
+      GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
     fOnShopValuesUpdate(Self,Sender);
   end;
 end;
@@ -862,7 +862,7 @@ end;
 
 procedure TILItem_Base.UpdateShops;
 begin
-GetAndFlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
+GetAndFlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
 UpdateMainList;   // there can be shop count shown
 UpdateSmallList;  // there is price that depends on shops
 // mini list does not contain anything shop-related
@@ -915,7 +915,7 @@ fUnitPriceHighest := 0;
 fUnitPriceSelected := 0;
 fAvailableLowest := 0;
 fAvailableHighest := 0;
-_fAvailableSelected := 0;
+fAvailableSelected := 0;
 // shops
 fShopCount := 0;
 SetLength(fShops,0);
@@ -1035,7 +1035,7 @@ fUnitPriceHighest := Source.UnitPriceHighest;
 fUnitPriceSelected := Source.UnitPriceSelected;
 fAvailableLowest := Source.AvailableLowest;
 fAvailableHighest := Source.AvailableHighest;
-_fAvailableSelected := Source._AvailableSelected;
+fAvailableSelected := Source.AvailableSelected;
 // deffered picture copy
 If CopyPics then
   begin
@@ -1278,7 +1278,7 @@ BeginUpdate;
 try
   Result := IL_SetItemFlagValue(fFlags,ItemFlag,NewValue);
   If (ItemFlag = ilifWanted) and (Result <> NewValue) then
-    FlagPriceAndAvail(fUnitPriceSelected,_fAvailableSelected);
+    FlagPriceAndAvail(fUnitPriceSelected,fAvailableSelected);
   If Result <> NewValue then
     UpdateList;
   UpdateFlags;  
@@ -1328,7 +1328,7 @@ HighPrice := 0;
 LowAvail := 0;
 HighAvail := 0;
 fUnitPriceSelected := 0;
-_fAvailableSelected := 0;
+fAvailableSelected := 0;
 For i := ShopLowIndex to ShopHighIndex do
   begin
     If (fShops[i].Available <> 0) and (fShops[i].Price > 0) then
@@ -1345,7 +1345,7 @@ For i := ShopLowIndex to ShopHighIndex do
     If fShops[i].Selected then
       begin
         fUnitPriceSelected := fShops[i].Price;
-        _fAvailableSelected := fShops[i].Available;
+        fAvailableSelected := fShops[i].Available;
       end;
   end;
 fUnitPriceLowest := LowPrice;
@@ -1372,7 +1372,7 @@ If (ilifWanted in fFlags) and (fShopCount > 0) then
           Include(fFlags,ilifPriceChange);
       end
     else Include(fFlags,ilifNotAvailable);
-    If _fAvailableSelected <> OldAvail then
+    If fAvailableSelected <> OldAvail then
       Include(fFlags,ilifAvailChange); 
     UpdateList;
     UpdateFlags;
@@ -1408,12 +1408,12 @@ If fUnitPriceSelected > 0 then
   begin
     If HonorCount then
       begin
-        If _fAvailableSelected > 0 then
-          Result := UInt32(_fAvailableSelected) >= fPieces
+        If fAvailableSelected > 0 then
+          Result := UInt32(fAvailableSelected) >= fPieces
         else
-          Result := UInt32(Abs(_fAvailableSelected) * 2) >= fPieces;
+          Result := UInt32(Abs(fAvailableSelected) * 2) >= fPieces;
       end
-    else Result := _fAvailableSelected <> 0;
+    else Result := fAvailableSelected <> 0;
   end
 else Result := False;
 end;

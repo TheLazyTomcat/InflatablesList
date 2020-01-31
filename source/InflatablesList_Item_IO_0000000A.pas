@@ -100,7 +100,7 @@ Stream_WriteUInt32(Stream,fUnitPriceHighest);
 Stream_WriteUInt32(Stream,fUnitPriceSelected);
 Stream_WriteInt32(Stream,fAvailableLowest);
 Stream_WriteInt32(Stream,fAvailableHighest);
-Stream_WriteInt32(Stream,_fAvailableSelected);
+Stream_WriteInt32(Stream,fAvailableSelected);
 // shops
 Stream_WriteUInt32(Stream,ShopCount);
 For i := ShopLowIndex to ShopHighIndex do
@@ -153,7 +153,7 @@ fUnitPriceHighest := Stream_ReadUInt32(Stream);
 fUnitPriceSelected := Stream_ReadUInt32(Stream);
 fAvailableLowest := Stream_ReadInt32(Stream);
 fAvailableHighest := Stream_ReadInt32(Stream);
-_fAvailableSelected := Stream_ReadInt32(Stream);
+fAvailableSelected := Stream_ReadInt32(Stream);
 // shops
 SetLength(fShops,Stream_ReadUInt32(Stream));
 fShopCount := Length(fShops);

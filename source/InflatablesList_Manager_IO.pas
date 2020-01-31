@@ -393,7 +393,7 @@ end;
 
 Function TILManager_IO.PreloadFile: TILPreloadInfo;
 begin
-Result := PreloadFile(fStaticSettings.ListFile)
+Result := PreloadFile(fStaticSettings.ListFile);
 end;
 
 //------------------------------------------------------------------------------

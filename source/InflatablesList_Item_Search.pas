@@ -132,7 +132,7 @@ case Field of
   ilaisrTotalPrice:           Result := SearchSettings.CompareFunc(IntToStr(TotalPrice),False,False,True,IL_CURRENCY_SYMBOL);
   ilaisrAvailableLowest:      Result := SearchSettings.CompareFunc(IntToStr(fAvailableLowest),False,False,True,'pcs');
   ilaisrAvailableHighest:     Result := SearchSettings.CompareFunc(IntToStr(fAvailableHighest),False,False,True,'pcs');
-  ilaisrAvailableSel:         Result := SearchSettings.CompareFunc(IntToStr(_fAvailableSelected),False,False,False,'pcs');
+  ilaisrAvailableSel:         Result := SearchSettings.CompareFunc(IntToStr(fAvailableSelected),False,False,False,'pcs');
   ilaisrShopCount:            Result := SearchSettings.CompareFunc(IntToStr(fShopCount),False,False,False);
   ilaisrShopCountStr:         Result := SearchSettings.CompareFunc(ShopsCountStr,True,False,True);
   ilaisrUsefulShopCount:      Result := SearchSettings.CompareFunc(IntToStr(ShopsUsefulCount),False,False,True);

@@ -110,7 +110,8 @@ case Token.TokenType of
                         begin
                           fCurrentElement.Close;
                           fCurrentElement := fCurrentElement.Parent;
-                          CDA_Delete(fOpenElements,CDA_High(fOpenElements));
+                          If CDA_Count(fOpenElements) > 0 then
+                            CDA_Delete(fOpenElements,CDA_High(fOpenElements));
                         end
                       else
                         begin

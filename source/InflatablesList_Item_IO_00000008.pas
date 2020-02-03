@@ -53,7 +53,8 @@ uses
 
 procedure TILItem_IO_00000008.SetDeferredLoadProcNum(Value: UInt32);
 begin
-InitLoadFunctions(Value);
+If fEncrypted and not fDataAccessible then
+  InitLoadFunctions(Value);
 end;
 
 //------------------------------------------------------------------------------

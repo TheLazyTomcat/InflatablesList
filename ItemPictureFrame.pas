@@ -95,12 +95,24 @@ If ValidCurrentItem then
   begin
     fInitializing := True;
     try
-      imgThumbFull.Picture.Assign(fCurrentPictures[fCurrentPicture].Thumbnail);
+      If fILManager.StaticSettings.NoPictures then
+        begin
+          If Assigned(fCurrentPictures[fCurrentPicture].Thumbnail) then
+            imgThumbFull.Picture.Assign(fILManager.DataProvider.EmptyPicture);
+          If Assigned(fCurrentPictures[fCurrentPicture].ThumbnailSmall) then
+            imgThumbHalf.Picture.Assign(fILManager.DataProvider.EmptyPictureSmall);
+          If Assigned(fCurrentPictures[fCurrentPicture].ThumbnailMini) then
+            imgThumbThirdth.Picture.Assign(fILManager.DataProvider.EmptyPictureMini);
+        end
+      else
+        begin
+          imgThumbFull.Picture.Assign(fCurrentPictures[fCurrentPicture].Thumbnail);
+          imgThumbHalf.Picture.Assign(fCurrentPictures[fCurrentPicture].ThumbnailSmall);
+          imgThumbThirdth.Picture.Assign(fCurrentPictures[fCurrentPicture].ThumbnailMini);
+        end;
       shpThumbFull.Visible := not Assigned(fCurrentPictures[fCurrentPicture].Thumbnail);
-      imgThumbHalf.Picture.Assign(fCurrentPictures[fCurrentPicture].ThumbnailSmall);
       shpThumbHalf.Visible := not Assigned(fCurrentPictures[fCurrentPicture].ThumbnailSmall);
-      imgThumbThirdth.Picture.Assign(fCurrentPictures[fCurrentPicture].ThumbnailMini);
-      shpThumbThirdth.Visible := not Assigned(fCurrentPictures[fCurrentPicture].ThumbnailMini);
+      shpThumbThirdth.Visible := not Assigned(fCurrentPictures[fCurrentPicture].ThumbnailMini);      
     finally
       fInitializing := False;
     end;

@@ -629,7 +629,7 @@ For i := ItemLowIndex to ItemHighIndex do
   begin
     fList[i] := TILItem.CreateAsCopy(fDataProvider,Source[i],True,UniqueCopy);
     fList[i].Index := i;
-    fList[i].DeferredLoadProcNum := Source[i].DeferredLoadProcNum;    
+    fList[i].DeferredLoadProcNum := Source[i].DeferredLoadProcNum;
   end;
 AssignInternalEventHandlers;
 // other data

@@ -291,7 +291,7 @@ object frmShopFrame: TfrmShopFrame
       Width = 521
       Height = 97
       ScrollBars = ssBoth
-      TabOrder = 15
+      TabOrder = 14
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -478,8 +478,7 @@ object frmShopFrame: TfrmShopFrame
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 14
-      TabStop = False
+      TabOrder = 15
       OnClick = btnPredefNotesClick
     end
   end

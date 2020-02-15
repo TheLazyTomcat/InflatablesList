@@ -810,6 +810,7 @@ case SurfaceFinish of
   ilisfSemiMatte:   Result := 5;
   ilisfPearlscent:  Result := 6;
   ilisfMetalic:     Result := 7;
+  ilisfFlocked:     Result := 9;
   ilisfCombined:    Result := 3;
   ilisfOther:       Result := 8;
 else
@@ -827,9 +828,10 @@ case Num of
   4:  Result := ilisfSemiGloss;
   2:  Result := ilisfMatte;
   5:  Result := ilisfSemiMatte;
-  3:  Result := ilisfCombined;
   6:  Result := ilisfPearlscent;
   7:  Result := ilisfMetalic;
+  9:  Result := ilisfFlocked;
+  3:  Result := ilisfCombined;
   8:  Result := ilisfOther;
 else
   Result := ilisfUnknown;

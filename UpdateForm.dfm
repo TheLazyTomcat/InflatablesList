@@ -78,7 +78,7 @@ object fUpdateForm: TfUpdateForm
     ParentFont = False
     ReadOnly = True
     ScrollBars = ssBoth
-    TabOrder = 3
+    TabOrder = 4
     WordWrap = False
     OnKeyPress = meLogKeyPress
   end
@@ -89,7 +89,7 @@ object fUpdateForm: TfUpdateForm
     Height = 22
     MaxValue = 1024
     MinValue = 1
-    TabOrder = 4
+    TabOrder = 3
     Value = 1
     OnChange = seNumberOfThreadsChange
   end

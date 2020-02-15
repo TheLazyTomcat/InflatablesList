@@ -588,7 +588,7 @@ object frmItemFrame: TfrmItemFrame
       Anchors = [akLeft, akBottom]
       MaxValue = 268435455
       MinValue = 0
-      TabOrder = 22
+      TabOrder = 23
       Value = 0
       OnChange = seUnitPriceDefaultChange
     end
@@ -605,7 +605,7 @@ object frmItemFrame: TfrmItemFrame
       Font.Style = []
       ParentFont = False
       ScrollBars = ssBoth
-      TabOrder = 19
+      TabOrder = 20
       WordWrap = False
       OnKeyPress = meNotesKeyPress
     end
@@ -893,7 +893,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Update shops...'
-      TabOrder = 27
+      TabOrder = 28
       OnClick = btnUpdateShopsClick
     end
     object btnShops: TButton
@@ -903,7 +903,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Shops...'
-      TabOrder = 26
+      TabOrder = 27
       OnClick = btnShopsClick
     end
     object sePieces: TSpinEdit
@@ -926,7 +926,7 @@ object frmItemFrame: TfrmItemFrame
       EditLabel.Width = 61
       EditLabel.Height = 13
       EditLabel.Caption = 'Review URL:'
-      TabOrder = 20
+      TabOrder = 21
       OnChange = leReviewURLChange
     end
     object btnReviewOpen: TButton
@@ -939,7 +939,7 @@ object frmItemFrame: TfrmItemFrame
       Caption = '>'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 21
+      TabOrder = 22
       OnClick = btnReviewOpenClick
     end
     object seUnitWeight: TSpinEdit
@@ -949,7 +949,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 22
       MaxValue = 2147483647
       MinValue = 0
-      TabOrder = 13
+      TabOrder = 19
       Value = 0
       OnChange = seUnitWeightChange
     end
@@ -993,7 +993,7 @@ object frmItemFrame: TfrmItemFrame
       MaxLength = 3
       MaxValue = 100
       MinValue = 0
-      TabOrder = 23
+      TabOrder = 24
       Value = 0
       OnChange = seRatingChange
     end
@@ -1044,7 +1044,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Pictures...'
-      TabOrder = 25
+      TabOrder = 26
       OnClick = btnPicturesClick
     end
     object btnRatingDetails: TButton
@@ -1054,7 +1054,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 25
       Anchors = [akLeft, akBottom]
       Caption = 'Rating details...'
-      TabOrder = 24
+      TabOrder = 25
       OnClick = btnRatingDetailsClick
     end
     object gbReadOnlyInfo: TGroupBox
@@ -1064,7 +1064,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 70
       Anchors = [akLeft, akBottom]
       Caption = 'Read-only info'
-      TabOrder = 28
+      TabOrder = 29
       object shpTotalPriceSelectedBcgr: TShape
         Left = 537
         Top = 46
@@ -1352,7 +1352,7 @@ object frmItemFrame: TfrmItemFrame
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 29
+      TabOrder = 13
       OnChange = cmbSurfaceFinishChange
     end
   end

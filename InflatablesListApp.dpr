@@ -52,6 +52,7 @@ uses
   InflatablesList_Item_IO_0000000A in 'source\InflatablesList_Item_IO_0000000A.pas',
   InflatablesList_Item_Crypt in 'source\InflatablesList_Item_Crypt.pas',
   InflatablesList_Item in 'source\InflatablesList_Item.pas',
+  InflatablesList_ShownPicturesManager in 'source\InflatablesList_ShownPicturesManager.pas',
   InflatablesList_ShopSelectItemsArray in 'source\InflatablesList_ShopSelectItemsArray.pas',
   InflatablesList_ShopSelectArray in 'source\InflatablesList_ShopSelectArray.pas',
   InflatablesList_Manager_Base in 'source\InflatablesList_Manager_Base.pas',

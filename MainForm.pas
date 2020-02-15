@@ -855,7 +855,7 @@ If lbList.ItemIndex >= 0 then
       frmItemFrame.Save;  // save unsaved data for copying
       Index := lbList.ItemIndex;
       lbList.Items.Add(IntToStr(lbList.Count));
-      lbList.ItemIndex := fILManager.ItemAddCopy(Index);
+      lbList.ItemIndex := fILManager.ItemAddCopy(Index,Succ(lbList.ItemIndex));
       fILManager.ReinitMainDrawSize(lbList);
       fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
       fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,

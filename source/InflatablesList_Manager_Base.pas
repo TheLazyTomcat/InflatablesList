@@ -123,7 +123,8 @@ type
     // list manipulation
     Function ItemIndexOf(ItemUniqueID: TGUID): Integer; virtual;
     Function ItemAddEmpty: Integer; virtual;
-    Function ItemAddCopy(SrcIndex: Integer): Integer; virtual;
+    Function ItemAddCopy(SrcIndex: Integer): Integer; overload; virtual;
+    Function ItemAddCopy(SrcIndex: Integer; Index: Integer): Integer; overload; virtual;
     procedure ItemExchange(Idx1,Idx2: Integer); virtual;
     procedure ItemMove(Src,Dst: Integer); virtual;
     procedure ItemDelete(Index: Integer); virtual;
@@ -842,7 +843,7 @@ end;
 
 Function TILManager_Base.ItemAddCopy(SrcIndex: Integer): Integer;
 begin
-If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
+If CheckIndex(SrcIndex) then
   begin
     If fList[SrcIndex].DataAccessible then
       begin
@@ -873,6 +874,52 @@ If (SrcIndex >= ItemLowIndex) and (SrcIndex <= ItemHighIndex) then
     else raise Exception.Create('TILManager_Base.ItemAddCopy: Cannot create copy of encrypted item.');
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
+end;
+//------------------------------------------------------------------------------
+
+Function TILManager_Base.ItemAddCopy(SrcIndex: Integer; Index: Integer): Integer;
+var
+  i:  Integer;
+begin
+If CheckIndex(Index) then
+  begin
+    If CheckIndex(SrcIndex) then
+      begin
+        If fList[SrcIndex].DataAccessible then
+          begin
+            Grow;
+            Result := Index;
+            // move existing items
+            For i := ItemHighIndex downto Index do
+              fList[i + 1] := fList[i];
+            fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True,True);
+            fList[Result].Index := Result;
+            fList[Result].AssignInternalEvents(
+              ShopUpdateShopListItemHandler,
+              ShopUpdateValuesHandler,
+              ShopUpdateAvailHistoryHandler,
+              ShopUpdatePriceHistoryHandler,
+              ItemUpdateMainListHandler,
+              ItemUpdateSmallListHandler,
+              ItemUpdateMiniListHandler,
+              ItemUpdateOverviewHandler,
+              ItemUpdateTitleHandler,
+              ItemUpdatePicturesHandler,
+              ItemUpdateFlagsHandler,
+              ItemUpdateValuesHandler,
+              ItemUpdateOthersHandler,
+              ItemUpdateShopListHandler,
+              ItemPasswordRequestHandler);
+            Inc(fCount);
+            ReIndex;
+            UpdateList;
+            UpdateOverview;
+          end
+        else raise Exception.Create('TILManager_Base.ItemAddCopy: Cannot create copy of encrypted item.');
+      end
+    else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
+  end
+else Result := ItemAddCopy(SrcIndex);
 end;
 
 //------------------------------------------------------------------------------
@@ -940,14 +987,14 @@ procedure TILManager_Base.ItemDelete(Index: Integer);
 var
   i:  Integer;
 begin
-If (Index >= ItemLowIndex) and (Index <= ItemHighIndex) then
+If CheckIndex(Index) then
   begin
     FreeAndNil(fList[Index]);
     For i := Index to Pred(ItemHighIndex) do
       fList[i] := fList[i + 1];
     Dec(fCount);
     Shrink;
-    ReIndex;    
+    ReIndex;
     UpdateList;
     UpdateOverview;
   end

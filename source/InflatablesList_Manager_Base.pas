@@ -122,9 +122,9 @@ type
     Function ItemHighIndex: Integer; virtual;
     // list manipulation
     Function ItemIndexOf(ItemUniqueID: TGUID): Integer; virtual;
-    Function ItemAddEmpty: Integer; virtual;
-    Function ItemAddCopy(SrcIndex: Integer): Integer; overload; virtual;
-    Function ItemAddCopy(SrcIndex: Integer; Index: Integer): Integer; overload; virtual;
+    Function ItemAddEmpty(Index: Integer = -1): Integer; virtual;
+    Function ItemAddCopy(SrcIndex: Integer; Index: Integer = -1): Integer; virtual;
+    Function ItemAddSplitOutCopy(SrcIndex: Integer; Index: Integer = -1): Integer; virtual;
     procedure ItemExchange(Idx1,Idx2: Integer); virtual;
     procedure ItemMove(Src,Dst: Integer); virtual;
     procedure ItemDelete(Index: Integer); virtual;
@@ -811,10 +811,19 @@ end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Base.ItemAddEmpty: Integer;
+Function TILManager_Base.ItemAddEmpty(Index: Integer = -1): Integer;
+var
+  i:  Integer;
 begin
 Grow;
-Result := fCount;
+If CheckIndex(Index) then
+  begin
+    // move existing items
+    For i := ItemHighIndex downto Index do
+      fList[i + 1] := fList[i];
+    Result := Index;
+  end
+else Result := fCount;
 fList[Result] := TILItem.Create(fDataProvider);
 fList[Result].Index := Result;
 fList[Result].StaticSettings := fStaticSettings;
@@ -835,21 +844,32 @@ fList[Result].AssignInternalEvents(
   ItemUpdateShopListHandler,
   ItemPasswordRequestHandler);
 Inc(fCount);
+ReIndex;  // in case of onsertion, otherwise not really needed
 UpdateList;
 UpdateOverview;
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILManager_Base.ItemAddCopy(SrcIndex: Integer): Integer;
+Function TILManager_Base.ItemAddCopy(SrcIndex: Integer; Index: Integer = -1): Integer;
+var
+  i:      Integer;
+  SrcObj: TILItem;
 begin
 If CheckIndex(SrcIndex) then
   begin
-    If fList[SrcIndex].DataAccessible then
+    SrcObj := fList[SrcIndex];
+    If SrcObj.DataAccessible then
       begin
         Grow;
-        Result := fCount;
-        fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True,True);
+        If CheckIndex(Index) then
+          begin
+            For i := ItemHighIndex downto Index do
+              fList[i + 1] := fList[i];
+            Result := Index;
+          end
+        else Result := fCount;
+        fList[Result] := TILItem.CreateAsCopy(fDataProvider,SrcObj,True,True);
         fList[Result].Index := Result;
         fList[Result].AssignInternalEvents(
           ShopUpdateShopListItemHandler,
@@ -868,6 +888,7 @@ If CheckIndex(SrcIndex) then
           ItemUpdateShopListHandler,
           ItemPasswordRequestHandler);
         Inc(fCount);
+        ReIndex;
         UpdateList;
         UpdateOverview;
       end
@@ -875,25 +896,32 @@ If CheckIndex(SrcIndex) then
   end
 else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;
+
 //------------------------------------------------------------------------------
 
-Function TILManager_Base.ItemAddCopy(SrcIndex: Integer; Index: Integer): Integer;
+Function TILManager_Base.ItemAddSplitOutCopy(SrcIndex: Integer; Index: Integer = -1): Integer;
 var
-  i:  Integer;
+  i:      Integer;
+  SrcObj: TILItem;
 begin
-If CheckIndex(Index) then
+If CheckIndex(SrcIndex) then
   begin
-    If CheckIndex(SrcIndex) then
+    SrcObj := fList[SrcIndex];
+    If SrcObj.DataAccessible then
       begin
-        If fList[SrcIndex].DataAccessible then
+        If SrcObj.Pieces > 1 then
           begin
             Grow;
-            Result := Index;
-            // move existing items
-            For i := ItemHighIndex downto Index do
-              fList[i + 1] := fList[i];
-            fList[Result] := TILItem.CreateAsCopy(fDataProvider,fList[SrcIndex],True,True);
+            If CheckIndex(Index) then
+              begin
+                For i := ItemHighIndex downto Index do
+                  fList[i + 1] := fList[i];
+                Result := Index;
+              end
+            else Result := fCount;
+            fList[Result] := TILItem.CreateAsCopy(fDataProvider,SrcObj,True,True);
             fList[Result].Index := Result;
+            fList[Result].Pieces := 1;  // set before assigning events
             fList[Result].AssignInternalEvents(
               ShopUpdateShopListItemHandler,
               ShopUpdateValuesHandler,
@@ -910,16 +938,17 @@ If CheckIndex(Index) then
               ItemUpdateOthersHandler,
               ItemUpdateShopListHandler,
               ItemPasswordRequestHandler);
+            SrcObj.Pieces := SrcObj.Pieces - 1;
             Inc(fCount);
             ReIndex;
             UpdateList;
             UpdateOverview;
           end
-        else raise Exception.Create('TILManager_Base.ItemAddCopy: Cannot create copy of encrypted item.');
+        else raise Exception.Create('TILManager_Base.ItemAddSplitOutCopy: Cannot create split-out copy, too few pieces.');
       end
-    else raise Exception.CreateFmt('TILManager_Base.ItemAddCopy: Source index (%d) out of bounds.',[SrcIndex]);
+    else raise Exception.Create('TILManager_Base.ItemAddSplitOutCopy: Cannot create copy of encrypted item.');
   end
-else Result := ItemAddCopy(SrcIndex);
+else raise Exception.CreateFmt('TILManager_Base.ItemAddSplitOutCopy: Source index (%d) out of bounds.',[SrcIndex]);
 end;
 
 //------------------------------------------------------------------------------

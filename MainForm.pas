@@ -24,6 +24,7 @@ type
     mniMM_List: TMenuItem;
     mniMML_Add: TMenuItem;
     mniMML_AddCopy: TMenuItem;
+    mniMML_AddSplitOutCopy: TMenuItem;
     mniMML_Remove: TMenuItem;
     mniMML_Clear: TMenuItem;
     N3: TMenuItem;
@@ -126,6 +127,7 @@ type
     procedure mniMM_ListClick(Sender: TObject);
     procedure mniMML_AddClick(Sender: TObject);
     procedure mniMML_AddCopyClick(Sender: TObject);
+    procedure mniMML_AddSplitOutCopyClick(Sender: TObject);    
     procedure mniMML_RemoveClick(Sender: TObject);
     procedure mniMML_ClearClick(Sender: TObject);
     procedure mniMML_GoToItemNumClick(Sender: TObject);
@@ -681,6 +683,7 @@ lbList.DoubleBuffered := True;
 sbStatusBar.DoubleBuffered := True;
 // build shortcuts
 mniMML_AddCopy.ShortCut := ShortCut(VK_INSERT,[ssCtrl,ssShift]);
+mniMML_AddSplitOutCopy.ShortCut := ShortCut(VK_INSERT,[ssCtrl,ssAlt]);
 mniMML_Clear.ShortCut := ShortCut(VK_DELETE,[ssCtrl,ssShift]);
 mniMML_PrevItem.ShortCut := ShortCut(VK_TAB,[ssCtrl,ssShift]);
 mniMML_NextItem.ShortCut := ShortCut(VK_TAB,[ssCtrl]);  
@@ -818,9 +821,16 @@ end;
 procedure TfMainForm.mniMM_ListClick(Sender: TObject);
 begin
 If lbList.ItemIndex >= 0 then
-  mniMML_AddCopy.Enabled := fILManager[lbList.ItemIndex].DataAccessible
+  begin
+    mniMML_AddCopy.Enabled := fILManager[lbList.ItemIndex].DataAccessible;
+    mniMML_AddSplitOutCopy.Enabled := fILManager[lbList.ItemIndex].DataAccessible and
+                                     (fILManager[lbList.ItemIndex].Pieces > 1);
+  end
 else
-  mniMML_AddCopy.Enabled := False;
+  begin
+    mniMML_AddCopy.Enabled := False;
+    mniMML_AddSplitOutCopy.Enabled := False;
+  end;
 mniMML_Remove.Enabled := lbList.ItemIndex >= 0;
 mniMML_Clear.Enabled := lbList.Count > 0;
 mniMML_GoToItemNum.Enabled := lbList.Count > 0;
@@ -853,9 +863,32 @@ If lbList.ItemIndex >= 0 then
   If fILManager[lbList.ItemIndex].DataAccessible then
     begin
       frmItemFrame.Save;  // save unsaved data for copying
+      frmItemFrame.SetItem(nil,False);
       Index := lbList.ItemIndex;
       lbList.Items.Add(IntToStr(lbList.Count));
       lbList.ItemIndex := fILManager.ItemAddCopy(Index,Succ(lbList.ItemIndex));
+      fILManager.ReinitMainDrawSize(lbList);
+      fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
+      fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,
+        IL_ITEMSHOPTABLE_ITEMCELL_HEIGHT,fItemShopTableForm.dgTable.Font);
+      lbList.OnClick(nil);
+    end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMML_AddSplitOutCopyClick(Sender: TObject);
+var
+  Index:  Integer;
+begin
+If lbList.ItemIndex >= 0 then
+  If fILManager[lbList.ItemIndex].DataAccessible and (fILManager[lbList.ItemIndex].Pieces > 1) then
+    begin
+      frmItemFrame.Save;  // save unsaved data for copying
+      frmItemFrame.SetItem(nil,False);
+      Index := lbList.ItemIndex;
+      lbList.Items.Add(IntToStr(lbList.Count));
+      lbList.ItemIndex := fILManager.ItemAddSplitOutCopy(Index,Succ(lbList.ItemIndex));
       fILManager.ReinitMainDrawSize(lbList);
       fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);
       fILManager.ReinitMiniDrawSize(IL_ITEMSHOPTABLE_ITEMCELL_WIDTH,

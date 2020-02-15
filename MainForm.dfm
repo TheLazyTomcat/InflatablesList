@@ -245,6 +245,10 @@ object fMainForm: TfMainForm
         Caption = 'Add copy of selected item'
         OnClick = mniMML_AddCopyClick
       end
+      object mniMML_AddSplitOutCopy: TMenuItem
+        Caption = 'Split-out copy of selected item'
+        OnClick = mniMML_AddSplitOutCopyClick
+      end
       object mniMML_Remove: TMenuItem
         Caption = 'Remove selected item'
         ShortCut = 16430

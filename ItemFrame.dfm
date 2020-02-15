@@ -240,6 +240,7 @@ object frmItemFrame: TfrmItemFrame
       Top = 2
       Width = 24
       Height = 24
+      Center = True
       Picture.Data = {
         07544269746D6170F6060000424DF60600000000000036000000280000001800
         0000180000000100180000000000C0060000C4000000C4000000000000000000
@@ -359,7 +360,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 10
       Height = 56
       Hint = 'Next secondary picture'
-      AutoSize = True
+      Center = True
       ParentShowHint = False
       Picture.Data = {
         07544269746D617036070000424D360700000000000036000000280000000A00
@@ -432,7 +433,7 @@ object frmItemFrame: TfrmItemFrame
       Width = 10
       Height = 56
       Hint = 'Previous secondary picture'
-      AutoSize = True
+      Center = True
       ParentShowHint = False
       Picture.Data = {
         07544269746D617036070000424D360700000000000036000000280000000A00

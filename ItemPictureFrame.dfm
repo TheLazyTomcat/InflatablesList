@@ -45,10 +45,10 @@ object frmItemPictureFrame: TfrmItemPictureFrame
       OnClick = imgThumbFullClick
     end
     object shpThumbHalf: TShape
-      Left = 40
-      Top = 144
-      Width = 32
-      Height = 32
+      Left = 38
+      Top = 142
+      Width = 36
+      Height = 36
       Brush.Style = bsClear
       Pen.Color = clSilver
       Pen.Style = psDot
@@ -75,7 +75,7 @@ object frmItemPictureFrame: TfrmItemPictureFrame
       Top = 208
       Width = 32
       Height = 32
-      AutoSize = True
+      Center = True
       OnClick = imgThumbThirdthClick
     end
     object lblThumbFull: TLabel

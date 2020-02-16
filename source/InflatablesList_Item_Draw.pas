@@ -168,18 +168,18 @@ with fRender,fRender.Canvas do
             CopyRect(Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height),
                      fDataProvider.RatingGradientImage.Canvas,
                      Rect(0,TempInt,Pred(SIDE_STRIP_WIDTH),Height));
-            // rating detail indication
-            If Length(fRatingDetails) > 0 then
-              begin
-                TempStr := Font.Name;
-                try
-                  SetCanvas(bsClear,clWhite,psClear,clBlack,[],clBlue,8);
-                  Font.Name := 'Webdings';
-                  TextOut(9,91,'ù');
-                finally
-                  Font.Name := TempStr;
-                end;
-              end;
+          end;
+        // rating detail indication
+        If (Length(fRatingDetails) > 0) and (ilifOwned in fFLags) then
+          begin
+            TempStr := Font.Name;
+            try
+              SetCanvas(bsClear,clWhite,psClear,clBlack,[],clBlue,8);
+              Font.Name := 'Webdings';
+              TextOut(9,91,'ù');
+            finally
+              Font.Name := TempStr;
+            end;
           end;
 
         // lock icon, title + count

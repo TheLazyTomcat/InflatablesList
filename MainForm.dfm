@@ -17,6 +17,7 @@ object fMainForm: TfMainForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
@@ -74,10 +75,14 @@ object fMainForm: TfMainForm
     Panels = <
       item
         Alignment = taCenter
-        Width = 80
+        Width = 70
       end
       item
-        Alignment = taRightJustify
+        Alignment = taCenter
+        Width = 70
+      end
+      item
+        Alignment = taCenter
         Style = psOwnerDraw
         Width = 235
       end
@@ -87,7 +92,7 @@ object fMainForm: TfMainForm
         Width = 160
       end
       item
-        Width = 450
+        Width = 410
       end
       item
         Alignment = taRightJustify

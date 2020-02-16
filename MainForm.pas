@@ -9,6 +9,16 @@ uses
   InflatablesList_Manager;
             
 type
+  // interposer to intercept scrolling
+  TListBox = class(StdCtrls.TListBox)
+  private
+    fOnScroll:  TNotifyEvent;
+  protected
+    procedure WndProc(var Msg: TMessage); override;
+  public
+    property OnScroll: TNotifyEvent read fOnScroll write fOnScroll;
+  end;
+
   TfMainForm = class(TForm)
     mmMainMenu: TMainMenu;
     mniMM_File: TMenuItem;
@@ -114,6 +124,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormResize(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     // ---
     procedure mniMM_FileClick(Sender: TObject);
     procedure mniMMF_ListCompressClick(Sender: TObject);
@@ -201,6 +213,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure lbListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
+    procedure lbListScroll(Sender: TObject);
     procedure eSearchForEnter(Sender: TObject);
     procedure eSearchForExit(Sender: TObject);
     procedure eSearchForKeyPress(Sender: TObject; var Key: Char);
@@ -233,6 +246,7 @@ type
     procedure FillListFileName;
     procedure FillListName;
     procedure UpdateIndexAndCount;
+    procedure UpdateIndices;
     Function SaveList: Boolean;
     // event handlers
     procedure RestartProgram(Sender: TObject);                    // backups form event
@@ -273,10 +287,21 @@ uses
 
 const
   IL_STATUSBAR_PANEL_IDX_INDEX        = 0;
-  IL_STATUSBAR_PANEL_IDX_STATIC_SETT  = 1;
-  IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT = 2;
-  IL_STATUSBAR_PANEL_IDX_FILENAME     = 3;
-  IL_STATUSBAR_PANEL_IDX_COPYRIGHT    = 4;
+  IL_STATUSBAR_PANEL_IDX_INDICES      = 1;  
+  IL_STATUSBAR_PANEL_IDX_STATIC_SETT  = 2;
+  IL_STATUSBAR_PANEL_IDX_DYNAMIC_SETT = 3;
+  IL_STATUSBAR_PANEL_IDX_FILENAME     = 4;
+  IL_STATUSBAR_PANEL_IDX_COPYRIGHT    = 5;
+
+//==============================================================================
+
+procedure TListBox.WndProc(var Msg: TMessage);
+begin
+inherited;
+If (Msg.Msg = WM_VSCROLL) or (Msg.Msg = WM_HSCROLL) or (Msg.Msg = WM_PRINT) or
+  (Msg.Msg = WM_PAINT) or (Msg.Msg = WM_PRINTCLIENT) then
+  fOnScroll(Self);
+end;
 
 //==============================================================================
 
@@ -440,6 +465,23 @@ If lbList.ItemIndex < 0 then
       sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDEX].Text := '-/-';
   end
 else sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDEX].Text := IL_Format('%d/%d',[lbList.ItemIndex + 1,fILManager.ItemCount]);
+UpdateIndices;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.UpdateIndices;
+begin
+If (lbList.Count > 0) and (lbList.TopIndex >= 0) then
+  begin
+    If lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight) > lbList.Count then
+      sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDICES].Text := Format('%d-%d',
+        [lbList.TopIndex + 1,lbList.Count])
+    else
+      sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDICES].Text := Format('%d-%d',
+        [lbList.TopIndex + 1,lbList.TopIndex + (lbList.ClientHeight div lbList.ItemHeight)]);
+  end
+else sbStatusBar.Panels[IL_STATUSBAR_PANEL_IDX_INDICES].Text := '-'
 end;
 
 //------------------------------------------------------------------------------
@@ -701,6 +743,8 @@ mniMMU_UpdateSelected.ShortCut := ShortCut(Ord('U'),[ssAlt,ssShift]);
 fDrawBuffer := TBitmap.Create;
 fDrawBuffer.PixelFormat := pf24bit;
 fDrawBuffer.Canvas.Font.Assign(sbStatusBar.Font);
+// assign custom events
+lbList.OnScroll := lbListScroll;
 end;
 
 //------------------------------------------------------------------------------
@@ -734,6 +778,32 @@ procedure TfMainForm.FormResize(Sender: TObject);
 begin
 If Visible then
   ReSizeMainForm;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+var
+  Control:        TControl;
+  LinesToScroll:  UINT;
+  NewTopIndex:    Integer;
+begin
+// scroll list when not focused but cursor is above it
+Control := ControlAtPos(ScreenToClient(MousePos),False,True);
+If (Control = lbList) and not(lbList.Focused) then
+  begin
+    If SystemParametersInfo(SPI_GETWHEELSCROLLLINES,0,@LinesToScroll,0) then
+      begin
+        NewTopIndex := lbList.TopIndex - Integer(LinesToScroll) * (WheelDelta div WHEEL_DELTA);
+        If NewTopIndex < 0 then
+          NewTopIndex := 0
+        else If NewTopIndex + (lbList.ClientHeight div lbList.ItemHeight) > lbList.Count then
+          NewTopIndex := lbList.Count - (lbList.ClientHeight div lbList.ItemHeight);
+        lbList.TopIndex := NewTopIndex;
+        Handled := True;
+      end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -2151,6 +2221,13 @@ If Assigned(fDrawBuffer) then
     If odFocused in State then
       lbList.Canvas.DrawFocusRect(Rect);
   end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.lbListScroll(Sender: TObject);
+begin
+UpdateIndices;
 end;
 
 //------------------------------------------------------------------------------

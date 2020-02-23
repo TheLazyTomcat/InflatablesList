@@ -31,6 +31,7 @@ type
     N3: TMenuItem;
     mniIP_ItemPicture: TMenuItem;
     mniIP_PackagePicture: TMenuItem;
+    mniIP_SecondaryPicture: TMenuItem;
     N4: TMenuItem;
     mniIP_MoveUp: TMenuItem;
     mniIP_MoveDown: TMenuItem;
@@ -62,8 +63,9 @@ type
     procedure mniIP_ExportThumbAllClick(Sender: TObject);
     procedure mniIP_ItemPictureClick(Sender: TObject);
     procedure mniIP_PackagePictureClick(Sender: TObject);
+    procedure mniIP_SecondaryPictureClick(Sender: TObject);
     procedure mniIP_MoveUpClick(Sender: TObject);
-    procedure mniIP_MoveDownClick(Sender: TObject);
+    procedure mniIP_MoveDownClick(Sender: TObject); 
   private
     { Private declarations }
     fILManager:     TILManager;
@@ -352,6 +354,9 @@ If Assigned(fCurrentItem) and (lbPictures.ItemIndex >= 0) then
     mniIP_ItemPicture.Checked := fCurrentItem.Pictures[lbPictures.ItemIndex].ItemPicture;
     mniIP_PackagePicture.Enabled := True;
     mniIP_PackagePicture.Checked := fCurrentItem.Pictures[lbPictures.ItemIndex].PackagePicture;
+    mniIP_SecondaryPicture.Enabled := not fCurrentItem.Pictures[lbPictures.ItemIndex].ItemPicture and
+                                      not fCurrentItem.Pictures[lbPictures.ItemIndex].PackagePicture;
+    mniIP_SecondaryPicture.Checked := mniIP_SecondaryPicture.Enabled and (lbPictures.ItemIndex = fCurrentItem.Pictures.CurrentSecondary);
   end
 else
   begin
@@ -359,6 +364,8 @@ else
     mniIP_ItemPicture.Checked := False;
     mniIP_PackagePicture.Enabled := False;
     mniIP_PackagePicture.Checked := False;
+    mniIP_SecondaryPicture.Enabled := False;
+    mniIP_SecondaryPicture.Checked := False;
   end;
 mniIP_MoveUp.Enabled := lbPictures.ItemIndex > 0;
 mniIP_MoveDown.Enabled := (lbPictures.Count > 0) and ((lbPictures.ItemIndex >= 0) and (lbPictures.ItemIndex < Pred(lbPictures.Count)));
@@ -482,7 +489,9 @@ If lbPictures.ItemIndex >= 0 then
           Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
           If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
             begin
+              frmItemPictureFrame.SetPicture(nil,-1,False);
               fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
+              frmItemPictureFrame.SetPicture(fCurrentItem.Pictures,lbPictures.ItemIndex,True);
               FillList;
             end
           else MessageDlg('Invalid format of the thumbnail.',mtError,[mbOK],0);
@@ -505,6 +514,7 @@ If lbPictures.ItemIndex >= 0 then
                 fCurrentItem.Pictures[lbPictures.ItemIndex].PictureFile,
                 mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
+      frmItemPictureFrame.SetPicture(nil,-1,False);
       Index := lbPictures.ItemIndex;
       fCurrentItem.Pictures.Delete(lbPictures.ItemIndex);
       lbPictures.Items.Delete(lbPictures.ItemIndex);
@@ -721,6 +731,19 @@ If mniIP_PackagePicture.Enabled then
   begin
     fCurrentItem.Pictures.SetPackagePicture(lbPictures.ItemIndex,not mniIP_PackagePicture.Checked);
     mniIP_PackagePicture.Checked := not mniIP_PackagePicture.Checked;
+    lbPictures.Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_SecondaryPictureClick(
+  Sender: TObject);
+begin
+If mniIP_SecondaryPicture.Enabled and not mniIP_SecondaryPicture.Checked then
+  begin
+    fCurrentItem.Pictures.CurrentSecondary := lbPictures.ItemIndex;
+    mniIP_SecondaryPicture.Checked := True;
     lbPictures.Invalidate;
   end;
 end;

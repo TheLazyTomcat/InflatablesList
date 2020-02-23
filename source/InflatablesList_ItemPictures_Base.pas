@@ -51,7 +51,8 @@ type
     fOnPicturesChange:    TNotifyEvent;
     // getters, setters
     procedure SetStaticSettings(Value: TILStaticManagerSettings); virtual;
-    Function GetEntry(Index: Integer): TILItemPicturesEntry;
+    Function GetEntry(Index: Integer): TILItemPicturesEntry; virtual;
+    procedure SetCurrentSecondary(Value: Integer); virtual;
     // list methods
     Function GetCapacity: Integer; override;
     procedure SetCapacity(Value: Integer); override;
@@ -101,7 +102,7 @@ type
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property Owner: TObject read fOwner;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
-    property CurrentSecondary: Integer read fCurrentSecondary;
+    property CurrentSecondary: Integer read fCurrentSecondary write SetCurrentSecondary;
   end;
 
 implementation
@@ -125,6 +126,22 @@ If CheckIndex(Index) then
   Result := fPictures[Index]
 else
   raise Exception.CreateFmt('TILItemPictures_Base.GetEntry: Index (%d) out of bounds.',[Index]);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.SetCurrentSecondary(Value: Integer);
+begin
+If CheckIndex(Value) then
+  begin
+    If not fPictures[Value].ItemPicture and not fPictures[Value].PackagePicture then
+      begin
+        fCurrentSecondary := Value;
+        UpdatePictures;
+      end
+    else raise Exception.Create('TILItemPictures_Base.SetCurrentSecondary: Cannot set as current secondary.');
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.SetCurrentSecondary: Index (%d) out of bounds.',[Value]);
 end;
 
 //------------------------------------------------------------------------------

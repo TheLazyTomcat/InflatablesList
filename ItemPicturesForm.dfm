@@ -1,6 +1,6 @@
 object fItemPicturesForm: TfItemPicturesForm
-  Left = 443
-  Top = 136
+  Left = 546
+  Top = 133
   BorderStyle = bsDialog
   Caption = 'fItemPicturesForm'
   ClientHeight = 560
@@ -140,6 +140,11 @@ object fItemPicturesForm: TfItemPicturesForm
       Caption = 'Package picture'
       ShortCut = 16464
       OnClick = mniIP_PackagePictureClick
+    end
+    object mniIP_SecondaryPicture: TMenuItem
+      Caption = 'Current secondary picture'
+      ShortCut = 16463
+      OnClick = mniIP_SecondaryPictureClick
     end
     object N4: TMenuItem
       Caption = '-'

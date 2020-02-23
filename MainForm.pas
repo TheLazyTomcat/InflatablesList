@@ -978,7 +978,7 @@ If lbList.ItemIndex >= 0 then
   If MessageDlg(IL_Format('Are you sure you want to remove the item "%s"?',
        [fILManager[lbList.ItemIndex].TitleStr]),mtConfirmation,[mbYes,mbNo],0) = mrYes then
     begin
-      frmItemFrame.SetItem(nil,False);  // the item will be delted, so unbind it
+      frmItemFrame.SetItem(nil,False);  // the item will be deleted, so unbind it
       Index := lbList.ItemIndex;
       fILManager.ItemDelete(Index);
       lbList.Items.Delete(Index);

@@ -75,8 +75,8 @@ type
   TILItemMaterial = (ilimtUnknown,ilimtPolyvinylchloride{PVC},ilimtPolyester{PES},
                      ilimtPolyetylene{PE},ilimtPolypropylene{PP},
                      ilimtAcrylonitrileButadieneStyrene{ABS},ilimtPolystyren{PS},
-                     ilimtPolyurethane{PUR},ilimtFlockedPVC,ilimtLatex,
-                     ilimtSilicone,ilimtGumoTex,ilimtOther);
+                     ilimtPolyurethane{PUR},ilimtLatex,ilimtSilicone,
+                     ilimtGumoTex,ilimtOther);
 
   TILItemSurfaceFinish = (ilisfUnknown,ilisfGlossy,ilisfSemiGloss,ilisfMatte,
                           ilisfSemiMatte,ilisfPearlscent,ilisfMetalic,
@@ -760,7 +760,7 @@ begin
 case Material of
   ilimtOther:                         Result := 1;
   ilimtPolyvinylchloride:             Result := 2;
-  ilimtFlockedPVC:                    Result := 3;
+//ilimtFlockedPVC:                    Result := 3;    removed
   ilimtLatex:                         Result := 4;
   ilimtSilicone:                      Result := 5;
   ilimtGumoTex:                       Result := 6;
@@ -769,7 +769,6 @@ case Material of
   ilimtPolypropylene:                 Result := 9;
   ilimtAcrylonitrileButadieneStyrene: Result := 10;
   ilimtPolystyren:                    Result := 11;
-  // new
   ilimtPolyurethane:                  Result := 12;
 else
  {ilimUnknown}
@@ -784,7 +783,7 @@ begin
 case Num of
   1:  Result := ilimtOther;
   2:  Result := ilimtPolyvinylchloride;
-  3:  Result := ilimtFlockedPVC;
+  3:  Result := ilimtPolyvinylchloride;
   4:  Result := ilimtLatex;
   5:  Result := ilimtSilicone;
   6:  Result := ilimtGumoTex;

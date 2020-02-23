@@ -137,8 +137,7 @@ const
   IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
     ('neznámı','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
      'polypropylen (PP)','akrylonitrilbutadienstyren (ABS)','polystyren (PS)',
-     'polyuretan (PUR)','povloèkované PVC','latex','silikon','gumotextílie',
-     'ostatní');
+     'polyuretan (PUR)','latex','silikon','gumotextílie','ostatní');
 
   IL_DATA_ITEMSURFACEFINISH_STRS: array[TILItemSurfaceFinish] of String =
     ('neznámı','lesklı','pololesklı','matnı','polomatnı','perleovı',

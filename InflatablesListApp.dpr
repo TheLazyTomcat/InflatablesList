@@ -8,6 +8,7 @@ uses
   InflatablesList_Encryption in 'source\InflatablesList_Encryption.pas',
   InflatablesList_Data in 'source\InflatablesList_Data.pas',
   InflatablesList_Backup in 'source\InflatablesList_Backup.pas',
+  InflatablesList_SimpleBitmap in 'source\InflatablesList_SimpleBitmap.pas',
   InflatablesList_HTML_Utils in 'source\InflatablesList_HTML_Utils.pas',
   InflatablesList_HTML_NamedCharRefs in 'source\InflatablesList_HTML_NamedCharRefs.pas',
   InflatablesList_HTML_Download in 'source\InflatablesList_HTML_Download.pas',

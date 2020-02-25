@@ -45,9 +45,9 @@ begin
 If (Length(IDStr) > 0) then
   begin
     If Length(fVariantTag) > 0 then
-      Result := IL_Format('%s%s_%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr,fVariantTag])
+      Result := IL_Format('%s%s_%s',[fDataProvider.ItemManufacturerInfos[fManufacturer].Tag,IDStr,fVariantTag])
     else
-      Result := IL_Format('%s%s',[fDataProvider.ItemManufacturers[fManufacturer].Tag,IDStr])
+      Result := IL_Format('%s%s',[fDataProvider.ItemManufacturerInfos[fManufacturer].Tag,IDStr])
   end
 else Result := GUIDToString(fUniqueID);
 end;
@@ -82,7 +82,7 @@ If fManufacturer in [ilimUnknown,ilimOthers] then
     else
       Result :='<unknown_manuf>';
   end
-else Result := fDataProvider.ItemManufacturers[fManufacturer].Str;
+else Result := fDataProvider.ItemManufacturerInfos[fManufacturer].Str;
 If Length(IDStr) <> 0 then
   begin
     If Length(Result) > 0 then

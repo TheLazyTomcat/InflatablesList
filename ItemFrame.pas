@@ -328,9 +328,9 @@ begin
 If Assigned(fCurrentItem) then
   begin
     If imgManufacturerLogo.Tag <> Ord(fCurrentItem.Manufacturer) then
-      imgManufacturerLogo.Picture.Assign(
-        fILManager.DataProvider.ItemManufacturers[fCurrentItem.Manufacturer].Logo);
+      fILManager.DataProvider.ItemManufacturerInfos[fCurrentItem.Manufacturer].Logo.AssignTo(imgManufacturerLogo.Picture.Bitmap);
     imgManufacturerLogo.Tag := Ord(fCurrentItem.Manufacturer);
+    imgManufacturerLogo.Invalidate;
   end
 else
   begin
@@ -850,7 +850,7 @@ cmbManufacturer.Items.BeginUpdate;
 try
   cmbManufacturer.Items.Clear;
   For i := Ord(Low(TILItemManufacturer)) to Ord(High(TILItemManufacturer)) do
-    cmbManufacturer.Items.Add(fILManager.DataProvider.ItemManufacturers[TILItemManufacturer(i)].Str);
+    cmbManufacturer.Items.Add(fILManager.DataProvider.ItemManufacturerInfos[TILItemManufacturer(i)].Str);
 finally
   cmbManufacturer.Items.EndUpdate;
 end;

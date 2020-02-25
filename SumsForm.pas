@@ -201,10 +201,10 @@ sgSumsByManufacturer.Cells[0,9] := 'Total price';
 For i := Ord(Low(TILItemManufacturer)) to Ord(High(TILItemManufacturer)) do
   with fILManager.DataProvider do
     begin
-      sgSumsByManufacturer.Cells[i + 1,0] := ItemManufacturers[TILItemManufacturer(i)].Str;
+      sgSumsByManufacturer.Cells[i + 1,0] := ItemManufacturerInfos[TILItemManufacturer(i)].Str;
       // ensure the name will fit
-      If sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturers[TILItemManufacturer(i)].Str) + 10 > sgSumsByManufacturer.ColWidths[i + 1] then
-        sgSumsByManufacturer.ColWidths[i + 1] := sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturers[TILItemManufacturer(i)].Str) + 10;
+      If sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturerInfos[TILItemManufacturer(i)].Str) + 10 > sgSumsByManufacturer.ColWidths[i + 1] then
+        sgSumsByManufacturer.ColWidths[i + 1] := sgSumsByManufacturer.Canvas.TextWidth(ItemManufacturerInfos[TILItemManufacturer(i)].Str) + 10;
     end;
 end;
 

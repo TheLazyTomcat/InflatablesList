@@ -7,7 +7,8 @@ interface
 uses
   Windows, SysUtils, Graphics, Classes,
   AuxTypes, AuxClasses,
-  InflatablesList_Types;
+  InflatablesList_Types,
+  InflatablesList_SimpleBitmap;
 
 //==============================================================================
 //- string functions redirection -----------------------------------------------
@@ -99,7 +100,8 @@ Function IL_CheckHandler(Handler: TILPasswordRequest): TILPasswordRequest; overl
 //==============================================================================
 //- pictures manipulation ------------------------------------------------------
 
-procedure IL_PicShrink(Large,Small: TBitmap; Factor: Integer);
+procedure IL_PicShrink(Large,Small: TBitmap; Factor: Integer); overload;
+procedure IL_PicShrink(Large,Small: TILSimpleBitmap; Factor: Integer); overload;
 
 //==============================================================================
 //- others ---------------------------------------------------------------------
@@ -703,6 +705,41 @@ If not LargeH then
   Large.Dormant;
 If not SmallH then
   Small.Dormant;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+procedure IL_PicShrink(Large,Small: TILSimpleBitmap; Factor: Integer);
+var
+  Y,X:    Integer;
+  Lines:  array of PILRGBAQuadArray;
+  LineR:  PILRGBAQuadArray;
+  R,G,B:  UInt32;
+  i,j:    Integer;
+begin
+SetLength(Lines,Factor);
+For Y := 0 to Pred(Integer(Large.Height) div Factor) do
+  begin
+    For i := 0 to Pred(Factor) do
+      Lines[i] := Large.ScanLine((Y * Factor) + i);
+    For X := 0 to Pred(Integer(Large.Width) div Factor) do
+      begin
+        R := 0;
+        G := 0;
+        B := 0;
+        For i := 0 to Pred(Factor) do
+          For j := 0 to Pred(Factor) do
+            begin
+              Inc(R,Sqr(Integer(Lines[i]^[(X * Factor) + j].R)));
+              Inc(G,Sqr(Integer(Lines[i]^[(X * Factor) + j].G)));
+              Inc(B,Sqr(Integer(Lines[i]^[(X * Factor) + j].B)));
+            end;
+        LineR := Small.ScanLine(Y);
+        LineR^[X].R := Trunc(Sqrt(R / Sqr(Factor)));
+        LineR^[X].G := Trunc(Sqrt(G / Sqr(Factor)));
+        LineR^[X].B := Trunc(Sqrt(B / Sqr(Factor)));
+      end;
+  end;
 end;
 
 

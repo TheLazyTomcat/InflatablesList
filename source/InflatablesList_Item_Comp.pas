@@ -59,7 +59,7 @@ If fDataAccessible then
     ilisrTypeSpec:              Result := IL_ContainsText(fItemTypeSpec,Text);
     ilisrPieces:                Result := IL_ContainsText(IL_Format('%dpcs',[fPieces]),Text);
     ilisrUserID:                Result := IL_ContainsText(fUserID,Text);
-    ilisrManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturers[fManufacturer].Str,Text);
+    ilisrManufacturer:          Result := IL_ContainsText(fDataProvider.ItemManufacturerInfos[fManufacturer].Str,Text);
     ilisrManufacturerStr:       Result := IL_ContainsText(fManufacturerStr,Text);
     ilisrTextID:                Result := IL_ContainsText(fTextID,Text);
     ilisrNumID:                 Result := IL_ContainsText(IntToStr(fNumID),Text);
@@ -297,8 +297,8 @@ If (fDataAccessible and WithItem.DataAccessible) or (WithValue = ilivtItemEncryp
                               begin
                                 If not(fManufacturer in [ilimUnknown,ilimOthers]) and not(WithItem.Manufacturer in [ilimUnknown,ilimOthers]) then
                                   Result := CompareText_Internal(
-                                    fDataProvider.ItemManufacturers[fManufacturer].Str,
-                                    fDataProvider.ItemManufacturers[WithItem.Manufacturer].Str)
+                                    fDataProvider.ItemManufacturerInfos[fManufacturer].Str,
+                                    fDataProvider.ItemManufacturerInfos[WithItem.Manufacturer].Str)
                                 // push others and unknowns to the end
                                 else If not(fManufacturer in [ilimUnknown,ilimOthers]) and (WithItem.Manufacturer in [ilimUnknown,ilimOthers]) then
                                   Result := IL_NegateValue(+1,Reversed)

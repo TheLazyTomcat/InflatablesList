@@ -6,35 +6,58 @@ interface
 
 uses
   Graphics,
-  InflatablesList_Types;
+  InflatablesList_Types,
+  InflatablesList_SimpleBitmap;
 
 type
+  TILItemTypeInfo = record
+    Str:                    String;
+    DefaultPictureResName:  String;
+    DefaultPictureOriginal: TILSimpleBitmap;  // 96 x 96 px, white background, loded from resources
+    DefautPictureFull:      TILSimpleBitmap;
+    DefautPictureSmall:     TILSimpleBitmap;
+    DefautPictureMini:      TILSimpleBitmap;    
+  end;
+
   TILItemManufacturerInfo = record
     Str:          String;
     Tag:          String;
     LogoResName:  String;
-    Logo:         TBitmap;  // 256 x 96 px, white background, loaded from resources
+    LogoOriginal: TILSimpleBitmap;  // 256 x 96 px, white background, loaded from resources
+    Logo:         TILSimpleBitmap;
+    WebPage:      String;           {$message 'implement later'}    
   end;
+
+//==============================================================================  
 
 type
   TILDataProvider = class(TObject)
   private
-    fItemManufacturers:     array[TILItemManufacturer] of TILItemManufacturerInfo;
+    fItemTypeInfos:         array[TILItemType] of TILItemTypeInfo;
+    fItemManufacturerInfos: array[TILItemManufacturer] of TILItemManufacturerInfo;
+
+    fItemDefaultPics:       array[TILItemType] of TBitmap;
+    fItemDefaultPicsSmall:  array[TILItemType] of TBitmap;
+    fItemDefaultPicsMini:   array[TILItemType] of TBitmap;
+
+
     fItemReviewIcon:        TBitmap;
     fItemFlagIcons:         array[TILItemFlag] of TBitmap;
     fEmptyPicture:          TBitmap;
     fEmptyPictureSmall:     TBitmap;
     fEmptyPictureMini:      TBitmap;
-    fItemDefaultPics:       array[TILItemType] of TBitmap;
-    fItemDefaultPicsSmall:  array[TILItemType] of TBitmap;
-    fItemDefaultPicsMini:   array[TILItemType] of TBitmap;
+
     fWantedGradientImage:   TBitmap;
     fRatingGradientImage:   TBitmap;
     fItemLockImage:         TBitmap;
     fItemLockIconWhite:     TBitmap;
     fItemLockIconBlack:     TBitmap;
-    Function GetItemManufacturerCount: Integer;
-    Function GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
+
+    Function GetItemTypeInfoCount: Integer;
+    Function GetItemTypeInfo(ItemType: TILItemType): TILItemTypeInfo;
+    Function GetItemManufacturerInfoCount: Integer;
+    Function GetItemManufacturerInfo(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
+
     Function GetItemFlagIconCount: Integer;
     Function GetItemFlagIcon(ItemFlag: TILItemFlag): TBitmap;
     Function GetItemDefaultPictureCount: Integer;
@@ -46,6 +69,7 @@ type
   protected
     procedure InitializeItemManufacurers; virtual;
     procedure FinalizeItemManufacturers; virtual;
+
     procedure InitializeItemReviewIcon; virtual;
     procedure FinalizeItemReviewIcon; virtual;
     procedure InitializeItemFlagIcons; virtual;
@@ -65,7 +89,8 @@ type
     procedure Initialize; virtual;
     procedure Finalize; virtual;
   public
-    class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; virtual;
+    class Function LoadBitmapFromResource(const ResName: String; Bitmap: TBitmap): Boolean; overload; virtual;
+    class Function LoadBitmapFromResource(const ResName: String; SimpleBitmap: TILSimpleBitmap): Boolean; overload; virtual;
     class Function GetItemTypeString(ItemType: TILItemType): String; virtual;
     class Function GetItemMaterialString(ItemMaterial: TILItemMaterial): String; virtual;
     class Function GetItemSurfaceFinishString(ItemSurfaceFinish: TILItemSurfaceFinish): String; virtual;
@@ -78,8 +103,12 @@ type
     class Function GetAdvancedShopSearchResultString(SearchResult: TILAdvShopSearchResult): String; virtual;
     constructor Create;
     destructor Destroy; override;
-    property ItemManufacturerCount: Integer read GetItemManufacturerCount;
-    property ItemManufacturers[ItemManufacturer: TILItemManufacturer]: TILItemManufacturerInfo read GetItemManufacturer;
+
+    property ItemTypeInfoCount: Integer read GetItemTypeInfoCount;
+    property ItemTypeInfos[ItemType: TILItemType]: TILItemTypeInfo read GetItemTypeInfo;
+    property ItemManufacturerInfoCount: Integer read GetItemManufacturerInfoCount;
+    property ItemManufacturerInfos[ItemManufacturer: TILItemManufacturer]: TILItemManufacturerInfo read GetItemManufacturerInfo;
+
     property ItemReviewIcon: TBitmap read fItemReviewIcon;
     property ItemFlagIconCount: Integer read GetItemFlagIconCount;
     property ItemFlagIcons[ItemFlag: TILItemFlag]: TBitmap read GetItemFlagIcon;
@@ -104,10 +133,12 @@ implementation
 uses
   SysUtils, Classes,
   StrRect,
-  InflatablesList_Utils;
+  InflatablesList_Utils,
+  InflatablesList_LocalStrings;
 
 // resources containing the data
 {$R '..\resources\man_logos.res'}
+
 {$R '..\resources\icon_review.res'}
 {$R '..\resources\flag_icons.res'}
 {$R '..\resources\default_pics.res'}
@@ -116,32 +147,139 @@ uses
 {$R '..\resources\empty_pic.res'}
 
 const
-  IL_DATA_ITEMMANUFACTURER_STRS: array[TILItemManufacturer] of String = (
-    'neznámý','Bestway','Crivit','Intex','HappyPeople','Mondo','Polygroup',
-    'Summer Waves','Swimline','Vetro-Plus','Wehncke','WIKY','ostatní');
+(*
+  IL_DATA_ITEMTYPE_INFOS: array[TILItemType] of TILItemTypeInfo = (
+    //-------------------------------------------------------------------------- ilitUnknown
+   (Str:                    '';
+    DefaultPictureResName:  'def_pic_unknown';
+    DefaultPictureOriginal: nil;
+    DefautPictureFull:      nil;
+    DefautPictureSmall:     nil;
+    DefautPictureMini:      nil),
+    //-------------------------------------------------------------------------- ilitRing
+    //-------------------------------------------------------------------------- ilitRingWithHandles
+    //-------------------------------------------------------------------------- ilitRingSpecial
+    //-------------------------------------------------------------------------- ilitBall
+    //-------------------------------------------------------------------------- ilitRider
+    //-------------------------------------------------------------------------- ilitLounger
+    //-------------------------------------------------------------------------- ilitLoungerChair
+    //-------------------------------------------------------------------------- ilitSeat
+    //-------------------------------------------------------------------------- ilitWings
+    //-------------------------------------------------------------------------- ilitToy
+    //-------------------------------------------------------------------------- ilitIsland
+    //-------------------------------------------------------------------------- ilitIslandExtra
+    //-------------------------------------------------------------------------- ilitBoat
+    //-------------------------------------------------------------------------- ilitMattress
+    //-------------------------------------------------------------------------- ilitBed
+    //-------------------------------------------------------------------------- ilitChair
+    //-------------------------------------------------------------------------- ilitSofa
+    //-------------------------------------------------------------------------- ilitBalloon
+    //-------------------------------------------------------------------------- ilitOther
+  );
+*)
+//------------------------------------------------------------------------------
 
-  IL_DATA_ITEMMANUFACTURER_TAGS: array[TILItemManufacturer] of String = (
-    'uk','bw','cr','it','hp','mn','pg','sw','sl','vp','wh','wk','ot');
+  IL_DATA_ITEMMANUFACTURER_INFOS: array[TILItemManufacturer] of TILItemManufacturerInfo = (
+    //-------------------------------------------------------------- ilimUnknown
+   (Str:          IL_DATA_ITEMMANUFACTURER_UNKNOWN;
+    Tag:          'uk';
+    LogoResName:  'man_logo_others';
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      ''),
+    //-------------------------------------------------------------- ilimBestway
+   (Str:          'Bestway';
+    Tag:          'bw';
+    LogoResName:  'man_logo_bestway';
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.bestwaycorp.com'),
+    //--------------------------------------------------------------- ilimCrivit
+   (Str:          'Crivit';
+    Tag:          'cr';
+    LogoResName:  'man_logo_crivit';
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.lidl-shop.cz'),
+    //---------------------------------------------------------------- ilimIntex
+   (Str:          'Intex';
+    Tag:          'it';
+    LogoResName:  'man_logo_intex';
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.intexcorp.com'),
+    //---------------------------------------------------------- ilimHappyPeople
+   (Str:          'HappyPeople';
+    Tag:          'hp';
+    LogoResName:  'man_logo_happypeople';
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.happypeople.de/en'),
+    //---------------------------------------------------------------- ilimMondo
+   (Str:          'Mondo';
+    Tag:          'mn';
+    LogoResName:  'man_logo_mondo'; 
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'http://www.mondotoys.com'),
+    //------------------------------------------------------------ ilimPolygroup
+   (Str:          'Polygroup';
+    Tag:          'pg';
+    LogoResName:  'man_logo_polygroup'; 
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.polygroup.com'),
+    //---------------------------------------------------------- ilimSummerWaves
+   (Str:          'Summer Waves';
+    Tag:          'sw';
+    LogoResName:  'man_logo_summerwaves'; 
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.polygroup.com/inflatables'),
+    //------------------------------------------------------------- ilimSwimline
+   (Str:          'Swimline';
+    Tag:          'sl';
+    LogoResName:  'man_logo_swimline';  
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://swimline.com'),
+    //------------------------------------------------------------ ilimVetroPlus
+   (Str:          'Vetro-Plus';
+    Tag:          'vp';
+    LogoResName:  'man_logo_vetroplus';  
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'http://www.vetroplus.cz'),
+    //-------------------------------------------------------------- ilimWehncke
+   (Str:          'Wehncke';
+    Tag:          'wh';
+    LogoResName:  'man_logo_wehncke';  
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://www.happypeople.de/en'),
+    //----------------------------------------------------------------- ilimWIKY
+   (Str:          'WIKY';
+    Tag:          'wk';
+    LogoResName:  'man_logo_wiky';   
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      'https://wiky.cz'),
+    //--------------------------------------------------------------- ilimOthers
+   (Str:          IL_DATA_ITEMMANUFACTURER_OTHERS;
+    Tag:          'ot';
+    LogoResName:  'man_logo_others'; 
+    LogoOriginal: nil;
+    Logo:         nil;
+    WebPage:      ''));
 
-  IL_DATA_ITEMMANUFACTURER_LOGORESNAMES: array[TILItemManufacturer] of String = (
-    'man_logo_others','man_logo_bestway','man_logo_crivit','man_logo_intex',
-    'man_logo_happypeople','man_logo_mondo','man_logo_polygroup',
-    'man_logo_summerwaves','man_logo_swimline','man_logo_vetroplus',
-    'man_logo_wehncke','man_logo_wiky','man_logo_others');
+  IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
+    'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles',
+    'def_pic_ring_special','def_pic_ball','def_pic_rider','def_pic_lounger',
+    'def_pic_lounger_chair','def_pic_seat','def_pic_wings','def_pic_toy',
+    'def_pic_island','def_pic_island_rider','def_pic_boat','def_pic_mattress',
+    'def_pic_bed','def_pic_chair','def_pic_sofa','def_pic_balloon',
+    'def_pic_others');    
 
-  IL_DATA_ITEMTYPE_STRS: array[TILItemType] of String =
-    ('neznámý','kruh','kruh s madly','kruh speciální','míè','rider','lehátko',
-     'lehátko s opìrkou','sedátko','rukávky','hraèka','ostrov','ostrov extra',
-     'èlun','matrace','postel','køeslo','pohovka','balónek','ostatní');
-
-  IL_DATA_ITEMMATERIAL_STRS: array[TILItemMaterial] of String =
-    ('neznámý','polyvinylchlorid (PVC)','polyester (PES)','polyetylen (PE)',
-     'polypropylen (PP)','akrylonitrilbutadienstyren (ABS)','polystyren (PS)',
-     'polyuretan (PUR)','latex','silikon','gumotextílie','ostatní');
-
-  IL_DATA_ITEMSURFACEFINISH_STRS: array[TILItemSurfaceFinish] of String =
-    ('neznámý','lesklý','pololesklý','matný','polomatný','perleový',
-     'metalický','povloèkovaný','rùzný','jiný');
 
   IL_DATA_ITEMFLAG_STRS: array[TILItemFlag] of String = (
     'Owned','Wanted','Ordered','Boxed','Elsewhere','Untested','Testing',
@@ -180,14 +318,6 @@ const
     'Success','Mild success','Data fail','Soft fail','Hard fail',
     'Download fail','Parsing fail','Fatal error');
 
-  IL_DATA_DEFAULTPIC_RESNAME: array[TILITemType] of String = (
-    'def_pic_unknown','def_pic_ring','def_pic_ring_w_handles',
-    'def_pic_ring_special','def_pic_ball','def_pic_rider','def_pic_lounger',
-    'def_pic_lounger_chair','def_pic_seat','def_pic_wings','def_pic_toy',
-    'def_pic_island','def_pic_island_rider','def_pic_boat','def_pic_mattress',
-    'def_pic_bed','def_pic_chair','def_pic_sofa','def_pic_balloon',
-    'def_pic_others');
-
   IL_DATA_SHOPPARSING_EXTRACTFROM: array[TILItemShopParsingExtrFrom] of String = (
     'Text','Nested text','Attribute value');
 
@@ -224,19 +354,36 @@ const
 
 //==============================================================================
 
-Function TILDataProvider.GetItemManufacturerCount: Integer;
+Function TILDataProvider.GetItemTypeInfoCount: Integer;
 begin
-Result := Length(fItemManufacturers);
+Result := Length(fItemTypeInfos);
 end;
 
 //------------------------------------------------------------------------------
 
-Function TILDataProvider.GetItemManufacturer(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
+Function TILDataProvider.GetItemTypeInfo(ItemType: TILItemType): TILItemTypeInfo;
 begin
-If (ItemManufacturer >= Low(fItemManufacturers)) and (ItemManufacturer <= High(fItemManufacturers)) then
-  Result := fItemManufacturers[ItemManufacturer]
+If (ItemType >= Low(fItemTypeInfos)) and (ItemType <= High(fItemTypeInfos)) then
+  Result := fItemTypeInfos[ItemType]
 else
-  raise Exception.CreateFmt('TILDataProvider.GetItemManufacturer: Invalid item manufacturer (%d).',[Ord(ItemManufacturer)]);
+  raise Exception.CreateFmt('TILDataProvider.GetItemTypeInfo: Invalid item type (%d).',[Ord(ItemType)]);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemManufacturerInfoCount: Integer;
+begin
+Result := Length(fItemManufacturerInfos);
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILDataProvider.GetItemManufacturerInfo(ItemManufacturer: TILItemManufacturer): TILItemManufacturerInfo;
+begin
+If (ItemManufacturer >= Low(fItemManufacturerInfos)) and (ItemManufacturer <= High(fItemManufacturerInfos)) then
+  Result := fItemManufacturerInfos[ItemManufacturer]
+else
+  raise Exception.CreateFmt('TILDataProvider.GetItemManufacturerInfo: Invalid item manufacturer (%d).',[Ord(ItemManufacturer)]);
 end;
 
 //------------------------------------------------------------------------------
@@ -311,18 +458,15 @@ end;
 
 procedure TILDataProvider.InitializeItemManufacurers;
 var
-  i:      TILItemManufacturer;
-  Bitmap: TBitmap;
+  i:  TILItemManufacturer;
 begin
-For i := Low(fItemManufacturers) to High(fItemManufacturers) do
+For i := Low(fItemManufacturerInfos) to High(fItemManufacturerInfos) do
   begin
-    fItemManufacturers[i].Str := IL_DATA_ITEMMANUFACTURER_STRS[i];
-    fItemManufacturers[i].Tag := IL_DATA_ITEMMANUFACTURER_TAGS[i];
-    fItemManufacturers[i].LogoResName := IL_DATA_ITEMMANUFACTURER_LOGORESNAMES[i];
-    Bitmap := TBitmap.Create;
-    If not LoadBitmapFromResource(fItemManufacturers[i].LogoResName,Bitmap) then
-      FreeAndNil(Bitmap);
-    fItemManufacturers[i].Logo := Bitmap;
+    fItemManufacturerInfos[i] := IL_DATA_ITEMMANUFACTURER_INFOS[i];
+    fItemManufacturerInfos[i].LogoOriginal := TILSimpleBitmap.Create;
+    If not LoadBitmapFromResource(fItemManufacturerInfos[i].LogoResName,fItemManufacturerInfos[i].LogoOriginal) then
+      FreeAndNil(fItemManufacturerInfos[i].LogoOriginal);
+    fItemManufacturerInfos[i].Logo := fItemManufacturerInfos[i].LogoOriginal;
   end;
 end;
 
@@ -332,9 +476,9 @@ procedure TILDataProvider.FinalizeItemManufacturers;
 var
   i:  TILItemManufacturer;
 begin
-For i := Low(fItemManufacturers) to High(fItemManufacturers) do
-  If Assigned(fItemManufacturers[i].Logo) then
-    FreeAndNil(fItemManufacturers[i].Logo);
+For i := Low(fItemManufacturerInfos) to High(fItemManufacturerInfos) do
+  If Assigned(fItemManufacturerInfos[i].Logo) then
+    FreeAndNil(fItemManufacturerInfos[i].Logo);
 end;
 
 //------------------------------------------------------------------------------
@@ -595,6 +739,22 @@ try
   Result := True;
 except
   Result := False;
+end;
+end;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class Function TILDataProvider.LoadBitmapFromResource(const ResName: String; SimpleBitmap: TILSimpleBitmap): Boolean;
+var
+  Temp: TBitmap;
+begin
+Temp := TBitmap.Create;
+try
+  Result := LoadBitmapFromResource(ResName,Temp);
+  If Result then
+    SimpleBitmap.AssignFrom(Temp);
+finally
+  Temp.Free;
 end;
 end;
 

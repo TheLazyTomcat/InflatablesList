@@ -1,6 +1,6 @@
 object fItemsSelectForm: TfItemsSelectForm
-  Left = 559
-  Top = 131
+  Left = 789
+  Top = 113
   BorderStyle = bsDialog
   Caption = 'fItemsSelectForm'
   ClientHeight = 484

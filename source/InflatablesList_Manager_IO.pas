@@ -136,6 +136,139 @@ end;
 
 procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
 var
+  i:          Integer;
+  OutStrs:    TStringList;
+  PicsPath:   String;
+  ThumbsPath: String;
+  WorkItem:   TILItem;
+  ItemPicIdx: Integer;
+  PackPicIdx: Integer;
+  TempStr:    String;
+  UTF8Str:    UTF8String;
+begin
+// check indices
+For i := Low(Indices) to High(Indices) do
+  If not CheckIndex(Indices[i]) then
+    raise Exception.CreateFmt('TILManager_Base.ItemsExport: Index %d (%d) out of bounds.',[i,Indices[i]]);
+// build strings
+OutStrs := TStringList.Create;
+try
+  OutStrs.Add('<!DOCTYPE html>');
+  OutStrs.Add('<html>');
+  OutStrs.Add('<head>');
+  OutStrs.Add('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
+  OutStrs.Add('<meta http-equiv="Content-Language" content="cs">');
+  OutStrs.Add('<title>Export</title>');
+  OutStrs.Add('</head>');
+  OutStrs.Add('<body>');
+
+  PicsPath := IL_ExtractFilePath(FileName) + 'pics\';
+  IL_CreateDirectoryPath(PicsPath);
+  ThumbsPath := IL_ExtractFilePath(FileName) + 'pics\thumbs\';
+  IL_CreateDirectoryPath(ThumbsPath);
+  For i := Low(Indices) to High(Indices) do
+    begin
+      WorkItem := fList[Indices[i]];
+      OutStrs.Add('<table border="0" width="100%">');
+      // title, pictures
+      OutStrs.Add('<tr>');
+      If Length(WorkItem.TitleStr) <> 0 then
+        OutStrs.Add(Format('<td><b>%s</b></td>',[WorkItem.TitleStr]))
+      else
+        OutStrs.Add('<td>&nbsp;</td>');
+      // pictures
+      ItemPicIdx := WorkItem.Pictures.IndexOfItemPicture;
+      PackPicIdx := WorkItem.Pictures.IndexOfPackagePicture;
+      If WorkItem.Pictures.CheckIndex(ItemPicIdx) or WorkItem.Pictures.CheckIndex(PackPicIdx) then
+        begin
+          // at least one picture is present...
+          TempStr := '';
+          // first do item picture
+          If WorkItem.Pictures.CheckIndex(ItemPicIdx) then
+            begin
+              // save thumbnail
+              WorkItem.Pictures.Pictures[ItemPicIdx].Thumbnail.SaveToFile(ThumbsPath +
+                IL_ChangeFileExt(WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,'.bmp'));
+              // copy full picture
+              IL_CopyFile(fStaticSettings.PicturesPath + WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,
+                          PicsPath + WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile);
+              // build html
+              TempStr := TempStr + Format('<a href="pics/%s"><img border="0" src="pics/thumbs/%s" width="96" height="96"></a>',[
+                WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,IL_ChangeFileExt(WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,'.bmp')]);
+            end;
+          // now package picture
+          If WorkItem.Pictures.CheckIndex(PackPicIdx) then
+            begin
+              // save thumbnail
+              WorkItem.Pictures.Pictures[PackPicIdx].Thumbnail.SaveToFile(ThumbsPath +
+                IL_ChangeFileExt(WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,'.bmp'));
+              // copy full picture
+              IL_CopyFile(fStaticSettings.PicturesPath + WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,
+                          PicsPath + WorkItem.Pictures.Pictures[PackPicIdx].PictureFile);
+              // build html
+              TempStr := TempStr + Format('<a href="pics/%s"><img border="0" src="pics/thumbs/%s" width="96" height="96"></a>',[
+                WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,IL_ChangeFileExt(WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,'.bmp')]);
+            end;
+          OutStrs.Add(Format('<td rowspan="5" align="right">%s</td>',[TempStr]));
+        end
+      else OutStrs.Add('<td rowspan="5" align="right">&nbsp;</td>');
+      OutStrs.Add('</tr>');
+      // type, size
+      OutStrs.Add('<tr>');
+      TempStr := WorkItem.SizeStr;
+      If Length(TempStr) <= 0 then
+        begin
+          If Length(WorkItem.TypeStr) > 0 then
+            OutStrs.Add(Format('<td>%s</td>',[WorkItem.TypeStr]))
+          else
+            OutStrs.Add('<td>&nbsp;</td>');
+        end
+      else OutStrs.Add(Format('<td>%s - %s</td>',[WorkItem.TypeStr,WorkItem.SizeStr]));
+      OutStrs.Add('</tr>');
+      // description
+      OutStrs.Add('<tr>');
+      If Length(WorkItem.Variant) <> 0 then
+        OutStrs.Add(Format('<td>%s</td>',[WorkItem.Variant]))
+      else
+        OutStrs.Add('<td>&nbsp;</td>');
+      OutStrs.Add('</tr>');
+      // prices
+      OutStrs.Add('<tr>');
+      If WorkItem.ShopsUsefulCount > 0 then
+        OutStrs.Add(Format('<td>%d - %d Kè</td>',[WorkItem.UnitPriceLowest,WorkItem.UnitPriceHighest]))
+      else
+        OutStrs.Add('<td>&nbsp;</td>');
+      OutStrs.Add('</tr>');
+      // notes
+      OutStrs.Add('<tr>');
+      If Length(WorkItem.Notes) > 0 then
+        OutStrs.Add(Format('<td><i>%s</i></td>',[WorkItem.Notes]))
+      else
+        OutStrs.Add('<td><i>&nbsp;</i></td>');
+      OutStrs.Add('</tr>');
+      // end
+      OutStrs.Add('</table>');
+      If i < High(Indices) then
+        OutStrs.Add('<hr>');
+    end;
+    
+  OutStrs.Add('</body>');  
+  OutStrs.Add('</html>');
+  // convert to UTF-8
+  UTF8Str := StrToUTF8(OutStrs.Text);
+finally
+  OutStrs.Free;
+end;
+// save the string
+with TFileStream.Create(StrToRTL(FileName),fmCreate or fmShareDenyWrite) do
+try
+  WriteBuffer(PUTF8Char(UTF8Str)^,Length(UTF8Str) * SizeOf(UTF8Char));
+finally
+  Free;
+end;
+end;
+(*
+var
   AllocSize:  TMemSize;
   i,j:        Integer;
   Index:      Integer;
@@ -229,7 +362,7 @@ finally
   OutStream.Free;
 end;
 end;
-
+*)
 //------------------------------------------------------------------------------
 
 Function TILManager_IO.ItemsImport(const FileName: String): Integer;

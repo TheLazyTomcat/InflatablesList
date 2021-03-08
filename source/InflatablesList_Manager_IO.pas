@@ -156,9 +156,9 @@ try
   OutStrs.Add('<!DOCTYPE html>');
   OutStrs.Add('<html>');
   OutStrs.Add('<head>');
-  OutStrs.Add('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
-  OutStrs.Add('<meta http-equiv="Content-Language" content="cs">');
-  OutStrs.Add('<title>Export</title>');
+  OutStrs.Add('  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
+  OutStrs.Add('  <meta http-equiv="Content-Language" content="cs">');
+  OutStrs.Add('  <title>Export</title>');
   OutStrs.Add('</head>');
   OutStrs.Add('<body>');
 
@@ -171,11 +171,11 @@ try
       WorkItem := fList[Indices[i]];
       OutStrs.Add('<table border="0" width="100%">');
       // title, pictures
-      OutStrs.Add('<tr>');
+      OutStrs.Add('  <tr>');
       If Length(WorkItem.TitleStr) <> 0 then
-        OutStrs.Add(Format('<td><b>%s</b></td>',[WorkItem.TitleStr]))
+        OutStrs.Add(Format('    <td><b>%s</b></td>',[WorkItem.TitleStr]))
       else
-        OutStrs.Add('<td>&nbsp;</td>');
+        OutStrs.Add('    <td>&nbsp;</td>');
       // pictures
       ItemPicIdx := WorkItem.Pictures.IndexOfItemPicture;
       PackPicIdx := WorkItem.Pictures.IndexOfPackagePicture;
@@ -193,7 +193,7 @@ try
               IL_CopyFile(fStaticSettings.PicturesPath + WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,
                           PicsPath + WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile);
               // build html
-              TempStr := TempStr + Format('<a href="pics/%s"><img border="0" src="pics/thumbs/%s" width="96" height="96"></a>',[
+              TempStr := TempStr + Format('<a href="pics/%s"><img border="0" src="pics/thumbs/%s" width="96" height="96" hspace="5"></a>',[
                 WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,IL_ChangeFileExt(WorkItem.Pictures.Pictures[ItemPicIdx].PictureFile,'.bmp')]);
             end;
           // now package picture
@@ -209,43 +209,47 @@ try
               TempStr := TempStr + Format('<a href="pics/%s"><img border="0" src="pics/thumbs/%s" width="96" height="96"></a>',[
                 WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,IL_ChangeFileExt(WorkItem.Pictures.Pictures[PackPicIdx].PictureFile,'.bmp')]);
             end;
-          OutStrs.Add(Format('<td rowspan="5" align="right">%s</td>',[TempStr]));
+          OutStrs.Add(Format('    <td rowspan="5" align="right">%s</td>',[TempStr]));
         end
-      else OutStrs.Add('<td rowspan="5" align="right">&nbsp;</td>');
-      OutStrs.Add('</tr>');
+      else OutStrs.Add('    <td rowspan="5" align="right">&nbsp;</td>');
+      OutStrs.Add('  </tr>');
       // type, size
-      OutStrs.Add('<tr>');
+      OutStrs.Add('  <tr>');
       TempStr := WorkItem.SizeStr;
       If Length(TempStr) <= 0 then
         begin
           If Length(WorkItem.TypeStr) > 0 then
-            OutStrs.Add(Format('<td>%s</td>',[WorkItem.TypeStr]))
+            OutStrs.Add(Format('    <td>%s</td>',[WorkItem.TypeStr]))
           else
-            OutStrs.Add('<td>&nbsp;</td>');
+            OutStrs.Add('  <td>&nbsp;</td>');
         end
-      else OutStrs.Add(Format('<td>%s - %s</td>',[WorkItem.TypeStr,WorkItem.SizeStr]));
-      OutStrs.Add('</tr>');
+      else OutStrs.Add(Format('    <td>%s - %s</td>',[WorkItem.TypeStr,WorkItem.SizeStr]));
+      OutStrs.Add('  </tr>');
       // description
-      OutStrs.Add('<tr>');
+      OutStrs.Add('  <tr>');
       If Length(WorkItem.Variant) <> 0 then
-        OutStrs.Add(Format('<td>%s</td>',[WorkItem.Variant]))
+        OutStrs.Add(Format('    <td>%s</td>',[WorkItem.Variant]))
       else
-        OutStrs.Add('<td>&nbsp;</td>');
-      OutStrs.Add('</tr>');
+        OutStrs.Add('    <td>&nbsp;</td>');
+      OutStrs.Add('  </tr>');
       // prices
-      OutStrs.Add('<tr>');
-      If WorkItem.ShopsUsefulCount > 0 then
-        OutStrs.Add(Format('<td>%d - %d Kè</td>',[WorkItem.UnitPriceLowest,WorkItem.UnitPriceHighest]))
-      else
-        OutStrs.Add('<td>&nbsp;</td>');
-      OutStrs.Add('</tr>');
+      OutStrs.Add('  <tr>');
+      If WorkItem.UnitPriceLowest = WorkItem.UnitPriceHighest then
+        begin
+          If WorkItem.UnitPriceLowest <> 0 then
+            OutStrs.Add(Format('    <td>%d Kè</td>',[WorkItem.UnitPriceLowest]))
+          else
+            OutStrs.Add('    <td>&nbsp;</td>');
+        end
+      else OutStrs.Add(Format('    <td>%d - %d Kè</td>',[WorkItem.UnitPriceLowest,WorkItem.UnitPriceHighest]));
+      OutStrs.Add('  </tr>');
       // notes
-      OutStrs.Add('<tr>');
+      OutStrs.Add('  <tr>');
       If Length(WorkItem.Notes) > 0 then
-        OutStrs.Add(Format('<td><i>%s</i></td>',[WorkItem.Notes]))
+        OutStrs.Add(Format('    <td><i>%s</i></td>',[WorkItem.Notes]))
       else
-        OutStrs.Add('<td><i>&nbsp;</i></td>');
-      OutStrs.Add('</tr>');
+        OutStrs.Add('    <td><i>&nbsp;</i></td>');
+      OutStrs.Add('  </tr>');
       // end
       OutStrs.Add('</table>');
       If i < High(Indices) then

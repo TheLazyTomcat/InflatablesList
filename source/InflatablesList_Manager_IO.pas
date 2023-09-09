@@ -89,7 +89,8 @@ uses
   SysUtils,
   BinaryStreaming, StrRect,
   InflatablesList_Utils,
-  InflatablesList_Item;
+  InflatablesList_Item,
+  BufferedFileStream;
 
 
 procedure TILManager_IO.Save(Stream: TStream; Struct: UInt32);
@@ -307,11 +308,13 @@ end;
 
 procedure TILManager_IO.SaveToFile;
 var
-  FileStream: TMemoryStream;
+  //FileStream: TMemoryStream;
+  FileStream: TBufferedFileStream;
 begin
 // do backup
 If not fStaticSettings.NoBackup and fMainManager then
   fBackupManager.Backup;
+(*
 // do saving
 FileStream := TMemoryStream.Create;
 try
@@ -322,6 +325,15 @@ try
   FileStream.Size := FileStream.Position;
   IL_CreateDirectoryPathForFile(fStaticSettings.ListFile);
   FileStream.SaveToFile(StrToRTL(fStaticSettings.ListFile));
+finally
+  FileStream.Free;
+end;
+*)
+IL_CreateDirectoryPathForFile(fStaticSettings.ListFile);
+FileStream := TBufferedFileStream.Create(StrToRTL(fStaticSettings.ListFile),fmCreate or fmShareDenyWrite);
+try
+  FileStream.Seek(0,soBeginning);
+  SaveToStream(FileStream);
 finally
   FileStream.Free;
 end;

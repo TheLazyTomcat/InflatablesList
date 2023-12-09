@@ -39,6 +39,7 @@ type
     diaSaveDialog: TSaveDialog;
     gbPictureDetails: TGroupBox;
     frmItemPictureFrame: TfrmItemPictureFrame;
+    mniIP_AddMultiThumb: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -52,6 +53,7 @@ type
     procedure mniIP_AddClick(Sender: TObject);
     procedure mniIP_LoadThumbClick(Sender: TObject);
     procedure mniIP_AddWithThumbClick(Sender: TObject);
+    procedure mniIP_AddMultiThumbClick(Sender: TObject);
     procedure mniIP_RemoveClick(Sender: TObject);
     procedure mniIP_RemoveAllClick(Sender: TObject);
     procedure mniIP_ReloadClick(Sender: TObject);
@@ -65,7 +67,7 @@ type
     procedure mniIP_PackagePictureClick(Sender: TObject);
     procedure mniIP_SecondaryPictureClick(Sender: TObject);
     procedure mniIP_MoveUpClick(Sender: TObject);
-    procedure mniIP_MoveDownClick(Sender: TObject); 
+    procedure mniIP_MoveDownClick(Sender: TObject);
   private
     { Private declarations }
     fILManager:     TILManager;
@@ -179,6 +181,7 @@ fDrawBuffer.PixelFormat := pf24bit;
 fDrawBuffer.Canvas.Font.Assign(lbPictures.Font);
 lbPictures.DoubleBuffered := True;
 // shortcuts for popup menu
+mniIP_AddMultiThumb.ShortCut := ShortCut(VK_INSERT,[ssCtrl,ssShift]);
 mniIP_ExportThumb.ShortCut := ShortCut(Ord('E'),[ssCtrl,ssShift]);
 mniIP_MoveUp.ShortCut := ShortCut(VK_UP,[ssShift]);
 mniIP_MoveDown.ShortCut := ShortCut(VK_DOWN,[ssShift]);
@@ -409,9 +412,43 @@ If diaOpenDialog.Execute then
     If Cntr > 0 then
       begin
         lbPictures.ItemIndex := Pred(lbPictures.Count);
-        lbPictures.OnClick(nil);  // updates index  
+        lbPictures.OnClick(nil);  // updates index
       end
     else UpdateIndex;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_LoadThumbClick(Sender: TObject);
+var
+  Thumbnail:  TBitmap;
+begin
+If lbPictures.ItemIndex >= 0 then
+  begin
+    diaOpenDialog.Filter := 'Windows bitmap image (*.bmp)|*.bmp|All files (*.*)|*.*';
+    diaOpenDialog.InitialDir := fDirThumbs;
+    diaOpenDialog.FileName := '';
+    diaOpenDialog.Title := 'Select thumbnail';
+    diaOpenDialog.Options := diaOpenDialog.Options - [ofAllowMultiselect];
+    If diaOpenDialog.Execute then
+      begin
+        fDirThumbs := IL_ExtractFileDir(diaOpenDialog.FileName);
+        Thumbnail := TBitmap.Create;
+        try
+          Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
+          If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
+            begin
+              frmItemPictureFrame.SetPicture(nil,-1,False);
+              fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
+              frmItemPictureFrame.SetPicture(fCurrentItem.Pictures,lbPictures.ItemIndex,True);
+              FillList;
+            end
+          else MessageDlg('Invalid format of the thumbnail.',mtError,[mbOK],0);
+        finally
+          Thumbnail.Free;
+        end;
+      end;
   end;
 end;
 
@@ -470,35 +507,64 @@ end;
 
 //------------------------------------------------------------------------------
 
-procedure TfItemPicturesForm.mniIP_LoadThumbClick(Sender: TObject);
+procedure TfItemPicturesForm.mniIP_AddMultiThumbClick(Sender: TObject);
 var
+  i:          Integer;
+  Info:       TILPictureAutomationInfo;
+  Cntr:       Integer;
+  Index:      Integer;  
   Thumbnail:  TBitmap;
 begin
-If lbPictures.ItemIndex >= 0 then
+diaOpenDialog.Filter := 'JPEG/JFIF image (*.jpg;*jpeg)|*.jpg;*.jpeg|All files (*.*)|*.*';
+diaOpenDialog.InitialDir := fDirPics;
+diaOpenDialog.FileName := '';
+diaOpenDialog.Title := 'Add pictures (autoload thumbnails)';
+diaOpenDialog.Options := diaOpenDialog.Options + [ofAllowMultiselect];
+If diaOpenDialog.Execute then
   begin
-    diaOpenDialog.Filter := 'Windows bitmap image (*.bmp)|*.bmp|All files (*.*)|*.*';
-    diaOpenDialog.InitialDir := fDirThumbs;
-    diaOpenDialog.FileName := '';
-    diaOpenDialog.Title := 'Select thumbnail';
-    diaOpenDialog.Options := diaOpenDialog.Options - [ofAllowMultiselect];
-    If diaOpenDialog.Execute then
-      begin
-        fDirThumbs := IL_ExtractFileDir(diaOpenDialog.FileName);
-        Thumbnail := TBitmap.Create;
-        try
-          Thumbnail.LoadFromFile(StrToRTL(diaOpenDialog.FileName));
-          If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
+    If diaOpenDialog.Files.Count > 0 then
+      fDirPics := IL_ExtractFileDir(diaOpenDialog.Files[Pred(diaOpenDialog.Files.Count)]);
+    Cntr := 0;
+    fCurrentItem.Pictures.BeginUpdate;
+    try
+      Screen.Cursor := crHourGlass;
+      try
+        For i := 0 to Pred(diaOpenDialog.Files.Count) do
+          If IL_FileExists(IL_ChangeFileExt(diaOpenDialog.Files[i],'.bmp')) then
             begin
-              frmItemPictureFrame.SetPicture(nil,-1,False);
-              fCurrentItem.Pictures.SetThumbnail(lbPictures.ItemIndex,Thumbnail,True);
-              frmItemPictureFrame.SetPicture(fCurrentItem.Pictures,lbPictures.ItemIndex,True);
-              FillList;
+              Thumbnail := TBitmap.Create;
+              try
+                Thumbnail.LoadFromFile(StrToRTL(IL_ChangeFileExt(diaOpenDialog.Files[i],'.bmp')));
+                If (Thumbnail.Width = 96) and (Thumbnail.Height = 96) and (Thumbnail.PixelFormat = pf24bit) then
+                  begin
+                    If fCurrentItem.Pictures.AutomatePictureFile(diaOpenDialog.Files[i],Info) then
+                      begin
+                        Index := fCurrentItem.Pictures.Add(Info);
+                        fCurrentItem.Pictures.SetThumbnail(Index,Thumbnail,True);
+                        Inc(Cntr);
+                      end;
+                  end
+                else MessageDlg(Format('Invalid format of thumbnail "%s".',
+                  [IL_ExtractFileName(IL_ChangeFileExt(diaOpenDialog.Files[i],'.bmp'))]),mtError,[mbOK],0);
+              finally
+                Thumbnail.Free;
+              end;
             end
-          else MessageDlg('Invalid format of the thumbnail.',mtError,[mbOK],0);
-        finally
-          Thumbnail.Free;
-        end;
+          else MessageDlg(Format('Unable to load thumbnail "%s".',
+            [IL_ExtractFileName(IL_ChangeFileExt(diaOpenDialog.Files[i],'.bmp'))]),mtError,[mbOK],0);
+      finally
+        Screen.Cursor := crDefault;
       end;
+    finally
+      fCurrentItem.Pictures.EndUpdate;
+    end;  
+    FillList;
+    If Cntr > 0 then
+      begin
+        lbPictures.ItemIndex := Pred(lbPictures.Count);
+        lbPictures.OnClick(nil);  // updates index
+      end
+    else UpdateIndex;
   end;
 end;
 

@@ -882,8 +882,11 @@ end;
 
 procedure TfMainForm.mniMMF_ExitClick(Sender: TObject);
 begin
-fSaveOnExit := False;
-Close;
+If MessageDlg('Are you sure you want to exit without saving?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  begin
+    fSaveOnExit := False;
+    Close;
+  end;
 end;
 
 //------------------------------------------------------------------------------

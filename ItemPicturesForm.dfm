@@ -97,6 +97,19 @@ object fItemPicturesForm: TfItemPicturesForm
     object N1: TMenuItem
       Caption = '-'
     end
+    object mniIP_Rename: TMenuItem
+      Caption = 'Auto-rename selected picture'
+      ShortCut = 16462
+      OnClick = mniIP_RenameClick
+    end
+    object mniIP_RenameAll: TMenuItem
+      Caption = 'Auto-rename all pictures'
+      ShortCut = 49230
+      OnClick = mniIP_RenameAllClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object mniIP_Reload: TMenuItem
       Caption = 'Reload picture info'
       ShortCut = 16466
@@ -107,7 +120,7 @@ object fItemPicturesForm: TfItemPicturesForm
       ShortCut = 49234
       OnClick = mniIP_ReloadAllClick
     end
-    object N2: TMenuItem
+    object N3: TMenuItem
       Caption = '-'
     end
     object mniIP_ImportPics: TMenuItem
@@ -132,7 +145,7 @@ object fItemPicturesForm: TfItemPicturesForm
       Caption = 'Export all thumbnails...'
       OnClick = mniIP_ExportThumbAllClick
     end
-    object N3: TMenuItem
+    object N4: TMenuItem
       Caption = '-'
     end
     object mniIP_ItemPicture: TMenuItem
@@ -150,7 +163,7 @@ object fItemPicturesForm: TfItemPicturesForm
       ShortCut = 16463
       OnClick = mniIP_SecondaryPictureClick
     end
-    object N4: TMenuItem
+    object N5: TMenuItem
       Caption = '-'
     end
     object mniIP_MoveUp: TMenuItem

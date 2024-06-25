@@ -20,19 +20,22 @@ type
     mniIP_Remove: TMenuItem;
     mniIP_RemoveAll: TMenuItem;
     N1: TMenuItem;
+    mniIP_Rename: TMenuItem;
+    mniIP_RenameAll: TMenuItem;
+    N2: TMenuItem;
     mniIP_Reload: TMenuItem;
     mniIP_ReloadAll: TMenuItem;
-    N2: TMenuItem;
-    mniIP_ImportPics: TMenuItem;    
+    N3: TMenuItem;
+    mniIP_ImportPics: TMenuItem;
     mniIP_ExportPic: TMenuItem;
     mniIP_ExportThumb: TMenuItem;
     mniIP_ExportPicAll: TMenuItem;
     mniIP_ExportThumbAll: TMenuItem;
-    N3: TMenuItem;
+    N4: TMenuItem;
     mniIP_ItemPicture: TMenuItem;
     mniIP_PackagePicture: TMenuItem;
     mniIP_SecondaryPicture: TMenuItem;
-    N4: TMenuItem;
+    N5: TMenuItem;
     mniIP_MoveUp: TMenuItem;
     mniIP_MoveDown: TMenuItem;
     diaOpenDialog: TOpenDialog;
@@ -56,9 +59,11 @@ type
     procedure mniIP_AddMultiThumbClick(Sender: TObject);
     procedure mniIP_RemoveClick(Sender: TObject);
     procedure mniIP_RemoveAllClick(Sender: TObject);
+    procedure mniIP_RenameClick(Sender: TObject);
+    procedure mniIP_RenameAllClick(Sender: TObject);
     procedure mniIP_ReloadClick(Sender: TObject);
     procedure mniIP_ReloadAllClick(Sender: TObject);
-    procedure mniIP_ImportPicsClick(Sender: TObject);      
+    procedure mniIP_ImportPicsClick(Sender: TObject);
     procedure mniIP_ExportPicClick(Sender: TObject);
     procedure mniIP_ExportThumbClick(Sender: TObject);
     procedure mniIP_ExportPicAllClick(Sender: TObject);
@@ -345,6 +350,8 @@ begin
 mniIP_LoadThumb.Enabled := lbPictures.ItemIndex >= 0;
 mniIP_Remove.Enabled := lbPictures.ItemIndex >= 0;
 mniIP_RemoveAll.Enabled := lbPictures.Count > 0;
+mniIP_Rename.Enabled := lbPictures.ItemIndex >= 0;
+mniIP_RenameAll.Enabled := lbPictures.Count > 0;
 mniIP_Reload.Enabled := lbPictures.ItemIndex >= 0;
 mniIP_ReloadAll.Enabled := lbPictures.Count > 0;
 mniIP_ExportPic.Enabled := lbPictures.ItemIndex >= 0;
@@ -608,6 +615,40 @@ If lbPictures.Count > 0 then
       lbPictures.Items.Clear;
       lbPictures.OnClick(nil);
     end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_RenameClick(Sender: TObject);
+begin
+If lbPictures.ItemIndex >= 0 then
+  begin
+    fCurrentItem.Pictures.AutoRenameFile(lbPictures.ItemIndex);
+    FillList;
+    lbPictures.Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfItemPicturesForm.mniIP_RenameAllClick(Sender: TObject);
+var
+  i:  Integer;
+begin
+Screen.Cursor := crHourGlass;
+try
+  fCurrentItem.Pictures.BeginUpdate;
+  try
+    For i := fCurrentItem.Pictures.LowIndex to fCurrentItem.Pictures.HighIndex do
+      fCurrentItem.Pictures.AutoRenameFile(i);
+  finally
+    fCurrentItem.Pictures.EndUpdate;
+  end;
+finally
+  Screen.Cursor := crDefault;
+end;
+FillList;
+lbPictures.Invalidate;
 end;
 
 //------------------------------------------------------------------------------

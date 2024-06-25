@@ -1455,6 +1455,7 @@ procedure TfrmItemFrame.btnPicturesClick(Sender: TObject);
 begin
 If Assigned(fCurrentItem) then
   begin
+    FrameSave;
     fItemPicturesForm.ShowPictures(fCurrentItem);
     If Assigned(OnFocusList) then
       OnFocusList(Self);

@@ -80,6 +80,7 @@ Function IL_DeleteDir(const Dir: String): Boolean;
 
 procedure IL_CopyFile(const Source,Destination: String);
 procedure IL_MoveFile(const Source,Destination: String);
+procedure IL_RenameFile(const OldName,NewName: String);
 
 // non-recursive enumeration of files within give folder
 procedure IL_EnumFiles(const BaseFolder: String; List: TStrings);
@@ -544,6 +545,13 @@ procedure IL_MoveFile(const Source,Destination: String);
 begin
 MoveFileEx(PChar(StrToWin(Source)),PChar(StrToWin(Destination)),
   MOVEFILE_COPY_ALLOWED or MOVEFILE_REPLACE_EXISTING or MOVEFILE_WRITE_THROUGH);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure IL_RenameFile(const OldName,NewName: String);
+begin
+RenameFile(StrToRTL(OldName),StrToRTL(NewName));
 end;
 
 //------------------------------------------------------------------------------

@@ -85,6 +85,7 @@ type
     procedure Delete(Index: Integer); virtual;
     procedure Clear(Destroying: Boolean = False); virtual;
     Function AutomatePictureFile(const FileName: String; out AutomationInfo: TILPictureAutomationInfo): Boolean; virtual;
+    Function AutoRenameFile(Index: Integer): Boolean; virtual;
     procedure RealodPictureInfo(Index: Integer); virtual;
     procedure OpenThumbnailFile(Index: Integer; ThumbnailSize: TILThumbnailSize); virtual;
     procedure OpenPictureFile(Index: Integer); virtual;
@@ -583,6 +584,34 @@ If IL_FileExists(FileName) then
     else Result := False;
   end
 else Result := False;
+end;
+
+//------------------------------------------------------------------------------
+
+Function TILItemPictures_Base.AutoRenameFile(Index: Integer): Boolean;
+var
+  NewFileName:  String;
+begin
+Result := False;
+If CheckIndex(Index) then
+  begin
+    If IL_FileExists(fStaticSettings.PicturesPath + fPictures[Index].PictureFile) then
+      begin
+        NewFileName := IL_Format('%s_%s%s',[
+          TILItem(Owner).Descriptor,
+          IL_UpperCase(CRC32ToStr(FileCRC32(
+            fStaticSettings.PicturesPath + fPictures[Index].PictureFile))),
+          IL_LowerCase(IL_ExtractFileExt(fPictures[Index].PictureFile))]);
+        If not AnsiSameText(fPictures[Index].PictureFile,NewFileName) then
+          begin
+            IL_RenameFile(fStaticSettings.PicturesPath + fPictures[Index].PictureFile,
+                          fStaticSettings.PicturesPath + NewFileName);
+            fPictures[Index].PictureFile := NewFileName;
+            Result := True;
+          end;
+      end;
+  end
+else raise Exception.CreateFmt('TILItemPictures_Base.AutoRenameFile: Index (%d) out of bounds.',[Index]);
 end;
 
 //------------------------------------------------------------------------------

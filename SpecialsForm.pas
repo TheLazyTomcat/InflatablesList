@@ -46,6 +46,7 @@ type
     procedure Special_0011;
     procedure Special_0012;
     procedure Special_0013;
+    procedure Special_0014;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -71,7 +72,7 @@ type
   end;
 
 const
-  IL_SPECIALS: array[0..11] of TILSpecialsEntry = (
+  IL_SPECIALS: array[0..12] of TILSpecialsEntry = (
          (Title: 'Clear textual tags';
         Details: 'Item.TextTag := ''''';
     Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
@@ -159,7 +160,14 @@ const
                  'all shops that have their parsing settings referenced to a template.' + sLineBreak +
                  sLineBreak +
                  'Parameters are not used in this function.';
-    FunctionIdx: 13)
+    FunctionIdx: 13),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Auto-rename all pictures in all items';
+        Details: 'Item.Pictures.AutoRename';
+    Description: 'For all items that have accessible data, auto-rename all pictures. ' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 14)
   );
 
 //==============================================================================
@@ -188,6 +196,7 @@ case Index of
   11: Special_0011;
   12: Special_0012;
   13: Special_0013;
+  14: Special_0014;
 else
   MessageDlg(IL_Format('Invalid special function index (%d).',[Index]),mtError,[mbOK],0);
 end;
@@ -352,6 +361,18 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
     For j := fILManager[i].ShopLowIndex to fILManager[i].ShopHighIndex do
       If Length(fILManager[i][j].ParsingSettings.TemplateReference) > 0 then
         fILManager[i][j].ParsingSettings.DisableParsingErrors := False;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Special_0014;
+var
+  i,j:  Integer;
+begin
+For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+  If fILManager[i].DataAccessible then
+    For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
+      fILManager[i].Pictures.AutoRenameFile(j);
 end;
 
 //==============================================================================

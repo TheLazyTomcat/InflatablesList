@@ -568,7 +568,7 @@ If IL_FileExists(FileName) then
       // swallow exception
     end;
     AutomationInfo.FileName := IL_Format('%s_%s%s',[
-      TILItem(Owner).Descriptor,
+      TILItem(fOwner).Descriptor,
       IL_UpperCase(CRC32ToStr(AutomationInfo.CRC32)),
       IL_LowerCase(IL_ExtractFileExt(FileName))]);
     AutomationInfo.FilePath := fStaticSettings.PicturesPath + AutomationInfo.FileName;
@@ -590,6 +590,7 @@ end;
 
 Function TILItemPictures_Base.AutoRenameFile(Index: Integer): Boolean;
 var
+  Temp:         TGUID;
   NewFileName:  String;
 begin
 Result := False;
@@ -597,10 +598,12 @@ If CheckIndex(Index) then
   begin
     If IL_FileExists(fStaticSettings.PicturesPath + fPictures[Index].PictureFile) then
       begin
+        Temp := TILItem(fOwner).UniqueID;
         NewFileName := IL_Format('%s_%s%s',[
-          TILItem(Owner).Descriptor,
-          IL_UpperCase(CRC32ToStr(FileCRC32(
-            fStaticSettings.PicturesPath + fPictures[Index].PictureFile))),
+          TILItem(fOwner).Descriptor,
+          IL_UpperCase(CRC32ToStr(
+            FileCRC32(fStaticSettings.PicturesPath + fPictures[Index].PictureFile) xor
+            BufferCRC32(Temp,SizeOf(TGUID)))),
           IL_LowerCase(IL_ExtractFileExt(fPictures[Index].PictureFile))]);
         If not AnsiSameText(fPictures[Index].PictureFile,NewFileName) then
           begin

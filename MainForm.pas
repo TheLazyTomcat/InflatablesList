@@ -917,7 +917,7 @@ procedure TfMainForm.mniMML_AddClick(Sender: TObject);
 begin
 frmItemFrame.Save;
 lbList.Items.Add(IntToStr(lbList.Count));
-lbList.ItemIndex := fILManager.ItemAddEmpty;
+lbList.ItemIndex := fILManager.ItemAddEmpty(Succ(lbList.ItemIndex));
 // following will also redraw new item and update the list
 fILManager.ReinitMainDrawSize(lbList);
 fILManager.ReinitSmallDrawSize(fShopSelectForm.lbItems);

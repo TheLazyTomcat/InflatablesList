@@ -868,7 +868,7 @@ If lbPictures.ItemIndex > 0 then
     fCurrentItem.Pictures.Exchange(Index,Index - 1);
     lbPictures.ItemIndex := Index - 1;
     lbPictures.Invalidate;
-    UpdateIndex;
+    lbPictures.OnClick(Self);    
   end;
 end;
 
@@ -885,7 +885,7 @@ If (lbPictures.Count > 0) and ((lbPictures.ItemIndex >= 0) and (lbPictures.ItemI
     fCurrentItem.Pictures.Exchange(Index,Index + 1);
     lbPictures.ItemIndex := Index + 1;
     lbPictures.Invalidate;
-    UpdateIndex;
+    lbPictures.OnClick(Self);
   end;
 end;
 

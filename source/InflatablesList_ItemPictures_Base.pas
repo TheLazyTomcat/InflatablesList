@@ -5,7 +5,7 @@ unit InflatablesList_ItemPictures_Base;
 interface
 
 uses
-  Graphics,
+  Classes, Graphics,
   AuxTypes, AuxClasses, CRC32,
   InflatablesList_Types;
 
@@ -100,6 +100,7 @@ type
     Function ExportPicture(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     Function ExportThumbnail(Index: Integer; const IntoDirectory: String): Boolean; virtual;
     procedure AssignInternalEvents(OnPicturesChange: TNotifyEvent); virtual;
+    procedure MissingFiles(Files: TStrings); virtual;
     property StaticSettings: TILStaticManagerSettings read fStaticSettings write SetStaticSettings;
     property Owner: TObject read fOwner;
     property Pictures[Index: Integer]: TILItemPicturesEntry read GetEntry; default;
@@ -872,6 +873,18 @@ end;
 procedure TILItemPictures_Base.AssignInternalEvents(OnPicturesChange: TNotifyEvent);
 begin
 fOnPicturesChange := OnPicturesChange;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TILItemPictures_Base.MissingFiles(Files: TStrings);
+var
+  i:  Integer;
+begin
+Files.Clear;
+For i := LowIndex to HighIndex do
+  If not IL_FileExists(fStaticSettings.PicturesPath + fPictures[i].PictureFile) then
+    Files.Add(fPictures[i].PictureFile);
 end;
 
 end.

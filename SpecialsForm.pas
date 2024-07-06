@@ -47,6 +47,7 @@ type
     procedure Special_0012;
     procedure Special_0013;
     procedure Special_0014;
+    procedure Special_0015;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -72,7 +73,7 @@ type
   end;
 
 const
-  IL_SPECIALS: array[0..12] of TILSpecialsEntry = (
+  IL_SPECIALS: array[0..13] of TILSpecialsEntry = (
          (Title: 'Clear textual tags';
         Details: 'Item.TextTag := ''''';
     Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
@@ -167,7 +168,14 @@ const
     Description: 'For all items that have accessible data, auto-rename all pictures. ' + sLineBreak +
                  sLineBreak +
                  'Parameters are not used in this function.';
-    FunctionIdx: 14)
+    FunctionIdx: 14),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Check existence of all automated picture files';
+        Details: 'count (not FileExists(Items.Pictures))';
+    Description: 'For all items that have accessible data, count not existing automated picture files. ' + sLineBreak +
+                 sLineBreak +
+                 'Parameters are not used in this function.';
+    FunctionIdx: 15)
   );
 
 //==============================================================================
@@ -197,6 +205,7 @@ case Index of
   12: Special_0012;
   13: Special_0013;
   14: Special_0014;
+  15: Special_0015;
 else
   MessageDlg(IL_Format('Invalid special function index (%d).',[Index]),mtError,[mbOK],0);
 end;
@@ -373,6 +382,29 @@ For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
   If fILManager[i].DataAccessible then
     For j := fILManager[i].Pictures.LowIndex to fILManager[i].Pictures.HighIndex do
       fILManager[i].Pictures.AutoRenameFile(j);
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Special_0015;
+var
+  i:    Integer;
+  Temp: TStringList;
+  Cnt:  Integer;
+begin
+Temp := TStringList.Create;
+try
+  Cnt := 0;
+  For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+    begin
+      fILManager[i].Pictures.MissingFiles(Temp);
+      Inc(Cnt,Temp.Count);
+    end;
+  If Cnt > 0 then
+    MessageDlg(Format('Number of missing picture files: %d.',[Cnt]),mtError,[mbOK],0);
+finally
+  Temp.Free;
+end;
 end;
 
 //==============================================================================

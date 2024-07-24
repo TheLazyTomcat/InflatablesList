@@ -48,6 +48,7 @@ type
     procedure Special_0013;
     procedure Special_0014;
     procedure Special_0015;
+    procedure Special_0016;
   public
     procedure Initialize(ILManager: TILManager);
     procedure Finalize;
@@ -61,6 +62,7 @@ implementation
 {$R *.dfm}
 
 uses
+  StrUtils,
   InflatablesList_Types,
   InflatablesList_Utils;
 
@@ -73,7 +75,7 @@ type
   end;
 
 const
-  IL_SPECIALS: array[0..13] of TILSpecialsEntry = (
+  IL_SPECIALS: array[0..14] of TILSpecialsEntry = (
          (Title: 'Clear textual tags';
         Details: 'Item.TextTag := ''''';
     Description: 'Sets textual tag to an empty string for all items that have accesible data.' + sLineBreak +
@@ -172,10 +174,18 @@ const
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
          (Title: 'Check existence of all automated picture files';
         Details: 'count (not FileExists(Items.Pictures))';
-    Description: 'For all items that have accessible data, count not existing automated picture files. ' + sLineBreak +
+    Description: 'For all items that have accessible data, count not existing automated picture files.' + sLineBreak +
                  sLineBreak +
                  'Parameters are not used in this function.';
-    FunctionIdx: 15)
+    FunctionIdx: 15),
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+         (Title: 'Create compact listing of owned items';
+        Details: 'Item.Owned => List.Add(Item)';
+    Description: 'Add all owned items that have accessible data to a compact listing and save it' +
+                 'to a file (in the directory where the main file resides).' + sLineBreak +
+                 sLineBreak +
+                 'Parameter 1 - name of the file, including extension (If not set then name "list.txt" is used)';
+    FunctionIdx: 16)
   );
 
 //==============================================================================
@@ -206,6 +216,7 @@ case Index of
   13: Special_0013;
   14: Special_0014;
   15: Special_0015;
+  16: Special_0016;
 else
   MessageDlg(IL_Format('Invalid special function index (%d).',[Index]),mtError,[mbOK],0);
 end;
@@ -402,6 +413,52 @@ try
     end;
   If Cnt > 0 then
     MessageDlg(Format('Number of missing picture files: %d.',[Cnt]),mtError,[mbOK],0);
+finally
+  Temp.Free;
+end;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfSpecialsForm.Special_0016;
+var
+  Temp: TStringList;
+  i:    Integer;
+
+  Function GetTagStr(Index: Integer): String;
+  begin
+    Result := '  ';
+    If (ilifBoxed in fILManager[i].Flags) then
+      Result[1] := 'B';
+    If (ilifDiscarded in fILManager[i].Flags) then
+      Result[2] := 'E' else
+    If (ilifRepaired in fILManager[i].Flags) then
+      Result[2] := 'R' else
+    If (ilifDamaged in fILManager[i].Flags) then
+      Result[2] := 'D';
+  end;
+
+begin
+Temp := TStringList.Create;
+try
+  For i := fILManager.ItemLowIndex to fILManager.ItemHighIndex do
+    If fILManager[i].DataAccessible and (ilifOwned in fILManager[i].Flags) then
+      begin
+        // [user id] (flag) TitleStr - TypeStr SizeStr - Variant <VariantTag> [TextTag]
+        Temp.Add(Format('[%s](%s) %s - %s %s' + sLineBreak + '           %s%s [%s]',[
+          IfThen(Length(fILManager[i].UserID) <> 0,fILManager[i].UserID,'    '),
+          GetTagStr(i),
+          fILManager[i].TitleStr,
+          fILManager[i].TypeStr,
+          fILManager[i].SizeStr,
+          fILManager[i].Variant,
+          IfThen(Length(fILManager[i].VariantTag) <> 0,Format(' <%s>',[fILManager[i].VariantTag]),''),
+          fILManager[i].TextTag]));
+      end;
+  If Length(leParam_1.Text) > 0 then
+    Temp.SaveToFile(fILManager.StaticSettings.ListPath + leParam_1.Text)
+  else
+    Temp.SaveToFile(fILManager.StaticSettings.ListPath + 'list.txt')
 finally
   Temp.Free;
 end;

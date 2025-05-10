@@ -87,7 +87,8 @@ FreeOnTerminate := True;
 }
 If not ILManager.StaticSettings.NoBackup then
   ILManager.BackupManager.Backup;
-fLocalManager := TILManager.CreateAsCopy(ILManager,False);
+//fLocalManager := TILManager.CreateAsCopy(ILManager,False);
+fLocalManager := TILManager(ILManager); // no copy
 fOnEndNotify := EndNotificationHandler;
 end;
 
@@ -95,7 +96,7 @@ end;
 
 destructor TILSavingThread.Destroy;
 begin
-fLocalManager.Free;
+//fLocalManager.Free;
 inherited;
 end;
 
@@ -140,7 +141,8 @@ constructor TILLoadingThread.Create(ILManager: TILManager_Base; EndNotificationH
 begin
 inherited Create(False);
 FreeOnTerminate := True;
-fLocalManager := TILManager.CreateAsCopy(ILManager,False);
+//fLocalManager := TILManager.CreateAsCopy(ILManager,False);
+fLocalManager := TILManager(ILManager); // no copy
 fOnEndNotify := EndNotificationHandler;
 fOnDataCopy := DataCopyHandler;
 fResult := illrSuccess;
@@ -150,7 +152,7 @@ end;
 
 destructor TILLoadingThread.Destroy;
 begin
-fLocalManager.Free;
+//fLocalManager.Free;
 inherited;
 end;
 
@@ -161,11 +163,14 @@ end;
 procedure TILManager_IO_Threaded.LoadedDataCopyHandler(Sender: TObject);
 begin
 // sender is expected to be of type TILManager
+(*
 If Sender is TILManager then
   begin
     CopyFrom(TILManager(Sender),False);
     AssignInternalEventHandlers;
   end;
+*)
+AssignInternalEventHandlers;
 end;
 
 //==============================================================================

@@ -28,6 +28,7 @@ type
     mniMMF_Backups: TMenuItem;
     N1: TMenuItem;
     mniMMF_SaveOnClose: TMenuItem;
+    mniMMF_BackupOnSave: TMenuItem;
     mniMMF_Save: TMenuItem;
     N2: TMenuItem;
     mniMMF_Exit: TMenuItem;
@@ -132,7 +133,8 @@ type
     procedure mniMMF_ListEncryptClick(Sender: TObject);
     procedure mniMMF_ListPasswordClick(Sender: TObject);
     procedure mniMMF_BackupsClick(Sender: TObject);    
-    procedure mniMMF_SaveOnCloseClick(Sender: TObject);    
+    procedure mniMMF_SaveOnCloseClick(Sender: TObject);
+    procedure mniMMF_BackupOnSaveClick(Sender: TObject);      
     procedure mniMMF_SaveClick(Sender: TObject);
     procedure mniMMF_ExitClick(Sender: TObject);
     // ---
@@ -700,6 +702,7 @@ If fILManager.ItemCount > 0 then
 else frmItemFrame.SetItem(nil,True);
 // load other things from manager
 mniMMF_SaveOnClose.Checked := True;
+mniMMF_BackupOnSave.Checked := fILManager.BackupOnSave;
 mniMMO_SortRev.Checked := fILManager.ReversedSort;
 mniMMO_SortCase.Checked := fILManager.CaseSensitiveSort;
 mniMMF_ListCompress.Checked := fILManager.Compressed;
@@ -863,6 +866,14 @@ procedure TfMainForm.mniMMF_SaveOnCloseClick(Sender: TObject);
 begin
 mniMMF_SaveOnClose.Checked := not mniMMF_SaveOnClose.Checked;
 sbStatusBar.Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+
+procedure TfMainForm.mniMMF_BackupOnSaveClick(Sender: TObject);
+begin
+mniMMF_BackupOnSave.Checked := not mniMMF_BackupOnSave.Checked;
+fILManager.BackupOnSave := mniMMF_BackupOnSave.Checked;
 end;
 
 //------------------------------------------------------------------------------

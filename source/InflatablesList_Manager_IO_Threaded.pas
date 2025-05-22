@@ -85,7 +85,7 @@ FreeOnTerminate := True;
   do backup here not in thread, changes in backup list are not propagated back
   into main manager
 }
-If not ILManager.StaticSettings.NoBackup then
+If not ILManager.StaticSettings.NoBackup and (ILManager as TILManager_IO).BackupOnSave then
   ILManager.BackupManager.Backup;
 //fLocalManager := TILManager.CreateAsCopy(ILManager,False);
 fLocalManager := TILManager(ILManager); // no copy

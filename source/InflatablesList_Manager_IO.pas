@@ -8,6 +8,7 @@ uses
   Classes,
   AuxTypes,
   InflatablesList_Types,
+  InflatablesList_Manager_Base,
   InflatablesList_Manager_Search;
 
 const
@@ -49,6 +50,7 @@ const
 type
   TILManager_IO = class(TILManager_Search)
   protected
+    fBackupOnSave:          Boolean;
     fFNSaveToStream:        procedure(Stream: TStream) of object;
     fFNLoadFromStream:      procedure(Stream: TStream) of object;
     fFNSaveSortingSettings: procedure(Stream: TStream) of object;
@@ -67,7 +69,9 @@ type
     procedure Load(Stream: TStream; Struct: UInt32); virtual;
     procedure Preload(Stream: TStream; Struct: UInt32; out Info: TILPreloadInfo); virtual;
     Function PreallocSize: TMemSize; virtual;
+    procedure Initialize; override;
   public
+    constructor CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean); override;
     // multiple items export/import
     procedure ItemsExport(const FileName: String; Indices: array of Integer); virtual;
     Function ItemsImport(const FileName: String): Integer; virtual;
@@ -81,6 +85,7 @@ type
     Function PreloadFile: TILPreloadInfo; overload; virtual;
     // utility methods
     Function SlowSaving: Boolean; virtual;
+    property BackupOnSave: Boolean read fBackupOnSave write fBackupOnSave;
   end;
 
 implementation
@@ -133,7 +138,23 @@ Result :=
   TMemSize(TotalPictureCount * IL_LISTFILE_PREALLOC_BYTES_THUMB)
 end;
 
+//------------------------------------------------------------------------------
+
+procedure TILManager_IO.Initialize;
+begin
+inherited;
+fBackupOnSave := True;
+end;
+
 //==============================================================================
+
+constructor TILManager_IO.CreateAsCopy(Source: TILManager_Base; UniqueCopy: Boolean);
+begin
+inherited;
+fBackupOnSave := (Source as TILManager_IO).BackupOnSave;
+end;
+
+//------------------------------------------------------------------------------
 
 procedure TILManager_IO.ItemsExport(const FileName: String; Indices: array of Integer);
 var
@@ -312,7 +333,7 @@ var
   FileStream: TBufferedFileStream;
 begin
 // do backup
-If not fStaticSettings.NoBackup and fMainManager then
+If not fStaticSettings.NoBackup and fMainManager and fBackupOnSave then
   fBackupManager.Backup;
 (*
 // do saving

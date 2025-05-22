@@ -224,6 +224,10 @@ object fMainForm: TfMainForm
         Caption = 'Save on close (switch)'
         OnClick = mniMMF_SaveOnCloseClick
       end
+      object mniMMF_BackupOnSave: TMenuItem
+        Caption = 'Backup on save (switch)'
+        OnClick = mniMMF_BackupOnSaveClick
+      end
       object mniMMF_Save: TMenuItem
         Caption = 'Save now'
         ShortCut = 16467
